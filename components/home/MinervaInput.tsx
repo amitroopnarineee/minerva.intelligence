@@ -132,7 +132,7 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
     : "border-black/10 text-black/40 hover:text-black/70 hover:border-black/20 hover:bg-black/[0.03]"
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="mn-input-container w-full max-w-2xl mx-auto">
       {/* Logo */}
       <div className="flex justify-center mb-5">
         <MinervaLogo className={`h-10 w-10 ${isDark ? "text-white" : "text-black"}`} />

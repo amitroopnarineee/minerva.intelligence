@@ -23,7 +23,7 @@ interface FeatureCardProps {
 
 export function FeatureCard({ children, className, decorated = true }: FeatureCardProps) {
   return (
-    <Card className={cn("group relative rounded-none shadow-zinc-950/5", className)}>
+    <Card className={cn("mn-card group relative rounded-none shadow-zinc-950/5 bg-card/80 backdrop-blur-sm", className)}>
       {decorated && <CardDecorator />}
       {children}
     </Card>

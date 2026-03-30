@@ -17,7 +17,7 @@ export function PageHeader({ breadcrumb, title, subtitle, actions, transparent =
   if (transparent) return null
 
   return (
-    <div className="flex h-10 shrink-0 items-center justify-between border-b px-6">
+    <div className="mn-pageheader flex h-10 shrink-0 items-center justify-between border-b border-border/50 px-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

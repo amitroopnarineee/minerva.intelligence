@@ -103,7 +103,7 @@ function MenuDropdown({ isOpen, onClose, items, position, onItemClick }: MenuDro
           return (
             <div key={i} className="px-3 py-1.5 text-sm cursor-pointer hover:bg-accent transition-colors flex items-center justify-between"
               onClick={() => { onItemClick(item); onClose() }}>
-              <span className="flex items-center gap-2">
+              <span className="mn-menubar-right flex items-center gap-2">
                 {item.label}
                 {item.badge && <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">{item.badge}</span>}
               </span>
@@ -160,10 +160,10 @@ export function MinervaMenuBar() {
   })()
 
   return (
-    <div className="relative z-30">
-      <div className="flex h-9 items-center justify-between px-4">
+    <div className="mn-menubar relative z-30">
+      <div className="mn-menubar-inner flex h-9 items-center justify-between px-4">
         {/* Left: logo + menus */}
-        <div className="flex items-center gap-3">
+        <div className="mn-menubar-left flex items-center gap-3">
           {/* Logo — navigates to /home */}
           <button onClick={() => router.push("/home")} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <MinervaLogo className="h-[14px] w-[14px]" />
@@ -188,7 +188,7 @@ export function MinervaMenuBar() {
         </div>
 
         {/* Right: utilities — all aligned to text height */}
-        <div className="flex items-center gap-2">
+        <div className="mn-menubar-right flex items-center gap-2">
           <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             className="text-muted-foreground hover:text-foreground transition-colors">
             {resolvedTheme === "dark" ? <Moon className="h-[14px] w-[14px]" /> : <Sun className="h-[14px] w-[14px]" />}

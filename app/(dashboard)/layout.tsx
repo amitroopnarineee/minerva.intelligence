@@ -1,4 +1,5 @@
 import { MinervaMenuBar } from "@/components/shared/MinervaMenuBar"
+import { GlobalBackground } from "@/components/shared/GlobalBackground"
 
 export default function DashboardLayout({
   children,
@@ -6,13 +7,14 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="h-screen relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 z-30">
+    <div className="mn-root h-screen relative overflow-hidden">
+      <GlobalBackground />
+      <div className="mn-shell relative z-10 h-full flex flex-col">
         <MinervaMenuBar />
+        <main className="mn-main flex-1 overflow-y-auto pt-9">
+          {children}
+        </main>
       </div>
-      <main className="h-full overflow-y-auto pt-9">
-        {children}
-      </main>
     </div>
   )
 }

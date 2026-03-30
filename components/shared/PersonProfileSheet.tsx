@@ -30,7 +30,7 @@ export function PersonProfileSheet({ person, open, onClose }: PersonProfileSheet
 
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) onClose() }}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto p-0">
+      <SheetContent className="mn-profile-sheet w-full sm:max-w-lg overflow-y-auto p-0">
         <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm px-6 py-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12 border"><AvatarFallback className="bg-primary/10 text-sm font-bold text-primary">{initials}</AvatarFallback></Avatar>

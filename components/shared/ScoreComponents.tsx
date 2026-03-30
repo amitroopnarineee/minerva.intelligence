@@ -17,7 +17,7 @@ export function PropensityRing({ score, size = 48, label, className }: Propensit
   const color = pct > 70 ? "stroke-emerald-500" : pct > 40 ? "stroke-amber-400" : "stroke-red-400"
 
   return (
-    <div className={cn("flex flex-col items-center gap-1", className)}>
+    <div className={cn("mn-propensity-ring flex flex-col items-center gap-1", className)}>
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
           <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth={3} className="text-secondary" />

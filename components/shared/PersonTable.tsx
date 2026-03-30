@@ -37,7 +37,7 @@ export function PersonTable({ persons, showScores = true }: PersonTableProps) {
               const hasEmail = p.contacts.some(c => c.type === "email")
               const hasPhone = p.contacts.some(c => c.type === "phone")
               return (
-                <TableRow key={p.id} className="cursor-pointer" onClick={() => setSelectedPerson(p)}>
+                <TableRow key={p.id} className="mn-person-row cursor-pointer" onClick={() => setSelectedPerson(p)}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8 border"><AvatarFallback className="bg-primary/10 text-[10px] font-bold text-primary">{initials}</AvatarFallback></Avatar>
