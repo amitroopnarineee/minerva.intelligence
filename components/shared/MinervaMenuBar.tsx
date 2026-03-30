@@ -4,8 +4,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { MinervaLogo } from "@/components/shared/MinervaLogo"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
-import { NotificationPopover } from "@/components/shared/NotificationPopover"
-import { UserMenu } from "@/components/shared/UserMenu"
+import { Bell, Moon, Sun } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { User, Settings, LogOut, CreditCard, HelpCircle } from "lucide-react"
+import { useTheme } from "next-themes"
 
 interface MenuItemOption {
   label?: string
@@ -118,10 +121,10 @@ function MenuDropdown({ isOpen, onClose, items, position, onItemClick }: MenuDro
 export function MinervaMenuBar() {
   const router = useRouter()
   const pathname = usePathname()
+  const { setTheme, resolvedTheme } = useTheme()
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 })
   const [currentTime, setCurrentTime] = useState("")
-  const logoRef = useRef<HTMLDivElement>(null)
   const menuRefs = useRef<Record<string, HTMLSpanElement | null>>({})
 
   useEffect(() => {
@@ -138,7 +141,7 @@ export function MinervaMenuBar() {
     if (el) {
       const rect = el.getBoundingClientRect()
       const parentRect = el.offsetParent?.getBoundingClientRect() || { left: 0, top: 0 }
-      setDropdownPos({ x: rect.left - parentRect.left, y: 38 })
+      setDropdownPos({ x: rect.left - parentRect.left, y: 36 })
     }
     setActiveMenu(key)
   }, [activeMenu])
@@ -147,7 +150,6 @@ export function MinervaMenuBar() {
     if (item.href) router.push(item.href)
   }, [router])
 
-  // Find active page label for highlighting
   const activeLabel = (() => {
     for (const menu of MINERVA_MENUS) {
       for (const item of menu.items) {
@@ -158,25 +160,25 @@ export function MinervaMenuBar() {
   })()
 
   return (
-    <div className="relative">
-      <div className="flex h-10 items-center justify-between border-b bg-background/95 backdrop-blur-sm px-4">
-        {/* Left: logo + app name + menus */}
-        <div className="flex items-center gap-4">
-          <div ref={logoRef} onClick={() => openMenu("logo", logoRef.current)}
-            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-            <MinervaLogo className="h-4 w-4" />
-            <span className="text-sm font-semibold">Minerva</span>
-          </div>
+    <div className="relative z-30">
+      <div className="flex h-9 items-center justify-between px-4">
+        {/* Left: logo + menus */}
+        <div className="flex items-center gap-3">
+          {/* Logo — navigates to /home */}
+          <button onClick={() => router.push("/home")} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+            <MinervaLogo className="h-[14px] w-[14px]" />
+            <span className="text-[13px] font-semibold leading-none">Minerva</span>
+          </button>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center">
             {MINERVA_MENUS.map((menu) => {
               const isActive = activeLabel === menu.label
               return (
                 <span key={menu.label}
                   ref={(el) => { menuRefs.current[menu.label] = el }}
                   onClick={() => openMenu(menu.label, menuRefs.current[menu.label])}
-                  className={`px-2.5 py-1 text-sm cursor-pointer rounded-md transition-colors select-none ${
-                    isActive ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  className={`px-2 py-0.5 text-[13px] leading-none cursor-pointer rounded transition-colors select-none ${
+                    isActive ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                   }`}>
                   {menu.label}
                 </span>
@@ -185,17 +187,37 @@ export function MinervaMenuBar() {
           </div>
         </div>
 
-        {/* Right: utilities */}
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
-          <NotificationPopover />
-          <span className="text-xs text-muted-foreground tabular-nums ml-1 hidden sm:inline">{currentTime}</span>
-          <UserMenu />
+        {/* Right: utilities — all aligned to text height */}
+        <div className="flex items-center gap-2">
+          <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            className="text-muted-foreground hover:text-foreground transition-colors">
+            {resolvedTheme === "dark" ? <Moon className="h-[14px] w-[14px]" /> : <Sun className="h-[14px] w-[14px]" />}
+          </button>
+          <button className="text-muted-foreground hover:text-foreground transition-colors">
+            <Bell className="h-[14px] w-[14px]" />
+          </button>
+          <span className="text-[13px] text-muted-foreground tabular-nums leading-none hidden sm:inline">{currentTime}</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none">
+              <Avatar className="h-5 w-5 cursor-pointer border border-border">
+                <AvatarFallback className="bg-primary/10 text-[8px] font-bold text-primary leading-none">SM</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel><div className="flex flex-col"><span className="text-sm font-medium">Sarah Martinez</span><span className="text-xs text-muted-foreground">s.martinez@dolphins.com</span></div></DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2"><User className="h-4 w-4" /> Profile</DropdownMenuItem>
+              <DropdownMenuItem className="gap-2"><Settings className="h-4 w-4" /> Settings</DropdownMenuItem>
+              <DropdownMenuItem className="gap-2"><CreditCard className="h-4 w-4" /> Billing</DropdownMenuItem>
+              <DropdownMenuItem className="gap-2"><HelpCircle className="h-4 w-4" /> Help & Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="gap-2 text-destructive-foreground"><LogOut className="h-4 w-4" /> Log out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       {/* Dropdowns */}
-      <MenuDropdown isOpen={activeMenu === "logo"} onClose={() => setActiveMenu(null)} items={LOGO_MENU} position={dropdownPos} onItemClick={handleItem} />
       {MINERVA_MENUS.map((menu) => (
         <MenuDropdown key={menu.label} isOpen={activeMenu === menu.label} onClose={() => setActiveMenu(null)} items={menu.items} position={dropdownPos} onItemClick={handleItem} />
       ))}
