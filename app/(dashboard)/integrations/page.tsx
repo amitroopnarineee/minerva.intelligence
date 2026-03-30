@@ -19,8 +19,8 @@ export default function IntegrationsPage() {
         <div className="mx-auto max-w-6xl">
           <PageTransition>
             <FadeIn className="mb-6">
-              <h1 className="text-[28px] font-semibold tracking-tight">Integrations</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Connect your data sources to Minerva.</p>
+              <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">Integrations</h1>
+              <p className="mt-1 mn-page-subtitle text-sm text-muted-foreground">Connect your data sources to Minerva.</p>
             </FadeIn>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {integrations.map((int) => (

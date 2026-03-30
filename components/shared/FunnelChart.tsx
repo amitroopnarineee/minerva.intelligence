@@ -100,7 +100,7 @@ function HSegment({ index, normStart, normEnd, segW, fullH, color, layers, stagg
   }));
 
   return (
-    <motion.div className="pointer-events-none relative shrink-0 overflow-visible" style={{ width: segW, height: fullH, zIndex: hovered ? 10 : 1, opacity: dimOpacity }}>
+    <motion.div className="mn-funnel-segment pointer-events-none relative shrink-0 overflow-visible" style={{ width: segW, height: fullH, zIndex: hovered ? 10 : 1, opacity: dimOpacity }}>
       <motion.div className="absolute inset-0 overflow-visible" style={{ scaleX: entranceScaleX, scaleY: entranceScaleY, transformOrigin: "left center" }}>
         <svg aria-hidden="true" className="absolute inset-0 h-full w-full overflow-visible" preserveAspectRatio="none" viewBox={`0 0 ${segW} ${fullH}`}>
           <defs>

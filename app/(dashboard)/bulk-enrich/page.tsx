@@ -15,8 +15,8 @@ export default function BulkEnrichPage() {
             <FadeIn>
               <div className="flex flex-col items-center pt-8 pb-6">
                 <MinervaLogo className="mb-4 h-10 w-10 text-muted-foreground" />
-                <h1 className="text-[28px] font-semibold tracking-tight">Bulk Enrichment</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Upload a CSV file and enrich your prospects.</p>
+                <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">Bulk Enrichment</h1>
+                <p className="mt-1 mn-page-subtitle text-sm text-muted-foreground">Upload a CSV file and enrich your prospects.</p>
               </div>
             </FadeIn>
             <FadeIn>

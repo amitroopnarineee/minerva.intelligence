@@ -37,7 +37,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 
 export function InsightsCharts() {
   return (
-    <div className="grid gap-4 lg:grid-cols-5">
+    <div className="mn-charts grid gap-4 lg:grid-cols-5">
       <motion.div className="lg:col-span-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.55 }}>
         <FeatureCard className="h-full">
           <CardHeader className="pb-2">

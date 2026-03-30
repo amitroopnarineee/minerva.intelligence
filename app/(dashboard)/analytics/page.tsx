@@ -20,8 +20,8 @@ export default function AnalyticsPage() {
         <div className="mx-auto max-w-6xl">
           <PageTransition>
             <FadeIn className="mb-6">
-              <h1 className="text-[28px] font-semibold tracking-tight">Executive Overview</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Get a comprehensive overview of your key business metrics.</p>
+              <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">Executive Overview</h1>
+              <p className="mt-1 mn-page-subtitle text-sm text-muted-foreground">Get a comprehensive overview of your key business metrics.</p>
             </FadeIn>
             <FadeIn>
               <Tabs defaultValue={0}>

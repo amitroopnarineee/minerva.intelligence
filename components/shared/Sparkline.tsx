@@ -39,7 +39,7 @@ export function Sparkline({
 
   return (
     <svg
-      className={className}
+      className={`mn-sparkline ${className}`}
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}

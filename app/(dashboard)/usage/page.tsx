@@ -17,8 +17,8 @@ export default function UsagePage() {
         <div className="mx-auto max-w-6xl">
           <PageTransition>
             <FadeIn className="mb-6">
-              <h1 className="text-[28px] font-semibold tracking-tight">Usage</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Monitor your API usage and platform consumption.</p>
+              <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">Usage</h1>
+              <p className="mt-1 mn-page-subtitle text-sm text-muted-foreground">Monitor your API usage and platform consumption.</p>
             </FadeIn>
             <FadeIn>
               <div className="grid gap-4 md:grid-cols-3">

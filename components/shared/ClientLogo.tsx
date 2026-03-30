@@ -19,7 +19,7 @@ export function ClientLogo({ className = "" }: { className?: string }) {
   const isDark = !mounted || resolvedTheme === "dark"
 
   if (!useDolphinsLogo) {
-    return <MinervaLogo className={className} />
+    return <MinervaLogo className={`mn-client-logo ${className}`} />
   }
 
   // When Dolphins PNGs are ready, this renders the logo

@@ -1,71 +1,108 @@
+"use client"
+
+import { useState } from "react"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
-import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { MinervaLogo } from "@/components/shared/MinervaLogo"
-import { Send } from "lucide-react"
-
-const filters = ["Demographics", "Financial", "Career", "Education", "Residence", "Affinities", "Contact"]
+import { PersonTable } from "@/components/shared/PersonTable"
+import { persons } from "@/lib/data/persons"
+import { Search, Sparkles, Clock } from "lucide-react"
 
 const recentSearches = [
-  { query: "Designers in New York", time: "18 min ago" },
-  { query: "Senior Designers from Rogo or Posh with Creative and Front End Skills", time: "19 min ago" },
-  { query: "Experienced Product Designers in New York with Front-End and Brand", time: "21 min ago" },
-  { query: "Experienced Designers in New York City", time: "24 min ago" },
+  "High earners near Hard Rock Stadium",
+  "Lapsed fans in Coral Gables",
+  "Season ticket holders with children",
 ]
 
+const filterChips = ["25-34", "35-44", "Miami", "Fort Lauderdale", "Season Ticket", "Active Fan", "Lapsed", "Premium"]
+
 export default function PersonSearchPage() {
+  const [query, setQuery] = useState("")
+  const [hasSearched, setHasSearched] = useState(false)
+
+  const results = hasSearched
+    ? persons.filter((p) => {
+        const q = query.toLowerCase()
+        return (
+          p.firstName.toLowerCase().includes(q) ||
+          p.lastName.toLowerCase().includes(q) ||
+          p.city.toLowerCase().includes(q) ||
+          p.fanStatus.replace(/_/g, " ").includes(q) ||
+          p.ageBand.includes(q) ||
+          q === "" // show all if empty search
+        )
+      })
+    : []
+
+  const handleSearch = () => {
+    setHasSearched(true)
+  }
+
   return (
     <>
-      <PageHeader breadcrumb="Person Search" title="Person Search" subtitle="Search for people all across the United States." />
+      <PageHeader breadcrumb="Person Search" title="Person Search" subtitle="" />
       <div className="mn-page flex-1 overflow-y-auto p-6">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-4xl">
           <PageTransition>
-            <FadeIn>
-              <div className="flex flex-col items-center pt-8 pb-4">
-                <MinervaLogo className="mb-4 h-10 w-10 text-muted-foreground" />
-                <h1 className="text-[28px] font-semibold tracking-tight">Person Search</h1>
-                <p className="mt-1 text-sm text-muted-foreground text-center max-w-md">Search for people all across the United States. We'll find the best matches for you.</p>
+            {/* Search */}
+            <FadeIn className="mn-search-header mb-8">
+              <div className="text-center mb-6">
+                <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">Person Search</h1>
+                <p className="mn-page-subtitle mt-1 text-sm text-muted-foreground">Search 260M+ resolved consumer profiles by any attribute.</p>
+              </div>
+              <div className="mn-search-input relative max-w-xl mx-auto">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSearch() }}
+                  placeholder="Search by name, location, fan status, age..."
+                  className="mn-search-field pl-10 pr-10 h-12 rounded-xl bg-card/60 backdrop-blur-sm border-border/50 text-base"
+                />
+                <button onClick={handleSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  <Sparkles className="h-4 w-4" />
+                </button>
               </div>
             </FadeIn>
-            <FadeIn>
-              <div className="mx-auto max-w-2xl">
-                <div className="mb-4 flex items-center justify-center gap-3">
-                  <Tabs defaultValue={0}>
-                    <TabsList>
-                      <TabsTrigger value={0}>Minerva</TabsTrigger>
-                      <TabsTrigger value={1}>Owned</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                  <Badge variant="secondary">👥 260M</Badge>
-                </div>
-                <Card className="mb-8">
-                  <CardContent className="p-4">
-                    <textarea className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder="Show me software engineers who studied at Harvard and now work in big tech." rows={2} readOnly />
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1.5">
-                        {filters.map((f) => (
-                          <Badge key={f} variant="outline" className="cursor-pointer hover:bg-accent">{f}</Badge>
-                        ))}
-                      </div>
-                      <Button size="icon" className="ml-2 h-8 w-8 rounded-full shrink-0">
-                        <Send className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-                <div>
-                  {recentSearches.map((s, i) => (
-                    <div key={i} className="flex items-center justify-between border-b py-3 last:border-0 cursor-pointer transition-colors hover:bg-muted/50 -mx-2 px-2 rounded-md">
-                      <span className="text-sm">{s.query}</span>
-                      <span className="text-xs text-muted-foreground shrink-0 ml-4">{s.time}</span>
-                    </div>
-                  ))}
-                </div>
+
+            {/* Filter chips */}
+            <FadeIn className="mn-search-filters mb-6">
+              <div className="flex flex-wrap justify-center gap-2">
+                {filterChips.map((chip) => (
+                  <Badge key={chip} variant="outline" className="mn-filter-chip cursor-pointer hover:bg-accent/50 transition-colors text-xs"
+                    onClick={() => { setQuery(chip.toLowerCase()); setHasSearched(true) }}>
+                    {chip}
+                  </Badge>
+                ))}
               </div>
             </FadeIn>
+
+            {/* Results or empty state */}
+            {hasSearched ? (
+              <FadeIn className="mn-search-results">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">{results.length} results found</p>
+                </div>
+                <PersonTable persons={results} />
+              </FadeIn>
+            ) : (
+              <FadeIn className="mn-search-recent">
+                <div className="max-w-md mx-auto">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+                    <Clock className="h-3 w-3" /> Recent Searches
+                  </p>
+                  <div className="space-y-1">
+                    {recentSearches.map((s) => (
+                      <button key={s} onClick={() => { setQuery(s); setHasSearched(true) }}
+                        className="mn-recent-search w-full text-left px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/30 rounded-lg transition-colors">
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </FadeIn>
+            )}
           </PageTransition>
         </div>
       </div>

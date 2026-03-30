@@ -22,8 +22,8 @@ export default function GetStartedPage() {
         <div className="mx-auto max-w-6xl">
           <PageTransition>
             <FadeIn className="mb-6">
-              <h1 className="text-[28px] font-semibold tracking-tight">Get Started</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Complete these steps to get the most out of Minerva.</p>
+              <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">Get Started</h1>
+              <p className="mt-1 mn-page-subtitle text-sm text-muted-foreground">Complete these steps to get the most out of Minerva.</p>
             </FadeIn>
             <FadeIn>
               <div className="mx-auto max-w-xl">

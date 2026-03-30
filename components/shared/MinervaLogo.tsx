@@ -1,7 +1,7 @@
 export function MinervaLogo({ className = "h-5 w-5" }: { className?: string }) {
   return (
     <svg
-      className={className}
+      className={`mn-minerva-logo ${className}`}
       viewBox="0 0 64 64"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
