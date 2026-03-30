@@ -1,7 +1,6 @@
 "use client"
 
 import { Bell } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { recentActivity } from "@/lib/data/integrations"
 
@@ -24,7 +23,7 @@ function timeAgo(timestamp: string) {
 export function NotificationPopover() {
   return (
     <Popover>
-      <PopoverTrigger className="mn-header-bell relative flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none">
+      <PopoverTrigger className="mn-header-bell relative inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
         <Bell className="h-4 w-4" />
         <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
           {recentActivity.length}
@@ -47,10 +46,8 @@ export function NotificationPopover() {
             </div>
           ))}
         </div>
-        <div className="border-t px-4 py-2">
-          <button className="w-full rounded-md py-1.5 text-center text-xs font-medium text-muted-foreground transition-colors hover:text-foreground">
-            View all activity
-          </button>
+        <div className="border-t px-4 py-2 text-center">
+          <span className="text-xs font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">View all activity</span>
         </div>
       </PopoverContent>
     </Popover>
