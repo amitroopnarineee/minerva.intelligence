@@ -124,8 +124,11 @@ export function MinervaMenuBar() {
   const { setTheme, resolvedTheme } = useTheme()
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 })
+  const [mounted, setMounted] = useState(false)
   const [currentTime, setCurrentTime] = useState("")
   const menuRefs = useRef<Record<string, HTMLSpanElement | null>>({})
+
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     const update = () => {
@@ -191,7 +194,7 @@ export function MinervaMenuBar() {
         <div className="mn-menubar-right flex items-center gap-2">
           <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             className="text-muted-foreground hover:text-foreground transition-colors">
-            {resolvedTheme === "dark" ? <Moon className="h-[14px] w-[14px]" /> : <Sun className="h-[14px] w-[14px]" />}
+            {mounted ? (resolvedTheme === "dark" ? <Moon className="h-[14px] w-[14px]" /> : <Sun className="h-[14px] w-[14px]" />) : <Sun className="h-[14px] w-[14px] opacity-0" />}
           </button>
           <button className="text-muted-foreground hover:text-foreground transition-colors">
             <Bell className="h-[14px] w-[14px]" />
