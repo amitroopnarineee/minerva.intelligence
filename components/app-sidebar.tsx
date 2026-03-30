@@ -1,58 +1,34 @@
-"use client"
-
 import * as React from "react"
-import {
-  Home,
-  BarChart3,
-  Users,
-  Search,
-  Radio,
-  Plug,
-  Sparkles,
-  Settings2,
-  Target,
-  TrendingUp,
-} from "lucide-react"
+import { Sparkles } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
+  SidebarGroup,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 
 const data = {
-  user: {
-    name: "Sarah Martinez",
-    email: "s.martinez@dolphins.com",
-    avatar: "",
-  },
-  teams: [
-    {
-      name: "Minerva",
-      logo: (<Sparkles />),
-      plan: "Enterprise",
-    },
-  ],
   navMain: [
     {
       title: "Command Center",
       url: "/",
-      icon: (<Home />),
-      isActive: true,
       items: [
-        { title: "Overview", url: "/" },
+        { title: "Overview", url: "/", isActive: true },
         { title: "Morning Brief", url: "#briefing" },
+        { title: "Opportunities", url: "#opportunities" },
       ],
     },
     {
       title: "Analytics",
       url: "#",
-      icon: (<BarChart3 />),
       items: [
         { title: "Performance", url: "#" },
         { title: "Attribution", url: "#" },
@@ -62,17 +38,16 @@ const data = {
     {
       title: "Audiences",
       url: "#",
-      icon: (<Users />),
       items: [
         { title: "Audience Studio", url: "#" },
         { title: "Predictive", url: "#" },
         { title: "Segments", url: "#" },
+        { title: "Person Search", url: "#" },
       ],
     },
     {
       title: "Activations",
       url: "#",
-      icon: (<Radio />),
       items: [
         { title: "Campaigns", url: "#" },
         { title: "Channels", url: "#" },
@@ -80,18 +55,8 @@ const data = {
       ],
     },
     {
-      title: "Person Search",
-      url: "#",
-      icon: (<Search />),
-      items: [
-        { title: "Search", url: "#" },
-        { title: "Enrichment", url: "#" },
-      ],
-    },
-    {
       title: "Integrations",
       url: "#",
-      icon: (<Plug />),
       items: [
         { title: "Connected", url: "#" },
         { title: "Marketplace", url: "#" },
@@ -100,7 +65,6 @@ const data = {
     {
       title: "Settings",
       url: "#",
-      icon: (<Settings2 />),
       items: [
         { title: "General", url: "#" },
         { title: "Team", url: "#" },
@@ -112,16 +76,46 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="flex items-center gap-2.5 px-2 py-1.5">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Sparkles className="size-4" />
+              </div>
+              <div className="flex flex-col gap-0.5 leading-none">
+                <span className="font-semibold text-sm">Minerva</span>
+                <span className="text-xs text-muted-foreground">Miami Dolphins</span>
+              </div>
+            </div>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <SidebarGroup>
+          <SidebarMenu>
+            {data.navMain.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton>
+                  <span className="font-medium">{item.title}</span>
+                </SidebarMenuButton>
+                {item.items?.length ? (
+                  <SidebarMenuSub>
+                    {item.items.map((sub) => (
+                      <SidebarMenuSubItem key={sub.title}>
+                        <SidebarMenuSubButton isActive={sub.isActive}>
+                          <span>{sub.title}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                ) : null}
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
