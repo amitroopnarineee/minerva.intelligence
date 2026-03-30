@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import { TopNav } from "@/components/shared/TopNav"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,10 +31,10 @@ export default function Page() {
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
               <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
-            <SidebarTrigger className="-ml-0.5" />
+            <SidebarTrigger />
             <Separator
               orientation="vertical"
-              className="mx-2 data-[orientation=vertical]:h-4"
+              className="mx-1 data-[orientation=vertical]:h-4"
             />
             <Breadcrumb>
               <BreadcrumbList>
@@ -46,24 +47,29 @@ export default function Page() {
             </Breadcrumb>
           </div>
 
-          {/* Center: placeholder for component you'll send */}
+          {/* Center: Navigation Menu */}
+          <div className="ml-4 hidden sm:block">
+            <TopNav />
+          </div>
+
+          {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Right: Status + Nav + Avatar */}
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          {/* Right: Status + Bell + Avatar */}
+          <div className="flex items-center gap-2">
+            <span className="hidden items-center gap-1.5 text-xs text-muted-foreground lg:flex">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              All systems operational
+              Operational
             </span>
             <Separator
               orientation="vertical"
-              className="data-[orientation=vertical]:h-4"
+              className="hidden data-[orientation=vertical]:h-4 lg:block"
             />
             <button className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
               <Bell className="h-4 w-4" />
             </button>
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+            <Avatar className="h-8 w-8 cursor-pointer border border-border">
+              <AvatarFallback className="bg-primary/10 text-[11px] font-semibold text-primary">
                 SM
               </AvatarFallback>
             </Avatar>
