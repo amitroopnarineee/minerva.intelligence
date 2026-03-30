@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { FeatureCard } from "@/components/shared/FeatureCard";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { campaigns } from "@/lib/data/campaigns";
@@ -12,12 +12,12 @@ export function ChannelSignals() {
 
   return (
     <section className="mn-channels">
-      <div className="mn-channels-header mb-3 flex items-center justify-between">
-        <h2 className="mn-channels-title text-base font-semibold">Channel Signals</h2>
-        <span className="mn-channels-subtitle text-xs text-muted-foreground">{campaigns.length} active campaigns</span>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-base font-semibold">Channel Signals</h2>
+        <span className="text-xs text-muted-foreground">{campaigns.length} active campaigns</span>
       </div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.5 }}>
-        <Card className="mn-channels-table overflow-hidden">
+        <FeatureCard className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -35,7 +35,7 @@ export function ChannelSignals() {
                 const trendColor = c.trend === "up" ? "text-emerald-400" : c.trend === "down" ? "text-red-400" : "text-muted-foreground";
                 const budgetPct = Math.min((c.spend / c.budget) * 100, 100);
                 return (
-                  <TableRow key={c.id} className="mn-channels-row cursor-pointer">
+                  <TableRow key={c.id} className="cursor-pointer">
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {c.trend === "down" && <AlertTriangle className="h-3.5 w-3.5 text-red-400" />}
@@ -65,7 +65,7 @@ export function ChannelSignals() {
               })}
             </TableBody>
           </Table>
-        </Card>
+        </FeatureCard>
       </motion.div>
     </section>
   );

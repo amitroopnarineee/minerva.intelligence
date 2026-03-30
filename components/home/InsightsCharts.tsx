@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { FeatureCard } from "@/components/shared/FeatureCard";
 import { kpiHistory } from "@/lib/data/kpis";
 import { FunnelChart } from "@/components/shared/FunnelChart";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -23,7 +24,7 @@ const funnelData = [
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string }>; label?: string }) {
   if (!active || !payload) return null;
   return (
-    <div className="rounded-lg border bg-popover px-3 py-2 shadow-md">
+    <div className="rounded-none border bg-popover px-3 py-2 shadow-md">
       <p className="text-xs font-medium mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.name} className="text-xs text-muted-foreground">
@@ -37,9 +38,8 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 export function InsightsCharts() {
   return (
     <div className="grid gap-4 lg:grid-cols-5">
-      {/* Revenue trend — takes 3 cols */}
       <motion.div className="lg:col-span-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.55 }}>
-        <Card className="h-full">
+        <FeatureCard className="h-full">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">Revenue vs Spend (7d)</CardTitle>
@@ -70,12 +70,11 @@ export function InsightsCharts() {
               </ResponsiveContainer>
             </div>
           </CardContent>
-        </Card>
+        </FeatureCard>
       </motion.div>
 
-      {/* Funnel chart — takes 2 cols */}
       <motion.div className="lg:col-span-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.65 }}>
-        <Card className="h-full">
+        <FeatureCard className="h-full">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold">Conversion Funnel</CardTitle>
@@ -85,7 +84,7 @@ export function InsightsCharts() {
           <CardContent className="pb-4">
             <FunnelChart data={funnelData} layers={4} gap={3} staggerDelay={0.15} showPercentage={true} showValues={true} showLabels={true} className="h-[220px]" style={{ aspectRatio: "unset" }} />
           </CardContent>
-        </Card>
+        </FeatureCard>
       </motion.div>
     </div>
   );

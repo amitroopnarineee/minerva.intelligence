@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ArrowRight, TrendingUp, TrendingDown, ChevronDown, ChevronUp, Shield } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Sparkles, ArrowRight, TrendingUp, TrendingDown, ChevronDown, ChevronUp } from "lucide-react";
+import { FeatureCard } from "@/components/shared/FeatureCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { morningBriefing, insights } from "@/lib/data/insights";
@@ -28,8 +28,7 @@ export function MorningBriefing() {
 
   return (
     <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.2 }}>
-      <Card className="mn-briefing overflow-hidden border-primary/10">
-        {/* Header */}
+      <FeatureCard className="mn-briefing overflow-hidden">
         <div className="mn-briefing-header flex items-center justify-between px-6 py-4 border-b border-border/50">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -50,7 +49,6 @@ export function MorningBriefing() {
           </Badge>
         </div>
 
-        {/* AI-generated insights — Perplexity style */}
         <div className="px-6 py-5 space-y-4">
           {insights.map((insight, i) => {
             const isUp = insight.changePct > 0;
@@ -59,13 +57,7 @@ export function MorningBriefing() {
             const borderColor = insight.severity === "high" ? "border-l-primary/40" : "border-l-muted-foreground/20";
 
             return (
-              <motion.div
-                key={insight.id}
-                initial={{ opacity: 0, x: -4 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.1, duration: 0.3 }}
-                className={`rounded-lg border-l-2 ${borderColor} bg-muted/30 px-4 py-3`}
-              >
+              <motion.div key={insight.id} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1, duration: 0.3 }} className={`rounded-lg border-l-2 ${borderColor} bg-muted/30 px-4 py-3`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
@@ -81,29 +73,17 @@ export function MorningBriefing() {
           })}
         </div>
 
-        {/* Expandable detail */}
         <AnimatePresence>
           {expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="overflow-hidden border-t border-border/50"
-            >
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden border-t border-border/50">
               <div className="px-6 py-4 space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  <EntityHighlight>Data freshness:</EntityHighlight> All models refreshed within the last 4 hours. Ticketmaster sync completed at 10:00 PM. Salesforce CRM sync completed at 11:00 PM. Meta Ads data current as of 8:00 PM.
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  <EntityHighlight>Confidence context:</EntityHighlight> Premium suite demand signal is based on 2,400+ unique visitor sessions with corporate domain matching. Win-back signal is based on 1,900 resolved identity matches across email, web, and ticketing data.
-                </p>
+                <p className="text-xs text-muted-foreground"><EntityHighlight>Data freshness:</EntityHighlight> All models refreshed within the last 4 hours. Ticketmaster sync completed at 10:00 PM. Salesforce CRM sync completed at 11:00 PM. Meta Ads data current as of 8:00 PM.</p>
+                <p className="text-xs text-muted-foreground"><EntityHighlight>Confidence context:</EntityHighlight> Premium suite demand signal is based on 2,400+ unique visitor sessions with corporate domain matching. Win-back signal is based on 1,900 resolved identity matches across email, web, and ticketing data.</p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Footer */}
         <div className="flex items-center justify-between border-t px-6 py-3">
           <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
             {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -113,7 +93,7 @@ export function MorningBriefing() {
             Activate top action <ArrowRight className="ml-1 h-3 w-3" />
           </Button>
         </div>
-      </Card>
+      </FeatureCard>
     </motion.section>
   );
 }

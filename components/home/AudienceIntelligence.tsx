@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus, ArrowRight, Mail, Phone } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { FeatureCard } from "@/components/shared/FeatureCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { audiences } from "@/lib/data/audiences";
@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 function ReachBar({ rate, icon: Icon }: { rate: number; icon: typeof Mail }) {
   return (
-    <div className="mn-audience-reach flex items-center gap-2">
+    <div className="flex items-center gap-2">
       <Icon className="h-3 w-3 text-muted-foreground" />
       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
         <div className="h-full rounded-full bg-primary/40" style={{ width: `${rate * 100}%` }} />
@@ -25,17 +25,17 @@ export function AudienceIntelligence() {
 
   return (
     <section className="mn-audience">
-      <div className="mn-audience-header mb-3 flex items-center justify-between">
-        <h2 className="mn-audience-title text-base font-semibold">Audience Intelligence</h2>
-        <span className="mn-audience-subtitle text-xs text-muted-foreground">{displayAudiences.length} activation-ready</span>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-base font-semibold">Audience Intelligence</h2>
+        <span className="text-xs text-muted-foreground">{displayAudiences.length} activation-ready</span>
       </div>
-      <div className="mn-audience-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {displayAudiences.map((aud, i) => {
           const TrendIcon = aud.valueTrend === "up" ? TrendingUp : aud.valueTrend === "down" ? TrendingDown : Minus;
           const trendColor = aud.valueTrend === "up" ? "text-emerald-400" : aud.valueTrend === "down" ? "text-red-400" : "text-muted-foreground";
           return (
             <motion.div key={aud.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.4 + i * 0.05 }}>
-              <Card className="mn-audience-card flex h-full flex-col p-4">
+              <FeatureCard className="flex h-full flex-col p-4">
                 <div className="mb-2 flex items-start justify-between">
                   <Badge variant="secondary" className="text-[10px] uppercase">{aud.type}</Badge>
                   <span className={`flex items-center gap-0.5 ${trendColor}`}>
@@ -61,7 +61,7 @@ export function AudienceIntelligence() {
                     View <ArrowRight className="ml-1 h-3 w-3" />
                   </Button>
                 </div>
-              </Card>
+              </FeatureCard>
             </motion.div>
           );
         })}

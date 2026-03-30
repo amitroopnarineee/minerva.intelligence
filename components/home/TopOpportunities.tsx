@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, DollarSign, Zap, TrendingUp } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { FeatureCard } from "@/components/shared/FeatureCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { opportunities } from "@/lib/data/opportunities";
@@ -24,9 +24,8 @@ export function TopOpportunities() {
         <span className="text-xs text-muted-foreground">Ranked by expected revenue</span>
       </div>
 
-      {/* #1 — Hero opportunity */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
-        <Card className="mn-opps-hero mb-4 overflow-hidden border-primary/20 bg-primary/[0.03]">
+        <FeatureCard className="mn-opps-hero mb-4 overflow-hidden bg-primary/[0.03]">
           <div className="flex flex-col lg:flex-row">
             <div className="flex-1 p-6">
               <div className="mb-3 flex items-center gap-2">
@@ -60,16 +59,15 @@ export function TopOpportunities() {
               </Button>
             </div>
           </div>
-        </Card>
+        </FeatureCard>
       </motion.div>
 
-      {/* #2 and #3 — Secondary opportunities */}
       <div className="grid gap-3 sm:grid-cols-2">
         {rest.map((opp, i) => {
           const audience = audiences.find((a) => a.id === opp.audienceId);
           return (
             <motion.div key={opp.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.45 + i * 0.08 }}>
-              <Card className="mn-opps-card flex h-full flex-col p-4">
+              <FeatureCard className="mn-opps-card flex h-full flex-col p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <Badge variant="outline" className="text-[10px] tabular-nums">#{i + 2}</Badge>
                   <Badge variant="secondary" className="text-[10px]">{opp.recommendedChannel}</Badge>
@@ -85,7 +83,7 @@ export function TopOpportunities() {
                     Activate <ArrowRight className="ml-1 h-3 w-3" />
                   </Button>
                 </div>
-              </Card>
+              </FeatureCard>
             </motion.div>
           );
         })}
