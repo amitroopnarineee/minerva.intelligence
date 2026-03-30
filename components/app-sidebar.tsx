@@ -13,6 +13,7 @@ import {
   BarChart,
   Rocket,
   Home,
+  LayoutDashboard,
   MoreHorizontal,
 } from "lucide-react"
 
@@ -32,7 +33,8 @@ import { MinervaLogo } from "@/components/shared/MinervaLogo"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const workspace = [
-  { title: "Command Center", href: "/", icon: Home, isNew: true },
+  { title: "Home", href: "/home", icon: Home },
+  { title: "Command Center", href: "/", icon: LayoutDashboard, isNew: true },
   { title: "Analytics", href: "/analytics", icon: BarChart3 },
   { title: "Person Search", href: "/person-search", icon: Search },
   { title: "Bulk Enrich", href: "/bulk-enrich", icon: FileStack },
@@ -80,9 +82,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <item.icon className="size-4" />
                     <span>{item.title}</span>
                     {item.isNew && (
-                      <span className="ml-auto rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">
-                        NEW
-                      </span>
+                      <span className="ml-auto rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">NEW</span>
                     )}
                   </SidebarMenuButton>
                 </Link>
@@ -117,9 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <item.icon className="size-4" />
                   <span>{item.title}</span>
                   {item.badge && (
-                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                      {item.badge}
-                    </span>
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{item.badge}</span>
                   )}
                 </SidebarMenuButton>
               </Link>
