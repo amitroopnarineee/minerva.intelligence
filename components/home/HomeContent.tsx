@@ -44,15 +44,7 @@ export function HomeContent() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col items-center text-center w-full max-w-2xl"
         >
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.4 }}>
-            <ClientLogo className={`h-12 w-12 mb-4 ${textPrimary}`} />
-          </motion.div>
-
-          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }} className={`text-3xl font-bold tracking-tight sm:text-4xl mb-8 ${textPrimary}`}>
-            Good morning, Sarah.
-          </motion.h1>
-
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }} className="w-full">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="w-full">
             <MinervaInput isDark={isDark} onSend={() => { window.location.href = "/" }} />
           </motion.div>
         </motion.div>

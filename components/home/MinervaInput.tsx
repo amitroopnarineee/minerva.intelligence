@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Plus, ArrowUp, Sparkles, Search, Users, BarChart3, Zap, Upload, Target, Brain } from "lucide-react"
+import { MinervaLogo } from "@/components/shared/MinervaLogo"
 
 interface MinervaMode {
   id: string
@@ -16,11 +17,9 @@ interface MinervaMode {
 
 const modes: MinervaMode[] = [
   {
-    id: "discover",
-    label: "Discover",
-    icon: Brain,
+    id: "discover", label: "Discover", icon: Brain,
     headline: "What should I focus on today?",
-    subtitle: "Minerva will surface the most important signals, opportunities, and actions from your data.",
+    subtitle: "Minerva surfaces the most important signals, opportunities, and actions from your data.",
     placeholder: "Ask about trends, anomalies, or what needs your attention...",
     chips: [
       { icon: Sparkles, label: "What changed overnight?" },
@@ -30,25 +29,21 @@ const modes: MinervaMode[] = [
     ],
   },
   {
-    id: "person-search",
-    label: "People",
-    icon: Search,
+    id: "person-search", label: "People", icon: Search,
     headline: "Find anyone in 260M+ profiles.",
-    subtitle: "Search by demographics, career, interests, financials, and more. AI-powered natural language queries.",
+    subtitle: "Search by demographics, career, interests, financials, and more.",
     placeholder: "Find software engineers in Miami who earn over $150K and attended a Dolphins game...",
     chips: [
       { icon: Search, label: "High earners near Hard Rock Stadium" },
-      { icon: Users, label: "Corporate decision-makers in South Florida" },
+      { icon: Users, label: "Corporate decision-makers in South FL" },
       { icon: Target, label: "Lapsed season ticket holders" },
       { icon: Sparkles, label: "Lookalikes of top 100 spenders" },
     ],
   },
   {
-    id: "audiences",
-    label: "Audiences",
-    icon: Users,
+    id: "audiences", label: "Audiences", icon: Users,
     headline: "Build intelligent audience segments.",
-    subtitle: "Create predictive, behavioral, and lookalike audiences from your first-party and enriched data.",
+    subtitle: "Create predictive, behavioral, and lookalike audiences from your data.",
     placeholder: "Create an audience of families within 30 miles who've browsed ticket pages...",
     chips: [
       { icon: Users, label: "Premium suite prospects" },
@@ -58,11 +53,9 @@ const modes: MinervaMode[] = [
     ],
   },
   {
-    id: "analytics",
-    label: "Analytics",
-    icon: BarChart3,
+    id: "analytics", label: "Analytics", icon: BarChart3,
     headline: "Understand what's working.",
-    subtitle: "Deep-dive into campaign performance, audience ROI, channel attribution, and conversion trends.",
+    subtitle: "Campaign performance, audience ROI, channel attribution, and conversion trends.",
     placeholder: "How did our Meta retargeting campaign perform vs last month?",
     chips: [
       { icon: BarChart3, label: "ROAS by channel this week" },
@@ -72,11 +65,9 @@ const modes: MinervaMode[] = [
     ],
   },
   {
-    id: "enrich",
-    label: "Enrich",
-    icon: Upload,
+    id: "enrich", label: "Enrich", icon: Upload,
     headline: "Enrich your data at scale.",
-    subtitle: "Upload a CSV or connect your CRM. Minerva appends 300+ attributes from our consumer graph.",
+    subtitle: "Upload a CSV or connect your CRM. Minerva appends 300+ attributes.",
     placeholder: "Enrich my Salesforce contacts with income, interests, and purchase behavior...",
     chips: [
       { icon: Upload, label: "Upload CSV for enrichment" },
@@ -86,11 +77,9 @@ const modes: MinervaMode[] = [
     ],
   },
   {
-    id: "activate",
-    label: "Activate",
-    icon: Zap,
+    id: "activate", label: "Activate", icon: Zap,
     headline: "Push audiences to your channels.",
-    subtitle: "Send segments directly to Klaviyo, Meta, Google, Twilio, or any connected destination.",
+    subtitle: "Send segments to Klaviyo, Meta, Google, Twilio, or any connected destination.",
     placeholder: "Activate the premium suite prospects segment on Klaviyo and Meta Ads...",
     chips: [
       { icon: Zap, label: "Sync to Klaviyo" },
@@ -110,7 +99,6 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
   const [message, setMessage] = useState("")
   const [activeMode, setActiveMode] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-
   const mode = modes[activeMode]
 
   useEffect(() => {
@@ -132,8 +120,6 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
   }
 
   const hasContent = message.trim().length > 0
-
-  // Theme-aware colors
   const bg = isDark ? "bg-white/[0.08] border-white/[0.12] hover:border-white/20 focus-within:border-white/25" : "bg-black/[0.04] border-black/[0.08] hover:border-black/15 focus-within:border-black/20"
   const textColor = isDark ? "text-white placeholder:text-white/30" : "text-black placeholder:text-black/30"
   const iconMuted = isDark ? "text-white/40 hover:text-white/70" : "text-black/30 hover:text-black/60"
@@ -147,8 +133,32 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
+      {/* Logo */}
+      <div className="flex justify-center mb-5">
+        <MinervaLogo className={`h-10 w-10 ${isDark ? "text-white" : "text-black"}`} />
+      </div>
+
+      {/* Animated headline + subtitle */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={mode.id}
+          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
+          transition={{ duration: 0.3 }}
+          className="text-center mb-6"
+        >
+          <h1 className={`text-2xl font-bold tracking-tight sm:text-3xl ${isDark ? "text-white" : "text-black"}`}>
+            {mode.headline}
+          </h1>
+          <p className={`mt-2 text-sm max-w-md mx-auto leading-relaxed ${isDark ? "text-white/50" : "text-black/40"}`}>
+            {mode.subtitle}
+          </p>
+        </motion.div>
+      </AnimatePresence>
+
       {/* Mode switcher */}
-      <div className="flex items-center justify-center gap-1 mb-6">
+      <div className="flex items-center justify-center gap-1 mb-5">
         {modes.map((m, i) => {
           const Icon = m.icon
           const isActive = i === activeMode
@@ -172,36 +182,11 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
         })}
       </div>
 
-      {/* Animated headline + subtitle */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={mode.id}
-          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-          transition={{ duration: 0.3 }}
-          className="text-center mb-8"
-        >
-          <h2 className={`text-xl font-semibold tracking-tight sm:text-2xl ${isDark ? "text-white" : "text-black"}`}>
-            {mode.headline}
-          </h2>
-          <p className={`mt-2 text-sm max-w-md mx-auto leading-relaxed ${isDark ? "text-white/50" : "text-black/40"}`}>
-            {mode.subtitle}
-          </p>
-        </motion.div>
-      </AnimatePresence>
-
       {/* Input */}
       <div className={`flex flex-col rounded-2xl border backdrop-blur-sm transition-all duration-200 ${bg}`}>
         <div className="flex flex-col px-4 pt-4 pb-3 gap-2">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={mode.id + "-input"}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.1 }}
-              className="min-h-[2.5rem]"
-            >
+            <motion.div key={mode.id + "-input"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }} className="min-h-[2.5rem]">
               <textarea
                 ref={textareaRef}
                 value={message}
@@ -214,28 +199,19 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
               />
             </motion.div>
           </AnimatePresence>
-
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
-              <button className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${iconMuted}`}>
-                <Plus className="h-5 w-5" />
-              </button>
-              <button className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${iconMuted}`}>
-                <Sparkles className="h-4 w-4" />
-              </button>
+              <button className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${iconMuted}`}><Plus className="h-5 w-5" /></button>
+              <button className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${iconMuted}`}><Sparkles className="h-4 w-4" /></button>
             </div>
-            <button
-              onClick={handleSend}
-              disabled={!hasContent}
-              className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${hasContent ? sendActive : sendInactive}`}
-            >
+            <button onClick={handleSend} disabled={!hasContent} className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${hasContent ? sendActive : sendInactive}`}>
               <ArrowUp className="h-4 w-4" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Animated chips */}
+      {/* Chips */}
       <AnimatePresence mode="wait">
         <motion.div
           key={mode.id + "-chips"}
@@ -246,11 +222,7 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
           className="flex flex-wrap justify-center gap-2 mt-5"
         >
           {mode.chips.map(({ icon: Icon, label }) => (
-            <button
-              key={label}
-              onClick={() => setMessage(label)}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs transition-all ${chipStyle}`}
-            >
+            <button key={label} onClick={() => setMessage(label)} className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs transition-all ${chipStyle}`}>
               <Icon className="h-3 w-3" />
               {label}
             </button>
