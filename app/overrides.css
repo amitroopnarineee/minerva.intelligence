@@ -1,0 +1,29 @@
+/*
+ * ═══════════════════════════════════════════════════════════════
+ * MINERVA OVERRIDES
+ * This file is loaded LAST and takes priority over all other styles.
+ * Send class names with updated values marked !important.
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * NAMING CONVENTION:
+ *   .mn-{area}-{element}
+ *
+ * AREAS:
+ *   shell     — top bar, sidebar wrapper, layout frame
+ *   header    — top navigation bar
+ *   sidebar   — left sidebar
+ *   page      — main content area
+ *   kpi       — metric strip cards
+ *   briefing  — morning briefing module
+ *   opps      — top opportunities module
+ *   audience  — audience intelligence module
+ *   channels  — channel signals table
+ *   spark     — sparkline component
+ *
+ * EXAMPLES:
+ *   .mn-header-logo { width: 32px !important; }
+ *   .mn-kpi-card { background: #1a1a1a !important; }
+ *   .mn-briefing-summary { font-size: 15px !important; }
+ *
+ * ═══════════════════════════════════════════════════════════════
+ */
