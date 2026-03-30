@@ -10,43 +10,40 @@ interface MetricCardProps {
   value: string;
   delta: { value: number; direction: "up" | "down" | "stable" };
   sparkData: number[];
-  positiveDirection?: "up" | "down";
   index: number;
 }
 
-function MetricCard({ label, value, delta, sparkData, positiveDirection = "up", index }: MetricCardProps) {
-  const isGood = delta.direction === positiveDirection || delta.direction === "stable";
+function MetricCard({ label, value, delta, sparkData, index }: MetricCardProps) {
   const TrendIcon = delta.direction === "up" ? TrendingUp : delta.direction === "down" ? TrendingDown : Minus;
-  const trendColor = delta.direction === "stable"
-    ? "text-muted-foreground"
-    : isGood
+  const trendColor = delta.direction === "up"
     ? "text-emerald-400"
-    : "text-red-400";
+    : delta.direction === "down"
+    ? "text-red-400"
+    : "text-muted-foreground";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.05 }}
-      className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-accent/50"
+      transition={{ duration: 0.3, delay: index * 0.04 }}
+      className="rounded-xl border border-border bg-card p-4"
     >
-      <div className="flex items-start justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           {label}
         </span>
-        <div className={`flex items-center gap-1 ${trendColor}`}>
+        <div className={`flex items-center gap-0.5 ${trendColor}`}>
           <TrendIcon className="h-3 w-3" />
-          <span className="tabular-nums text-[11px] font-medium">
+          <span className="tabular-nums text-[10px] font-medium">
             {delta.value.toFixed(1)}%
           </span>
         </div>
       </div>
-
-      <div className="mt-2 flex items-end justify-between">
-        <span className="tabular-nums text-2xl font-semibold tracking-tight">
+      <div className="mt-1.5 flex items-end justify-between gap-2">
+        <span className="tabular-nums text-xl font-semibold tracking-tight">
           {value}
         </span>
-        <Sparkline data={sparkData} width={72} height={28} showDot={true} showArea={true} />
+        <Sparkline data={sparkData} width={64} height={24} />
       </div>
     </motion.div>
   );
@@ -55,7 +52,7 @@ function MetricCard({ label, value, delta, sparkData, positiveDirection = "up", 
 export function MetricStrip() {
   const metrics = [
     {
-      label: "Influenced Revenue",
+      label: "Revenue",
       value: `$${(currentKpi.influencedRevenue / 1000).toFixed(0)}K`,
       delta: kpiDelta(currentKpi.influencedRevenue, previousKpi.influencedRevenue),
       sparkData: kpiHistory.map((k) => k.influencedRevenue),
@@ -67,7 +64,7 @@ export function MetricStrip() {
       sparkData: kpiHistory.map((k) => k.roas),
     },
     {
-      label: "Ticket Conversion",
+      label: "Conversion",
       value: `${(currentKpi.ticketConversionRate * 100).toFixed(1)}%`,
       delta: kpiDelta(currentKpi.ticketConversionRate, previousKpi.ticketConversionRate),
       sparkData: kpiHistory.map((k) => k.ticketConversionRate),
@@ -79,13 +76,13 @@ export function MetricStrip() {
       sparkData: kpiHistory.map((k) => k.premiumLeadVolume),
     },
     {
-      label: "Returning Fans",
+      label: "Returning",
       value: `${(currentKpi.returningFanRate * 100).toFixed(1)}%`,
       delta: kpiDelta(currentKpi.returningFanRate, previousKpi.returningFanRate),
       sparkData: kpiHistory.map((k) => k.returningFanRate),
     },
     {
-      label: "Activation-Ready",
+      label: "Active",
       value: `${currentKpi.activationReadyAudiences}`,
       delta: kpiDelta(currentKpi.activationReadyAudiences, previousKpi.activationReadyAudiences),
       sparkData: kpiHistory.map((k) => k.activationReadyAudiences),
@@ -93,7 +90,7 @@ export function MetricStrip() {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
       {metrics.map((m, i) => (
         <MetricCard key={m.label} {...m} index={i} />
       ))}

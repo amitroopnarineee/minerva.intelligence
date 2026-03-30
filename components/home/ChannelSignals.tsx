@@ -1,119 +1,71 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react";
 import { campaigns } from "@/lib/data/campaigns";
-
-function TrendIndicator({ trend, pct }: { trend: string; pct: number }) {
-  const Icon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
-  const color = trend === "up" ? "text-positive" : trend === "down" ? "text-negative" : "text-text-tertiary";
-  return (
-    <span className={`inline-flex items-center gap-1 ${color}`}>
-      <Icon className="h-3 w-3" />
-      <span className="tabular-nums text-[12px] font-medium">
-        {pct > 0 ? "+" : ""}{pct}%
-      </span>
-    </span>
-  );
-}
-
-function SpendBar({ spend, budget }: { spend: number; budget: number }) {
-  const pct = Math.min((spend / budget) * 100, 100);
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-bg-raised">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${
-            pct > 85 ? "bg-warning" : "bg-accent/50"
-          }`}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span className="tabular-nums text-[11px] text-text-tertiary">
-        {pct.toFixed(0)}%
-      </span>
-    </div>
-  );
-}
 
 export function ChannelSignals() {
   const sorted = [...campaigns].sort((a, b) => Math.abs(b.trendPct) - Math.abs(a.trendPct));
 
   return (
     <section>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <Activity className="h-4 w-4 text-accent" />
-          <h2 className="text-base font-semibold text-text-primary">
-            Channel Signals
-          </h2>
-        </div>
-        <span className="text-[11px] text-text-tertiary">
-          {campaigns.length} active campaigns
-        </span>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-base font-semibold">Channel Signals</h2>
+        <span className="text-xs text-muted-foreground">{campaigns.length} active campaigns</span>
       </div>
-
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.75 }}
-        className="overflow-hidden rounded-xl border border-border-default bg-bg-surface"
+        transition={{ duration: 0.35, delay: 0.5 }}
+        className="overflow-hidden rounded-xl border border-border bg-card"
       >
-        {/* Table header */}
-        <div className="grid grid-cols-[1fr_80px_80px_80px_100px_80px_60px] gap-4 border-b border-border-subtle px-5 py-3">
-          {["Campaign", "Channel", "ROAS", "Conversions", "Budget Used", "Trend", ""].map(
-            (h) => (
-              <span key={h} className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
-                {h}
-              </span>
-            )
-          )}
-        </div>
-
-        {/* Rows */}
-        {sorted.map((c, i) => (
-          <div
-            key={c.id}
-            className={`grid grid-cols-[1fr_80px_80px_80px_100px_80px_60px] items-center gap-4 px-5 py-3.5 transition-colors duration-100 hover:bg-bg-raised ${
-              i < sorted.length - 1 ? "border-b border-border-subtle" : ""
-            }`}
-          >
-            {/* Name + platform */}
-            <div className="flex items-center gap-2">
-              {c.trend === "down" && (
-                <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 text-negative" />
-              )}
-              <div>
-                <span className="text-[13px] font-medium text-text-primary">{c.name}</span>
-                <span className="ml-2 text-[11px] text-text-tertiary">{c.platform}</span>
-              </div>
-            </div>
-
-            {/* Channel */}
-            <span className="text-[12px] capitalize text-text-secondary">{c.channel}</span>
-
-            {/* ROAS */}
-            <span className="tabular-nums text-[13px] font-semibold text-text-primary">
-              {c.roas.toFixed(1)}x
-            </span>
-
-            {/* Conversions */}
-            <span className="tabular-nums text-[13px] text-text-primary">
-              {c.conversions}
-            </span>
-
-            {/* Budget */}
-            <SpendBar spend={c.spend} budget={c.budget} />
-
-            {/* Trend */}
-            <TrendIndicator trend={c.trend} pct={c.trendPct} />
-
-            {/* Action */}
-            <button className="text-[11px] font-medium text-text-tertiary transition-colors hover:text-accent">
-              View
-            </button>
-          </div>
-        ))}
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b">
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Campaign</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Channel</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">ROAS</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Conv.</th>
+              <th className="hidden px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right lg:table-cell">Budget</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((c) => {
+              const TrendIcon = c.trend === "up" ? TrendingUp : c.trend === "down" ? TrendingDown : Minus;
+              const trendColor = c.trend === "up" ? "text-emerald-400" : c.trend === "down" ? "text-red-400" : "text-muted-foreground";
+              const budgetPct = Math.min((c.spend / c.budget) * 100, 100);
+              return (
+                <tr key={c.id} className="border-b last:border-0 transition-colors hover:bg-muted/50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      {c.trend === "down" && <AlertTriangle className="h-3.5 w-3.5 text-red-400" />}
+                      <span className="font-medium">{c.name}</span>
+                      <span className="text-xs text-muted-foreground">{c.platform}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 capitalize text-muted-foreground">{c.channel}</td>
+                  <td className="px-4 py-3 tabular-nums font-semibold text-right">{c.roas.toFixed(1)}x</td>
+                  <td className="px-4 py-3 tabular-nums text-right">{c.conversions}</td>
+                  <td className="hidden px-4 py-3 lg:table-cell">
+                    <div className="flex items-center justify-end gap-2">
+                      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-secondary">
+                        <div className={`h-full rounded-full ${budgetPct > 85 ? "bg-amber-400" : "bg-primary/40"}`} style={{ width: `${budgetPct}%` }} />
+                      </div>
+                      <span className="tabular-nums text-[11px] text-muted-foreground">{budgetPct.toFixed(0)}%</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`flex items-center justify-end gap-0.5 ${trendColor}`}>
+                      <TrendIcon className="h-3 w-3" />
+                      <span className="tabular-nums text-xs font-medium">{c.trendPct > 0 ? "+" : ""}{c.trendPct}%</span>
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </motion.div>
     </section>
   );
