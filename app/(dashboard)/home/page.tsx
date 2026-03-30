@@ -1,10 +1,10 @@
-import { PageHeader } from "@/components/shared/PageHeader"
 import { HomeContent } from "@/components/home/HomeContent"
+import { HomeHeader } from "@/components/home/HomeHeader"
 
 export default function HomePage() {
   return (
     <>
-      <PageHeader breadcrumb="Home" title="Home" subtitle="Welcome to Minerva." />
+      <HomeHeader />
       <HomeContent />
     </>
   )
