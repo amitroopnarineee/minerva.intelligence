@@ -1,5 +1,13 @@
 import { PageHeader } from "@/components/shared/PageHeader"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+
+const usage = [
+  { label: "API Calls", current: 12847, limit: 50000, period: "30d" },
+  { label: "Enrichments", current: 8432, limit: 25000, period: "30d" },
+  { label: "Segments Active", current: 12, limit: 50, period: "" },
+]
 
 export default function UsagePage() {
   return (
@@ -14,22 +22,26 @@ export default function UsagePage() {
             </FadeIn>
             <FadeIn>
               <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-border bg-card p-5">
-                  <span className="text-xs font-medium text-muted-foreground">API Calls (30d)</span>
-                  <p className="mt-1 text-2xl font-semibold tabular-nums">12,847</p>
-                </div>
-                <div className="rounded-xl border border-border bg-card p-5">
-                  <span className="text-xs font-medium text-muted-foreground">Enrichments (30d)</span>
-                  <p className="mt-1 text-2xl font-semibold tabular-nums">8,432</p>
-                </div>
-                <div className="rounded-xl border border-border bg-card p-5">
-                  <span className="text-xs font-medium text-muted-foreground">Segments Active</span>
-                  <p className="mt-1 text-2xl font-semibold tabular-nums">12</p>
-                </div>
+                {usage.map((u) => (
+                  <Card key={u.label}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-xs font-medium text-muted-foreground">{u.label} {u.period && `(${u.period})`}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-semibold tabular-nums">{u.current.toLocaleString()}</p>
+                      <div className="mt-3 space-y-1">
+                        <Progress value={(u.current / u.limit) * 100} className="h-2" />
+                        <p className="text-xs text-muted-foreground tabular-nums">{u.current.toLocaleString()} / {u.limit.toLocaleString()}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </FadeIn>
             <FadeIn>
-              <div className="mt-4 min-h-[40vh] flex-1 rounded-xl bg-muted/50" />
+              <Card className="mt-4">
+                <CardContent className="min-h-[40vh] p-0" />
+              </Card>
             </FadeIn>
           </PageTransition>
         </div>
