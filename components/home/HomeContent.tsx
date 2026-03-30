@@ -20,7 +20,6 @@ export function HomeContent() {
   const isDark = !mounted || resolvedTheme === "dark"
   const bg = isDark ? "#0A0A0A" : "#FFFFFF"
   const textPrimary = isDark ? "text-white" : "text-black"
-  const textSecondary = isDark ? "text-white/60" : "text-black/50"
   const textTertiary = isDark ? "text-white/25" : "text-black/20"
 
   return (
@@ -43,21 +42,29 @@ export function HomeContent() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="flex flex-col items-center text-center w-full max-w-2xl"
+          className="flex flex-col items-center text-center w-full"
         >
+          {/* Logo + greeting */}
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 1.0 }}>
-            <ClientLogo className={`h-16 w-16 mb-6 ${textPrimary}`} />
+            <ClientLogo className={`h-12 w-12 mb-4 ${textPrimary}`} />
           </motion.div>
 
-          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.2 }} className={`text-3xl font-bold tracking-tight sm:text-4xl mb-2 ${textPrimary}`}>
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+            className={`text-3xl font-bold tracking-tight sm:text-4xl mb-8 ${textPrimary}`}
+          >
             Good morning, Sarah.
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.4 }} className={`text-sm max-w-md leading-relaxed mb-10 ${textSecondary}`}>
-            48,200 consumer signals analyzed overnight. 3 opportunities ready.
-          </motion.p>
-
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 1.6 }} className="w-full">
+          {/* Mode switcher + input — full width */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.4 }}
+            className="w-full max-w-2xl"
+          >
             <MinervaInput isDark={isDark} onSend={() => { window.location.href = "/" }} />
           </motion.div>
         </motion.div>
