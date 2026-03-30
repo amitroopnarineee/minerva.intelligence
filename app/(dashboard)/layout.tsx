@@ -1,8 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { MinervaMenuBar } from "@/components/shared/MinervaMenuBar"
 
 export default function DashboardLayout({
   children,
@@ -10,11 +6,11 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="flex flex-col">
+    <div className="flex h-screen flex-col">
+      <MinervaMenuBar />
+      <main className="flex-1 overflow-hidden">
         {children}
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </div>
   )
 }
