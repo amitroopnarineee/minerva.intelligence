@@ -3,12 +3,11 @@
 import { motion } from "framer-motion"
 import { MinervaLogo } from "@/components/shared/MinervaLogo"
 import AnimatedGradientBackground from "@/components/shared/AnimatedGradientBackground"
-import AnimatedFooter from "@/components/shared/AnimatedFooter"
 
 export function HomeContent() {
   return (
-    <div className="flex flex-1 flex-col relative">
-      {/* Gradient background */}
+    <div className="flex flex-1 flex-col relative bg-[#0A0A0A]">
+      {/* Gradient background — always dark */}
       <div className="absolute inset-0 overflow-hidden">
         <AnimatedGradientBackground
           startingGap={125}
@@ -17,7 +16,7 @@ export function HomeContent() {
           animationSpeed={0.02}
           topOffset={0}
           gradientColors={[
-            "hsl(var(--background))",
+            "#0A0A0A",
             "#1a1a2e",
             "#16213e",
             "#0f3460",
@@ -29,7 +28,7 @@ export function HomeContent() {
         />
       </div>
 
-      {/* Main content — centered */}
+      {/* Content — centered */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -60,7 +59,7 @@ export function HomeContent() {
             transition={{ duration: 0.5, delay: 1.4 }}
             className="mt-4 text-base text-white/60 max-w-md leading-relaxed"
           >
-            Minerva has analyzed 48,200 consumer signals overnight. 
+            Minerva has analyzed 48,200 consumer signals overnight.
             3 new opportunities are ready for activation.
           </motion.p>
 
@@ -86,23 +85,23 @@ export function HomeContent() {
         </motion.div>
       </div>
 
-      {/* Footer */}
-      <div className="relative z-10">
-        <AnimatedFooter
-          leftLinks={[
-            { href: "#", label: "Terms & Policies" },
-            { href: "#", label: "Privacy Policy" },
-            { href: "#", label: "Security" },
-          ]}
-          rightLinks={[
-            { href: "#", label: "Documentation" },
-            { href: "#", label: "API Reference" },
-            { href: "#", label: "Help Center" },
-            { href: "#", label: "Status" },
-          ]}
-          copyrightText="© 2026 Minerva Intelligence. All rights reserved."
-          barCount={23}
-        />
+      {/* Footer — forced dark */}
+      <div className="relative z-10 border-t border-white/10">
+        <div className="mx-auto flex flex-col md:flex-row justify-between w-full gap-4 pb-6 pt-6 px-6 max-w-6xl">
+          <div className="space-y-2">
+            <ul className="flex flex-wrap gap-4">
+              {["Terms & Policies", "Privacy Policy", "Security"].map((l) => (
+                <li key={l}><span className="text-xs text-white/40 hover:text-white/70 transition-colors cursor-pointer">{l}</span></li>
+              ))}
+            </ul>
+            <p className="text-xs text-white/30">© 2026 Minerva Intelligence. All rights reserved.</p>
+          </div>
+          <ul className="flex flex-wrap gap-4">
+            {["Documentation", "API Reference", "Help Center", "Status"].map((l) => (
+              <li key={l}><span className="text-xs text-white/40 hover:text-white/70 transition-colors cursor-pointer">{l}</span></li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   )
