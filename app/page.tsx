@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { TopNav } from "@/components/shared/TopNav"
+import { MinervaLogo } from "@/components/shared/MinervaLogo"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,7 +14,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Bell, Sparkles } from "lucide-react"
+import { Bell } from "lucide-react"
 import { MetricStrip } from "@/components/home/MetricStrip"
 import { MorningBriefing } from "@/components/home/MorningBriefing"
 import { TopOpportunities } from "@/components/home/TopOpportunities"
@@ -28,9 +29,7 @@ export default function Page() {
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           {/* Left: Logo + Trigger + Breadcrumb */}
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-              <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
-            </div>
+            <MinervaLogo className="h-6 w-6 text-foreground" />
             <SidebarTrigger />
             <Separator
               orientation="vertical"

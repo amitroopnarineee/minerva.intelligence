@@ -6,6 +6,7 @@ import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
+import { MinervaLogo } from "@/components/shared/MinervaLogo"
 import {
   Sidebar,
   SidebarContent,
@@ -22,9 +23,7 @@ import {
   UsersIcon,
   PlugIcon,
   BarChartIcon,
-  RocketIcon,
   Settings2Icon,
-  SparklesIcon,
 } from "lucide-react"
 
 const data = {
@@ -36,7 +35,7 @@ const data = {
   teams: [
     {
       name: "Minerva",
-      logo: (<SparklesIcon />),
+      logo: (<MinervaLogo className="h-4 w-4" />),
       plan: "Enterprise",
     },
   ],
