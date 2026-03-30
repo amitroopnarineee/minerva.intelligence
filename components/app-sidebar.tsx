@@ -1,43 +1,53 @@
-import * as React from "react"
-import {
-  Sparkles,
-  BarChart3,
-  Search,
-  FileStack,
-  Telescope,
-  Users,
-  Plug,
-  BarChart,
-  Rocket,
-  Home,
-} from "lucide-react"
+"use client"
 
+import * as React from "react"
+
+import { NavMain } from "@/components/nav-main"
+import { NavProjects } from "@/components/nav-projects"
+import { NavUser } from "@/components/nav-user"
+import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarFooter,
+  SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import {
+  HomeIcon,
+  BarChart3Icon,
+  SearchIcon,
+  FileStackIcon,
+  TelescopeIcon,
+  UsersIcon,
+  PlugIcon,
+  BarChartIcon,
+  RocketIcon,
+  Settings2Icon,
+  SparklesIcon,
+} from "lucide-react"
 
 const data = {
-  workspace: [
+  user: {
+    name: "Sarah Martinez",
+    email: "s.martinez@dolphins.com",
+    avatar: "",
+  },
+  teams: [
+    {
+      name: "Minerva",
+      logo: (<SparklesIcon />),
+      plan: "Enterprise",
+    },
+  ],
+  navMain: [
     {
       title: "Command Center",
       url: "/",
-      icon: Home,
+      icon: (<HomeIcon />),
       isActive: true,
-      isNew: true,
       items: [
-        { title: "Overview", url: "/", isActive: true },
+        { title: "Overview", url: "/" },
         { title: "Morning Brief", url: "#briefing" },
         { title: "Opportunities", url: "#opportunities" },
       ],
@@ -45,7 +55,7 @@ const data = {
     {
       title: "Analytics",
       url: "#",
-      icon: BarChart3,
+      icon: (<BarChart3Icon />),
       items: [
         { title: "Executive Overview", url: "#" },
         { title: "Paid Ads", url: "#" },
@@ -55,7 +65,7 @@ const data = {
     {
       title: "Person Search",
       url: "#",
-      icon: Search,
+      icon: (<SearchIcon />),
       items: [
         { title: "Search", url: "#" },
         { title: "Saved Searches", url: "#" },
@@ -64,137 +74,60 @@ const data = {
     {
       title: "Bulk Enrich",
       url: "#",
-      icon: FileStack,
+      icon: (<FileStackIcon />),
       items: [
         { title: "Upload", url: "#" },
         { title: "History", url: "#" },
       ],
     },
-  ],
-  audienceStudio: [
     {
-      title: "Prospecting",
+      title: "Settings",
       url: "#",
-      icon: Telescope,
+      icon: (<Settings2Icon />),
       items: [
-        { title: "Segments", url: "#" },
-        { title: "Create Prospect", url: "#" },
-      ],
-    },
-    {
-      title: "Owned Audience",
-      url: "#",
-      icon: Users,
-      items: [
-        { title: "Audiences", url: "#" },
-        { title: "Activations", url: "#" },
+        { title: "General", url: "#" },
+        { title: "Team", url: "#" },
+        { title: "Billing", url: "#" },
       ],
     },
   ],
-  bottom: [
-    { title: "Integrations", url: "#", icon: Plug },
-    { title: "Usage", url: "#", icon: BarChart },
-    { title: "Get Started", url: "#", icon: Rocket, badge: 4 },
+  projects: [
+    {
+      name: "Prospecting",
+      url: "#",
+      icon: (<TelescopeIcon />),
+    },
+    {
+      name: "Owned Audience",
+      url: "#",
+      icon: (<UsersIcon />),
+    },
+    {
+      name: "Integrations",
+      url: "#",
+      icon: (<PlugIcon />),
+    },
+    {
+      name: "Usage",
+      url: "#",
+      icon: (<BarChartIcon />),
+    },
   ],
-}
-
-function NavSection({
-  label,
-  items,
-}: {
-  label: string
-  items: typeof data.workspace
-}) {
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton isActive={item.isActive} tooltip={item.title}>
-              {item.icon && <item.icon className="size-4" />}
-              <span className="font-medium">{item.title}</span>
-              {item.isNew && (
-                <span className="ml-auto rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
-                  NEW
-                </span>
-              )}
-            </SidebarMenuButton>
-            {item.items?.length ? (
-              <SidebarMenuSub>
-                {item.items.map((sub) => (
-                  <SidebarMenuSubItem key={sub.title}>
-                    <SidebarMenuSubButton isActive={("isActive" in sub) && sub.isActive}>
-                      <span>{sub.title}</span>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
-            ) : null}
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
-  )
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
-      {/* Brand header */}
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <div className="flex items-center gap-2.5 px-2 py-1.5">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Sparkles className="size-4" />
-              </div>
-              <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold text-sm">Minerva</span>
-                <span className="text-[11px] text-muted-foreground">Miami Dolphins</span>
-              </div>
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-
-      {/* Main nav */}
       <SidebarContent>
-        <NavSection label="Workspace" items={data.workspace} />
-        <NavSection label="Audience Studio" items={data.audienceStudio} />
+        <NavMain items={data.navMain} />
+        <NavProjects projects={data.projects} />
       </SidebarContent>
-
-      {/* Bottom nav */}
       <SidebarFooter>
-        <SidebarMenu>
-          {data.bottom.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                <item.icon className="size-4" />
-                <span>{item.title}</span>
-                {item.badge && (
-                  <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                    {item.badge}
-                  </span>
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-          {/* User */}
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Sarah Martinez">
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
-                SM
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-xs font-medium">Sarah Martinez</span>
-                <span className="text-[10px] text-muted-foreground">s.martinez@dolphins.com</span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser user={data.user} />
       </SidebarFooter>
-
       <SidebarRail />
     </Sidebar>
   )
