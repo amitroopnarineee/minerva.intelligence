@@ -3,7 +3,6 @@ import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { MinervaLogo } from "@/components/shared/MinervaLogo"
 import { Send } from "lucide-react"
@@ -33,13 +32,15 @@ export default function PersonSearchPage() {
             </FadeIn>
             <FadeIn>
               <div className="mx-auto max-w-2xl">
-                <Tabs defaultValue="minerva" className="mb-4 flex justify-center">
-                  <TabsList>
-                    <TabsTrigger value="minerva">Minerva</TabsTrigger>
-                    <TabsTrigger value="owned">Owned</TabsTrigger>
-                  </TabsList>
-                  <Badge variant="secondary" className="ml-3 self-center">👥 260M</Badge>
-                </Tabs>
+                <div className="mb-4 flex items-center justify-center gap-3">
+                  <Tabs defaultValue={0}>
+                    <TabsList>
+                      <TabsTrigger value={0}>Minerva</TabsTrigger>
+                      <TabsTrigger value={1}>Owned</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                  <Badge variant="secondary">👥 260M</Badge>
+                </div>
                 <Card className="mb-8">
                   <CardContent className="p-4">
                     <textarea className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder="Show me software engineers who studied at Harvard and now work in big tech." rows={2} readOnly />

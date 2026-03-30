@@ -3,7 +3,6 @@ import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
 export default function AnalyticsPage() {
   return (
@@ -25,42 +24,36 @@ export default function AnalyticsPage() {
               <p className="mt-1 text-sm text-muted-foreground">Get a comprehensive overview of your key business metrics.</p>
             </FadeIn>
             <FadeIn>
-              <Tabs defaultValue="paid" className="w-full">
+              <Tabs defaultValue={0}>
                 <TabsList className="mb-6">
-                  <TabsTrigger value="paid">Paid Ads</TabsTrigger>
-                  <TabsTrigger value="meta">Meta Ads</TabsTrigger>
-                  <TabsTrigger value="google">Google Ads</TabsTrigger>
+                  <TabsTrigger value={0}>Paid Ads</TabsTrigger>
+                  <TabsTrigger value={1}>Meta Ads</TabsTrigger>
+                  <TabsTrigger value={2}>Google Ads</TabsTrigger>
                 </TabsList>
-                <TabsContent value="paid">
+                <TabsContent value={0}>
                   <Card className="border-dashed">
                     <CardContent className="flex flex-col items-center justify-center py-24">
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                        <span className="text-xl">📊</span>
-                      </div>
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted"><span className="text-xl">📊</span></div>
                       <h3 className="text-base font-semibold">No Paid Ads data yet</h3>
                       <p className="mt-1 text-sm text-muted-foreground">Connect your ad accounts to start tracking metrics.</p>
                       <Button className="mt-4">Connect Integration</Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
-                <TabsContent value="meta">
+                <TabsContent value={1}>
                   <Card className="border-dashed">
                     <CardContent className="flex flex-col items-center justify-center py-24">
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                        <span className="text-xl">📱</span>
-                      </div>
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted"><span className="text-xl">📱</span></div>
                       <h3 className="text-base font-semibold">No Meta Ads data yet</h3>
                       <p className="mt-1 text-sm text-muted-foreground">Connect your Meta Ads account to start tracking metrics.</p>
                       <Button className="mt-4">Connect Integration</Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
-                <TabsContent value="google">
+                <TabsContent value={2}>
                   <Card className="border-dashed">
                     <CardContent className="flex flex-col items-center justify-center py-24">
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                        <span className="text-xl">🔍</span>
-                      </div>
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted"><span className="text-xl">🔍</span></div>
                       <h3 className="text-base font-semibold">No Google Ads data yet</h3>
                       <p className="mt-1 text-sm text-muted-foreground">Connect your Google Ads account to start tracking metrics.</p>
                       <Button className="mt-4">Connect Integration</Button>
