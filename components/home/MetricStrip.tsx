@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { currentKpi, previousKpi, kpiDelta, kpiHistory } from "@/lib/data/kpis";
 import { Sparkline } from "@/components/shared/Sparkline";
 
@@ -22,21 +23,20 @@ function MetricCard({ label, value, delta, sparkData, index }: MetricCardProps) 
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.04 }}
-      className="mn-kpi-card rounded-xl border border-border bg-card p-4"
     >
-      <div className="mn-kpi-top flex items-center justify-between">
-        <span className="mn-kpi-label text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-        <div className={`mn-kpi-trend flex items-center gap-0.5 ${trendColor}`}>
-          <TrendIcon className="mn-kpi-trend-icon h-3 w-3" />
-          <span className="mn-kpi-trend-value tabular-nums text-[10px] font-medium">{delta.value.toFixed(1)}%</span>
+      <Card className="mn-kpi-card p-4">
+        <div className="mn-kpi-top flex items-center justify-between">
+          <span className="mn-kpi-label text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+          <div className={`mn-kpi-trend flex items-center gap-0.5 ${trendColor}`}>
+            <TrendIcon className="h-3 w-3" />
+            <span className="tabular-nums text-[10px] font-medium">{delta.value.toFixed(1)}%</span>
+          </div>
         </div>
-      </div>
-      <div className="mn-kpi-bottom mt-1.5 flex items-end justify-between gap-2">
-        <span className="mn-kpi-value tabular-nums text-xl font-semibold tracking-tight">{value}</span>
-        <div className="mn-kpi-spark">
-          <Sparkline data={sparkData} width={64} height={24} />
+        <div className="mn-kpi-bottom mt-1.5 flex items-end justify-between gap-2">
+          <span className="mn-kpi-value tabular-nums text-xl font-semibold tracking-tight">{value}</span>
+          <div className="mn-kpi-spark"><Sparkline data={sparkData} width={64} height={24} /></div>
         </div>
-      </div>
+      </Card>
     </motion.div>
   );
 }

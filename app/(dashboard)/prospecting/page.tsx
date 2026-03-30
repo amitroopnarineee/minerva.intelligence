@@ -2,11 +2,14 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
 import { Search, SlidersHorizontal, Plus } from "lucide-react"
+import { audiences } from "@/lib/data/audiences"
 
 export default function ProspectingPage() {
+  const prospecting = audiences.filter((a) => a.type === "predictive" || a.type === "retargeting")
   return (
     <>
       <PageHeader breadcrumb="Prospecting" title="Prospecting Segments" subtitle="Create and manage your prospect audiences."
@@ -23,7 +26,7 @@ export default function ProspectingPage() {
               <div className="mb-4 flex items-center gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Search prospects..." className="pl-9" readOnly />
+                  <Input placeholder="Search prospects..." className="pl-9" />
                 </div>
                 <Button variant="outline" size="sm"><SlidersHorizontal className="mr-1 h-4 w-4" /> Filters</Button>
               </div>
@@ -35,22 +38,28 @@ export default function ProspectingPage() {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Size</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Source</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead>Last Updated</TableHead>
-                      <TableHead>Activations</TableHead>
+                      <TableHead>Channel</TableHead>
+                      <TableHead className="text-right">Propensity</TableHead>
+                      <TableHead className="text-right">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">No data available</TableCell>
-                    </TableRow>
+                    {prospecting.map((aud) => (
+                      <TableRow key={aud.id} className="cursor-pointer">
+                        <TableCell className="font-medium">{aud.name}</TableCell>
+                        <TableCell className="tabular-nums">{aud.estimatedSize.toLocaleString()}</TableCell>
+                        <TableCell><Badge variant="secondary" className="text-[10px] capitalize">{aud.type}</Badge></TableCell>
+                        <TableCell className="capitalize text-muted-foreground">{aud.channelRecommendation}</TableCell>
+                        <TableCell className="tabular-nums text-right">{aud.avgPropensityScore ? `${(aud.avgPropensityScore * 100).toFixed(0)}%` : "—"}</TableCell>
+                        <TableCell className="text-right">{aud.isActivationReady ? <Badge className="bg-emerald-500/10 text-emerald-500 text-[10px]">Ready</Badge> : <Badge variant="secondary" className="text-[10px]">Pending</Badge>}</TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
                 <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
                   <span>Rows per page: 10</span>
-                  <span>0 - 0 of 0</span>
+                  <span>1 - {prospecting.length} of {prospecting.length}</span>
                 </div>
               </Card>
             </FadeIn>
