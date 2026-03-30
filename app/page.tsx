@@ -1,11 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { RightSidebar } from "@/components/shared/RightSidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
+import { NavTicker } from "@/components/shared/NavTicker";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -23,28 +18,18 @@ export default function Home() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        {/* Top bar */}
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex flex-1 items-center gap-2 px-4">
+        {/* Top nav bar with scrolling ticker (ShopifyEdition pattern) */}
+        <header className="flex h-12 shrink-0 items-center border-b">
+          <div className="flex items-center gap-2 px-3">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="text-sm">
-                    Miami Dolphins · Consumer Intelligence
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+            <span className="text-sm font-medium whitespace-nowrap">Miami Dolphins</span>
           </div>
-          <div className="flex items-center gap-3 pr-14">
-            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              All systems operational
-            </span>
-            <span className="text-[11px] text-muted-foreground">
-              Updated 2 min ago
+          <NavTicker />
+          <div className="flex items-center gap-3 px-3 pr-14">
+            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground whitespace-nowrap">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live
             </span>
           </div>
         </header>
@@ -56,6 +41,9 @@ export default function Home() {
               <h1 className="text-2xl font-semibold tracking-tight">
                 Command Center
               </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Consumer intelligence overview · March 30, 2026
+              </p>
             </div>
 
             <div className="space-y-5">
