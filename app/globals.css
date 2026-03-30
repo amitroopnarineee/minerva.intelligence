@@ -9,9 +9,47 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
+@theme inline {
   --font-sans: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
 
+  /* ── shadcn required tokens (dark values) ── */
+  --radius: 0.75rem;
+  --background: #0A0A0B;
+  --foreground: #EDEDEF;
+  --card: #111113;
+  --card-foreground: #EDEDEF;
+  --popover: #1E1E22;
+  --popover-foreground: #EDEDEF;
+  --primary: #00C2A8;
+  --primary-foreground: #0A0A0B;
+  --secondary: #18181B;
+  --secondary-foreground: #A0A0A8;
+  --muted: #18181B;
+  --muted-foreground: #5A5A65;
+  --accent: #00C2A8;
+  --accent-foreground: #0A0A0B;
+  --destructive: #F87171;
+  --destructive-foreground: #EDEDEF;
+  --border: rgba(255, 255, 255, 0.07);
+  --input: rgba(255, 255, 255, 0.07);
+  --ring: #00C2A8;
+  --chart-1: #00C2A8;
+  --chart-2: #34D399;
+  --chart-3: #818CF8;
+  --chart-4: #FBBF24;
+  --chart-5: #F87171;
+
+  /* ── Sidebar tokens ── */
+  --sidebar: #111113;
+  --sidebar-foreground: #EDEDEF;
+  --sidebar-primary: #00C2A8;
+  --sidebar-primary-foreground: #0A0A0B;
+  --sidebar-accent: #18181B;
+  --sidebar-accent-foreground: #EDEDEF;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-ring: #00C2A8;
+
+  /* ── Minerva custom tokens ── */
   --color-bg-root: #0A0A0B;
   --color-bg-surface: #111113;
   --color-bg-raised: #18181B;
@@ -37,9 +75,6 @@
   --color-warning-dim: rgba(251, 191, 36, 0.12);
 }
 
-/*
-  We force dark mode globally — this product is dark-only.
-*/
 html {
   color-scheme: dark;
 }
@@ -52,26 +87,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Utility classes */
-.text-balance {
-  text-wrap: balance;
-}
+.text-balance { text-wrap: balance; }
+.tabular-nums { font-variant-numeric: tabular-nums; }
 
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.14); }
