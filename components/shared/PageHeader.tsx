@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Bell } from "lucide-react"
 
 interface PageHeaderProps {
   breadcrumb: string
@@ -31,12 +33,19 @@ export function PageHeader({ breadcrumb, title, subtitle, actions }: PageHeaderP
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        {actions && <div className="mn-header-actions ml-auto flex items-center gap-2">{actions}</div>}
+        <div className="flex-1" />
+        <div className="mn-header-right flex items-center gap-2">
+          {actions}
+          <button className="mn-header-bell flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+            <Bell className="h-4 w-4" />
+          </button>
+          <Avatar className="mn-header-avatar h-8 w-8 cursor-pointer border border-border">
+            <AvatarFallback className="bg-primary/10 text-[11px] font-semibold text-primary">
+              SM
+            </AvatarFallback>
+          </Avatar>
+        </div>
       </header>
-      <div className="mn-page-header px-6 pt-6 pb-4">
-        <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">{title}</h1>
-        <p className="mn-page-subtitle mt-1 text-sm text-muted-foreground">{subtitle}</p>
-      </div>
     </>
   )
 }

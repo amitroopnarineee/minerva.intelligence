@@ -12,7 +12,7 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="flex flex-col">
         {children}
       </SidebarInset>
     </SidebarProvider>
