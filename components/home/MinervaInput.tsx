@@ -3,91 +3,22 @@
 import React, { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Plus, ArrowUp, Sparkles, Search, Users, BarChart3, Zap, Upload, Target, Brain } from "lucide-react"
-import { MinervaLogo } from "@/components/shared/MinervaLogo"
 
 interface MinervaMode {
   id: string
   label: string
   icon: React.ElementType
   headline: string
-  subtitle: string
   placeholder: string
-  chips: { icon: React.ElementType; label: string }[]
 }
 
 const modes: MinervaMode[] = [
-  {
-    id: "discover", label: "Discover", icon: Brain,
-    headline: "What should I focus on today?",
-    subtitle: "Minerva surfaces the most important signals, opportunities, and actions from your data.",
-    placeholder: "Ask about trends, anomalies, or what needs your attention...",
-    chips: [
-      { icon: Sparkles, label: "What changed overnight?" },
-      { icon: Target, label: "Top revenue opportunities" },
-      { icon: BarChart3, label: "Campaign health check" },
-      { icon: Users, label: "At-risk audience segments" },
-    ],
-  },
-  {
-    id: "person-search", label: "People", icon: Search,
-    headline: "Find anyone in 260M+ profiles.",
-    subtitle: "Search by demographics, career, interests, financials, and more.",
-    placeholder: "Find software engineers in Miami who earn over $150K and attended a Dolphins game...",
-    chips: [
-      { icon: Search, label: "High earners near Hard Rock Stadium" },
-      { icon: Users, label: "Corporate decision-makers in South FL" },
-      { icon: Target, label: "Lapsed season ticket holders" },
-      { icon: Sparkles, label: "Lookalikes of top 100 spenders" },
-    ],
-  },
-  {
-    id: "audiences", label: "Audiences", icon: Users,
-    headline: "Build intelligent audience segments.",
-    subtitle: "Create predictive, behavioral, and lookalike audiences from your data.",
-    placeholder: "Create an audience of families within 30 miles who've browsed ticket pages...",
-    chips: [
-      { icon: Users, label: "Premium suite prospects" },
-      { icon: Target, label: "Lookalike from top spenders" },
-      { icon: Zap, label: "Win-back: 6+ month lapsed fans" },
-      { icon: Sparkles, label: "High-propensity new buyers" },
-    ],
-  },
-  {
-    id: "analytics", label: "Analytics", icon: BarChart3,
-    headline: "Understand what's working.",
-    subtitle: "Campaign performance, audience ROI, channel attribution, and conversion trends.",
-    placeholder: "How did our Meta retargeting campaign perform vs last month?",
-    chips: [
-      { icon: BarChart3, label: "ROAS by channel this week" },
-      { icon: Target, label: "Best performing audience" },
-      { icon: Sparkles, label: "Revenue attribution breakdown" },
-      { icon: Zap, label: "Underperforming campaigns" },
-    ],
-  },
-  {
-    id: "enrich", label: "Enrich", icon: Upload,
-    headline: "Enrich your data at scale.",
-    subtitle: "Upload a CSV or connect your CRM. Minerva appends 300+ attributes.",
-    placeholder: "Enrich my Salesforce contacts with income, interests, and purchase behavior...",
-    chips: [
-      { icon: Upload, label: "Upload CSV for enrichment" },
-      { icon: Users, label: "Enrich CRM contacts" },
-      { icon: Sparkles, label: "Append lifestyle attributes" },
-      { icon: Target, label: "Score propensity to buy" },
-    ],
-  },
-  {
-    id: "activate", label: "Activate", icon: Zap,
-    headline: "Push audiences to your channels.",
-    subtitle: "Send segments to Klaviyo, Meta, Google, Twilio, or any connected destination.",
-    placeholder: "Activate the premium suite prospects segment on Klaviyo and Meta Ads...",
-    chips: [
-      { icon: Zap, label: "Sync to Klaviyo" },
-      { icon: Target, label: "Push to Meta Ads" },
-      { icon: Users, label: "Send to Twilio SMS" },
-      { icon: Sparkles, label: "Multi-channel activation" },
-    ],
-  },
+  { id: "discover", label: "Discover", icon: Brain, headline: "What should I focus on today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
+  { id: "person-search", label: "People", icon: Search, headline: "Find anyone in 260M+ profiles.", placeholder: "Find software engineers in Miami who earn over $150K and attended a Dolphins game..." },
+  { id: "audiences", label: "Audiences", icon: Users, headline: "Build intelligent audience segments.", placeholder: "Create an audience of families within 30 miles who've browsed ticket pages..." },
+  { id: "analytics", label: "Analytics", icon: BarChart3, headline: "Understand what's working.", placeholder: "How did our Meta retargeting campaign perform vs last month?" },
+  { id: "enrich", label: "Enrich", icon: Upload, headline: "Enrich your data at scale.", placeholder: "Enrich my Salesforce contacts with income, interests, and purchase behavior..." },
+  { id: "activate", label: "Activate", icon: Zap, headline: "Push audiences to your channels.", placeholder: "Activate the premium suite prospects segment on Klaviyo and Meta Ads..." },
 ]
 
 interface MinervaInputProps {
@@ -127,18 +58,10 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
   const sendInactive = isDark ? "bg-white/10 text-white/30" : "bg-black/10 text-black/30"
   const pillBase = isDark ? "border-white/10 text-white/40" : "border-black/10 text-black/30"
   const pillActive = isDark ? "border-white/30 text-white bg-white/10" : "border-black/30 text-black bg-black/[0.06]"
-  const chipStyle = isDark
-    ? "border-white/10 text-white/50 hover:text-white/80 hover:border-white/25 hover:bg-white/[0.05]"
-    : "border-black/10 text-black/40 hover:text-black/70 hover:border-black/20 hover:bg-black/[0.03]"
 
   return (
     <div className="mn-input-container w-full max-w-2xl mx-auto">
-      {/* Logo */}
-      <div className="flex justify-center mb-5">
-        <MinervaLogo className={`h-10 w-10 ${isDark ? "text-white" : "text-black"}`} />
-      </div>
-
-      {/* Animated headline + subtitle */}
+      {/* Animated headline */}
       <AnimatePresence mode="wait">
         <motion.div
           key={mode.id}
@@ -151,39 +74,11 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
           <h1 className={`text-2xl font-bold tracking-tight sm:text-3xl ${isDark ? "text-white" : "text-black"}`}>
             {mode.headline}
           </h1>
-          <p className={`mt-2 text-sm max-w-md mx-auto leading-relaxed ${isDark ? "text-white/50" : "text-black/40"}`}>
-            {mode.subtitle}
-          </p>
         </motion.div>
       </AnimatePresence>
 
-      {/* Mode switcher */}
-      <div className="flex items-center justify-center gap-1 mb-5">
-        {modes.map((m, i) => {
-          const Icon = m.icon
-          const isActive = i === activeMode
-          return (
-            <button
-              key={m.id}
-              onClick={() => { setActiveMode(i); setMessage("") }}
-              className={`relative flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${isActive ? pillActive : pillBase} hover:opacity-100`}
-            >
-              <Icon className="h-3 w-3" />
-              <span className="hidden sm:inline">{m.label}</span>
-              {isActive && (
-                <motion.div
-                  layoutId="mode-indicator"
-                  className={`absolute inset-0 rounded-full border ${isDark ? "border-white/30" : "border-black/25"}`}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-            </button>
-          )
-        })}
-      </div>
-
       {/* Input */}
-      <div className={`flex flex-col rounded-2xl border backdrop-blur-sm transition-all duration-200 ${bg}`}>
+      <div className={`mn-input-box flex flex-col rounded-2xl border backdrop-blur-sm transition-all duration-200 ${bg}`}>
         <div className="flex flex-col px-4 pt-4 pb-3 gap-2">
           <AnimatePresence mode="wait">
             <motion.div key={mode.id + "-input"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }} className="min-h-[2.5rem]">
@@ -211,24 +106,30 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
         </div>
       </div>
 
-      {/* Chips */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={mode.id + "-chips"}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.25, delay: 0.05 }}
-          className="flex flex-wrap justify-center gap-2 mt-5"
-        >
-          {mode.chips.map(({ icon: Icon, label }) => (
-            <button key={label} onClick={() => setMessage(label)} className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs transition-all ${chipStyle}`}>
+      {/* Mode switcher — below input */}
+      <div className="flex items-center justify-center gap-1 mt-5">
+        {modes.map((m, i) => {
+          const Icon = m.icon
+          const isActive = i === activeMode
+          return (
+            <button
+              key={m.id}
+              onClick={() => { setActiveMode(i); setMessage("") }}
+              className={`relative flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${isActive ? pillActive : pillBase} hover:opacity-100`}
+            >
               <Icon className="h-3 w-3" />
-              {label}
+              <span className="hidden sm:inline">{m.label}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="mode-indicator"
+                  className={`absolute inset-0 rounded-full border ${isDark ? "border-white/30" : "border-black/25"}`}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
             </button>
-          ))}
-        </motion.div>
-      </AnimatePresence>
+          )
+        })}
+      </div>
     </div>
   )
 }

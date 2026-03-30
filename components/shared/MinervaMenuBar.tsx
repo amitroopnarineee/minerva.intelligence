@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { MinervaLogo } from "@/components/shared/MinervaLogo"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { Bell, Moon, Sun } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -169,7 +168,7 @@ export function MinervaMenuBar() {
         <div className="mn-menubar-left flex items-center gap-3">
           {/* Logo — navigates to /home */}
           <button onClick={() => router.push("/home")} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-            <MinervaLogo className="h-[14px] w-[14px]" />
+            <div className="mn-logo-mark h-[10px] w-[10px] rounded-[2px] bg-current" />
             <span className="text-[13px] font-semibold leading-none">Minerva</span>
           </button>
 
