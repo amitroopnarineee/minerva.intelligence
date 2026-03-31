@@ -5,6 +5,7 @@ import { GlobalBackground } from "@/components/shared/GlobalBackground"
 import { CommandPalette } from "@/components/shared/CommandPalette"
 import { MinervaChat } from "@/components/shared/MinervaChat"
 import { SelectionToolbar } from "@/components/shared/SelectionToolbar"
+import { DragSelect } from "@/components/shared/DragSelect"
 import { useState, useEffect, useCallback } from "react"
 
 export default function DashboardLayout({
@@ -37,7 +38,7 @@ export default function DashboardLayout({
     setInitialMessage(null)
   }
 
-  const handleSelectionAI = useCallback((text: string) => {
+  const handleAIRequest = useCallback((text: string) => {
     setInitialMessage(text)
     setChatOpen(true)
   }, [])
@@ -53,7 +54,8 @@ export default function DashboardLayout({
       </div>
       <CommandPalette />
       <MinervaChat open={chatOpen} onClose={handleClose} initialMessage={initialMessage} />
-      <SelectionToolbar onAskAI={handleSelectionAI} />
+      <SelectionToolbar onAskAI={handleAIRequest} />
+      <DragSelect onAnalyze={handleAIRequest} />
     </div>
   )
 }

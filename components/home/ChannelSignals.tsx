@@ -40,7 +40,11 @@ export function ChannelSignals() {
                   const trendColor = c.trend === "up" ? "text-emerald-400" : c.trend === "down" ? "text-red-400" : "text-muted-foreground";
                   const budgetPct = Math.min((c.spend / c.budget) * 100, 100);
                   return (
-                    <TableRow key={c.id} className="mn-campaign-row cursor-pointer" onClick={() => setSelectedCampaign(c)}>
+                    <TableRow key={c.id} className="mn-campaign-row cursor-pointer" onClick={() => setSelectedCampaign(c)}
+                    data-selectable data-select-type="Campaign" data-select-label={c.name}
+                    data-select-roas={`${c.roas}x`} data-select-conversions={`${c.conversions}`}
+                    data-select-spend={`$${c.spend.toLocaleString()}`} data-select-channel={c.channel}
+                    data-select-trend={`${c.trendPct > 0 ? "+" : ""}${c.trendPct}%`}>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {c.trend === "down" && <AlertTriangle className="h-3.5 w-3.5 text-red-400" />}

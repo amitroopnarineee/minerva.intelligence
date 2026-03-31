@@ -39,7 +39,11 @@ export function AudienceIntelligence() {
             const trendColor = aud.valueTrend === "up" ? "text-emerald-400" : aud.valueTrend === "down" ? "text-red-400" : "text-muted-foreground";
             return (
               <motion.div key={aud.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.4 + i * 0.05 }}>
-                <FeatureCard className="mn-audience-card flex h-full flex-col p-4 cursor-pointer hover:border-primary/30 transition-colors" decorated={true}>
+                <FeatureCard className="mn-audience-card flex h-full flex-col p-4 cursor-pointer hover:border-primary/30 transition-colors" decorated={true}
+                  data-selectable data-select-type="Audience" data-select-label={aud.name}
+                  data-select-size={`${aud.estimatedSize.toLocaleString()}`}
+                  data-select-propensity={`${((aud.avgPropensityScore ?? 0) * 100).toFixed(0)}%`}
+                  data-select-channel={aud.channelRecommendation}>
                   <div className="mb-2 flex items-start justify-between">
                     <Badge variant="secondary" className="text-[10px] uppercase">{aud.type}</Badge>
                     <span className={`flex items-center gap-0.5 ${trendColor}`}>
