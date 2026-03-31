@@ -1,5 +1,6 @@
 import { MinervaMenuBar } from "@/components/shared/MinervaMenuBar"
 import { GlobalBackground } from "@/components/shared/GlobalBackground"
+import { CommandPalette } from "@/components/shared/CommandPalette"
 
 export default function DashboardLayout({
   children,
@@ -15,6 +16,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+      <CommandPalette />
     </div>
   )
 }

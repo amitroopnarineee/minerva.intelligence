@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { Bell, Moon, Sun } from "lucide-react"
+import { Bell, Moon, Sun, Search } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { User, Settings, LogOut, CreditCard, HelpCircle } from "lucide-react"
@@ -187,6 +187,14 @@ export function MinervaMenuBar() {
             })}
           </div>
         </div>
+
+        {/* Center: ⌘K search */}
+        <button onClick={() => { const e = new KeyboardEvent("keydown", { key: "k", metaKey: true }); document.dispatchEvent(e) }}
+          className="mn-cmd-trigger flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-border transition-colors">
+          <Search className="h-3 w-3" />
+          <span className="hidden sm:inline">Search</span>
+          <kbd className="ml-1 rounded bg-muted/50 px-1 py-px text-[9px] font-medium">⌘K</kbd>
+        </button>
 
         {/* Right: utilities — all aligned to text height */}
         <div className="mn-menubar-right flex items-center gap-2">
