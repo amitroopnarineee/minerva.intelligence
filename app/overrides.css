@@ -295,3 +295,157 @@ h1, h2, h3, h4, h5, h6,
 .mn-chat-panel p:last-child {
   margin-bottom: 0 !important;
 }
+
+
+/* ══════════════════════════════════════════════════════════
+   AMIT OVERRIDES — Custom polish layer
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Global ── */
+.bg-\[\#0c0e1a\]\/60 {
+  background-color: inherit !important;
+}
+.backdrop-blur-sm {
+  background: #ffffff14 !important;
+}
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-family: "SF Pro", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.5px !important;
+}
+.text-\[9px\] {
+  font-size: 9px;
+  display: none !important;
+}
+
+/* ── Menu Bar ── */
+.mn-menubar {
+  font-family: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
+  position: fixed !important;
+  width: 100%;
+  mix-blend-mode: difference !important;
+}
+.mn-menubar-inner {
+  padding: 10px !important;
+}
+.mn-menubar-el-18 {
+  display: none !important;
+}
+.mn-menubar-el-19 {
+  display: none !important;
+}
+.mn-pageheader {
+  display: none !important;
+}
+
+/* ── Chat Panel ── */
+.mn-chat-header {
+  display: none;
+}
+.mn-chat-blur {
+  display: none !important;
+}
+.mn-chat-textarea {
+  background: white !important;
+}
+.mn-chat-input-box {
+  background: white !important;
+}
+.mn-chat-input-area {
+  background: transparent;
+  padding: 0px !important;
+  margin: 0px !important;
+  border: none !important;
+}
+.mn-chat-panel textarea,
+.mn-chat-panel [class*="input"],
+.mn-chat-panel [class*="Input"],
+.mn-chat-panel [role="textbox"] {
+  font-family: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 13.5px !important;
+  background: transparent;
+  border-radius: 12px;
+  border: none !important;
+}
+
+/* ── Command Center ── */
+.mn-cc-header {
+  padding-top: 300px;
+}
+.mn-cc-carousel {
+  scrollbar-width: none;
+  position: fixed;
+  bottom: 0;
+  padding: 20px 0px;
+}
+.mn-cc-card {
+  border: none;
+  padding: 10px;
+}
+.mn-cc-card-headline {
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 500 !important;
+  letter-spacing: -0.5px;
+}
+.mn-cc-card-time {
+  color: whitesmoke;
+}
+.mn-cc-card-category {
+  color: whitesmoke;
+}
+.mn-cc-card-bottom {
+  border-top: 1px solid;
+}
+
+/* ── Command Center Modal ── */
+.mn-cc-modal-content {
+  filter: invert(1);
+}
+.mn-cc-modal-left {
+  justify-content: start;
+  padding: 10px;
+}
+.mn-cc-modal-topbar {
+  padding: 10px;
+}
+.mn-cc-modal-metric {
+  background: transparent;
+  padding: 10px;
+  height: auto;
+}
+
+/* ── Command Palette ── */
+.mn-cmd-trigger {
+  width: 100% !important;
+  border: none !important;
+}
+
+/* ── Home / Input ── */
+.mn-input-box {
+  padding: 0px !important;
+}
+
+/* ── Person Search ── */
+.mn-psearch-page {
+  padding-top: 5%;
+}
+.mn-psearch-new-btn {
+  position: fixed !important;
+  bottom: 30px !important;
+  left: 50% !important;
+}
+.mn-psearch-search-input {
+  display: none !important;
+}
+.mn-psearch-search-icon {
+  display: none !important;
+}
+.mn-psearch-segments-table {
+  padding: 0px !important;
+}
+
+/* ── Segment Tabs ── */
+.mn-segment-tabs {
+  display: block !important;
+}
