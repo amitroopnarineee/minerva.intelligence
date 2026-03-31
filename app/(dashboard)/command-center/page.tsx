@@ -119,58 +119,63 @@ function DrillDownModal({ card, onClose }: { card: InsightCard; onClose: () => v
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="mn-cc-modal fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
+      transition={{ duration: 0.25 }}
+      className="mn-cc-modal fixed inset-0 z-50 bg-black/60 backdrop-blur-md"
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.97 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className="mn-cc-modal-content bg-card border border-border/50 rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 40 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="mn-cc-modal-content absolute inset-4 top-12 bg-card border border-border/50 rounded-2xl overflow-hidden shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal header */}
-        <div className="mn-cc-modal-header flex items-start justify-between p-6 pb-4 border-b border-border/30">
-          <div>
-            <div className="mn-cc-modal-meta flex items-center gap-2 mb-2">
-              <span className="mn-cc-modal-source text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{card.source}</span>
-              <span className="mn-cc-modal-dot text-muted-foreground/30">·</span>
-              <span className="mn-cc-modal-category text-[11px] text-muted-foreground">{card.category}</span>
-              <span className="mn-cc-modal-dot text-muted-foreground/30">·</span>
-              <span className="mn-cc-modal-time flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" />{card.timeAgo} ago</span>
-            </div>
-            <h2 className="mn-cc-modal-title text-[20px] font-semibold tracking-tight">{card.drillDown.title}</h2>
+        {/* Top bar */}
+        <div className="mn-cc-modal-topbar flex items-center justify-between px-8 py-5 border-b border-border/30 shrink-0">
+          <div className="mn-cc-modal-meta flex items-center gap-2.5">
+            <span className="mn-cc-modal-source text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{card.source}</span>
+            <span className="text-muted-foreground/20">|</span>
+            <span className="mn-cc-modal-category text-[11px] text-muted-foreground">{card.category}</span>
+            <span className="text-muted-foreground/20">|</span>
+            <span className="mn-cc-modal-time flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" />{card.timeAgo} ago</span>
           </div>
-          <button onClick={onClose} className="mn-cc-modal-close text-muted-foreground hover:text-foreground transition-colors p-1">
-            <X className="h-5 w-5" />
+          <button onClick={onClose} className="mn-cc-modal-close h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all">
+            <X className="h-4.5 w-4.5" />
           </button>
         </div>
 
-        {/* Metrics strip */}
-        {card.drillDown.metrics && (
-          <div className="mn-cc-modal-metrics grid grid-cols-4 gap-4 p-6 pb-4">
-            {card.drillDown.metrics.map((m, i) => (
-              <div key={i} className="mn-cc-modal-metric rounded-xl border border-border/30 bg-muted/20 px-4 py-3">
-                <p className="mn-cc-modal-metric-label text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{m.label}</p>
-                <div className="mn-cc-modal-metric-value flex items-baseline gap-1.5">
-                  <span className="text-[20px] font-bold tracking-tight">{m.value}</span>
-                  {m.trend && <span className="text-[11px] font-medium text-emerald-400">{m.trend}</span>}
-                </div>
+        {/* Two-column body */}
+        <div className="mn-cc-modal-body flex-1 grid grid-cols-2 min-h-0">
+          {/* Left column — fixed */}
+          <div className="mn-cc-modal-left border-r border-border/20 p-8 flex flex-col justify-center">
+            <h2 className="mn-cc-modal-title text-[26px] font-semibold tracking-tight leading-tight mb-8">{card.drillDown.title}</h2>
+            {card.drillDown.metrics && (
+              <div className="mn-cc-modal-metrics grid grid-cols-2 gap-3">
+                {card.drillDown.metrics.map((m, i) => (
+                  <div key={i} className="mn-cc-modal-metric rounded-xl border border-border/30 bg-muted/10 px-4 py-4">
+                    <p className="mn-cc-modal-metric-label text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{m.label}</p>
+                    <div className="mn-cc-modal-metric-value flex items-baseline gap-2">
+                      <span className="text-[24px] font-bold tracking-tight">{m.value}</span>
+                      {m.trend && <span className="text-[12px] font-medium text-emerald-400">{m.trend}</span>}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
 
-        {/* Sections */}
-        <div className="mn-cc-modal-body p-6 pt-2 space-y-5">
-          {card.drillDown.sections.map((sec, i) => (
-            <div key={i} className="mn-cc-modal-section">
-              <h3 className="mn-cc-modal-section-title text-[13px] font-semibold mb-2">{sec.heading}</h3>
-              <p className="mn-cc-modal-section-text text-[13.5px] text-muted-foreground leading-relaxed">{sec.content}</p>
+          {/* Right column — scrollable */}
+          <div className="mn-cc-modal-right overflow-y-auto p-8" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
+            <div className="mn-cc-modal-sections space-y-8">
+              {card.drillDown.sections.map((sec, i) => (
+                <div key={i} className="mn-cc-modal-section">
+                  <h3 className="mn-cc-modal-section-title text-[12px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">{sec.heading}</h3>
+                  <p className="mn-cc-modal-section-text text-[14px] text-foreground/80 leading-[1.75]">{sec.content}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </motion.div>
     </motion.div>
