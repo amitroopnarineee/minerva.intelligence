@@ -1,62 +1,227 @@
 "use client"
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Mail, Phone, MapPin, Home, Users, DollarSign, Clock, Ticket, Heart } from "lucide-react"
+import { FeatureCard } from "@/components/shared/FeatureCard"
+import { Mail, Phone, MapPin, Building2, Calendar, User2, Briefcase } from "lucide-react"
 import type { Person } from "@/lib/data/persons"
 
 interface PersonProfileSheetProps { person: Person | null; open: boolean; onClose: () => void }
 
-function ScoreBar({ label, score, variant = "default" }: { label: string; score: number; variant?: "default" | "danger" }) {
-  const pct = Math.round(score * 100)
-  const color = variant === "danger" ? pct > 50 ? "bg-red-500" : "bg-red-300" : pct > 70 ? "bg-emerald-500" : pct > 40 ? "bg-amber-400" : "bg-muted-foreground/30"
-  return (<div className="mn-profile-stack space-y-1"><div className="mn-profile-row-2 flex items-center justify-between"><span className="mn-profile-el-3 text-xs text-muted-foreground">{label}</span><span className="mn-profile-el-4 text-xs font-semibold tabular-nums">{pct}</span></div><div className="mn-profile-el-5 h-1.5 w-full overflow-hidden rounded-full bg-secondary"><div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} /></div></div>)
-}
+// Mock address history for richer demo
+const mockAddresses = [
+  { address: "1420 NW 2nd Ave, Miami, FL 33136", status: "Current", date: "Jan 2023 – Present", type: null, value: null },
+  { address: "8900 SW 107th Ave, Miami, FL 33176", status: null, date: "Mar 2020 – Dec 2022", type: "Rented", value: "$2,100/mo" },
+  { address: "3200 Collins Ave, Miami Beach, FL 33140", status: null, date: "Jun 2018 – Feb 2020", type: "Rented", value: "$1,850/mo" },
+]
 
-function InfoRow({ icon: Icon, label, value }: { icon: typeof Mail; label: string; value: string }) {
-  return (<div className="mn-profile-group-6 flex items-center gap-3 py-1.5"><Icon className="mn-profile-el-7 h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="mn-profile-el-8 text-xs text-muted-foreground w-20 shrink-0">{label}</span><span className="mn-profile-el-9 text-xs font-medium truncate">{value}</span></div>)
+function InfoCell({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
+  return (
+    <div className="mn-profile-info-cell">
+      <p className="mn-profile-info-label text-[11px] text-muted-foreground mb-0.5">{label}</p>
+      <div className="mn-profile-info-value flex items-center gap-1.5">
+        {icon}
+        <span className="mn-profile-info-text text-[14px] font-medium">{value}</span>
+      </div>
+    </div>
+  )
 }
-
-const statusColors: Record<string, string> = { active_fan: "bg-emerald-500/10 text-emerald-500", season_ticket_holder: "bg-blue-500/10 text-blue-500", lapsed: "bg-red-500/10 text-red-500", prospect: "bg-amber-500/10 text-amber-500", anonymous: "bg-muted text-muted-foreground" }
-const lifecycleColors: Record<string, string> = { loyal: "bg-emerald-500/10 text-emerald-500", engaged: "bg-blue-500/10 text-blue-500", growing: "bg-cyan-500/10 text-cyan-500", at_risk: "bg-red-500/10 text-red-500", acquisition: "bg-amber-500/10 text-amber-500" }
 
 export function PersonProfileSheet({ person, open, onClose }: PersonProfileSheetProps) {
   if (!person) return null
   const initials = `${person.firstName[0]}${person.lastName[0]}`
-  const totalRevenue = person.tickets.reduce((sum, t) => sum + t.revenue, 0)
+  const primaryEmail = person.contacts.find(c => c.type === "email" && c.isPrimary)
+  const otherEmails = person.contacts.filter(c => c.type === "email" && !c.isPrimary)
+  const primaryPhone = person.contacts.find(c => c.type === "phone" && c.isPrimary)
+  const otherPhones = person.contacts.filter(c => c.type === "phone" && !c.isPrimary)
 
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) onClose() }}>
-      <SheetContent className="mn-profile-sheet w-full sm:max-w-lg overflow-y-auto p-0">
-        <div className="mn-profile-divider sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm px-6 py-4">
-          <div className="mn-profile-group-11 flex items-center gap-4">
-            <Avatar className="mn-profile-el-12 h-12 w-12 border"><AvatarFallback className="mn-profile-el-13 bg-primary/10 text-sm font-bold text-primary">{initials}</AvatarFallback></Avatar>
-            <div className="mn-profile-el-14 flex-1 min-w-0">
-              <SheetHeader className="p-0"><SheetTitle className="mn-profile-el-15 text-lg font-semibold">{person.firstName} {person.lastName}</SheetTitle></SheetHeader>
-              <div className="mn-profile-group-16 flex items-center gap-2 mt-1">
-                <Badge className={`text-[10px] ${statusColors[person.fanStatus] ?? "bg-secondary text-secondary-foreground"}`}>{person.fanStatus.replace(/_/g, " ")}</Badge>
-                <Badge className={`text-[10px] ${lifecycleColors[person.lifecycleStage] ?? "bg-secondary text-secondary-foreground"}`}>{person.lifecycleStage.replace(/_/g, " ")}</Badge>
+      <SheetContent className="mn-profile-sheet w-full sm:max-w-3xl overflow-y-auto p-0 [&>button]:hidden" side="right">
+        <div className="mn-profile-content">
+          {/* Breadcrumb */}
+          <div className="mn-profile-breadcrumb px-6 pt-4 pb-2 text-[11px] text-muted-foreground">
+            Person Search › Result › <span className="text-foreground/70">{person.firstName} {person.lastName}</span>
+          </div>
+
+          {/* Header */}
+          <div className="mn-profile-header px-6 pb-4 flex items-center gap-4">
+            <Avatar className="mn-profile-avatar h-14 w-14 border">
+              <AvatarFallback className="mn-profile-avatar-text bg-primary/10 text-lg font-bold text-primary">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="mn-profile-header-info">
+              <div className="mn-profile-header-name flex items-center gap-2">
+                <h1 className="mn-profile-name text-[22px] font-semibold tracking-tight">{person.firstName} {person.lastName}</h1>
+                <svg className="mn-profile-linkedin h-5 w-5 text-[#0A66C2]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
               </div>
+              <p className="mn-profile-subtitle text-[13px] text-muted-foreground">{person.jobTitle} · {person.city}, {person.state}</p>
             </div>
           </div>
-        </div>
-        <div className="mn-profile-stack px-6 py-5 space-y-6">
-          <div className="mn-profile-group-18 flex items-center gap-4">
-            <div className="mn-profile-el-19 flex-1"><div className="mn-profile-row-20 flex items-center justify-between mb-1"><span className="mn-profile-label-21 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Identity Confidence</span><span className="mn-profile-el-22 text-xs font-bold tabular-nums">{Math.round(person.identityConfidence * 100)}%</span></div><Progress value={person.identityConfidence * 100} className="h-1.5" /></div>
-            <div className="mn-profile-el-23 flex-1"><div className="mn-profile-row-24 flex items-center justify-between mb-1"><span className="mn-profile-label-25 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Profile Completeness</span><span className="mn-profile-el-26 text-xs font-bold tabular-nums">{Math.round(person.profileCompleteness * 100)}%</span></div><Progress value={person.profileCompleteness * 100} className="h-1.5" /></div>
+
+          {/* Two-column layout */}
+          <div className="mn-profile-body px-6 pb-6 grid grid-cols-[1fr_300px] gap-4">
+            {/* Left column */}
+            <div className="mn-profile-left space-y-4">
+              {/* Personal Information */}
+              <FeatureCard className="mn-profile-personal-info p-5">
+                <h3 className="mn-profile-section-title flex items-center gap-2 text-[13px] font-semibold mb-4">
+                  <User2 className="h-4 w-4 text-muted-foreground" /> Personal Information
+                </h3>
+                <div className="mn-profile-info-grid grid grid-cols-4 gap-4">
+                  <InfoCell label="Age" value={String(person.age)} />
+                  <InfoCell label="Gender" value={person.gender === "female" ? "♀ Female" : person.gender === "male" ? "♂ Male" : "—"} />
+                  <InfoCell label="Marital Status" value="—" />
+                  <InfoCell label="Children" value={person.household.hasChildren ? "Yes" : "—"} />
+                  <InfoCell label="Employment Status" value="Active" />
+                  <InfoCell label="Estimated Income" value={person.household.incomeBand} />
+                  <InfoCell label="Estimated Wealth" value={person.household.netWorthBand} />
+                  <InfoCell label="Current Location" value={`${person.city}, ${person.state}`} icon={<MapPin className="h-3 w-3 text-muted-foreground" />} />
+                </div>
+              </FeatureCard>
+
+              {/* Experience */}
+              <FeatureCard className="mn-profile-experience p-5">
+                <h3 className="mn-profile-section-title flex items-center gap-2 text-[13px] font-semibold mb-4">
+                  <Briefcase className="h-4 w-4 text-muted-foreground" /> Experience
+                </h3>
+                <div className="mn-profile-exp-card flex items-start gap-3">
+                  <div className="mn-profile-exp-icon h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="mn-profile-exp-info">
+                    <p className="mn-profile-exp-title text-[14px] font-semibold">{person.jobTitle}</p>
+                    <p className="mn-profile-exp-company text-[13px] text-muted-foreground">{person.company}</p>
+                    <div className="mn-profile-exp-tags flex flex-wrap gap-1.5 mt-2">
+                      <Badge variant="outline" className="mn-profile-exp-tag text-[10px] bg-primary/5 border-primary/20 text-primary">Current</Badge>
+                      <Badge variant="outline" className="mn-profile-exp-tag text-[10px]">Full-Time</Badge>
+                      <Badge variant="outline" className="mn-profile-exp-tag text-[10px]">{person.household.incomeBand}</Badge>
+                    </div>
+                    <p className="mn-profile-exp-date flex items-center gap-1 text-[11px] text-muted-foreground mt-2">
+                      <Calendar className="h-3 w-3" /> Jan 2020 – Present
+                    </p>
+                  </div>
+                </div>
+              </FeatureCard>
+
+              {/* Address History */}
+              <FeatureCard className="mn-profile-addresses p-5">
+                <h3 className="mn-profile-section-title flex items-center gap-2 text-[13px] font-semibold mb-4">
+                  <MapPin className="h-4 w-4 text-muted-foreground" /> Address History
+                </h3>
+                <div className="mn-profile-addr-list space-y-4">
+                  {mockAddresses.map((addr, i) => (
+                    <div key={i} className="mn-profile-addr-item">
+                      <p className="mn-profile-addr-text text-[13px] font-medium">{addr.address}</p>
+                      <div className="mn-profile-addr-meta flex items-center gap-2 mt-1">
+                        {addr.status && <Badge variant="outline" className="mn-profile-addr-badge text-[10px] bg-primary/5 border-primary/20 text-primary">{addr.status}</Badge>}
+                        {addr.type && <Badge variant="outline" className="mn-profile-addr-type text-[10px]">{addr.type}</Badge>}
+                        {addr.value && <span className="mn-profile-addr-value text-[11px] text-muted-foreground">{addr.value}</span>}
+                      </div>
+                      <p className="mn-profile-addr-date flex items-center gap-1 text-[11px] text-muted-foreground mt-1">
+                        <Calendar className="h-3 w-3" /> {addr.date}
+                      </p>
+                      {i < mockAddresses.length - 1 && <Separator className="mt-4" />}
+                    </div>
+                  ))}
+                </div>
+              </FeatureCard>
+            </div>
+
+            {/* Right column (sidebar) */}
+            <div className="mn-profile-right space-y-4">
+              {/* Email Addresses */}
+              <FeatureCard className="mn-profile-emails p-4">
+                <h3 className="mn-profile-section-title flex items-center gap-2 text-[12px] font-semibold mb-3">
+                  <Mail className="h-3.5 w-3.5 text-muted-foreground" /> Email Addresses
+                </h3>
+                <div className="mn-profile-email-list space-y-3">
+                  {primaryEmail && (
+                    <div className="mn-profile-email-row flex items-center justify-between">
+                      <span className="mn-profile-email-value text-[13px] truncate">{primaryEmail.value}</span>
+                      <div className="mn-profile-email-badges flex gap-1 shrink-0 ml-2">
+                        <Badge className="mn-profile-badge-primary text-[9px] bg-amber-500/10 text-amber-600 border-amber-500/20">✦ Primary</Badge>
+                        <Badge variant="outline" className="mn-profile-badge-type text-[9px]">Personal</Badge>
+                      </div>
+                    </div>
+                  )}
+                  {otherEmails.map((e, i) => (
+                    <div key={i} className="mn-profile-email-row flex items-center justify-between">
+                      <span className="mn-profile-email-value text-[13px] text-muted-foreground truncate">{e.value}</span>
+                      <Badge variant="outline" className="mn-profile-badge-type text-[9px] shrink-0 ml-2">Work</Badge>
+                    </div>
+                  ))}
+                </div>
+              </FeatureCard>
+
+              {/* Phone Numbers */}
+              <FeatureCard className="mn-profile-phones p-4">
+                <h3 className="mn-profile-section-title flex items-center gap-2 text-[12px] font-semibold mb-3">
+                  <Phone className="h-3.5 w-3.5 text-muted-foreground" /> Phone Numbers
+                </h3>
+                <div className="mn-profile-phone-list space-y-3">
+                  {primaryPhone && (
+                    <div className="mn-profile-phone-row flex items-center justify-between">
+                      <span className="mn-profile-phone-value text-[13px]">{primaryPhone.value}</span>
+                      <div className="mn-profile-phone-badges flex gap-1 shrink-0 ml-2">
+                        <Badge className="mn-profile-badge-primary text-[9px] bg-amber-500/10 text-amber-600 border-amber-500/20">✦ Primary</Badge>
+                        <Badge variant="outline" className="mn-profile-badge-type text-[9px]">Mobile</Badge>
+                      </div>
+                    </div>
+                  )}
+                  {otherPhones.map((ph, i) => (
+                    <div key={i} className="mn-profile-phone-row flex items-center justify-between">
+                      <span className="mn-profile-phone-value text-[13px] text-muted-foreground">{ph.value}</span>
+                      <Badge variant="outline" className="mn-profile-badge-type text-[9px] shrink-0 ml-2">Other</Badge>
+                    </div>
+                  ))}
+                </div>
+              </FeatureCard>
+
+              {/* Person Activity (skeleton placeholder) */}
+              <FeatureCard className="mn-profile-activity p-4">
+                <h3 className="mn-profile-section-title flex items-center gap-2 text-[12px] font-semibold mb-3">
+                  <svg className="h-3.5 w-3.5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  Person Activity
+                </h3>
+                <div className="mn-profile-activity-skeleton space-y-3">
+                  {[1,2,3].map((_, i) => (
+                    <div key={i} className="mn-profile-activity-row flex items-center gap-3">
+                      <div className="mn-profile-activity-bar h-2 w-16 bg-muted/50 rounded" />
+                      <div className="mn-profile-activity-dot h-2 w-2 rounded-full bg-muted/30" />
+                      <div className="mn-profile-activity-bar h-2 flex-1 bg-muted/30 rounded" />
+                    </div>
+                  ))}
+                </div>
+              </FeatureCard>
+
+              {/* Propensity Scores */}
+              <FeatureCard className="mn-profile-scores p-4">
+                <h3 className="mn-profile-section-title text-[12px] font-semibold mb-3">Propensity Scores</h3>
+                <div className="mn-profile-score-list space-y-2.5">
+                  {[
+                    { label: "Ticket Purchase", score: person.scores.ticketBuy, color: "bg-blue-500" },
+                    { label: "Renewal", score: person.scores.renewal, color: "bg-emerald-500" },
+                    { label: "Premium Upgrade", score: person.scores.premium, color: "bg-amber-500" },
+                    { label: "Churn Risk", score: person.scores.churn, color: "bg-red-500" },
+                  ].map((s, i) => (
+                    <div key={i} className="mn-profile-score-row">
+                      <div className="mn-profile-score-header flex items-center justify-between mb-1">
+                        <span className="mn-profile-score-label text-[11px] text-muted-foreground">{s.label}</span>
+                        <span className="mn-profile-score-value text-[11px] font-semibold tabular-nums">{Math.round(s.score * 100)}</span>
+                      </div>
+                      <div className="mn-profile-score-track h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                        <div className={`mn-profile-score-fill h-full rounded-full transition-all ${s.color}`} style={{ width: `${s.score * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </FeatureCard>
+            </div>
           </div>
-          <Separator />
-          <div><h4 className="mn-profile-label-27 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Contact</h4>{person.contacts.map((c, i) => (<InfoRow key={i} icon={c.type === "email" ? Mail : Phone} label={c.type} value={c.value} />))}<InfoRow icon={MapPin} label="Location" value={`${person.city}, ${person.state} ${person.zip}`} /><InfoRow icon={Clock} label="Last seen" value={new Date(person.lastSeenAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} /></div>
-          <Separator />
-          <div><h4 className="mn-profile-label-28 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Household</h4><InfoRow icon={DollarSign} label="Income" value={person.household.incomeBand} /><InfoRow icon={Home} label="Housing" value={person.household.homeownership} /><InfoRow icon={Users} label="Size" value={`${person.household.householdSize} ${person.household.hasChildren ? "· Has children" : ""}`} /><InfoRow icon={MapPin} label="Stadium" value={`${person.household.distanceToStadium} miles`} /></div>
-          <Separator />
-          <div><h4 className="mn-profile-label-29 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Propensity Scores</h4><div className="mn-profile-stack space-y-3"><ScoreBar label="Ticket Purchase" score={person.scores.ticketBuy} /><ScoreBar label="Renewal" score={person.scores.renewal} /><ScoreBar label="Premium Upgrade" score={person.scores.premium} /><ScoreBar label="Churn Risk" score={person.scores.churn} variant="danger" /></div></div>
-          <Separator />
-          <div><h4 className="mn-profile-label-31 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Affinities & Interests</h4><div className="mn-profile-group-32 flex flex-wrap gap-1.5">{person.affinities.map((a, i) => (<Badge key={i} variant="outline" className="mn-profile-el-33 text-[10px] gap-1"><Heart className="mn-profile-el-34 h-2.5 w-2.5" />{a.name}<span className="mn-profile-el-35 text-muted-foreground tabular-nums">{Math.round(a.score * 100)}</span></Badge>))}</div></div>
-          {person.tickets.length > 0 && (<><Separator /><div><div className="mn-profile-row-36 flex items-center justify-between mb-2"><h4 className="mn-profile-label-37 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ticket History</h4><span className="mn-profile-el-38 text-xs font-semibold text-emerald-400 tabular-nums">${totalRevenue.toLocaleString()}</span></div><div className="mn-profile-stack space-y-2">{person.tickets.map((t, i) => (<div key={i} className="mn-profile-row-40 flex items-center justify-between rounded-lg border px-3 py-2"><div className="mn-profile-group-41 flex items-center gap-2"><Ticket className="mn-profile-el-42 h-3.5 w-3.5 text-muted-foreground" /><div><p className="mn-profile-el-43 text-xs font-medium">{t.product}</p><p className="mn-profile-el-44 text-[10px] text-muted-foreground">{t.seatCategory} · {new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p></div></div><div className="mn-profile-el-45 text-right"><span className="mn-profile-el-46 text-xs font-semibold tabular-nums">${t.revenue.toLocaleString()}</span>{t.isPremium && <Badge className="mn-profile-el-47 ml-2 bg-amber-500/10 text-amber-500 text-[8px]">PREMIUM</Badge>}</div></div>))}</div></div></>)}
         </div>
       </SheetContent>
     </Sheet>
