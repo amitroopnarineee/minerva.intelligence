@@ -104,6 +104,62 @@ const insights: InsightCard[] = [
       metrics: [{ label: "Segment Size", value: "3,100" }, { label: "MoM Growth", value: "+23%" }, { label: "Q1 Revenue", value: "$847K" }, { label: "Avg Order", value: "$380" }],
     },
   },
+  {
+    id: "7", source: "Concessions", category: "Growth",
+    headline: "Per-cap concession spend up 18% vs last season",
+    timeAgo: "25min", color: "border-l-emerald-400/60",
+    drillDown: {
+      title: "Concession Revenue — Per-Cap Growth",
+      sections: [
+        { heading: "Summary", content: "Average per-capita concession spend has risen to $47.20, up 18% from $40.00 last season. Mobile ordering adoption is at 34%, driving higher average order values and reduced queue times." },
+        { heading: "Top Categories", content: "Craft beer (+31%), premium food vendors (+24%), and merchandise (+15%) are the fastest-growing categories. Standard concession items are flat. The new sushi vendor in the 72 Club is averaging $2,800 per game." },
+        { heading: "Opportunity", content: "Expand mobile ordering to all concourse levels — currently only available in premium sections. Test dynamic pricing on high-demand games. Consider exclusive menu items tied to premium ticket packages." },
+      ],
+      metrics: [{ label: "Per-Cap Spend", value: "$47.20", trend: "+18%" }, { label: "Mobile Orders", value: "34%" }, { label: "Avg Order Value", value: "$28.50" }, { label: "Season Revenue", value: "$12.4M" }],
+    },
+  },
+  {
+    id: "8", source: "Email", category: "Campaign",
+    headline: "Season ticket renewal email — 42% open rate, 8.3% CTR",
+    timeAgo: "30min", color: "border-l-blue-400/60",
+    drillDown: {
+      title: "Email Campaign — Season Ticket Renewal Series",
+      sections: [
+        { heading: "Summary", content: "The 3-part renewal email sequence launched March 15 has achieved a 42% open rate (industry avg: 21%) and 8.3% click-through rate. 340 renewals have been directly attributed to the campaign, generating $1.2M in committed revenue." },
+        { heading: "Sequence Performance", content: "Email 1 (Early Bird): 48% open, 9.1% CTR. Email 2 (Seat Map Preview): 39% open, 7.8% CTR. Email 3 (Final Reminder): 38% open, 8.0% CTR. Subject line A/B test showed personalized lines outperform generic by 22%." },
+        { heading: "Next Steps", content: "Send Email 4 (final urgency) to non-converters on April 5. Segment high-value non-openers for phone outreach. Test SMS follow-up for mobile-first audience (under 35)." },
+      ],
+      metrics: [{ label: "Open Rate", value: "42%", trend: "+21pts" }, { label: "CTR", value: "8.3%" }, { label: "Renewals", value: "340" }, { label: "Revenue", value: "$1.2M" }],
+    },
+  },
+  {
+    id: "9", source: "Parking", category: "High Value",
+    headline: "VIP parking utilization at 91% — capacity risk for playoffs",
+    timeAgo: "35min", color: "border-l-red-400/60",
+    drillDown: {
+      title: "VIP Parking — Capacity Planning Alert",
+      sections: [
+        { heading: "Summary", content: "VIP and premium parking lots are running at 91% utilization for regular season games. With playoff demand typically 30-40% higher, there is a significant risk of overselling and negative premium customer experiences." },
+        { heading: "Current Allocation", content: "72 Club: 100% allocated. Suite holders: 95% allocated. Season ticket premium: 88% allocated. Single-game premium: sold out last 3 home games. Overflow lot (Lot H) has been activated for last 2 games." },
+        { heading: "Recommendation", content: "1. Immediately cap single-game VIP parking sales at 90% per game. 2. Negotiate temporary overflow agreement with adjacent property. 3. Launch premium valet service ($75) as capacity relief and revenue add-on. 4. Communicate proactively with suite holders about guaranteed parking." },
+      ],
+      metrics: [{ label: "Utilization", value: "91%" }, { label: "Revenue/Game", value: "$185K" }, { label: "Overflow Days", value: "2" }, { label: "Complaints", value: "14" }],
+    },
+  },
+  {
+    id: "10", source: "Social", category: "Growth",
+    headline: "Instagram engagement rate 4.7% — 2x industry benchmark",
+    timeAgo: "40min", color: "border-l-purple-400/60",
+    drillDown: {
+      title: "Social Media — Instagram Performance",
+      sections: [
+        { heading: "Summary", content: "The Dolphins Instagram account has reached 4.7% engagement rate, doubling the sports industry benchmark of 2.3%. Follower growth is +8,400 this month, driven by behind-the-scenes draft prep content and player lifestyle posts." },
+        { heading: "Top Content", content: "Reels outperform static posts 3:1 in engagement. Top 3 posts this month: (1) Draft prospect workout video — 890K views, (2) Player mic'd up at practice — 650K views, (3) Stadium sunset timelapse — 420K views. Stories with polls average 12% response rate." },
+        { heading: "Monetization", content: "Partner content (sponsored posts) generating $45K/month. Explore Instagram Shopping integration for merchandise — estimated $15K incremental monthly revenue. Consider UGC campaign tied to gameday to boost organic reach." },
+      ],
+      metrics: [{ label: "Engagement", value: "4.7%", trend: "+1.2pts" }, { label: "Followers", value: "2.1M" }, { label: "Monthly Growth", value: "+8,400" }, { label: "Partner Rev", value: "$45K" }],
+    },
+  },
 ]
 
 function DrillDownModal({ card, onClose }: { card: InsightCard; onClose: () => void }) {
@@ -171,10 +227,12 @@ function DrillDownModal({ card, onClose }: { card: InsightCard; onClose: () => v
 
 export default function CommandCenterPage() {
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
+  const [activeFilter, setActiveFilter] = useState("All")
   
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const filtered = insights
+  const categories = ["All", "Renewal Risk", "Campaign", "Growth", "High Value", "Re-engagement", "Segment"]
+  const filtered = activeFilter === "All" ? insights : insights.filter(c => c.category === activeFilter)
 
   const scroll = (dir: "left" | "right") => {
     if (scrollRef.current) scrollRef.current.scrollBy({ left: dir === "left" ? -360 : 360, behavior: "smooth" })
@@ -192,7 +250,22 @@ export default function CommandCenterPage() {
             Premium and family momentum are rising, but owned conversion is slipping — the move today is turning that demand into premium sales and stronger capture.
           </p>
 
-
+          {/* Filter tabs */}
+          <div className="mn-cc-filters flex items-center gap-1 rounded-xl bg-muted/20 border border-border/30 p-1 backdrop-blur-sm">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className={`mn-cc-filter-chip text-[12px] px-3 py-1.5 rounded-lg transition-all ${
+                  activeFilter === cat
+                    ? "mn-cc-filter-active bg-primary text-primary-foreground font-medium shadow-sm"
+                    : "mn-cc-filter-inactive text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </FadeIn>
 
         {/* Bottom carousel */}
