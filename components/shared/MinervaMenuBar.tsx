@@ -1,243 +1,155 @@
 "use client"
 
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { Bell, Moon, Sun, Search, Sparkles } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { User, Settings, LogOut, CreditCard, HelpCircle } from "lucide-react"
-import { useTheme } from "next-themes"
 
-interface MenuItemOption {
-  label?: string
-  action?: string
-  shortcut?: string
-  type?: "item" | "separator"
-  href?: string
-  badge?: string
-}
-
-interface MenuConfig {
-  label: string
-  items: MenuItemOption[]
-  href?: string // direct link, no dropdown
-}
-
-const MINERVA_MENUS: MenuConfig[] = [
-  {
-    label: "Home",
-    items: [
-      { label: "Dashboard", action: "nav", href: "/" },
-      { label: "Command Center", action: "nav", href: "/command-center" },
-    ],
-  },
-  {
-    label: "People",
-    items: [
-      { label: "People Directory", action: "nav", href: "/people", shortcut: "⌘1" },
-      { label: "Person Search", action: "nav", href: "/person-search", shortcut: "⌘2" },
-      { label: "Prospecting", action: "nav", href: "/prospecting", shortcut: "⌘3" },
-      { label: "Owned Audience", action: "nav", href: "/owned-audience", shortcut: "⌘4" },
-      { type: "separator" },
-      { label: "Bulk Enrich", action: "nav", href: "/bulk-enrich", shortcut: "⌘5" },
-    ],
-  },
-  {
-    label: "Analytics",
-    href: "/analytics",
-    items: [],
-  },
-  {
-    label: "Settings",
-    items: [
-      { label: "Integrations", action: "nav", href: "/integrations" },
-      { label: "Usage", action: "nav", href: "/usage" },
-      { type: "separator" },
-      { label: "Get Started", action: "nav", href: "/get-started", badge: "4" },
-    ],
-  },
+const LEFT_NAV = [
+  { label: "Home", href: "/" },
+  { label: "People", href: "/people" },
+]
+const RIGHT_NAV = [
+  { label: "Analytics", href: "/analytics" },
+  { label: "Settings", href: "/integrations" },
 ]
 
-const LOGO_MENU: MenuItemOption[] = [
-  { label: "About Minerva", action: "about" },
-  { type: "separator" },
-  { label: "Preferences...", action: "preferences", shortcut: "⌘," },
-  { label: "Help Center", action: "help" },
-  { type: "separator" },
-  { label: "Log Out", action: "logout", shortcut: "⇧⌘Q" },
-]
-
-// ─── MenuDropdown ────────────────────────────────────────────────────────────
-
-interface MenuDropdownProps {
-  isOpen: boolean
-  onClose: () => void
-  items: MenuItemOption[]
-  position: { x: number; y: number }
-  onItemClick: (item: MenuItemOption) => void
-}
-
-function MenuDropdown({ isOpen, onClose, items, position, onItemClick }: MenuDropdownProps) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
-    }
-    if (isOpen) document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [isOpen, onClose])
-
-  if (!isOpen) return null
-
-  return (
-    <div ref={ref} className="mn-menubar-el-1 absolute z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150"
-      style={{
-        left: position.x, top: position.y, minWidth: 220,
-        background: "hsl(var(--popover))",
-        border: "1px solid hsl(var(--border))",
-        borderRadius: 8,
-        boxShadow: "0 8px 32px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1)",
-      }}>
-      <div className="py-1">
-        {items.map((item, i) => {
-          if (item.type === "separator") return <div key={i} className="mn-menubar-el-2 h-px bg-border mx-2 my-1" />
-          return (
-            <div key={i} className="mn-menubar-row-3 px-3 py-1.5 text-sm cursor-pointer hover:bg-accent transition-colors flex items-center justify-between"
-              onClick={() => { onItemClick(item); onClose() }}>
-              <span className="mn-menubar-right flex items-center gap-2">
-                {item.label}
-                {item.badge && <span className="mn-menubar-el-4 rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">{item.badge}</span>}
-              </span>
-              {item.shortcut && <span className="mn-menubar-el-5 text-xs text-muted-foreground ml-6">{item.shortcut}</span>}
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-// ─── MinervaMenuBar ──────────────────────────────────────────────────────────
+type NotchState = "hidden" | "peek" | "open"
 
 export function MinervaMenuBar() {
+  const [state, setState] = useState<NotchState>("hidden")
+  const [mounted, setMounted] = useState(false)
+  const notchRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const { setTheme, resolvedTheme } = useTheme()
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 })
-  const [mounted, setMounted] = useState(false)
-  const [currentTime, setCurrentTime] = useState("")
-  const menuRefs = useRef<Record<string, HTMLSpanElement | null>>({})
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => { setMounted(true) }, [])
 
-  useEffect(() => {
-    const update = () => {
-      setCurrentTime(new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }))
-    }
-    update()
-    const interval = setInterval(update, 60000)
-    return () => clearInterval(interval)
+  const go = useCallback((s: NotchState) => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    setState(s)
   }, [])
 
-  const openMenu = useCallback((key: string, el: HTMLElement | null) => {
-    if (activeMenu === key) { setActiveMenu(null); return }
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      const parentRect = el.offsetParent?.getBoundingClientRect() || { left: 0, top: 0 }
-      setDropdownPos({ x: rect.left - parentRect.left, y: 36 })
-    }
-    setActiveMenu(key)
-  }, [activeMenu])
+  // Mouse proximity detection
+  useEffect(() => {
+    if (!mounted) return
+    const handleMove = (e: MouseEvent) => {
+      const rect = notchRef.current?.getBoundingClientRect()
+      const overNotch = rect && e.clientX >= rect.left - 5 && e.clientX <= rect.right + 5 && e.clientY <= rect.bottom + 5 && e.clientY >= 0
 
-  const handleItem = useCallback((item: MenuItemOption) => {
-    if (item.href) router.push(item.href)
-  }, [router])
-
-  const activeLabel = (() => {
-    for (const menu of MINERVA_MENUS) {
-      for (const item of menu.items) {
-        if (item.href === pathname) return menu.label
+      if (e.clientY <= 50 && state === "hidden") {
+        go("peek")
+      }
+      if (state === "peek") {
+        if (e.clientY <= 50 || overNotch) {
+          if (timerRef.current) clearTimeout(timerRef.current)
+        } else {
+          if (timerRef.current) clearTimeout(timerRef.current)
+          timerRef.current = setTimeout(() => setState(s => s === "peek" ? "hidden" : s), 300)
+        }
       }
     }
-    return null
-  })()
+    document.addEventListener("mousemove", handleMove)
+    return () => document.removeEventListener("mousemove", handleMove)
+  }, [mounted, state, go])
+
+  const handleNotchClick = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).dataset.nav) return
+    if (timerRef.current) clearTimeout(timerRef.current)
+    if (state === "peek" || state === "hidden") go("open")
+    else {
+      go("peek")
+      timerRef.current = setTimeout(() => setState(s => s === "peek" ? "hidden" : s), 1000)
+    }
+  }, [state, go])
+
+  const handleBackdrop = useCallback(() => {
+    if (state === "open") {
+      go("peek")
+      timerRef.current = setTimeout(() => setState(s => s === "peek" ? "hidden" : s), 600)
+    }
+  }, [state, go])
+
+  const handleNav = useCallback((href: string) => {
+    router.push(href)
+    go("peek")
+    timerRef.current = setTimeout(() => setState(s => s === "peek" ? "hidden" : s), 600)
+  }, [router, go])
+
+  // Emit events for chat toggle
+  const handleSparkle = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("minerva-chat-toggle"))
+    go("peek")
+    timerRef.current = setTimeout(() => setState(s => s === "peek" ? "hidden" : s), 400)
+  }, [go])
+
+  if (!mounted) return null
+
+  const isOpen = state === "open"
+  const isVisible = state !== "hidden"
 
   return (
-    <div className="mn-menubar relative z-30">
-      <div className="mn-menubar-inner flex h-9 items-center justify-between px-4">
-        {/* Left: logo + menus */}
-        <div className="mn-menubar-left flex items-center gap-3">
-          {/* Logo — navigates to /home */}
-          <button onClick={() => router.push("/")} className="mn-menubar-group-6 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
-            <div className="mn-logo-mark h-[10px] w-[10px] rounded-[2px] bg-current" />
-            <span className="mn-menubar-label-7 text-[13px] font-semibold leading-none">Minerva</span>
-          </button>
+    <>
+      {/* Top bar */}
+      <div className={`mn-menubar-topbar fixed top-0 left-0 right-0 h-[10px] bg-[#0a0a0a] z-[150] transition-transform duration-[600ms] ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
+        style={{ transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }} />
 
-          <div className="mn-menubar-el-8 flex items-center">
-            {MINERVA_MENUS.map((menu) => {
-              const isActive = activeLabel === menu.label
-              return (
-                <span key={menu.label}
-                  ref={(el) => { menuRefs.current[menu.label] = el }}
-                  onClick={() => menu.href ? router.push(menu.href) : openMenu(menu.label, menuRefs.current[menu.label])}
-                  className={`px-2 py-0.5 text-[13px] leading-none cursor-pointer rounded transition-colors select-none ${
-                    (isActive || (menu.href && pathname === menu.href)) ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
-                  }`}>
-                  {menu.label}
-                </span>
-              )
-            })}
+      {/* Backdrop */}
+      <div className={`mn-menubar-backdrop fixed inset-0 z-[99] transition-all duration-500 ${isOpen ? "bg-black/8 pointer-events-auto backdrop-blur-[2px]" : "bg-transparent pointer-events-none"}`}
+        onClick={handleBackdrop} />
+
+      {/* Notch */}
+      <div className="mn-menubar-wrapper fixed top-0 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center">
+        <div ref={notchRef} onClick={handleNotchClick}
+          className={`mn-menubar mn-notch relative flex items-center justify-center cursor-pointer select-none bg-[#0a0a0a] transition-all ${
+            isOpen ? "mn-notch-open w-[520px] h-[54px] rounded-b-[30px] px-9 opacity-100 translate-y-0"
+            : isVisible ? "mn-notch-peek w-[180px] h-[38px] rounded-b-[22px] px-5 opacity-100 translate-y-0"
+            : "mn-notch-hidden w-[120px] h-0 rounded-b-[20px] px-5 opacity-0 -translate-y-5"
+          }`}
+          style={{ transitionDuration: "500ms, 500ms, 600ms, 500ms, 400ms, 500ms", transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}
+        >
+          {/* Ear curves */}
+          <svg className={`mn-notch-ear-l absolute top-0 right-full w-[18px] h-[18px] pointer-events-none transition-opacity duration-400 ${isVisible ? "opacity-100" : "opacity-0"}`}
+            viewBox="0 0 20 20"><path d="M20 0L20 20C20 8.954 11.046 0 0 0L20 0Z" fill="#0a0a0a"/></svg>
+          <svg className={`mn-notch-ear-r absolute top-0 left-full w-[18px] h-[18px] pointer-events-none transition-opacity duration-400 ${isVisible ? "opacity-100" : "opacity-0"}`}
+            viewBox="0 0 20 20"><path d="M0 0L0 20C0 8.954 8.954 0 20 0L0 0Z" fill="#0a0a0a"/></svg>
+
+          {/* Left nav */}
+          <div className={`mn-notch-nav-left flex items-center overflow-hidden transition-all ${isOpen ? "max-w-[300px] opacity-100 mr-4" : "max-w-0 opacity-0 mr-0"}`}
+            style={{ transitionDuration: "700ms, 500ms, 700ms", transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}>
+            {LEFT_NAV.map((item, i) => (
+              <span key={item.href} data-nav="true" onClick={() => handleNav(item.href)}
+                className={`mn-notch-item mn-notch-item-l${i} text-[13.5px] font-normal tracking-[0.01em] whitespace-nowrap px-4 py-[5px] rounded-[20px] cursor-pointer transition-all ${
+                  isOpen ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-1.5 scale-[0.92]"
+                } ${pathname === item.href ? "text-white font-medium" : "text-white/55 hover:text-white hover:bg-white/10 active:scale-[0.96] active:bg-white/15"}`}
+                style={{ transitionDelay: isOpen ? `${120 + i * 60}ms` : "0ms", transitionDuration: "450ms", transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}>
+                {item.label}
+              </span>
+            ))}
+          </div>
+
+          {/* Logo */}
+          <div className={`mn-notch-logo flex items-center justify-center shrink-0 z-5 transition-transform duration-500 ${state === "peek" ? "hover:scale-[1.08]" : ""}`}
+            style={{ transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}>
+            <span className="mn-notch-logo-text text-white text-[13px] font-semibold tracking-tight" style={{ filter: "drop-shadow(0 0 8px rgba(255,255,255,0.15))" }}>
+              Minerva
+            </span>
+          </div>
+
+          {/* Right nav */}
+          <div className={`mn-notch-nav-right flex items-center overflow-hidden transition-all ${isOpen ? "max-w-[300px] opacity-100 ml-4" : "max-w-0 opacity-0 ml-0"}`}
+            style={{ transitionDuration: "700ms, 500ms, 700ms", transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}>
+            {RIGHT_NAV.map((item, i) => (
+              <span key={item.href} data-nav="true" onClick={() => handleNav(item.href)}
+                className={`mn-notch-item mn-notch-item-r${i} text-[13.5px] font-normal tracking-[0.01em] whitespace-nowrap px-4 py-[5px] rounded-[20px] cursor-pointer transition-all ${
+                  isOpen ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-1.5 scale-[0.92]"
+                } ${pathname === item.href ? "text-white font-medium" : "text-white/55 hover:text-white hover:bg-white/10 active:scale-[0.96] active:bg-white/15"}`}
+                style={{ transitionDelay: isOpen ? `${120 + i * 60}ms` : "0ms", transitionDuration: "450ms", transitionTimingFunction: "cubic-bezier(.32,.72,0,1)" }}>
+                {item.label}
+              </span>
+            ))}
           </div>
         </div>
-
-        {/* Center: ⌘K search */}
-        <button onClick={() => { const e = new KeyboardEvent("keydown", { key: "k", metaKey: true }); document.dispatchEvent(e) }}
-          className="mn-cmd-trigger flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-border transition-colors">
-          <Search className="h-3 w-3" />
-          <span className="mn-menubar-el-9 hidden sm:inline">Search</span>
-          <kbd className="mn-menubar-label-10 ml-1 rounded bg-muted/50 px-1 py-px text-[9px] font-medium">⌘K</kbd>
-        </button>
-
-        {/* Right: utilities — all aligned to text height */}
-        <div className="mn-menubar-right flex items-center gap-2">
-          <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="mn-menubar-el-11 text-muted-foreground hover:text-foreground transition-colors">
-            {mounted ? (resolvedTheme === "dark" ? <Moon className="mn-menubar-el-12 h-[14px] w-[14px]" /> : <Sun className="mn-menubar-el-13 h-[14px] w-[14px]" />) : <Sun className="mn-menubar-el-14 h-[14px] w-[14px] opacity-0" />}
-          </button>
-          <button onClick={() => { const e = new CustomEvent("minerva-chat-toggle"); window.dispatchEvent(e) }}
-            className="mn-chat-trigger text-muted-foreground hover:text-foreground transition-colors" title="Open AI Chat">
-            <Sparkles className="mn-menubar-el-15 h-[14px] w-[14px]" />
-          </button>
-          <button className="mn-menubar-el-16 text-muted-foreground hover:text-foreground transition-colors">
-            <Bell className="mn-menubar-el-17 h-[14px] w-[14px]" />
-          </button>
-          <span className="mn-menubar-el-18 text-[13px] text-muted-foreground tabular-nums leading-none hidden sm:inline">{currentTime}</span>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="mn-menubar-el-19 focus:outline-none">
-              <Avatar className="mn-menubar-divider h-5 w-5 cursor-pointer border border-border">
-                <AvatarFallback className="mn-menubar-el-21 bg-primary/10 text-[8px] font-bold text-primary leading-none">SM</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel><div className="mn-menubar-el-22 flex flex-col"><span className="mn-menubar-el-23 text-sm font-medium">Sarah Martinez</span><span className="mn-menubar-el-24 text-xs text-muted-foreground">s.martinez@dolphins.com</span></div></DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="gap-2"><User className="h-4 w-4" /> Profile</DropdownMenuItem>
-              <DropdownMenuItem className="gap-2"><Settings className="h-4 w-4" /> Settings</DropdownMenuItem>
-              <DropdownMenuItem className="gap-2"><CreditCard className="h-4 w-4" /> Billing</DropdownMenuItem>
-              <DropdownMenuItem className="gap-2"><HelpCircle className="h-4 w-4" /> Help & Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="mn-menubar-el-25 gap-2 text-destructive-foreground"><LogOut className="h-4 w-4" /> Log out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </div>
-
-      {/* Dropdowns */}
-      {MINERVA_MENUS.map((menu) => (
-        <MenuDropdown key={menu.label} isOpen={activeMenu === menu.label} onClose={() => setActiveMenu(null)} items={menu.items} position={dropdownPos} onItemClick={handleItem} />
-      ))}
-    </div>
+    </>
   )
 }
