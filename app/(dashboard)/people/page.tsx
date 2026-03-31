@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
 import { FeatureCard } from "@/components/shared/FeatureCard"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -10,7 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { persons } from "@/lib/data/persons"
 import { audiences } from "@/lib/data/audiences"
-import { Search, Plus, Download } from "lucide-react"
+import { Search, ChevronRight, Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const statusColors: Record<string, string> = {
   active_fan: "bg-emerald-500/10 text-emerald-500",
@@ -21,59 +21,50 @@ const statusColors: Record<string, string> = {
 }
 
 function getAudienceNames(audienceIds: string[]): string[] {
-  return audienceIds.map(id => {
-    const aud = audiences.find(a => a.id === id)
-    return aud ? aud.name : id
-  })
+  return audienceIds.map(id => audiences.find(a => a.id === id)?.name || id).slice(0, 2)
 }
 
-export default function PeopleDirectoryPage() {
+export default function PeoplePage() {
   const router = useRouter()
   const [query, setQuery] = useState("")
 
   const filtered = persons.filter(p => {
     if (!query) return true
     const q = query.toLowerCase()
-    return (
-      p.firstName.toLowerCase().includes(q) ||
-      p.lastName.toLowerCase().includes(q) ||
-      p.city.toLowerCase().includes(q) ||
-      p.jobTitle.toLowerCase().includes(q) ||
-      p.company.toLowerCase().includes(q) ||
-      p.fanStatus.replace(/_/g, " ").includes(q)
-    )
+    return p.firstName.toLowerCase().includes(q) || p.lastName.toLowerCase().includes(q) ||
+      p.city.toLowerCase().includes(q) || p.jobTitle.toLowerCase().includes(q) ||
+      p.company.toLowerCase().includes(q) || p.fanStatus.replace(/_/g, " ").includes(q)
   })
 
   return (
     <div className="mn-people-page flex-1 overflow-y-auto p-6">
       <div className="mn-people-container mx-auto max-w-6xl">
         <PageTransition>
+          {/* Header */}
           <FadeIn className="mn-people-header mb-6">
             <div className="mn-people-title-row flex items-start justify-between">
               <div>
-                <h1 className="mn-people-title text-[24px] font-semibold tracking-tight">People Directory</h1>
-                <p className="mn-people-subtitle text-[13px] text-muted-foreground mt-0.5">All resolved consumer profiles across every segment</p>
+                <h1 className="mn-people-title text-[24px] font-semibold tracking-tight">People</h1>
+                <p className="mn-people-subtitle text-[13px] text-muted-foreground mt-0.5">All resolved consumer profiles across your segments</p>
               </div>
-              <div className="mn-people-actions flex items-center gap-2">
-                <button className="mn-people-export-btn flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground border border-border/50 rounded-lg px-3 py-1.5 transition-colors">
-                  <Download className="h-3.5 w-3.5" /> Export
-                </button>
-                <button className="mn-people-add-btn flex items-center gap-1.5 text-[12px] bg-primary text-primary-foreground rounded-lg px-3 py-1.5 font-medium">
-                  <Plus className="h-3.5 w-3.5" /> Add Person
-                </button>
-              </div>
+              <button className="mn-people-add-btn flex items-center gap-1.5 text-[12px] bg-primary text-primary-foreground rounded-lg px-3 py-2 font-medium">
+                <Plus className="h-3.5 w-3.5" /> Add to Segment
+              </button>
             </div>
           </FadeIn>
 
-          <FadeIn className="mn-people-search-bar mb-5">
+          {/* Search + count */}
+          <FadeIn className="mn-people-toolbar flex items-center justify-between mb-5">
             <div className="mn-people-search relative w-80">
               <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input value={query} onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by name, location, job title..."
+                placeholder="Search by name, location, title, status..."
                 className="pl-9 h-9 rounded-lg bg-card/60 border-border/50 text-[13px]" />
             </div>
+            <span className="mn-people-count text-[13px] text-muted-foreground">{filtered.length} people</span>
           </FadeIn>
 
+          {/* Table */}
           <FadeIn>
             <FeatureCard className="mn-people-table overflow-hidden">
               <Table>
@@ -82,16 +73,16 @@ export default function PeopleDirectoryPage() {
                     <TableHead className="mn-people-th-name">Person</TableHead>
                     <TableHead className="mn-people-th-age w-14">Age</TableHead>
                     <TableHead className="mn-people-th-job">Job Title</TableHead>
-                    <TableHead className="mn-people-th-status w-32">Fan Status</TableHead>
+                    <TableHead className="mn-people-th-status">Status</TableHead>
                     <TableHead className="mn-people-th-segments">Segments</TableHead>
-                    <TableHead className="mn-people-th-score w-20 text-right">Buy Score</TableHead>
+                    <TableHead className="mn-people-th-wealth">Wealth</TableHead>
+                    <TableHead className="mn-people-th-income">Income</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((p) => {
                     const initials = `${p.firstName[0]}${p.lastName[0]}`
-                    const segNames = getAudienceNames(p.audiences)
-                    const buyScore = Math.round(p.scores.ticketBuy * 100)
+                    const segmentNames = getAudienceNames(p.audiences)
                     return (
                       <TableRow key={p.id} className="mn-people-row cursor-pointer hover:bg-accent/30 transition-colors"
                         onClick={() => router.push(`/person-search/person/${p.id}`)}>
@@ -121,24 +112,21 @@ export default function PeopleDirectoryPage() {
                         </TableCell>
                         <TableCell className="mn-people-cell-segments">
                           <div className="flex flex-wrap gap-1">
-                            {segNames.slice(0, 2).map((s, i) => (
-                              <Badge key={i} variant="outline" className="text-[9px] truncate max-w-[120px]">{s}</Badge>
+                            {segmentNames.map((s, i) => (
+                              <Badge key={i} variant="outline" className="text-[9px] max-w-[120px] truncate">{s}</Badge>
                             ))}
-                            {segNames.length > 2 && <span className="text-[10px] text-muted-foreground">+{segNames.length - 2}</span>}
+                            {p.audiences.length > 2 && <span className="text-[10px] text-muted-foreground">+{p.audiences.length - 2}</span>}
                           </div>
                         </TableCell>
-                        <TableCell className="mn-people-cell-score text-right">
-                          <span className={`text-[13px] font-semibold tabular-nums ${buyScore >= 80 ? "text-emerald-400" : buyScore >= 50 ? "text-amber-400" : "text-muted-foreground"}`}>
-                            {buyScore}
-                          </span>
-                        </TableCell>
+                        <TableCell className="mn-people-cell-wealth text-[13px] text-muted-foreground">{p.household.netWorthBand}</TableCell>
+                        <TableCell className="mn-people-cell-income text-[13px] text-muted-foreground">{p.household.incomeBand}</TableCell>
                       </TableRow>
                     )
                   })}
                 </TableBody>
               </Table>
               <div className="mn-people-footer flex items-center justify-between border-t px-4 py-3 text-[11px] text-muted-foreground">
-                <span>Showing {filtered.length} of {persons.length} people</span>
+                <span>Rows per page: 25</span>
                 <span>1 – {filtered.length} of {filtered.length}</span>
               </div>
             </FeatureCard>

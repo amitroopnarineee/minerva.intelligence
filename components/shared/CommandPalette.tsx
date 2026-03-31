@@ -10,6 +10,7 @@ import { useTheme } from "next-themes"
 
 const navItems = [
   { label: "Home", href: "/", icon: Home, group: "Navigation" },
+  { label: "All People", href: "/people", icon: Users, group: "Navigation" },
   { label: "Analytics", href: "/analytics", icon: BarChart3, group: "Navigation" },
   { label: "People Directory", href: "/people", icon: Users, group: "Navigation" },
   { label: "Person Search", href: "/person-search", icon: Search, group: "Navigation" },
