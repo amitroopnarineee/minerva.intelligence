@@ -26,20 +26,18 @@ const MINERVA_MENUS: MenuConfig[] = [
   {
     label: "Workspace",
     items: [
-      { label: "Home", action: "nav", href: "/home", shortcut: "⌘1" },
-      { label: "Command Center", action: "nav", href: "/", shortcut: "⌘2", badge: "NEW" },
-      { label: "Analytics", action: "nav", href: "/analytics", shortcut: "⌘3" },
-      { label: "Person Search", action: "nav", href: "/person-search", shortcut: "⌘4" },
-      { label: "Bulk Enrich", action: "nav", href: "/bulk-enrich", shortcut: "⌘5" },
+      { label: "Dashboard", action: "nav", href: "/", shortcut: "⌘1" },
+      { label: "Analytics", action: "nav", href: "/analytics", shortcut: "⌘2" },
+      { label: "Person Search", action: "nav", href: "/person-search", shortcut: "⌘3" },
+      { label: "Bulk Enrich", action: "nav", href: "/bulk-enrich", shortcut: "⌘4" },
     ],
   },
   {
-    label: "Audiences",
+    label: "Audience Studio",
     items: [
-      { label: "Prospecting", action: "nav", href: "/prospecting", shortcut: "⌘6" },
-      { label: "Owned Audience", action: "nav", href: "/owned-audience", shortcut: "⌘7" },
+      { label: "Prospecting", action: "nav", href: "/prospecting", shortcut: "⌘5" },
+      { label: "Owned Audience", action: "nav", href: "/owned-audience", shortcut: "⌘6" },
       { type: "separator" },
-      { label: "Create Prospect...", action: "create-prospect" },
       { label: "Create Audience...", action: "create-audience" },
     ],
   },

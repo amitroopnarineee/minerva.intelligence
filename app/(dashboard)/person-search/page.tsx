@@ -44,7 +44,7 @@ export default function PersonSearchPage() {
               <div className="mn-psearch-title-row flex items-start justify-between">
                 <div>
                   <h1 className="mn-psearch-title text-[24px] font-semibold tracking-tight">Audience Segments</h1>
-                  <p className="mn-psearch-subtitle text-[13px] text-muted-foreground mt-0.5">Saved consumer intelligence segments and search definitions</p>
+                  <p className="mn-psearch-subtitle text-[13px] text-muted-foreground mt-0.5">Search 260M+ resolved consumer profiles or browse saved segments</p>
                 </div>
                 <button className="mn-psearch-new-btn flex items-center gap-1.5 text-[12px] bg-primary text-primary-foreground rounded-lg px-3 py-2 font-medium">
                   <Plus className="h-3.5 w-3.5" /> New Segment
