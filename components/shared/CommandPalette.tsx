@@ -9,7 +9,7 @@ import { audiences } from "@/lib/data/audiences"
 import { useTheme } from "next-themes"
 
 const navItems = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard, group: "Navigation" },
+  { label: "Home", href: "/", icon: Home, group: "Navigation" },
   { label: "Analytics", href: "/analytics", icon: BarChart3, group: "Navigation" },
   { label: "Person Search", href: "/person-search", icon: Search, group: "Navigation" },
   { label: "Bulk Enrich", href: "/bulk-enrich", icon: FileStack, group: "Navigation" },

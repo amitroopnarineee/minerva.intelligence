@@ -20,29 +20,32 @@ interface MenuItemOption {
 interface MenuConfig {
   label: string
   items: MenuItemOption[]
+  href?: string // direct link, no dropdown
 }
 
 const MINERVA_MENUS: MenuConfig[] = [
   {
-    label: "Workspace",
+    label: "Home",
+    href: "/",
+    items: [],
+  },
+  {
+    label: "People",
     items: [
-      { label: "Dashboard", action: "nav", href: "/", shortcut: "⌘1" },
-      { label: "Analytics", action: "nav", href: "/analytics", shortcut: "⌘2" },
-      { label: "Person Search", action: "nav", href: "/person-search", shortcut: "⌘3" },
+      { label: "Person Search", action: "nav", href: "/person-search", shortcut: "⌘1" },
+      { label: "Prospecting", action: "nav", href: "/prospecting", shortcut: "⌘2" },
+      { label: "Owned Audience", action: "nav", href: "/owned-audience", shortcut: "⌘3" },
+      { type: "separator" },
       { label: "Bulk Enrich", action: "nav", href: "/bulk-enrich", shortcut: "⌘4" },
     ],
   },
   {
-    label: "Audience Studio",
-    items: [
-      { label: "Prospecting", action: "nav", href: "/prospecting", shortcut: "⌘5" },
-      { label: "Owned Audience", action: "nav", href: "/owned-audience", shortcut: "⌘6" },
-      { type: "separator" },
-      { label: "Create Audience...", action: "create-audience" },
-    ],
+    label: "Analytics",
+    href: "/analytics",
+    items: [],
   },
   {
-    label: "Tools",
+    label: "Settings",
     items: [
       { label: "Integrations", action: "nav", href: "/integrations" },
       { label: "Usage", action: "nav", href: "/usage" },
@@ -164,7 +167,7 @@ export function MinervaMenuBar() {
         {/* Left: logo + menus */}
         <div className="mn-menubar-left flex items-center gap-3">
           {/* Logo — navigates to /home */}
-          <button onClick={() => router.push("/home")} className="mn-menubar-group-6 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+          <button onClick={() => router.push("/")} className="mn-menubar-group-6 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <div className="mn-logo-mark h-[10px] w-[10px] rounded-[2px] bg-current" />
             <span className="mn-menubar-label-7 text-[13px] font-semibold leading-none">Minerva</span>
           </button>
@@ -175,9 +178,9 @@ export function MinervaMenuBar() {
               return (
                 <span key={menu.label}
                   ref={(el) => { menuRefs.current[menu.label] = el }}
-                  onClick={() => openMenu(menu.label, menuRefs.current[menu.label])}
+                  onClick={() => menu.href ? router.push(menu.href) : openMenu(menu.label, menuRefs.current[menu.label])}
                   className={`px-2 py-0.5 text-[13px] leading-none cursor-pointer rounded transition-colors select-none ${
-                    isActive ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
+                    (isActive || (menu.href && pathname === menu.href)) ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                   }`}>
                   {menu.label}
                 </span>
