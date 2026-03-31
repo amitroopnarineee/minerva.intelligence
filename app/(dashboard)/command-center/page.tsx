@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
-import { X, Clock, TrendingUp, Users, DollarSign, AlertTriangle, Megaphone, ChevronLeft, ChevronRight } from "lucide-react"
+import { X, Clock, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface InsightCard {
@@ -10,9 +10,8 @@ interface InsightCard {
   source: string
   category: string
   headline: string
-  detail: string
   timeAgo: string
-  color: string  // accent border color
+  color: string
   drillDown: {
     title: string
     sections: { heading: string; content: string }[]
@@ -20,12 +19,13 @@ interface InsightCard {
   }
 }
 
+const categories = ["All", "Renewal Risk", "Campaign", "Growth", "High Value", "Re-engagement", "Segment"]
+
 const insights: InsightCard[] = [
   {
     id: "1", source: "Dolphins", category: "Renewal Risk",
     headline: "700 season ticket holders flagged for non-renewal",
-    detail: "",
-    timeAgo: "3min", color: "border-red-400/40",
+    timeAgo: "3min", color: "border-l-red-400/60",
     drillDown: {
       title: "Renewal Risk — Season Ticket Holders",
       sections: [
@@ -39,8 +39,7 @@ const insights: InsightCard[] = [
   {
     id: "2", source: "Premium Suites", category: "Campaign",
     headline: "ROAS hit 3.8x — budget has 41% headroom",
-    detail: "",
-    timeAgo: "5min", color: "border-emerald-400/40",
+    timeAgo: "5min", color: "border-l-emerald-400/60",
     drillDown: {
       title: "Premium Suites Spring Push — Campaign Performance",
       sections: [
@@ -54,8 +53,7 @@ const insights: InsightCard[] = [
   {
     id: "3", source: "Fan Base", category: "Growth",
     headline: "142 new prospects added in 7 days",
-    detail: "",
-    timeAgo: "8min", color: "border-blue-400/40",
+    timeAgo: "8min", color: "border-l-blue-400/60",
     drillDown: {
       title: "Prospect Acquisition — Weekly Growth Report",
       sections: [
@@ -69,8 +67,7 @@ const insights: InsightCard[] = [
   {
     id: "4", source: "David Chen", category: "High Value",
     headline: "Top prospect — $500K+ household, no tickets purchased",
-    detail: "",
-    timeAgo: "12min", color: "border-amber-400/40",
+    timeAgo: "12min", color: "border-l-amber-400/60",
     drillDown: {
       title: "High-Value Prospect — David Chen",
       sections: [
@@ -84,8 +81,7 @@ const insights: InsightCard[] = [
   {
     id: "5", source: "Lapsed Fans", category: "Re-engagement",
     headline: "2,340 lapsed fans haven't attended in 12+ months",
-    detail: "",
-    timeAgo: "15min", color: "border-orange-400/40",
+    timeAgo: "15min", color: "border-l-orange-400/60",
     drillDown: {
       title: "Lapsed Fan Re-engagement Opportunity",
       sections: [
@@ -93,14 +89,13 @@ const insights: InsightCard[] = [
         { heading: "Segment Profile", content: "Median age: 32. 58% male. Top lapse reasons (inferred): price sensitivity (42%), schedule conflicts (31%), team performance dissatisfaction (27%). 85% still have valid email addresses." },
         { heading: "Campaign Recommendation", content: "Deploy 3-stage email sequence: (1) 'We miss you' sentiment with highlight reel, (2) Exclusive returning-fan offer — 25% off select games, (3) Final urgency — limited availability messaging. Budget: $12K estimated for 3-stage email + retargeting." },
       ],
-      metrics: [{ label: "Lapsed Fans", value: "2,340" }, { label: "Est. LTV", value: "$4.7M" }, { label: "Email Reach", value: "85%" }, { label: "Re-engage Rate (est)", value: "18%" }],
+      metrics: [{ label: "Lapsed Fans", value: "2,340" }, { label: "Est. LTV", value: "$4.7M" }, { label: "Email Reach", value: "85%" }, { label: "Re-engage Rate", value: "18%" }],
     },
   },
   {
     id: "6", source: "Family", category: "Segment",
     headline: "Family package buyers up 23% month-over-month",
-    detail: "",
-    timeAgo: "20min", color: "border-purple-400/40",
+    timeAgo: "20min", color: "border-l-purple-400/60",
     drillDown: {
       title: "Family Segment — Growth Analysis",
       sections: [
@@ -131,23 +126,19 @@ function DrillDownModal({ card, onClose }: { card: InsightCard; onClose: () => v
         className="mn-cc-modal-content absolute inset-4 top-12 bg-card border border-border/50 rounded-2xl overflow-hidden shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top bar */}
         <div className="mn-cc-modal-topbar flex items-center justify-between px-8 py-5 border-b border-border/30 shrink-0">
           <div className="mn-cc-modal-meta flex items-center gap-2.5">
             <span className="mn-cc-modal-source text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{card.source}</span>
-            <span className="text-muted-foreground/20">|</span>
+            <span className="mn-cc-modal-sep text-muted-foreground/20">|</span>
             <span className="mn-cc-modal-category text-[11px] text-muted-foreground">{card.category}</span>
-            <span className="text-muted-foreground/20">|</span>
+            <span className="mn-cc-modal-sep text-muted-foreground/20">|</span>
             <span className="mn-cc-modal-time flex items-center gap-1 text-[11px] text-muted-foreground"><Clock className="h-3 w-3" />{card.timeAgo} ago</span>
           </div>
           <button onClick={onClose} className="mn-cc-modal-close h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all">
-            <X className="h-4.5 w-4.5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
-
-        {/* Two-column body */}
         <div className="mn-cc-modal-body flex-1 grid grid-cols-2 min-h-0">
-          {/* Left column — fixed */}
           <div className="mn-cc-modal-left border-r border-border/20 p-8 flex flex-col justify-center">
             <h2 className="mn-cc-modal-title text-[26px] font-semibold tracking-tight leading-tight mb-8">{card.drillDown.title}</h2>
             {card.drillDown.metrics && (
@@ -156,16 +147,14 @@ function DrillDownModal({ card, onClose }: { card: InsightCard; onClose: () => v
                   <div key={i} className="mn-cc-modal-metric rounded-xl border border-border/30 bg-muted/10 px-4 py-4">
                     <p className="mn-cc-modal-metric-label text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{m.label}</p>
                     <div className="mn-cc-modal-metric-value flex items-baseline gap-2">
-                      <span className="text-[24px] font-bold tracking-tight">{m.value}</span>
-                      {m.trend && <span className="text-[12px] font-medium text-emerald-400">{m.trend}</span>}
+                      <span className="mn-cc-modal-metric-number text-[24px] font-bold tracking-tight">{m.value}</span>
+                      {m.trend && <span className="mn-cc-modal-metric-trend text-[12px] font-medium text-emerald-400">{m.trend}</span>}
                     </div>
                   </div>
                 ))}
               </div>
             )}
           </div>
-
-          {/* Right column — scrollable */}
           <div className="mn-cc-modal-right overflow-y-auto p-8" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
             <div className="mn-cc-modal-sections space-y-8">
               {card.drillDown.sections.map((sec, i) => (
@@ -184,12 +173,13 @@ function DrillDownModal({ card, onClose }: { card: InsightCard; onClose: () => v
 
 export default function CommandCenterPage() {
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
+  const [activeFilter, setActiveFilter] = useState("All")
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  const filtered = activeFilter === "All" ? insights : insights.filter(c => c.category === activeFilter)
+
   const scroll = (dir: "left" | "right") => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === "left" ? -360 : 360, behavior: "smooth" })
-    }
+    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir === "left" ? -360 : 360, behavior: "smooth" })
   }
 
   return (
@@ -200,59 +190,82 @@ export default function CommandCenterPage() {
           <h1 className="mn-cc-title text-[32px] font-semibold tracking-tight mb-2" style={{ fontFamily: "'SF Pro Display', 'Overused Grotesk', sans-serif" }}>
             Command Center
           </h1>
-          <p className="mn-cc-subtitle text-[14px] text-muted-foreground max-w-md">
+          <p className="mn-cc-subtitle text-[14px] text-muted-foreground max-w-md mb-8">
             AI-generated insights and intelligence cards for the Miami Dolphins CMO
           </p>
+
+          {/* Filter toggles */}
+          <div className="mn-cc-filters flex items-center gap-1 rounded-xl bg-muted/20 border border-border/30 p-1 backdrop-blur-sm">
+            <SlidersHorizontal className="mn-cc-filters-icon h-3.5 w-3.5 text-muted-foreground mx-2 shrink-0" />
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className={`mn-cc-filter-chip text-[12px] px-3 py-1.5 rounded-lg transition-all ${
+                  activeFilter === cat
+                    ? "mn-cc-filter-active bg-primary text-primary-foreground font-medium shadow-sm"
+                    : "mn-cc-filter-inactive text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                }`}
+              >
+                {cat}
+                {cat !== "All" && (
+                  <span className={`mn-cc-filter-count ml-1.5 text-[10px] tabular-nums ${
+                    activeFilter === cat ? "text-primary-foreground/70" : "text-muted-foreground/50"
+                  }`}>
+                    {insights.filter(c => c.category === cat).length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </FadeIn>
 
         {/* Bottom carousel */}
         <div className="mn-cc-carousel-area shrink-0 pb-6 relative">
-          {/* Scroll buttons */}
           <button onClick={() => scroll("left")}
             className="mn-cc-scroll-left absolute left-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-card/80 border border-border/30 flex items-center justify-center hover:bg-card transition-colors backdrop-blur-sm">
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="mn-cc-scroll-icon h-4 w-4" />
           </button>
           <button onClick={() => scroll("right")}
             className="mn-cc-scroll-right absolute right-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-card/80 border border-border/30 flex items-center justify-center hover:bg-card transition-colors backdrop-blur-sm">
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="mn-cc-scroll-icon h-4 w-4" />
           </button>
 
-          {/* Cards */}
           <div ref={scrollRef}
             className="mn-cc-carousel flex gap-4 overflow-x-auto px-8 pb-2 snap-x snap-mandatory"
             style={{ scrollbarWidth: "none" }}>
-            {insights.map((card) => (
-              <motion.div
-                key={card.id}
-                whileHover={{ y: -4, scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => setActiveCard(card)}
-                className={`mn-cc-card snap-start shrink-0 w-[280px] h-[200px] rounded-xl border-l-2 ${card.color} bg-card/90 backdrop-blur-sm border border-border/30 p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow`}
-              >
-                {/* Top row */}
-                <div className="mn-cc-card-top flex items-center justify-between mb-3">
-                  <span className="mn-cc-card-source text-[11px] font-semibold text-foreground/70">{card.source}</span>
-                  <span className="mn-cc-card-category text-[10px] text-muted-foreground uppercase tracking-wider">{card.category}</span>
-                </div>
-
-                {/* Headline */}
-                <p className="mn-cc-card-headline text-[14px] font-medium leading-snug flex-1">{card.headline}</p>
-
-                {/* Bottom row */}
-                <div className="mn-cc-card-bottom flex items-center justify-between mt-3 pt-3 border-t border-border/20">
-                  <span className="mn-cc-card-action text-[11px] font-medium text-primary/70">View Drill Down</span>
-                  <span className="mn-cc-card-time flex items-center gap-1 text-[10px] text-muted-foreground">
-                    <Clock className="h-3 w-3" /> {card.timeAgo}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+            <AnimatePresence mode="popLayout">
+              {filtered.map((card) => (
+                <motion.div
+                  key={card.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.25 }}
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveCard(card)}
+                  className={`mn-cc-card snap-start shrink-0 w-[280px] h-[200px] rounded-xl border-l-[3px] ${card.color} bg-card/90 backdrop-blur-sm border border-border/30 p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow`}
+                >
+                  <div className="mn-cc-card-top flex items-center justify-between mb-3">
+                    <span className="mn-cc-card-source text-[11px] font-semibold text-foreground/70">{card.source}</span>
+                    <span className="mn-cc-card-category text-[10px] text-muted-foreground uppercase tracking-wider">{card.category}</span>
+                  </div>
+                  <p className="mn-cc-card-headline text-[14px] font-medium leading-snug flex-1">{card.headline}</p>
+                  <div className="mn-cc-card-bottom flex items-center justify-between mt-3 pt-3 border-t border-border/20">
+                    <span className="mn-cc-card-action text-[11px] font-medium text-primary/70">View Drill Down</span>
+                    <span className="mn-cc-card-time flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Clock className="mn-cc-card-clock h-3 w-3" /> {card.timeAgo}
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       </PageTransition>
 
-      {/* Full-screen modal */}
       <AnimatePresence>
         {activeCard && <DrillDownModal card={activeCard} onClose={() => setActiveCard(null)} />}
       </AnimatePresence>
