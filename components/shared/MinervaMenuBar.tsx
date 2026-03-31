@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { Bell, Moon, Sun, Search } from "lucide-react"
+import { Bell, Moon, Sun, Search, Sparkles } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { User, Settings, LogOut, CreditCard, HelpCircle } from "lucide-react"
@@ -201,6 +201,10 @@ export function MinervaMenuBar() {
           <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             className="text-muted-foreground hover:text-foreground transition-colors">
             {mounted ? (resolvedTheme === "dark" ? <Moon className="h-[14px] w-[14px]" /> : <Sun className="h-[14px] w-[14px]" />) : <Sun className="h-[14px] w-[14px] opacity-0" />}
+          </button>
+          <button onClick={() => { const e = new CustomEvent("minerva-chat-toggle"); window.dispatchEvent(e) }}
+            className="mn-chat-trigger text-muted-foreground hover:text-foreground transition-colors" title="Open AI Chat">
+            <Sparkles className="h-[14px] w-[14px]" />
           </button>
           <button className="text-muted-foreground hover:text-foreground transition-colors">
             <Bell className="h-[14px] w-[14px]" />
