@@ -27,7 +27,6 @@ export default function DashboardLayout({
         setChatOpen(true)
       }
     }
-    // AI action handler — navigate, open sheets
     const actionHandler = (e: Event) => {
       const detail = (e as CustomEvent).detail
       if (!detail) return
@@ -36,23 +35,16 @@ export default function DashboardLayout({
           router.push(detail.route)
           break
         case "openPerson":
-          // Navigate to person search and dispatch open event
           router.push("/person-search")
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent("minerva-open-person", { detail: { personId: detail.personId } }))
-          }, 500)
+          setTimeout(() => window.dispatchEvent(new CustomEvent("minerva-open-person", { detail: { personId: detail.personId } })), 500)
           break
         case "openAudience":
           router.push("/")
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent("minerva-open-audience", { detail: { audienceId: detail.audienceId } }))
-          }, 500)
+          setTimeout(() => window.dispatchEvent(new CustomEvent("minerva-open-audience", { detail: { audienceId: detail.audienceId } })), 500)
           break
         case "openCampaign":
           router.push("/")
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent("minerva-open-campaign", { detail: { campaignId: detail.campaignId } }))
-          }, 500)
+          setTimeout(() => window.dispatchEvent(new CustomEvent("minerva-open-campaign", { detail: { campaignId: detail.campaignId } })), 500)
           break
       }
     }
@@ -80,14 +72,29 @@ export default function DashboardLayout({
   return (
     <div className="mn-root h-screen relative overflow-hidden">
       <GlobalBackground />
-      <div className="mn-shell relative z-10 h-full flex flex-col">
-        <MinervaMenuBar />
-        <main className="mn-main flex-1 overflow-y-auto pt-9">
-          {children}
-        </main>
+
+      {/* Main flex row — content + chat side by side */}
+      <div className="relative z-10 h-full flex">
+        {/* Left: full app shell (menu bar + content) */}
+        <div className="flex-1 min-w-0 flex flex-col transition-all duration-300 ease-out">
+          <MinervaMenuBar />
+          <main className="mn-main flex-1 overflow-y-auto pt-9">
+            {children}
+          </main>
+        </div>
+
+        {/* Right: chat panel — inline, not overlay */}
+        <div
+          className="shrink-0 transition-all duration-300 ease-out overflow-hidden"
+          style={{ width: chatOpen ? 380 : 0 }}
+        >
+          <div className="w-[380px] h-full">
+            <MinervaChat open={chatOpen} onClose={handleClose} initialMessage={initialMessage} />
+          </div>
+        </div>
       </div>
+
       <CommandPalette />
-      <MinervaChat open={chatOpen} onClose={handleClose} initialMessage={initialMessage} />
       <SelectionToolbar onAskAI={handleAIRequest} />
       <DragSelect onAnalyze={handleAIRequest} />
     </div>

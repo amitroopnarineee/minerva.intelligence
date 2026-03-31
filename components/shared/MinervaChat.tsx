@@ -3,10 +3,9 @@
 import { useEffect, useRef, useCallback, useState } from "react"
 import { useChat } from "@ai-sdk/react"
 import type { UIMessage } from "ai"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { usePathname, useRouter } from "next/navigation"
 import ReactMarkdown from "react-markdown"
-import { Sparkles, ArrowUp, Square, Navigation, User, Users, Megaphone } from "lucide-react"
+import { Sparkles, ArrowUp, Square, Navigation, User, Users, Megaphone, X } from "lucide-react"
 
 interface MinervaChatProps {
   open: boolean
@@ -31,7 +30,7 @@ function ToolCallCard({ name, input, isDone }: { name: string; input: Record<str
     <div className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 my-1.5">
       <Icon className="h-3.5 w-3.5 text-white/35 shrink-0" />
       <span className="text-[11.5px] text-white/45 truncate">{toolLabels[name] || name}: <span className="text-white/60">{detail}</span></span>
-      {isDone && <span className="ml-auto text-[10px] text-emerald-400/60">✓</span>}
+      {isDone ? <span className="ml-auto text-[10px] text-emerald-400/60">✓</span> : null}
     </div>
   )
 }
@@ -44,9 +43,8 @@ function MessageParts({ message }: { message: UIMessage }) {
         if (part.type === "text" && part.text) {
           return <div key={i} className="mn-chat-markdown"><ReactMarkdown>{part.text}</ReactMarkdown></div>
         }
-        // Tool invocation parts — v6 has properties directly on part
         if (part.type?.startsWith("tool-")) {
-          const p = part as unknown as { type: string; toolName?: string; toolCallId?: string; state?: string; input?: Record<string, unknown> }
+          const p = part as unknown as { type: string; toolName?: string; state?: string; input?: Record<string, unknown> }
           if (p.toolName && p.input) {
             return <ToolCallCard key={i} name={p.toolName} input={p.input} isDone={p.state === "result"} />
           }
@@ -86,12 +84,10 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
 
   const isStreaming = status === "streaming" || status === "submitted"
 
-  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages])
 
-  // Send initial message
   useEffect(() => {
     if (open && initialMessage && !sentInitial.current && messages.length === 0) {
       sentInitial.current = true
@@ -113,7 +109,6 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() }
   }, [handleSend])
 
-  // Listen for AI navigation actions
   useEffect(() => {
     const handler = (e: Event) => {
       const d = (e as CustomEvent).detail
@@ -123,84 +118,84 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
     return () => window.removeEventListener("minerva-action", handler)
   }, [router])
 
+  if (!open) return null
+
   return (
-    <Sheet open={open} onOpenChange={(o) => { if (!o) onClose() }}>
-      <SheetContent className="mn-chat-panel w-full sm:max-w-[420px] p-0 border-l border-white/[0.06] bg-[#0c0e1a]/85 backdrop-blur-2xl [&>button]:hidden" side="right">
-        <div className="h-full flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[13px] font-medium text-white/80 tracking-[-0.01em]" style={{ fontFamily: "'Overused Grotesk', sans-serif" }}>Minerva AI</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-white/20 font-mono">{pathname}</span>
-              <button onClick={onClose} className="text-white/20 hover:text-white/50 transition-colors text-lg leading-none">×</button>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
-            {messages.length === 0 && !isStreaming && (
-              <div className="flex flex-col items-center justify-center h-full text-center gap-3 opacity-40">
-                <Sparkles className="h-6 w-6 text-white/30" />
-                <p className="text-[13px] text-white/40 max-w-[240px]">Ask about audiences, campaigns, or people. I can navigate the dashboard for you.</p>
-              </div>
-            )}
-            {messages.map((msg) => (
-              <div key={msg.id} className={msg.role === "user" ? "flex justify-end" : ""}>
-                {msg.role === "user" ? (
-                  <div className="max-w-[85%] rounded-2xl bg-white/[0.06] border border-white/[0.06] px-4 py-2.5 text-[13.5px] text-white/88 leading-relaxed">
-                    {msg.parts?.map((p, i) => p.type === "text" ? <span key={i}>{p.text}</span> : null)}
-                  </div>
-                ) : (
-                  <div className="text-[13.5px] text-white/82 leading-[1.65]">
-                    <MessageParts message={msg} />
-                  </div>
-                )}
-              </div>
-            ))}
-            {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
-              <div className="flex items-center gap-2 py-2">
-                <div className="flex gap-1">
-                  <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "300ms" }} />
-                </div>
-                <span className="text-[11px] text-white/25">Thinking...</span>
-              </div>
-            )}
-          </div>
-
-          {/* Progressive blur */}
-          <div className="pointer-events-none absolute bottom-[72px] left-0 right-0 h-12 bg-gradient-to-t from-[#0c0e1a]/90 to-transparent z-10" />
-
-          {/* Input */}
-          <div className="shrink-0 px-3 pb-3 pt-1 relative z-20">
-            <div className="relative flex items-end rounded-[14px] border border-white/[0.08] bg-white/[0.04] transition-colors focus-within:border-white/[0.15]">
-              <textarea
-                ref={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask Minerva anything..."
-                rows={1}
-                className="flex-1 bg-transparent text-[13.5px] text-white/88 placeholder:text-white/20 px-4 py-3 pr-12 resize-none outline-none max-h-[120px] leading-relaxed"
-                style={{ fontFamily: "'Overused Grotesk', sans-serif", scrollbarWidth: "none" }}
-              />
-              {isStreaming ? (
-                <button type="button" onClick={() => stop()} className="absolute right-2 bottom-2 h-[30px] w-[30px] flex items-center justify-center rounded-full bg-white/85 text-[#0c0e1a] hover:bg-white/95 transition-all hover:scale-105">
-                  <Square className="h-3 w-3" />
-                </button>
-              ) : (
-                <button type="button" onClick={handleSend} disabled={!inputValue.trim()} className="absolute right-2 bottom-2 h-[30px] w-[30px] flex items-center justify-center rounded-full bg-white/85 text-[#0c0e1a] hover:bg-white/95 transition-all hover:scale-105 disabled:opacity-20 disabled:hover:scale-100">
-                  <ArrowUp className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
+    <div className="mn-chat-panel h-full flex flex-col border-l border-white/[0.06] bg-[#0c0e1a]/60 backdrop-blur-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[13px] font-medium text-white/80 tracking-[-0.01em]" style={{ fontFamily: "'Overused Grotesk', sans-serif" }}>Minerva AI</span>
         </div>
-      </SheetContent>
-    </Sheet>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] text-white/20 font-mono">{pathname}</span>
+          <button onClick={onClose} className="text-white/25 hover:text-white/60 transition-colors">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
+        {messages.length === 0 && !isStreaming && (
+          <div className="flex flex-col items-center justify-center h-full text-center gap-3 opacity-40">
+            <Sparkles className="h-6 w-6 text-white/30" />
+            <p className="text-[13px] text-white/40 max-w-[240px]">Ask about audiences, campaigns, or people. I can navigate the dashboard for you.</p>
+          </div>
+        )}
+        {messages.map((msg) => (
+          <div key={msg.id} className={msg.role === "user" ? "flex justify-end" : ""}>
+            {msg.role === "user" ? (
+              <div className="max-w-[85%] rounded-2xl bg-white/[0.06] border border-white/[0.06] px-4 py-2.5 text-[13.5px] text-white/88 leading-relaxed">
+                {msg.parts?.map((p, i) => p.type === "text" ? <span key={i}>{p.text}</span> : null)}
+              </div>
+            ) : (
+              <div className="text-[13.5px] text-white/82 leading-[1.65]">
+                <MessageParts message={msg} />
+              </div>
+            )}
+          </div>
+        ))}
+        {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
+          <div className="flex items-center gap-2 py-2">
+            <div className="flex gap-1">
+              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "0ms" }} />
+              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "150ms" }} />
+              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "300ms" }} />
+            </div>
+            <span className="text-[11px] text-white/25">Thinking...</span>
+          </div>
+        )}
+      </div>
+
+      {/* Progressive blur */}
+      <div className="pointer-events-none relative -mt-12 h-12 bg-gradient-to-t from-[#0c0e1a]/80 to-transparent z-10" />
+
+      {/* Input */}
+      <div className="shrink-0 px-3 pb-3 pt-1 relative z-20">
+        <div className="relative flex items-end rounded-[14px] border border-white/[0.08] bg-white/[0.04] transition-colors focus-within:border-white/[0.15]">
+          <textarea
+            ref={inputRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask Minerva anything..."
+            rows={1}
+            className="flex-1 bg-transparent text-[13.5px] text-white/88 placeholder:text-white/20 px-4 py-3 pr-12 resize-none outline-none max-h-[120px] leading-relaxed"
+            style={{ fontFamily: "'Overused Grotesk', sans-serif", scrollbarWidth: "none" }}
+          />
+          {isStreaming ? (
+            <button type="button" onClick={() => stop()} className="absolute right-2 bottom-2 h-[30px] w-[30px] flex items-center justify-center rounded-full bg-white/85 text-[#0c0e1a] hover:bg-white/95 transition-all hover:scale-105">
+              <Square className="h-3 w-3" />
+            </button>
+          ) : (
+            <button type="button" onClick={handleSend} disabled={!inputValue.trim()} className="absolute right-2 bottom-2 h-[30px] w-[30px] flex items-center justify-center rounded-full bg-white/85 text-[#0c0e1a] hover:bg-white/95 transition-all hover:scale-105 disabled:opacity-20 disabled:hover:scale-100">
+              <ArrowUp className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
