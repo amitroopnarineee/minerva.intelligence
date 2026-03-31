@@ -7,6 +7,11 @@ import { useTheme } from "next-themes"
 
 interface DropdownItem { label: string; href: string }
 
+const HOME_ITEMS: DropdownItem[] = [
+  { label: "Dashboard", href: "/" },
+  { label: "Command Center", href: "/command-center" },
+]
+
 const PEOPLE_ITEMS: DropdownItem[] = [
   { label: "All People", href: "/people" },
   { label: "Person Search", href: "/person-search" },
@@ -133,11 +138,14 @@ export function MinervaMenuBar() {
             <span className="mn-menubar-brand text-[13px] font-semibold tracking-tight">Minerva</span>
           </button>
 
-          {/* Home — direct link */}
-          <button onClick={() => router.push("/")}
-            className={`mn-menubar-item text-[13px] px-2.5 py-1 rounded-md transition-colors ${pathname === "/" ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-            Home
-          </button>
+          {/* Home — dropdown */}
+          <div className="mn-menubar-menu relative">
+            <button onClick={() => setOpenMenu(openMenu === "home" ? null : "home")}
+              className={`mn-menubar-item text-[13px] px-2.5 py-1 rounded-md transition-colors ${["/","/command-center"].includes(pathname) ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
+              Home
+            </button>
+            <MenuDropdown items={HOME_ITEMS} open={openMenu === "home"} onClose={() => setOpenMenu(null)} onNav={handleNav} />
+          </div>
 
           {/* People — dropdown */}
           <div className="mn-menubar-menu relative">

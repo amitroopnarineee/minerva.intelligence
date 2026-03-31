@@ -233,7 +233,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
                   <span className="mn-chat-ai-label text-[10px] text-white/25 font-medium uppercase tracking-wider">Minerva</span>
                   <div className="ml-auto"><CopyBtn text="" /></div>
                 </div>
-                <div className="mn-chat-ai-content pl-[26px]">
+                <div className="mn-chat-ai-content">
                   {msg.demo ? (
                     <DemoResponsePlayer blocks={msg.demo.blocks} />
                   ) : msg.parts ? (
@@ -264,7 +264,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
         ))}
 
         {isStreaming && allMessages[allMessages.length - 1]?.role !== "assistant" && (
-          <div className="mn-chat-thinking flex items-center gap-2 py-2 pl-[26px]">
+          <div className="mn-chat-thinking flex items-center gap-2 py-2">
             <div className="flex gap-1">
               <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "0ms" }} />
               <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "150ms" }} />
