@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Minerva Intelligence — Consumer Intelligence Platform
 
-## Getting Started
+A reimagined "Smart Home Page" for Minerva's consumer intelligence platform, built as a design engineering take-home. The prototype demonstrates how a CMO of the Miami Dolphins might interact with 260M+ resolved consumer profiles, predictive audiences, and campaign intelligence through a single, cohesive interface.
 
-First, run the development server:
+## Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**[minerva.intelligence.vercel.app](https://minerva-intelligence.vercel.app)** → Start at `/home`
+
+## Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Language**: TypeScript (strict)
+- **Styling**: Tailwind CSS v4, shadcn/ui (55 components installed, ~20 actively used)
+- **Animation**: Framer Motion, Canvas API (gradient), CSS transitions
+- **Charts**: Recharts, inline SVG sparklines
+- **Font**: Overused Grotesk (brand), SF Pro Display (headings)
+- **Package manager**: pnpm
+- **Deployment**: Vercel (auto-deploy on push)
+
+## Architecture
+
+```
+app/(dashboard)/
+  layout.tsx          → Menu bar + global gradient + ⌘K palette
+  home/page.tsx       → Mode switcher + AI input (portal)
+  page.tsx            → Command Center (6 data modules)
+  analytics/          → KPIs, spend/revenue charts, campaign breakdown
+  person-search/      → Live filtering → PersonTable → ProfileSheet
+  prospecting/        → Prospect persons → ProfileSheet
+  owned-audience/     → Customer persons → ProfileSheet
+  bulk-enrich/        → Upload area + enrichment job history
+  integrations/       → Integration cards
+  usage/              → Usage metrics
+  get-started/        → Onboarding checklist
+
+components/
+  shared/             → 19 reusable components
+  home/               → 8 page-specific modules
+
+lib/data/             → 7 typed data files, 8 rich person profiles
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Key Design Decisions
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**macOS-style menu bar** replaces a traditional sidebar — every page gets full viewport width. The animated gradient background is shared across all pages via a fixed canvas layer with triple progressive blur, creating one continuous canvas.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**AI is woven into components, not isolated in chat** (per the Perplexity Finance reference). The Morning Briefing generates insights with confidence indicators. Opportunities surface as actionable cards. The mode switcher on Home pre-configures the AI input for different workflows.
 
-## Learn More
+**Every surface has depth**: clicking an audience card opens a detail sheet with member scoring, reachability bars, and sample members. Clicking a campaign row shows 30-day spend/conversion charts. Clicking any person row opens a full profile with demographics, household data, propensity scores, affinities, and ticket history. Nested navigation (audience → member → person profile) demonstrates real product depth.
 
-To learn more about Next.js, take a look at the following resources:
+**Data integrity**: 8 person profiles with internally consistent audience memberships — every person's audiences match their demographics, fan status, and behavior. 8 audiences, 5 campaigns, 7 days of KPIs, and 3 AI insights all cross-reference correctly.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Interactive Flows
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+Home → [mode] → Route to any page
+Command Center → Audience Card → AudienceDetailSheet → Member → PersonProfileSheet
+Command Center → Campaign Row → CampaignDetailSheet (ROAS, 30d charts)
+Command Center → Morning Briefing → Expand/collapse insights
+Person Search → Filter chips / search → PersonTable → PersonProfileSheet
+Prospecting → PersonTable → PersonProfileSheet
+Owned Audience → PersonTable → PersonProfileSheet
+⌘K → Search pages, people, audiences, toggle theme
+Menu bar → All 10 routes
+```
 
-## Deploy on Vercel
+## Running Locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+git clone git@github.com:amitroopnarineee/minerva.intelligence.git
+cd minerva.intelligence
+pnpm install
+pnpm dev
+# → http://localhost:3000/home
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Custom CSS Override System
+
+Every UI element has a `mn-` prefixed class for surgical CSS targeting via `app/overrides.css`. This enables design iteration without touching component logic:
+
+```css
+.mn-card { /* all FeatureCards */ }
+.mn-menubar { /* top navigation */ }
+.mn-person-row { /* person table rows */ }
+.mn-propensity-ring { /* score gauges */ }
+```
+
+---
+
+Built by [Amit Roopnarine](https://amitroopnarine.com) · March 2026
