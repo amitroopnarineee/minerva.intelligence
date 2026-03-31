@@ -32,11 +32,12 @@ const MINERVA_MENUS: MenuConfig[] = [
   {
     label: "People",
     items: [
-      { label: "Person Search", action: "nav", href: "/person-search", shortcut: "⌘1" },
-      { label: "Prospecting", action: "nav", href: "/prospecting", shortcut: "⌘2" },
-      { label: "Owned Audience", action: "nav", href: "/owned-audience", shortcut: "⌘3" },
+      { label: "People Directory", action: "nav", href: "/people", shortcut: "⌘1" },
+      { label: "Person Search", action: "nav", href: "/person-search", shortcut: "⌘2" },
+      { label: "Prospecting", action: "nav", href: "/prospecting", shortcut: "⌘3" },
+      { label: "Owned Audience", action: "nav", href: "/owned-audience", shortcut: "⌘4" },
       { type: "separator" },
-      { label: "Bulk Enrich", action: "nav", href: "/bulk-enrich", shortcut: "⌘4" },
+      { label: "Bulk Enrich", action: "nav", href: "/bulk-enrich", shortcut: "⌘5" },
     ],
   },
   {

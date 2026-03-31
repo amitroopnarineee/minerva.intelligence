@@ -11,6 +11,7 @@ import { useTheme } from "next-themes"
 const navItems = [
   { label: "Home", href: "/", icon: Home, group: "Navigation" },
   { label: "Analytics", href: "/analytics", icon: BarChart3, group: "Navigation" },
+  { label: "People Directory", href: "/people", icon: Users, group: "Navigation" },
   { label: "Person Search", href: "/person-search", icon: Search, group: "Navigation" },
   { label: "Bulk Enrich", href: "/bulk-enrich", icon: FileStack, group: "Navigation" },
   { label: "Prospecting", href: "/prospecting", icon: Telescope, group: "Navigation" },
@@ -60,7 +61,7 @@ export function CommandPalette() {
 
         <CommandGroup heading="People">
           {persons.map((p) => (
-            <CommandItem key={p.id} onSelect={() => runCommand(() => router.push(`/person-search?q=${p.firstName}`))} className="mn-cmd-item">
+            <CommandItem key={p.id} onSelect={() => runCommand(() => router.push(`/person-search/person/${p.id}`))} className="mn-cmd-item">
               <User className="mn-cmdpal-el-2 mr-2 h-4 w-4 text-muted-foreground" />
               {p.firstName} {p.lastName}
               <span className="mn-cmdpal-el-3 ml-auto text-xs text-muted-foreground">{p.city}, {p.state}</span>
