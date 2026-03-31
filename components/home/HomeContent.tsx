@@ -1,30 +1,20 @@
 "use client"
 
 import { useTheme } from "next-themes"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { MinervaInput } from "@/components/home/MinervaInput"
 
 export function HomeContent() {
   const { resolvedTheme } = useTheme()
-  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
   const isDark = !mounted || resolvedTheme === "dark"
   const textTertiary = isDark ? "text-white/25" : "text-black/20"
 
-  const handleSend = (message: string, mode: string) => {
-    const routes: Record<string, string> = {
-      "discover": "/",
-      "person-search": "/person-search",
-      "audiences": "/prospecting",
-      "analytics": "/analytics",
-      "enrich": "/bulk-enrich",
-      "activate": "/owned-audience",
-    }
-    router.push(routes[mode] ?? "/")
+  const handleSend = (message: string) => {
+    window.dispatchEvent(new CustomEvent("minerva-chat-send", { detail: { message } }))
   }
 
   return (
