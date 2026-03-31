@@ -4,10 +4,10 @@ import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import AnimatedGradientBackground from "@/components/shared/AnimatedGradientBackground"
 
-const darkColors = ["#0A0A0A", "#2979FF", "#FF80AB", "#FF6D00", "#FFD600", "#00E676", "#3D5AFE"]
-const darkStops = [35, 50, 60, 70, 80, 90, 100]
-const lightColors = ["#FFFFFF", "#90CAF9", "#F8BBD0", "#FFCC80", "#FFF9C4", "#C8E6C9", "#C5CAE9"]
-const lightStops = [35, 50, 60, 70, 80, 90, 100]
+const darkColors = ["#13100E", "#6B5B73", "#C49080", "#8A7568", "#B89285", "#7A6E82", "#4A3F3A"]
+const darkStops = [25, 40, 55, 65, 75, 85, 100]
+const lightColors = ["#FAF8F6", "#E8D5CC", "#D4BFB8", "#C9B8C4", "#E2D3CA", "#D8CCC0", "#C4B8AD"]
+const lightStops = [25, 40, 55, 65, 75, 85, 100]
 
 export function GlobalBackground() {
   const { resolvedTheme } = useTheme()

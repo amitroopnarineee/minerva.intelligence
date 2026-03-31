@@ -1,29 +1,23 @@
-/*
- * ═══════════════════════════════════════════════════════════════
- * MINERVA OVERRIDES
- * This file is loaded LAST and takes priority over all other styles.
- * Send class names with updated values marked !important.
- * ═══════════════════════════════════════════════════════════════
- *
- * NAMING CONVENTION:
- *   .mn-{area}-{element}
- *
- * AREAS:
- *   shell     — top bar, sidebar wrapper, layout frame
- *   header    — top navigation bar
- *   sidebar   — left sidebar
- *   page      — main content area
- *   kpi       — metric strip cards
- *   briefing  — morning briefing module
- *   opps      — top opportunities module
- *   audience  — audience intelligence module
- *   channels  — channel signals table
- *   spark     — sparkline component
- *
- * EXAMPLES:
- *   .mn-header-logo { width: 32px !important; }
- *   .mn-kpi-card { background: #1a1a1a !important; }
- *   .mn-briefing-summary { font-size: 15px !important; }
- *
- * ═══════════════════════════════════════════════════════════════
- */
+/* ─── Minerva CSS Overrides ──────────────────────────────────────────────── */
+/* Use mn- prefixed classes for surgical targeting                            */
+
+/* SF Pro Display for headings — available as system font on macOS */
+h1, h2, h3, h4, h5, h6,
+.mn-page-title,
+.mn-input-container h1 {
+  font-family: "SF Pro Display", "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+}
+
+/* Ensure the home headline uses SF Pro Display */
+.mn-input-container h1 {
+  font-family: "SF Pro Display", "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.7px;
+}
+
+/* Menu bar text stays Overused Grotesk */
+.mn-menubar {
+  font-family: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
