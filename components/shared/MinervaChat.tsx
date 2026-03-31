@@ -22,7 +22,6 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
   const pathname = usePathname()
   const { messages, sendMessage, status, stop, error } = useChat({ chat })
 
-  // Send initial message when panel opens with one
   useEffect(() => {
     if (open && initialMessage && messages.length === 0) {
       sendMessage({
@@ -34,16 +33,25 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
 
   return (
     <Sheet open={open} onOpenChange={(o) => { if (!o) onClose() }}>
-      <SheetContent className="mn-chat-panel w-full sm:max-w-[420px] p-0 border-l border-white/[0.06] bg-transparent backdrop-blur-xl" side="right">
-        <div className="h-full flex flex-col">
-          <div className="mn-chat-header flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+      <SheetContent
+        className="mn-chat-panel w-full sm:max-w-[420px] p-0 border-l border-white/[0.06] bg-[#0c0e1a]/80 backdrop-blur-2xl [&>button]:hidden"
+        side="right"
+      >
+        <div className="h-full flex flex-col relative">
+          {/* Header */}
+          <div className="mn-chat-header flex items-center justify-between px-4 py-3 border-b border-white/[0.06] shrink-0">
             <div className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span className="text-[13px] font-medium text-white/80">Minerva AI</span>
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[13px] font-medium text-white/80 tracking-[-0.01em]" style={{ fontFamily: "'Overused Grotesk', sans-serif" }}>Minerva AI</span>
             </div>
-            <span className="text-[10px] text-white/25 font-mono">{pathname}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-white/20 font-mono">{pathname}</span>
+              <button onClick={onClose} className="text-white/20 hover:text-white/50 transition-colors text-[18px] leading-none">×</button>
+            </div>
           </div>
-          <div className="mn-chat-body flex-1 overflow-hidden">
+
+          {/* Chat body with progressive blur */}
+          <div className="mn-chat-body flex-1 overflow-hidden relative">
             <AgentChat
               messages={messages}
               onSend={(message) =>
@@ -57,6 +65,8 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
               error={error ?? undefined}
               theme={theme}
             />
+            {/* Progressive blur fade at bottom */}
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0c0e1a]/95 via-[#0c0e1a]/60 to-transparent" />
           </div>
         </div>
       </SheetContent>

@@ -1,6 +1,3 @@
-/* ─── Minerva CSS Overrides ──────────────────────────────────────────────── */
-/* Use mn- prefixed classes for surgical targeting                            */
-
 /* SF Pro Display for headings — available as system font on macOS */
 h1, h2, h3, h4, h5, h6,
 .mn-page-title,
@@ -10,14 +7,291 @@ h1, h2, h3, h4, h5, h6,
   letter-spacing: -0.7px;
 }
 
-/* Ensure the home headline uses SF Pro Display */
 .mn-input-container h1 {
   font-family: "SF Pro Display", "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
   font-weight: 500;
   letter-spacing: -0.7px;
 }
 
-/* Menu bar text stays Overused Grotesk */
 .mn-menubar {
   font-family: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MINERVA CHAT PANEL — AgentChat Component Overrides
+   ══════════════════════════════════════════════════════════ */
+
+/* Base container — force our palette */
+.mn-chat-panel [class*="agent-chat"],
+.mn-chat-panel [data-agent-chat] {
+  font-family: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 13.5px !important;
+  line-height: 1.65 !important;
+}
+
+/* ── Messages ── */
+
+/* User messages — clean glass pill */
+.mn-chat-panel [class*="user-message"],
+.mn-chat-panel [data-role="user"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 16px !important;
+  padding: 12px 16px !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+  max-width: 85% !important;
+  margin-left: auto !important;
+}
+
+/* Assistant messages — full width, no bubble */
+.mn-chat-panel [class*="assistant-message"],
+.mn-chat-panel [data-role="assistant"] {
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-size: 13.5px !important;
+  line-height: 1.65 !important;
+  padding: 4px 0 !important;
+}
+
+/* ── Tables in chat ── */
+.mn-chat-panel table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  margin: 12px 0 !important;
+  font-size: 12.5px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mn-chat-panel thead {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.mn-chat-panel th {
+  padding: 8px 12px !important;
+  text-align: left !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.mn-chat-panel td {
+  padding: 8px 12px !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.mn-chat-panel tr:last-child td {
+  border-bottom: none !important;
+}
+
+.mn-chat-panel tr:hover td {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* ── Headings in chat ── */
+.mn-chat-panel h1,
+.mn-chat-panel h2,
+.mn-chat-panel h3 {
+  font-family: "SF Pro Display", "Overused Grotesk", ui-sans-serif, system-ui, sans-serif !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.4px !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  margin-top: 16px !important;
+  margin-bottom: 8px !important;
+}
+
+.mn-chat-panel h1 { font-size: 18px !important; }
+.mn-chat-panel h2 { font-size: 15px !important; }
+.mn-chat-panel h3 { font-size: 13.5px !important; }
+
+/* ── Bold text — slight emphasis ── */
+.mn-chat-panel strong,
+.mn-chat-panel b {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 600 !important;
+}
+
+/* ── Lists — clean bullets ── */
+.mn-chat-panel ul,
+.mn-chat-panel ol {
+  padding-left: 18px !important;
+  margin: 8px 0 !important;
+}
+
+.mn-chat-panel li {
+  margin-bottom: 6px !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  line-height: 1.55 !important;
+}
+
+.mn-chat-panel li::marker {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ── Code blocks ── */
+.mn-chat-panel pre {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+  margin: 10px 0 !important;
+  overflow-x: auto !important;
+  font-size: 12px !important;
+}
+
+.mn-chat-panel code {
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace !important;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Inline code */
+.mn-chat-panel :not(pre) > code {
+  background: rgba(255, 255, 255, 0.06) !important;
+  padding: 2px 6px !important;
+  border-radius: 5px !important;
+  font-size: 12px !important;
+}
+
+/* ── Tool call cards ── */
+.mn-chat-panel [class*="tool-call"],
+.mn-chat-panel [class*="tool-result"],
+.mn-chat-panel [class*="ToolCall"],
+.mn-chat-panel [class*="ToolResult"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  margin: 6px 0 !important;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* ── Links ── */
+.mn-chat-panel a {
+  color: rgba(255, 255, 255, 0.7) !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(255, 255, 255, 0.15) !important;
+  text-underline-offset: 2px !important;
+}
+
+.mn-chat-panel a:hover {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* ── Blockquotes ── */
+.mn-chat-panel blockquote {
+  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
+  padding-left: 14px !important;
+  margin: 10px 0 !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-style: italic !important;
+}
+
+/* ── Horizontal rules ── */
+.mn-chat-panel hr {
+  border: none !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  margin: 14px 0 !important;
+}
+
+/* ── Input field — polished glass ── */
+.mn-chat-panel textarea,
+.mn-chat-panel [class*="input"],
+.mn-chat-panel [class*="Input"],
+.mn-chat-panel [role="textbox"] {
+  font-family: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 13.5px !important;
+}
+
+/* Target the input area wrapper */
+.mn-chat-panel [class*="chat-input"],
+.mn-chat-panel [class*="ChatInput"],
+.mn-chat-panel [class*="message-input"],
+.mn-chat-panel [class*="MessageInput"] {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  margin: 8px 12px 12px !important;
+  transition: border-color 0.2s ease !important;
+}
+
+.mn-chat-panel [class*="chat-input"]:focus-within,
+.mn-chat-panel [class*="ChatInput"]:focus-within,
+.mn-chat-panel [class*="message-input"]:focus-within,
+.mn-chat-panel [class*="MessageInput"]:focus-within {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Send button */
+.mn-chat-panel [class*="send-button"],
+.mn-chat-panel [class*="SendButton"],
+.mn-chat-panel button[type="submit"] {
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #0c0e1a !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+}
+
+.mn-chat-panel [class*="send-button"]:hover,
+.mn-chat-panel [class*="SendButton"]:hover,
+.mn-chat-panel button[type="submit"]:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  transform: scale(1.05) !important;
+}
+
+/* ── Thinking/loading state ── */
+.mn-chat-panel [class*="thinking"],
+.mn-chat-panel [class*="Thinking"],
+.mn-chat-panel [class*="loading"],
+.mn-chat-panel [class*="Loading"] {
+  color: rgba(255, 255, 255, 0.35) !important;
+  font-size: 12px !important;
+}
+
+/* ── Copy button ── */
+.mn-chat-panel [class*="copy-button"],
+.mn-chat-panel [class*="CopyButton"] {
+  opacity: 0.3 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.mn-chat-panel [class*="copy-button"]:hover,
+.mn-chat-panel [class*="CopyButton"]:hover {
+  opacity: 0.7 !important;
+}
+
+/* ── Scrollbar ── */
+.mn-chat-panel ::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mn-chat-panel ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mn-chat-panel ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+.mn-chat-panel ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Paragraphs — tighter spacing ── */
+.mn-chat-panel p {
+  margin-bottom: 8px !important;
+}
+
+.mn-chat-panel p:last-child {
+  margin-bottom: 0 !important;
 }
