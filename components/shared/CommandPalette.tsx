@@ -9,7 +9,8 @@ import { audiences } from "@/lib/data/audiences"
 import { useTheme } from "next-themes"
 
 const navItems = [
-  { label: "Home", href: "/", icon: Home, group: "Navigation" },
+  { label: "Dashboard", href: "/", icon: Home, group: "Navigation" },
+  { label: "Command Center", href: "/command-center", icon: LayoutDashboard, group: "Navigation" },
   { label: "All People", href: "/people", icon: Users, group: "Navigation" },
   { label: "Analytics", href: "/analytics", icon: BarChart3, group: "Navigation" },
   { label: "People Directory", href: "/people", icon: Users, group: "Navigation" },

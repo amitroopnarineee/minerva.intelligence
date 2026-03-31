@@ -26,8 +26,10 @@ interface MenuConfig {
 const MINERVA_MENUS: MenuConfig[] = [
   {
     label: "Home",
-    href: "/",
-    items: [],
+    items: [
+      { label: "Dashboard", action: "nav", href: "/" },
+      { label: "Command Center", action: "nav", href: "/command-center" },
+    ],
   },
   {
     label: "People",
