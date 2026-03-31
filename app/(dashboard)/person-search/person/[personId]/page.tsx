@@ -5,7 +5,7 @@ import { persons } from "@/lib/data/persons"
 import { FeatureCard } from "@/components/shared/FeatureCard"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { UserAvatar, CompanyLogo } from "@/components/shared/UserAvatar"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
 import { Mail, Phone, MapPin, Building2, Calendar, User2, Briefcase, ChevronRight } from "lucide-react"
 import Link from "next/link"
@@ -36,8 +36,7 @@ export default function PersonDetailPage({ params }: { params: Promise<{ personI
     return <div className="flex-1 flex items-center justify-center text-muted-foreground">Person not found</div>
   }
 
-  const initials = `${person.firstName[0]}${person.lastName[0]}`
-  const primaryEmail = person.contacts.find(c => c.type === "email" && c.isPrimary)
+    const primaryEmail = person.contacts.find(c => c.type === "email" && c.isPrimary)
   const otherEmails = person.contacts.filter(c => c.type === "email" && !c.isPrimary)
   const primaryPhone = person.contacts.find(c => c.type === "phone" && c.isPrimary)
   const otherPhones = person.contacts.filter(c => c.type === "phone" && !c.isPrimary)
@@ -59,9 +58,7 @@ export default function PersonDetailPage({ params }: { params: Promise<{ personI
 
           {/* Header */}
           <FadeIn className="mn-person-header mb-6 flex items-center gap-4">
-            <Avatar className="mn-person-avatar h-16 w-16 border">
-              <AvatarFallback className="mn-person-avatar-text bg-primary/10 text-xl font-bold text-primary">{initials}</AvatarFallback>
-            </Avatar>
+            <UserAvatar name={`${person.firstName} ${person.lastName}`} size={64} />
             <div className="mn-person-header-info">
               <div className="mn-person-name-row flex items-center gap-2">
                 <h1 className="mn-person-name text-[24px] font-semibold tracking-tight">{person.firstName} {person.lastName}</h1>
@@ -101,9 +98,7 @@ export default function PersonDetailPage({ params }: { params: Promise<{ personI
                     <Briefcase className="h-4 w-4 text-muted-foreground" /> Experience
                   </h3>
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Building2 className="h-5 w-5 text-primary" />
-                    </div>
+<CompanyLogo name={person.company} size={40} />
                     <div>
                       <p className="text-[14px] font-semibold">{person.jobTitle}</p>
                       <p className="text-[13px] text-muted-foreground">{person.company}</p>

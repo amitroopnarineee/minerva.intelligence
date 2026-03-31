@@ -4,7 +4,7 @@ import { useState } from "react"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
 import { FeatureCard } from "@/components/shared/FeatureCard"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { UserAvatar } from "@/components/shared/UserAvatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { persons } from "@/lib/data/persons"
@@ -81,16 +81,13 @@ export default function PeoplePage() {
                 </TableHeader>
                 <TableBody>
                   {filtered.map((p) => {
-                    const initials = `${p.firstName[0]}${p.lastName[0]}`
-                    const segmentNames = getAudienceNames(p.audiences)
+                                        const segmentNames = getAudienceNames(p.audiences)
                     return (
                       <TableRow key={p.id} className="mn-people-row cursor-pointer hover:bg-accent/30 transition-colors"
                         onClick={() => router.push(`/person-search/person/${p.id}`)}>
                         <TableCell className="mn-people-cell-name">
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8 border shrink-0">
-                              <AvatarFallback className="bg-primary/10 text-[10px] font-bold text-primary">{initials}</AvatarFallback>
-                            </Avatar>
+                            <UserAvatar name={`${p.firstName} ${p.lastName}`} size={32} />
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5">
                                 <span className="text-[13px] font-medium">{p.firstName} {p.lastName}</span>

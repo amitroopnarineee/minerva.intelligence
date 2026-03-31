@@ -1,7 +1,7 @@
 "use client"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { UserAvatar } from "@/components/shared/UserAvatar"
 import { FeatureCard } from "@/components/shared/FeatureCard"
 import type { Person } from "@/lib/data/persons"
 import { useRouter } from "next/navigation"
@@ -25,16 +25,13 @@ export function PersonTable({ persons }: PersonTableProps) {
         </TableHeader>
         <TableBody>
           {persons.map((p) => {
-            const initials = `${p.firstName[0]}${p.lastName[0]}`
-            return (
+                        return (
               <TableRow key={p.id} className="mn-ptable-row cursor-pointer hover:bg-accent/30 transition-colors"
                 onClick={() => router.push(`/person-search/person/${p.id}`)}
                 data-selectable data-select-type="Person" data-select-label={`${p.firstName} ${p.lastName}`}>
                 <TableCell className="mn-ptable-cell-name">
                   <div className="mn-ptable-person flex items-center gap-3">
-                    <Avatar className="mn-ptable-avatar h-8 w-8 border shrink-0">
-                      <AvatarFallback className="mn-ptable-initials bg-primary/10 text-[10px] font-bold text-primary">{initials}</AvatarFallback>
-                    </Avatar>
+                    <UserAvatar name={`${p.firstName} ${p.lastName}`} size={32} />
                     <div className="mn-ptable-name-block min-w-0">
                       <div className="mn-ptable-name flex items-center gap-1.5">
                         <span className="mn-ptable-fullname text-[13px] font-medium">{p.firstName} {p.lastName}</span>

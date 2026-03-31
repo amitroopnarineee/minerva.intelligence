@@ -6,9 +6,10 @@ import { FeatureCard } from "@/components/shared/FeatureCard"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Search, Users, Plus, Clock, TrendingUp, Shield } from "lucide-react"
+import { Search, Plus, Clock, TrendingUp, Shield } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { CompanyLogo } from "@/components/shared/UserAvatar"
 
 const segments = [
   { id: "dolphins", name: "Miami Dolphins Fan Base", description: "Consumer intelligence for South Florida sports fans", count: 9193, status: "active", lastRefreshed: "Today at 9:00 AM", created: "Mar 28, 2026", tags: ["NFL Interest", "Miami-Dade", "Broward"] },
@@ -82,9 +83,7 @@ export default function PersonSearchPage() {
                           onClick={() => router.push(`/person-search/${seg.id}`)}>
                           <TableCell className="mn-psearch-cell-name">
                             <div className="mn-psearch-segment-info flex items-center gap-3">
-                              <div className="mn-psearch-segment-icon h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <Users className="h-4 w-4 text-primary" />
-                              </div>
+                              <CompanyLogo name={seg.name} size={36} />
                               <div className="mn-psearch-segment-text">
                                 <p className="mn-psearch-segment-name text-[13px] font-medium">{seg.name}</p>
                                 <p className="mn-psearch-segment-desc text-[11px] text-muted-foreground">{seg.description}</p>
