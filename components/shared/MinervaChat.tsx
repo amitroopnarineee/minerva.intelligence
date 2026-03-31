@@ -5,8 +5,9 @@ import { useChat } from "@ai-sdk/react"
 import type { UIMessage } from "ai"
 import { usePathname, useRouter } from "next/navigation"
 import ReactMarkdown from "react-markdown"
-import { Sparkles, ArrowUp, Square, Navigation, User, Users, Megaphone, X, Copy, Check, ArrowDown } from "lucide-react"
+import { Sparkles, ArrowUp, Square, X, Copy, Check, ArrowDown } from "lucide-react"
 import { findDemoResponse, DemoResponsePlayer, type DemoResponse } from "@/components/chat/DemoResponses"
+import { SUGGESTED_PROMPTS } from "@/lib/ai/ai-config"
 
 interface MinervaChatProps {
   open: boolean
@@ -18,46 +19,8 @@ interface ChatMessage {
   id: string
   role: "user" | "assistant"
   content?: string
-  demo?: DemoResponse      // pre-built rich response
-  parts?: UIMessage["parts"] // live API response
-}
-
-const suggestions = [
-  "What should I focus on today?",
-  "Look up Marcus Johnson",
-  "How is the Premium Suites campaign?",
-  "Who are our renewal risk members?",
-]
-
-/* ── Live API message parts (fallback) ── */
-function LiveMessageParts({ message }: { message: UIMessage }) {
-  if (!message.parts?.length) return null
-  return (
-    <>
-      {message.parts.map((part, i) => {
-        if (part.type === "text" && part.text) {
-          return <div key={i} className="mn-chat-markdown"><ReactMarkdown>{part.text}</ReactMarkdown></div>
-        }
-        if (part.type?.startsWith("tool-")) {
-          const p = part as unknown as { type: string; toolName?: string; state?: string; input?: Record<string, unknown> }
-          if (p.toolName && p.input) {
-            const detail = String(Object.values(p.input)[0] || "")
-            const isDone = p.state === "result"
-            return (
-              <div key={i} className="flex items-center gap-2.5 rounded-[10px] border border-white/[0.06] bg-white/[0.025] px-3 py-2 my-1.5">
-                <div className={`h-5 w-5 rounded-md flex items-center justify-center shrink-0 ${isDone ? "bg-emerald-500/10" : "bg-white/[0.04]"}`}>
-                  {isDone ? <Check className="h-3 w-3 text-emerald-400/70" /> : <Sparkles className="h-3 w-3 text-white/30" />}
-                </div>
-                <span className="text-[11.5px] text-white/45 truncate">{p.toolName}: <span className="text-white/60">{detail}</span></span>
-                {isDone ? <span className="ml-auto text-[9px] text-emerald-400/50 font-medium uppercase tracking-wider">Done</span> : <div className="ml-auto h-3 w-3 border-2 border-white/15 border-t-white/40 rounded-full animate-spin" />}
-              </div>
-            )
-          }
-        }
-        return null
-      })}
-    </>
-  )
+  demo?: DemoResponse
+  parts?: UIMessage["parts"]
 }
 
 /* ── Copy button ── */
@@ -79,11 +42,9 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
   const sentInitial = useRef(false)
   const [inputValue, setInputValue] = useState("")
   const [showScrollBtn, setShowScrollBtn] = useState(false)
-
-  // Dual message list: demo + live
   const [demoMessages, setDemoMessages] = useState<ChatMessage[]>([])
 
-  // Live API chat (fallback)
+  // System prompt is injected server-side via the /api/an-token route
   const { messages: liveMessages, sendMessage: liveSend, status: liveStatus, stop: liveStop } = useChat({
     onToolCall: ({ toolCall }) => {
       const tc = toolCall as unknown as { toolName: string; input: Record<string, unknown> }
@@ -93,26 +54,25 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
         router.push("/person-search")
         setTimeout(() => window.dispatchEvent(new CustomEvent("minerva-open-person", { detail: { personId: args.personId } })), 500)
       }
+      if (tc.toolName === "open_audience_spectrum") {
+        window.dispatchEvent(new CustomEvent("minerva-open-spectrum"))
+      }
     },
   })
 
   const isStreaming = liveStatus === "streaming" || liveStatus === "submitted"
 
-  // Combined message list: demo messages first, then any live API messages
   const allMessages: ChatMessage[] = [...demoMessages]
-  // Add live messages that aren't already tracked
   liveMessages.forEach(lm => {
     if (!allMessages.find(m => m.id === lm.id)) {
       allMessages.push({ id: lm.id, role: lm.role as "user" | "assistant", parts: lm.parts })
     }
   })
 
-  /* Auto-scroll */
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [allMessages.length, isStreaming, demoMessages])
 
-  /* Scroll button */
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
@@ -121,7 +81,6 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
     return () => el.removeEventListener("scroll", handler)
   }, [allMessages.length])
 
-  /* Send initial message */
   useEffect(() => {
     if (open && initialMessage && !sentInitial.current && allMessages.length === 0) {
       sentInitial.current = true
@@ -132,7 +91,6 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
   useEffect(() => { if (!open) sentInitial.current = false }, [open])
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 300) }, [open])
 
-  /* Auto-resize textarea */
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.height = "auto"
@@ -145,18 +103,12 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
     if (!msg || isStreaming) return
     setInputValue("")
 
-    // Check for demo response first
     const demo = findDemoResponse(msg)
-
     if (demo) {
       const userMsg: ChatMessage = { id: `user-${Date.now()}`, role: "user", content: msg }
       const aiMsg: ChatMessage = { id: `ai-${Date.now()}`, role: "assistant", demo }
       setDemoMessages(prev => [...prev, userMsg, aiMsg])
-
-      // Fire navigation/actions
-      if (demo.navigate) {
-        setTimeout(() => router.push(demo.navigate!), 800)
-      }
+      if (demo.navigate) setTimeout(() => router.push(demo.navigate!), 800)
       if (demo.actions) {
         demo.actions.forEach((action, i) => {
           setTimeout(() => {
@@ -165,7 +117,6 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
         })
       }
     } else {
-      // Fallback to live API
       const userMsg: ChatMessage = { id: `user-${Date.now()}`, role: "user", content: msg }
       setDemoMessages(prev => [...prev, userMsg])
       liveSend({ text: msg })
@@ -197,7 +148,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
 
       {/* Messages */}
       <div ref={scrollRef} className="mn-chat-messages flex-1 overflow-y-auto px-4 py-4 space-y-5" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
-        {/* Empty state */}
+        {/* Empty state with SUGGESTED_PROMPTS */}
         {allMessages.length === 0 && !isStreaming && (
           <div className="mn-chat-empty flex flex-col items-center justify-center h-full text-center gap-5">
             <div className="flex flex-col items-center gap-2">
@@ -207,10 +158,10 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
               <p className="text-[13px] text-white/35 max-w-[260px]">Ask about audiences, campaigns, or consumer profiles. I can navigate the dashboard for you.</p>
             </div>
             <div className="mn-chat-suggestions flex flex-wrap gap-2 justify-center max-w-[320px]">
-              {suggestions.map((s) => (
-                <button key={s} onClick={() => handleSend(s)}
+              {SUGGESTED_PROMPTS.map((s) => (
+                <button key={s.id} onClick={() => handleSend(s.message)}
                   className="mn-chat-suggestion-chip text-[11.5px] text-white/50 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors text-left">
-                  {s}
+                  {s.label}
                 </button>
               ))}
             </div>
@@ -266,31 +217,29 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
         {isStreaming && allMessages[allMessages.length - 1]?.role !== "assistant" && (
           <div className="mn-chat-thinking flex items-center gap-2 py-2">
             <div className="flex gap-1">
-              <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "0ms" }} />
-              <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "150ms" }} />
-              <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "0ms" }} />
+              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "150ms" }} />
+              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "300ms" }} />
             </div>
             <span className="text-[11px] text-white/25">Thinking...</span>
           </div>
         )}
       </div>
 
-      {/* Scroll to bottom */}
       {showScrollBtn && (
         <div className="absolute bottom-[80px] right-8 z-20">
           <button onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })}
-            className="mn-chat-scroll-btn h-7 w-7 rounded-full bg-white/10 border border-white/[0.08] flex items-center justify-center hover:bg-white/15 transition-colors backdrop-blur-sm">
+            className="h-7 w-7 rounded-full bg-white/10 border border-white/[0.08] flex items-center justify-center hover:bg-white/15 transition-colors backdrop-blur-sm">
             <ArrowDown className="h-3.5 w-3.5 text-white/50" />
           </button>
         </div>
       )}
 
-      {/* Progressive blur */}
-      <div className="mn-chat-blur pointer-events-none relative -mt-10 h-10 bg-gradient-to-t from-[#0c0e1a]/80 to-transparent z-10" />
+      <div className="pointer-events-none relative -mt-10 h-10 bg-gradient-to-t from-[#0c0e1a]/80 to-transparent z-10" />
 
       {/* Input */}
       <div className="mn-chat-input-area shrink-0 px-3 pb-3 pt-1 relative z-20">
-        <div className="mn-chat-input-box relative flex items-end rounded-[14px] border border-white/[0.08] bg-white/[0.04] transition-colors focus-within:border-white/[0.15]">
+        <div className="relative flex items-end rounded-[14px] border border-white/[0.08] bg-white/[0.04] transition-colors focus-within:border-white/[0.15]">
           <textarea
             ref={inputRef}
             value={inputValue}
@@ -298,7 +247,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
             onKeyDown={handleKeyDown}
             placeholder="Ask Minerva anything..."
             rows={1}
-            className="mn-chat-textarea flex-1 bg-transparent text-[13.5px] text-white/88 placeholder:text-white/20 px-4 py-3 pr-12 resize-none outline-none leading-relaxed"
+            className="flex-1 bg-transparent text-[13.5px] text-white/88 placeholder:text-white/20 px-4 py-3 pr-12 resize-none outline-none leading-relaxed"
             style={{ fontFamily: "'Overused Grotesk', sans-serif", scrollbarWidth: "none", maxHeight: "120px" }}
           />
           {isStreaming ? (
@@ -311,7 +260,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
             </button>
           )}
         </div>
-        <p className="mn-chat-hint text-[9px] text-white/15 text-center mt-1.5">Enter to send · Shift+Enter for new line</p>
+        <p className="text-[9px] text-white/15 text-center mt-1.5">Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   )

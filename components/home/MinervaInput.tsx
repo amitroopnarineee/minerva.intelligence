@@ -23,10 +23,11 @@ const modes: MinervaMode[] = [
 
 interface MinervaInputProps {
   onSend?: (message: string, mode: string) => void
+  onModeChange?: (modeId: string) => void
   isDark?: boolean
 }
 
-export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
+export function MinervaInput({ onSend, onModeChange, isDark = true }: MinervaInputProps) {
   const [message, setMessage] = useState("")
   const [activeMode, setActiveMode] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -48,6 +49,12 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() }
+  }
+
+  const handleModeClick = (index: number) => {
+    setActiveMode(index)
+    setMessage("")
+    onModeChange?.(modes[index].id)
   }
 
   const hasContent = message.trim().length > 0
@@ -106,7 +113,7 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
         </div>
       </div>
 
-      {/* Mode switcher — below input */}
+      {/* Mode switcher */}
       <div className="mn-input-group-6 flex items-center justify-center gap-1 mt-5">
         {modes.map((m, i) => {
           const Icon = m.icon
@@ -114,7 +121,7 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
           return (
             <button
               key={m.id}
-              onClick={() => { setActiveMode(i); setMessage("") }}
+              onClick={() => handleModeClick(i)}
               className={`relative flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${isActive ? pillActive : pillBase} hover:opacity-100`}
             >
               <Icon className="h-3 w-3" />
