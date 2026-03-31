@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { Search, Sparkles, Moon, Sun, Bell } from "lucide-react"
+import { Sparkles, Moon, Sun, Command } from "lucide-react"
 import { useTheme } from "next-themes"
 
 interface DropdownItem { label: string; href: string }
@@ -171,11 +171,7 @@ export function MinervaMenuBar() {
             <MenuDropdown items={SETTINGS_ITEMS} open={openMenu === "settings"} onClose={() => setOpenMenu(null)} onNav={handleNav} />
           </div>
 
-          {/* Search */}
-          <button onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
-            className="mn-menubar-search flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground ml-2 transition-colors">
-            <Search className="h-3.5 w-3.5" /> Search
-          </button>
+
         </div>
 
         {/* Right icons */}
@@ -184,8 +180,9 @@ export function MinervaMenuBar() {
             className="mn-menubar-theme text-muted-foreground hover:text-foreground transition-colors">
             {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-          <button className="mn-menubar-bell text-muted-foreground hover:text-foreground transition-colors">
-            <Bell className="h-4 w-4" />
+          <button onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }))}
+            className="mn-menubar-cmd text-muted-foreground hover:text-foreground transition-colors">
+            <Command className="h-4 w-4" />
           </button>
           <button onClick={() => window.dispatchEvent(new CustomEvent("minerva-chat-toggle"))}
             className="mn-menubar-ai text-muted-foreground hover:text-foreground transition-colors">
@@ -231,7 +228,7 @@ export function MinervaMenuBar() {
             ))}
           </div>
 
-          <div className="mn-notch-logo flex items-center justify-center shrink-0 z-[5]">
+          <div className="mn-notch-logo flex items-center justify-center shrink-0 z-[5] text-white">
             <MinervaLogo size={18} />
           </div>
 

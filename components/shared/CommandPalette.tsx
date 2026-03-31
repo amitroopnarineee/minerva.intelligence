@@ -75,7 +75,7 @@ export function CommandPalette() {
 
         <CommandGroup heading="Audiences">
           {audiences.map((a) => (
-            <CommandItem key={a.id} onSelect={() => runCommand(() => router.push("/prospecting"))} className="mn-cmd-item">
+            <CommandItem key={a.id} onSelect={() => runCommand(() => router.push("/person-search/dolphins"))} className="mn-cmd-item">
               <Users className="mn-cmdpal-el-4 mr-2 h-4 w-4 text-muted-foreground" />
               {a.name}
               <span className="mn-cmdpal-el-5 ml-auto text-xs text-muted-foreground">{a.estimatedSize.toLocaleString()}</span>

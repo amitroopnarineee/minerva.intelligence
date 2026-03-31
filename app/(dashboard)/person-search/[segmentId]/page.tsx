@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { use } from "react"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -43,6 +44,16 @@ const homeownershipData = [
   { name: "Renter", value: 2900, fill: "#3B5FCC" },
   { name: "Unknown", value: 1793, fill: "#4a4d5e" },
 ]
+
+const segmentMeta: Record<string, { name: string; description: string }> = {
+  "dolphins": { name: "Miami Dolphins Fan Base", description: "Consumer intelligence for South Florida sports fans" },
+  "renewal-risk": { name: "Renewal Risk Members", description: "Season ticket holders at risk of non-renewal" },
+  "premium-prospects": { name: "Premium Upgrade Prospects", description: "High-propensity fans for suite and club seat upgrades" },
+  "lapsed-fans": { name: "Lapsed Fan Re-engagement", description: "Former ticket buyers who haven't attended in 12+ months" },
+  "family-segment": { name: "Family Package Buyers", description: "Households with children interested in group/family experiences" },
+  "high-net-worth": { name: "High Net Worth Prospects", description: "Affluent individuals for corporate hospitality and VIP experiences" },
+}
+
 const filterChips = ["25-34", "35-44", "Miami", "Fort Lauderdale", "Season Ticket", "Active Fan", "Lapsed", "Premium"]
 
 function ReachBar({ label, icon, count, total }: { label: string; icon: string; count: number; total: number }) {
@@ -99,7 +110,9 @@ function HorizontalBars({ data, color = "#6B8DE3" }: { data: { band: string; cou
   )
 }
 
-export default function DolphinsSegmentPage() {
+export default function SegmentDetailPage({ params }: { params: Promise<{ segmentId: string }> }) {
+  const { segmentId } = use(params)
+  const meta = segmentMeta[segmentId] || segmentMeta["dolphins"]
   const [query, setQuery] = useState("")
   const [activeTab, setActiveTab] = useState("insights")
 
@@ -118,7 +131,7 @@ export default function DolphinsSegmentPage() {
             <nav className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
               <Link href="/person-search" className="hover:text-foreground transition-colors">Person Search</Link>
               <ChevronRight className="h-3 w-3" />
-              <span className="text-foreground/80 font-medium">Miami Dolphins Fan Base</span>
+              <span className="text-foreground/80 font-medium">{meta.name}</span>
             </nav>
           </FadeIn>
 
@@ -126,8 +139,8 @@ export default function DolphinsSegmentPage() {
           <FadeIn className="mn-segment-header mb-6">
             <div className="mn-segment-title-row flex items-start justify-between">
               <div>
-                <h1 className="mn-segment-title text-[24px] font-semibold tracking-tight">Miami Dolphins Fan Base</h1>
-                <p className="mn-segment-subtitle text-[13px] text-muted-foreground mt-0.5">Consumer intelligence for South Florida sports fans</p>
+                <h1 className="mn-segment-title text-[24px] font-semibold tracking-tight">{meta.name}</h1>
+                <p className="mn-segment-subtitle text-[13px] text-muted-foreground mt-0.5">{meta.description}</p>
               </div>
               <div className="mn-segment-actions flex items-center gap-2">
                 <button className="mn-segment-action-btn flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground border border-border/50 rounded-lg px-3 py-1.5 transition-colors">
