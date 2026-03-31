@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
-import { X, Clock, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react"
+import { X, Clock, ChevronLeft, ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface InsightCard {
@@ -18,8 +18,6 @@ interface InsightCard {
     metrics?: { label: string; value: string; trend?: string }[]
   }
 }
-
-const categories = ["All", "Renewal Risk", "Campaign", "Growth", "High Value", "Re-engagement", "Segment"]
 
 const insights: InsightCard[] = [
   {
@@ -173,10 +171,10 @@ function DrillDownModal({ card, onClose }: { card: InsightCard; onClose: () => v
 
 export default function CommandCenterPage() {
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
-  const [activeFilter, setActiveFilter] = useState("All")
+  
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const filtered = activeFilter === "All" ? insights : insights.filter(c => c.category === activeFilter)
+  const filtered = insights
 
   const scroll = (dir: "left" | "right") => {
     if (scrollRef.current) scrollRef.current.scrollBy({ left: dir === "left" ? -360 : 360, behavior: "smooth" })
@@ -188,36 +186,13 @@ export default function CommandCenterPage() {
         {/* Centered header */}
         <FadeIn className="mn-cc-header flex-1 flex flex-col items-center justify-center text-center px-6">
           <h1 className="mn-cc-title text-[32px] font-semibold tracking-tight mb-2" style={{ fontFamily: "'SF Pro Display', 'Overused Grotesk', sans-serif" }}>
-            Command Center
+            Attention is up.
           </h1>
-          <p className="mn-cc-subtitle text-[14px] text-muted-foreground max-w-md mb-8">
-            AI-generated insights and intelligence cards for the Miami Dolphins CMO
+          <p className="mn-cc-subtitle text-[14px] text-muted-foreground max-w-lg mb-8">
+            Premium and family momentum are rising, but owned conversion is slipping — the move today is turning that demand into premium sales and stronger capture.
           </p>
 
-          {/* Filter toggles */}
-          <div className="mn-cc-filters flex items-center gap-1 rounded-xl bg-muted/20 border border-border/30 p-1 backdrop-blur-sm">
-            <SlidersHorizontal className="mn-cc-filters-icon h-3.5 w-3.5 text-muted-foreground mx-2 shrink-0" />
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                className={`mn-cc-filter-chip text-[12px] px-3 py-1.5 rounded-lg transition-all ${
-                  activeFilter === cat
-                    ? "mn-cc-filter-active bg-primary text-primary-foreground font-medium shadow-sm"
-                    : "mn-cc-filter-inactive text-muted-foreground hover:text-foreground hover:bg-muted/30"
-                }`}
-              >
-                {cat}
-                {cat !== "All" && (
-                  <span className={`mn-cc-filter-count ml-1.5 text-[10px] tabular-nums ${
-                    activeFilter === cat ? "text-primary-foreground/70" : "text-muted-foreground/50"
-                  }`}>
-                    {insights.filter(c => c.category === cat).length}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+
         </FadeIn>
 
         {/* Bottom carousel */}
