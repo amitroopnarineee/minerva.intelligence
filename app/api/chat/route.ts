@@ -1,5 +1,5 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { streamText } from "ai";
+import { streamText, UIMessage, convertToModelMessages, stepCountIs } from "ai";
 import { z } from "zod";
 import { persons } from "@/lib/data/persons";
 import { audiences } from "@/lib/data/audiences";
@@ -22,20 +22,25 @@ AVAILABLE DATA: 8 consumer profiles, 8 audience segments, 5 campaigns for the Mi
 Current date: ${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
     model: anthropic("claude-sonnet-4-20250514"),
     system: systemPrompt,
-    messages,
+    messages: await convertToModelMessages(messages),
     tools: {
       lookupPerson: {
         description: "Look up a consumer profile by name.",
         inputSchema: z.object({ name: z.string().describe("Person's first or last name") }),
         execute: async ({ name }: { name: string }) => {
-          const match = persons.find(
-            (p) => p.firstName.toLowerCase().includes(name.toLowerCase()) || p.lastName.toLowerCase().includes(name.toLowerCase())
-          );
+          const query = name.toLowerCase();
+          const parts = query.split(/\s+/);
+          const match = persons.find((p) => {
+            const first = p.firstName.toLowerCase();
+            const last = p.lastName.toLowerCase();
+            const full = first + " " + last;
+            return full.includes(query) || parts.some((w) => first.includes(w) || last.includes(w));
+          });
           if (!match) return { found: false, message: `No person found matching "${name}"` };
           return {
             found: true,
@@ -121,6 +126,7 @@ export async function POST(req: Request) {
         },
       },
     },
+    stopWhen: stepCountIs(5),
   });
 
   return result.toUIMessageStreamResponse();
