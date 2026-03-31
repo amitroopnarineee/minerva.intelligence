@@ -21,11 +21,11 @@ export function PageHeader({ breadcrumb, title, subtitle, actions, transparent =
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage className="text-sm font-medium">{breadcrumb}</BreadcrumbPage>
+            <BreadcrumbPage className="mn-pghead-el-1 text-sm font-medium">{breadcrumb}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className="mn-pghead-group-2 flex items-center gap-2">{actions}</div>}
     </div>
   )
 }

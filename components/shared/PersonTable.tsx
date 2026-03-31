@@ -19,16 +19,16 @@ export function PersonTable({ persons, showScores = true }: PersonTableProps) {
 
   return (
     <>
-      <FeatureCard className="overflow-hidden">
+      <FeatureCard className="mn-ptable-el-1 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Person</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="hidden md:table-cell">Channels</TableHead>
-              {showScores && <TableHead className="hidden lg:table-cell">Identity</TableHead>}
-              {showScores && <TableHead className="text-right">Buy Score</TableHead>}
+              <TableHead className="mn-ptable-el-2 hidden md:table-cell">Channels</TableHead>
+              {showScores && <TableHead className="mn-ptable-el-3 hidden lg:table-cell">Identity</TableHead>}
+              {showScores && <TableHead className="mn-ptable-el-4 text-right">Buy Score</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -42,22 +42,22 @@ export function PersonTable({ persons, showScores = true }: PersonTableProps) {
                   data-select-city={`${p.city}, ${p.state}`} data-select-status={p.fanStatus.replace(/_/g, " ")}
                   data-select-score={`${Math.round(p.scores.ticketBuy * 100)}`}>
                   <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8 border"><AvatarFallback className="bg-primary/10 text-[10px] font-bold text-primary">{initials}</AvatarFallback></Avatar>
-                      <div><p className="text-sm font-medium">{p.firstName} {p.lastName}</p><p className="text-[10px] text-muted-foreground">{p.ageBand} · {p.gender}</p></div>
+                    <div className="mn-ptable-group-5 flex items-center gap-3">
+                      <Avatar className="mn-ptable-el-6 h-8 w-8 border"><AvatarFallback className="mn-ptable-el-7 bg-primary/10 text-[10px] font-bold text-primary">{initials}</AvatarFallback></Avatar>
+                      <div><p className="mn-ptable-el-8 text-sm font-medium">{p.firstName} {p.lastName}</p><p className="mn-ptable-el-9 text-[10px] text-muted-foreground">{p.ageBand} · {p.gender}</p></div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{p.city}, {p.state}</TableCell>
+                  <TableCell className="mn-ptable-el-10 text-sm text-muted-foreground">{p.city}, {p.state}</TableCell>
                   <TableCell><Badge className={`text-[10px] ${statusColors[p.fanStatus] ?? "bg-secondary text-secondary-foreground"}`}>{p.fanStatus.replace(/_/g, " ")}</Badge></TableCell>
-                  <TableCell className="hidden md:table-cell"><div className="flex items-center gap-1.5">{hasEmail && <Mail className="h-3 w-3 text-muted-foreground" />}{hasPhone && <Phone className="h-3 w-3 text-muted-foreground" />}</div></TableCell>
-                  {showScores && <TableCell className="hidden lg:table-cell"><IdentityBar confidence={p.identityConfidence} completeness={p.profileCompleteness} /></TableCell>}
-                  {showScores && <TableCell className="text-right"><PropensityRing score={p.scores.ticketBuy} size={32} /></TableCell>}
+                  <TableCell className="mn-ptable-el-11 hidden md:table-cell"><div className="mn-ptable-group-12 flex items-center gap-1.5">{hasEmail && <Mail className="mn-ptable-el-13 h-3 w-3 text-muted-foreground" />}{hasPhone && <Phone className="mn-ptable-el-14 h-3 w-3 text-muted-foreground" />}</div></TableCell>
+                  {showScores && <TableCell className="mn-ptable-el-15 hidden lg:table-cell"><IdentityBar confidence={p.identityConfidence} completeness={p.profileCompleteness} /></TableCell>}
+                  {showScores && <TableCell className="mn-ptable-el-16 text-right"><PropensityRing score={p.scores.ticketBuy} size={32} /></TableCell>}
                 </TableRow>
               )
             })}
           </TableBody>
         </Table>
-        <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
+        <div className="mn-ptable-row-17 flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
           <span>Rows per page: 10</span>
           <span>1 - {persons.length} of {persons.length}</span>
         </div>

@@ -87,7 +87,7 @@ function MenuDropdown({ isOpen, onClose, items, position, onItemClick }: MenuDro
   if (!isOpen) return null
 
   return (
-    <div ref={ref} className="absolute z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150"
+    <div ref={ref} className="mn-menubar-el-1 absolute z-[60] backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150"
       style={{
         left: position.x, top: position.y, minWidth: 220,
         background: "hsl(var(--popover))",
@@ -97,15 +97,15 @@ function MenuDropdown({ isOpen, onClose, items, position, onItemClick }: MenuDro
       }}>
       <div className="py-1">
         {items.map((item, i) => {
-          if (item.type === "separator") return <div key={i} className="h-px bg-border mx-2 my-1" />
+          if (item.type === "separator") return <div key={i} className="mn-menubar-el-2 h-px bg-border mx-2 my-1" />
           return (
-            <div key={i} className="px-3 py-1.5 text-sm cursor-pointer hover:bg-accent transition-colors flex items-center justify-between"
+            <div key={i} className="mn-menubar-row-3 px-3 py-1.5 text-sm cursor-pointer hover:bg-accent transition-colors flex items-center justify-between"
               onClick={() => { onItemClick(item); onClose() }}>
               <span className="mn-menubar-right flex items-center gap-2">
                 {item.label}
-                {item.badge && <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">{item.badge}</span>}
+                {item.badge && <span className="mn-menubar-el-4 rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">{item.badge}</span>}
               </span>
-              {item.shortcut && <span className="text-xs text-muted-foreground ml-6">{item.shortcut}</span>}
+              {item.shortcut && <span className="mn-menubar-el-5 text-xs text-muted-foreground ml-6">{item.shortcut}</span>}
             </div>
           )
         })}
@@ -166,12 +166,12 @@ export function MinervaMenuBar() {
         {/* Left: logo + menus */}
         <div className="mn-menubar-left flex items-center gap-3">
           {/* Logo — navigates to /home */}
-          <button onClick={() => router.push("/home")} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+          <button onClick={() => router.push("/home")} className="mn-menubar-group-6 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <div className="mn-logo-mark h-[10px] w-[10px] rounded-[2px] bg-current" />
-            <span className="text-[13px] font-semibold leading-none">Minerva</span>
+            <span className="mn-menubar-label-7 text-[13px] font-semibold leading-none">Minerva</span>
           </button>
 
-          <div className="flex items-center">
+          <div className="mn-menubar-el-8 flex items-center">
             {MINERVA_MENUS.map((menu) => {
               const isActive = activeLabel === menu.label
               return (
@@ -192,39 +192,39 @@ export function MinervaMenuBar() {
         <button onClick={() => { const e = new KeyboardEvent("keydown", { key: "k", metaKey: true }); document.dispatchEvent(e) }}
           className="mn-cmd-trigger flex items-center gap-1.5 rounded-md border border-border/50 px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-border transition-colors">
           <Search className="h-3 w-3" />
-          <span className="hidden sm:inline">Search</span>
-          <kbd className="ml-1 rounded bg-muted/50 px-1 py-px text-[9px] font-medium">⌘K</kbd>
+          <span className="mn-menubar-el-9 hidden sm:inline">Search</span>
+          <kbd className="mn-menubar-label-10 ml-1 rounded bg-muted/50 px-1 py-px text-[9px] font-medium">⌘K</kbd>
         </button>
 
         {/* Right: utilities — all aligned to text height */}
         <div className="mn-menubar-right flex items-center gap-2">
           <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="text-muted-foreground hover:text-foreground transition-colors">
-            {mounted ? (resolvedTheme === "dark" ? <Moon className="h-[14px] w-[14px]" /> : <Sun className="h-[14px] w-[14px]" />) : <Sun className="h-[14px] w-[14px] opacity-0" />}
+            className="mn-menubar-el-11 text-muted-foreground hover:text-foreground transition-colors">
+            {mounted ? (resolvedTheme === "dark" ? <Moon className="mn-menubar-el-12 h-[14px] w-[14px]" /> : <Sun className="mn-menubar-el-13 h-[14px] w-[14px]" />) : <Sun className="mn-menubar-el-14 h-[14px] w-[14px] opacity-0" />}
           </button>
           <button onClick={() => { const e = new CustomEvent("minerva-chat-toggle"); window.dispatchEvent(e) }}
             className="mn-chat-trigger text-muted-foreground hover:text-foreground transition-colors" title="Open AI Chat">
-            <Sparkles className="h-[14px] w-[14px]" />
+            <Sparkles className="mn-menubar-el-15 h-[14px] w-[14px]" />
           </button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
-            <Bell className="h-[14px] w-[14px]" />
+          <button className="mn-menubar-el-16 text-muted-foreground hover:text-foreground transition-colors">
+            <Bell className="mn-menubar-el-17 h-[14px] w-[14px]" />
           </button>
-          <span className="text-[13px] text-muted-foreground tabular-nums leading-none hidden sm:inline">{currentTime}</span>
+          <span className="mn-menubar-el-18 text-[13px] text-muted-foreground tabular-nums leading-none hidden sm:inline">{currentTime}</span>
           <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none">
-              <Avatar className="h-5 w-5 cursor-pointer border border-border">
-                <AvatarFallback className="bg-primary/10 text-[8px] font-bold text-primary leading-none">SM</AvatarFallback>
+            <DropdownMenuTrigger className="mn-menubar-el-19 focus:outline-none">
+              <Avatar className="mn-menubar-divider h-5 w-5 cursor-pointer border border-border">
+                <AvatarFallback className="mn-menubar-el-21 bg-primary/10 text-[8px] font-bold text-primary leading-none">SM</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel><div className="flex flex-col"><span className="text-sm font-medium">Sarah Martinez</span><span className="text-xs text-muted-foreground">s.martinez@dolphins.com</span></div></DropdownMenuLabel>
+              <DropdownMenuLabel><div className="mn-menubar-el-22 flex flex-col"><span className="mn-menubar-el-23 text-sm font-medium">Sarah Martinez</span><span className="mn-menubar-el-24 text-xs text-muted-foreground">s.martinez@dolphins.com</span></div></DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2"><User className="h-4 w-4" /> Profile</DropdownMenuItem>
               <DropdownMenuItem className="gap-2"><Settings className="h-4 w-4" /> Settings</DropdownMenuItem>
               <DropdownMenuItem className="gap-2"><CreditCard className="h-4 w-4" /> Billing</DropdownMenuItem>
               <DropdownMenuItem className="gap-2"><HelpCircle className="h-4 w-4" /> Help & Support</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="gap-2 text-destructive-foreground"><LogOut className="h-4 w-4" /> Log out</DropdownMenuItem>
+              <DropdownMenuItem className="mn-menubar-el-25 gap-2 text-destructive-foreground"><LogOut className="h-4 w-4" /> Log out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

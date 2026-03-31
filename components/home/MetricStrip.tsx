@@ -22,18 +22,18 @@ function MetricCard({ label, value, subtext, delta, sparkData, index }: MetricCa
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: index * 0.04 }}>
       <Card className="mn-kpi-card p-4 hover:bg-accent/30 transition-colors cursor-pointer group">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+        <div className="mn-metrics-row-1 flex items-center justify-between mb-2">
+          <span className="mn-metrics-label-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
           <Sparkline data={sparkData} width={48} height={16} showArea={false} showDot={false} />
         </div>
-        <div className="flex items-end justify-between">
+        <div className="mn-metrics-el-3 flex items-end justify-between">
           <div>
-            <span className="tabular-nums text-2xl font-bold tracking-tight">{value}</span>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{subtext}</p>
+            <span className="mn-metrics-el-4 tabular-nums text-2xl font-bold tracking-tight">{value}</span>
+            <p className="mn-metrics-el-5 text-[10px] text-muted-foreground mt-0.5">{subtext}</p>
           </div>
           <div className={`flex items-center gap-0.5 ${trendColor}`}>
-            <TrendIcon className="h-3.5 w-3.5" />
-            <span className="tabular-nums text-xs font-semibold">{delta.value.toFixed(1)}%</span>
+            <TrendIcon className="mn-metrics-el-6 h-3.5 w-3.5" />
+            <span className="mn-metrics-el-7 tabular-nums text-xs font-semibold">{delta.value.toFixed(1)}%</span>
           </div>
         </div>
       </Card>

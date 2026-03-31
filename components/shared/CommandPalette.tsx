@@ -51,7 +51,7 @@ export function CommandPalette() {
         <CommandGroup heading="Navigation">
           {navItems.map((item) => (
             <CommandItem key={item.href} onSelect={() => runCommand(() => router.push(item.href))} className="mn-cmd-item">
-              <item.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+              <item.icon className="mn-cmdpal-el-1 mr-2 h-4 w-4 text-muted-foreground" />
               {item.label}
             </CommandItem>
           ))}
@@ -62,9 +62,9 @@ export function CommandPalette() {
         <CommandGroup heading="People">
           {persons.map((p) => (
             <CommandItem key={p.id} onSelect={() => runCommand(() => router.push(`/person-search?q=${p.firstName}`))} className="mn-cmd-item">
-              <User className="mr-2 h-4 w-4 text-muted-foreground" />
+              <User className="mn-cmdpal-el-2 mr-2 h-4 w-4 text-muted-foreground" />
               {p.firstName} {p.lastName}
-              <span className="ml-auto text-xs text-muted-foreground">{p.city}, {p.state}</span>
+              <span className="mn-cmdpal-el-3 ml-auto text-xs text-muted-foreground">{p.city}, {p.state}</span>
             </CommandItem>
           ))}
         </CommandGroup>
@@ -74,9 +74,9 @@ export function CommandPalette() {
         <CommandGroup heading="Audiences">
           {audiences.map((a) => (
             <CommandItem key={a.id} onSelect={() => runCommand(() => router.push("/prospecting"))} className="mn-cmd-item">
-              <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+              <Users className="mn-cmdpal-el-4 mr-2 h-4 w-4 text-muted-foreground" />
               {a.name}
-              <span className="ml-auto text-xs text-muted-foreground">{a.estimatedSize.toLocaleString()}</span>
+              <span className="mn-cmdpal-el-5 ml-auto text-xs text-muted-foreground">{a.estimatedSize.toLocaleString()}</span>
             </CommandItem>
           ))}
         </CommandGroup>
@@ -85,7 +85,7 @@ export function CommandPalette() {
 
         <CommandGroup heading="Settings">
           <CommandItem onSelect={() => runCommand(() => setTheme(resolvedTheme === "dark" ? "light" : "dark"))} className="mn-cmd-item">
-            {resolvedTheme === "dark" ? <Sun className="mr-2 h-4 w-4 text-muted-foreground" /> : <Moon className="mr-2 h-4 w-4 text-muted-foreground" />}
+            {resolvedTheme === "dark" ? <Sun className="mn-cmdpal-el-6 mr-2 h-4 w-4 text-muted-foreground" /> : <Moon className="mn-cmdpal-el-7 mr-2 h-4 w-4 text-muted-foreground" />}
             Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode
           </CommandItem>
         </CommandGroup>

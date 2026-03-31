@@ -101,8 +101,8 @@ function HSegment({ index, normStart, normEnd, segW, fullH, color, layers, stagg
 
   return (
     <motion.div className="mn-funnel-segment pointer-events-none relative shrink-0 overflow-visible" style={{ width: segW, height: fullH, zIndex: hovered ? 10 : 1, opacity: dimOpacity }}>
-      <motion.div className="absolute inset-0 overflow-visible" style={{ scaleX: entranceScaleX, scaleY: entranceScaleY, transformOrigin: "left center" }}>
-        <svg aria-hidden="true" className="absolute inset-0 h-full w-full overflow-visible" preserveAspectRatio="none" viewBox={`0 0 ${segW} ${fullH}`}>
+      <motion.div className="mn-funnel-el-1 absolute inset-0 overflow-visible" style={{ scaleX: entranceScaleX, scaleY: entranceScaleY, transformOrigin: "left center" }}>
+        <svg aria-hidden="true" className="mn-funnel-el-2 absolute inset-0 h-full w-full overflow-visible" preserveAspectRatio="none" viewBox={`0 0 ${segW} ${fullH}`}>
           <defs>
             {gradientStops && (
               <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
@@ -131,10 +131,10 @@ function SegmentLabel({ stage, pct, showValues, showPercentage, showLabels, form
 }) {
   const display = stage.displayValue ?? formatValue(stage.value);
   return (
-    <motion.div className="absolute inset-0 flex flex-col items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * staggerDelay + 0.25, duration: 0.35, ease: "easeOut" }}>
-      {showValues && <div className="flex h-[16%] items-end justify-center pb-1"><span className="whitespace-nowrap font-semibold text-foreground text-sm">{display}</span></div>}
-      {showPercentage && <div className="flex flex-1 items-center justify-center"><span className="rounded-full bg-foreground px-3 py-1 font-bold text-background text-xs shadow-sm">{formatPercentage(pct)}</span></div>}
-      {showLabels && <div className="flex h-[16%] items-start justify-center pt-1"><span className="whitespace-nowrap font-medium text-muted-foreground text-xs">{stage.label}</span></div>}
+    <motion.div className="mn-funnel-el-3 absolute inset-0 flex flex-col items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * staggerDelay + 0.25, duration: 0.35, ease: "easeOut" }}>
+      {showValues && <div className="mn-funnel-el-4 flex h-[16%] items-end justify-center pb-1"><span className="mn-funnel-el-5 whitespace-nowrap font-semibold text-foreground text-sm">{display}</span></div>}
+      {showPercentage && <div className="mn-funnel-el-6 flex flex-1 items-center justify-center"><span className="mn-funnel-el-7 rounded-full bg-foreground px-3 py-1 font-bold text-background text-xs shadow-sm">{formatPercentage(pct)}</span></div>}
+      {showLabels && <div className="mn-funnel-el-8 flex h-[16%] items-start justify-center pt-1"><span className="mn-funnel-el-9 whitespace-nowrap font-medium text-muted-foreground text-xs">{stage.label}</span></div>}
     </motion.div>
   );
 }
@@ -173,7 +173,7 @@ export function FunnelChart({ data, color = "hsl(var(--chart-1))", layers = 3, c
     <div className={cn("relative w-full select-none overflow-visible", className)} ref={ref} style={{ aspectRatio: "2.2 / 1", ...style }}>
       {W > 0 && H > 0 && (
         <>
-          <div className="absolute inset-0 flex flex-row overflow-visible" style={{ gap }}>
+          <div className="mn-funnel-el-10 absolute inset-0 flex flex-row overflow-visible" style={{ gap }}>
             {data.map((stage, i) => {
               const firstStop = stage.gradient?.[0];
               const segColor = firstStop ? firstStop.color : (stage.color ?? color);
@@ -186,7 +186,7 @@ export function FunnelChart({ data, color = "hsl(var(--chart-1))", layers = 3, c
             const pct = (stage.value / max) * 100;
             const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
             return (
-              <motion.div key={`lbl-${stage.label}`} className="absolute cursor-pointer" onMouseEnter={() => setHoveredIndex(i)} onMouseLeave={() => setHoveredIndex(null)} style={{ left: (segW + gap) * i, width: segW, top: 0, height: H, zIndex: 20 }} animate={{ opacity: isDimmed ? 0.4 : 1 }} transition={{ type: "spring", stiffness: 300, damping: 24 }}>
+              <motion.div key={`lbl-${stage.label}`} className="mn-funnel-el-11 absolute cursor-pointer" onMouseEnter={() => setHoveredIndex(i)} onMouseLeave={() => setHoveredIndex(null)} style={{ left: (segW + gap) * i, width: segW, top: 0, height: H, zIndex: 20 }} animate={{ opacity: isDimmed ? 0.4 : 1 }} transition={{ type: "spring", stiffness: 300, damping: 24 }}>
                 <SegmentLabel stage={stage} pct={pct} showValues={showValues} showPercentage={showPercentage} showLabels={showLabels} formatPercentage={formatPercentage} formatValue={formatValue} index={i} staggerDelay={staggerDelay} />
               </motion.div>
             );

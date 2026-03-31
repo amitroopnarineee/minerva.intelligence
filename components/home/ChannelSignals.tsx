@@ -17,21 +17,21 @@ export function ChannelSignals() {
   return (
     <>
       <section className="mn-channels">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold">Channel Signals</h2>
-          <span className="text-xs text-muted-foreground">{campaigns.length} active campaigns</span>
+        <div className="mn-signals-row-1 mb-3 flex items-center justify-between">
+          <h2 className="mn-signals-el-2 text-base font-semibold">Channel Signals</h2>
+          <span className="mn-signals-el-3 text-xs text-muted-foreground">{campaigns.length} active campaigns</span>
         </div>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.5 }}>
-          <FeatureCard className="overflow-hidden">
+          <FeatureCard className="mn-signals-el-4 overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Campaign</TableHead>
                   <TableHead>Channel</TableHead>
-                  <TableHead className="text-right">ROAS</TableHead>
-                  <TableHead className="text-right">Conv.</TableHead>
-                  <TableHead className="text-right hidden lg:table-cell">Budget</TableHead>
-                  <TableHead className="text-right">Trend</TableHead>
+                  <TableHead className="mn-signals-el-5 text-right">ROAS</TableHead>
+                  <TableHead className="mn-signals-el-6 text-right">Conv.</TableHead>
+                  <TableHead className="mn-signals-el-7 text-right hidden lg:table-cell">Budget</TableHead>
+                  <TableHead className="mn-signals-el-8 text-right">Trend</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -46,27 +46,27 @@ export function ChannelSignals() {
                     data-select-spend={`$${c.spend.toLocaleString()}`} data-select-channel={c.channel}
                     data-select-trend={`${c.trendPct > 0 ? "+" : ""}${c.trendPct}%`}>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          {c.trend === "down" && <AlertTriangle className="h-3.5 w-3.5 text-red-400" />}
-                          <span className="font-medium">{c.name}</span>
-                          <Badge variant="outline" className="text-[10px] hidden sm:inline-flex">{c.platform}</Badge>
+                        <div className="mn-signals-group-9 flex items-center gap-2">
+                          {c.trend === "down" && <AlertTriangle className="mn-signals-el-10 h-3.5 w-3.5 text-red-400" />}
+                          <span className="mn-signals-el-11 font-medium">{c.name}</span>
+                          <Badge variant="outline" className="mn-signals-el-12 text-[10px] hidden sm:inline-flex">{c.platform}</Badge>
                         </div>
                       </TableCell>
-                      <TableCell className="capitalize text-muted-foreground">{c.channel}</TableCell>
-                      <TableCell className="tabular-nums font-semibold text-right">{c.roas.toFixed(1)}x</TableCell>
-                      <TableCell className="tabular-nums text-right">{c.conversions}</TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <div className="flex items-center justify-end gap-2">
-                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-secondary">
+                      <TableCell className="mn-signals-el-13 capitalize text-muted-foreground">{c.channel}</TableCell>
+                      <TableCell className="mn-signals-el-14 tabular-nums font-semibold text-right">{c.roas.toFixed(1)}x</TableCell>
+                      <TableCell className="mn-signals-el-15 tabular-nums text-right">{c.conversions}</TableCell>
+                      <TableCell className="mn-signals-el-16 hidden lg:table-cell">
+                        <div className="mn-signals-group-17 flex items-center justify-end gap-2">
+                          <div className="mn-signals-el-18 h-1.5 w-16 overflow-hidden rounded-full bg-secondary">
                             <div className={`h-full rounded-full ${budgetPct > 85 ? "bg-amber-400" : "bg-primary/40"}`} style={{ width: `${budgetPct}%` }} />
                           </div>
-                          <span className="tabular-nums text-[11px] text-muted-foreground">{budgetPct.toFixed(0)}%</span>
+                          <span className="mn-signals-el-19 tabular-nums text-[11px] text-muted-foreground">{budgetPct.toFixed(0)}%</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <span className={`flex items-center justify-end gap-0.5 ${trendColor}`}>
                           <TrendIcon className="h-3 w-3" />
-                          <span className="tabular-nums text-xs font-medium">{c.trendPct > 0 ? "+" : ""}{c.trendPct}%</span>
+                          <span className="mn-signals-el-20 tabular-nums text-xs font-medium">{c.trendPct > 0 ? "+" : ""}{c.trendPct}%</span>
                         </span>
                       </TableCell>
                     </TableRow>

@@ -69,7 +69,7 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
           transition={{ duration: 0.3 }}
-          className="text-center mb-6"
+          className="mn-input-center-1 text-center mb-6"
         >
           <h1 className={`text-2xl font-bold tracking-tight sm:text-3xl ${isDark ? "text-white" : "text-black"}`}>
             {mode.headline}
@@ -79,9 +79,9 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
 
       {/* Input */}
       <div className={`mn-input-box flex flex-col rounded-2xl border backdrop-blur-sm transition-all duration-200 ${bg}`}>
-        <div className="flex flex-col px-4 pt-4 pb-3 gap-2">
+        <div className="mn-input-group-2 flex flex-col px-4 pt-4 pb-3 gap-2">
           <AnimatePresence mode="wait">
-            <motion.div key={mode.id + "-input"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }} className="min-h-[2.5rem]">
+            <motion.div key={mode.id + "-input"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }} className="mn-input-el-3 min-h-[2.5rem]">
               <textarea
                 ref={textareaRef}
                 value={message}
@@ -94,8 +94,8 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
               />
             </motion.div>
           </AnimatePresence>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
+          <div className="mn-input-row-4 flex items-center justify-between">
+            <div className="mn-input-group-5 flex items-center gap-1">
               <button className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${iconMuted}`}><Plus className="h-5 w-5" /></button>
               <button className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${iconMuted}`}><Sparkles className="h-4 w-4" /></button>
             </div>
@@ -107,7 +107,7 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
       </div>
 
       {/* Mode switcher — below input */}
-      <div className="flex items-center justify-center gap-1 mt-5">
+      <div className="mn-input-group-6 flex items-center justify-center gap-1 mt-5">
         {modes.map((m, i) => {
           const Icon = m.icon
           const isActive = i === activeMode
@@ -118,7 +118,7 @@ export function MinervaInput({ onSend, isDark = true }: MinervaInputProps) {
               className={`relative flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${isActive ? pillActive : pillBase} hover:opacity-100`}
             >
               <Icon className="h-3 w-3" />
-              <span className="hidden sm:inline">{m.label}</span>
+              <span className="mn-input-el-7 hidden sm:inline">{m.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="mode-indicator"

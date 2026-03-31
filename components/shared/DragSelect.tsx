@@ -142,7 +142,7 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
   return (
     <>
       {isDragging && dragRect && dragRect.width > 5 && (
-        <div ref={overlayRef} className="fixed z-40 pointer-events-none border-2 border-white/30 bg-white/[0.04] backdrop-blur-sm rounded"
+        <div ref={overlayRef} className="mn-dragsel-card-1 fixed z-40 pointer-events-none border-2 border-white/30 bg-white/[0.04] backdrop-blur-sm rounded"
           style={{ left: dragRect.left, top: dragRect.top, width: dragRect.width, height: dragRect.height }} />
       )}
 
@@ -155,11 +155,11 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
             transition={{ duration: 0.2 }}
             className="mn-drag-summary fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-xl border border-white/10 bg-[#1a1c2e]/90 backdrop-blur-xl px-4 py-3 shadow-2xl"
           >
-            <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-white/50" />
-              <div className="flex items-center gap-1.5">
+            <div className="mn-dragsel-group-2 flex items-center gap-2">
+              <Layers className="mn-dragsel-el-3 h-4 w-4 text-white/50" />
+              <div className="mn-dragsel-group-4 flex items-center gap-1.5">
                 {Object.entries(typeCounts).map(([type, count]) => (
-                  <span key={type} className="inline-flex items-center rounded-md bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/70">
+                  <span key={type} className="mn-dragsel-label-5 inline-flex items-center rounded-md bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/70">
                     {count} {type}{count > 1 ? "s" : ""}
                   </span>
                 ))}
@@ -171,13 +171,13 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
                 setShowSummary(false)
                 setSelectedItems([])
               }}
-              className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-[12px] font-medium text-white/90 hover:bg-white/20 transition-colors"
+              className="mn-dragsel-label-6 flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-[12px] font-medium text-white/90 hover:bg-white/20 transition-colors"
             >
               <Sparkles className="h-3 w-3" /> Analyze with AI
             </button>
             <button onClick={() => { setShowSummary(false); setSelectedItems([]) }}
-              className="text-white/30 hover:text-white/60 transition-colors">
-              <X className="h-3.5 w-3.5" />
+              className="mn-dragsel-el-7 text-white/30 hover:text-white/60 transition-colors">
+              <X className="mn-dragsel-el-8 h-3.5 w-3.5" />
             </button>
           </motion.div>
         )}

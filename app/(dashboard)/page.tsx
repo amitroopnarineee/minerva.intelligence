@@ -16,7 +16,7 @@ export default function CommandCenterPage() {
         subtitle="Your daily consumer intelligence overview."
       />
       <div className="mn-page flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-6 py-6">
+        <div className="mn-cmd-el-1 mx-auto max-w-6xl px-6 py-6">
           <PageTransition>
             {/* Title */}
             <FadeIn className="mn-page-header mb-6">
@@ -61,7 +61,7 @@ export default function CommandCenterPage() {
             {/* Footer */}
             <FadeIn>
               <div className="mn-page-footer border-t pt-4 pb-8">
-                <p className="text-center text-[11px] text-muted-foreground">
+                <p className="mn-cmd-center-2 text-center text-[11px] text-muted-foreground">
                   Minerva Intelligence · Synthetic demo data · Built for design review
                 </p>
               </div>

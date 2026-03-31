@@ -14,24 +14,24 @@ export default function UsagePage() {
     <>
       <PageHeader breadcrumb="Usage" title="Usage" subtitle="Monitor your API usage and platform consumption." />
       <div className="mn-page flex-1 overflow-y-auto p-6">
-        <div className="mx-auto max-w-6xl">
+        <div className="mn-usage-el-1 mx-auto max-w-6xl">
           <PageTransition>
             <FadeIn className="mb-6">
               <h1 className="mn-page-title text-[28px] font-semibold tracking-tight">Usage</h1>
               <p className="mt-1 mn-page-subtitle text-sm text-muted-foreground">Monitor your API usage and platform consumption.</p>
             </FadeIn>
             <FadeIn>
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="mn-usage-grid grid gap-4 md:grid-cols-3">
                 {usage.map((u) => (
                   <Card key={u.label}>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-xs font-medium text-muted-foreground">{u.label} {u.period && `(${u.period})`}</CardTitle>
+                      <CardTitle className="mn-usage-el-3 text-xs font-medium text-muted-foreground">{u.label} {u.period && `(${u.period})`}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-2xl font-semibold tabular-nums">{u.current.toLocaleString()}</p>
-                      <div className="mt-3 space-y-1">
+                      <p className="mn-usage-el-4 text-2xl font-semibold tabular-nums">{u.current.toLocaleString()}</p>
+                      <div className="mn-usage-stack mt-3 space-y-1">
                         <Progress value={(u.current / u.limit) * 100} className="h-2" />
-                        <p className="text-xs text-muted-foreground tabular-nums">{u.current.toLocaleString()} / {u.limit.toLocaleString()}</p>
+                        <p className="mn-usage-el-6 text-xs text-muted-foreground tabular-nums">{u.current.toLocaleString()} / {u.limit.toLocaleString()}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -40,7 +40,7 @@ export default function UsagePage() {
             </FadeIn>
             <FadeIn>
               <Card className="mt-4">
-                <CardContent className="min-h-[40vh] p-0" />
+                <CardContent className="mn-usage-el-7 min-h-[40vh] p-0" />
               </Card>
             </FadeIn>
           </PageTransition>

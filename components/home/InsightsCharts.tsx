@@ -24,11 +24,11 @@ const funnelData = [
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string }>; label?: string }) {
   if (!active || !payload) return null;
   return (
-    <div className="rounded-none border bg-popover px-3 py-2 shadow-md">
-      <p className="text-xs font-medium mb-1">{label}</p>
+    <div className="mn-insights-card-1 rounded-none border bg-popover px-3 py-2 shadow-md">
+      <p className="mn-insights-el-2 text-xs font-medium mb-1">{label}</p>
       {payload.map((p) => (
-        <p key={p.name} className="text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">${p.value}K</span> {p.name}
+        <p key={p.name} className="mn-insights-el-3 text-xs text-muted-foreground">
+          <span className="mn-insights-el-4 font-medium text-foreground">${p.value}K</span> {p.name}
         </p>
       ))}
     </div>
@@ -38,16 +38,16 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 export function InsightsCharts() {
   return (
     <div className="mn-charts grid gap-4 lg:grid-cols-5">
-      <motion.div className="lg:col-span-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.55 }}>
+      <motion.div className="mn-insights-el-5 lg:col-span-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.55 }}>
         <FeatureCard className="h-full">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">Revenue vs Spend (7d)</CardTitle>
-              <Badge variant="secondary" className="text-[10px]">Daily</Badge>
+            <div className="mn-insights-row-6 flex items-center justify-between">
+              <CardTitle className="mn-insights-el-7 text-sm font-semibold">Revenue vs Spend (7d)</CardTitle>
+              <Badge variant="secondary" className="mn-insights-el-8 text-[10px]">Daily</Badge>
             </div>
           </CardHeader>
           <CardContent className="pb-4">
-            <div className="h-[220px] w-full">
+            <div className="mn-insights-el-9 h-[220px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
@@ -73,12 +73,12 @@ export function InsightsCharts() {
         </FeatureCard>
       </motion.div>
 
-      <motion.div className="lg:col-span-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.65 }}>
+      <motion.div className="mn-insights-el-10 lg:col-span-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.65 }}>
         <FeatureCard className="h-full">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold">Conversion Funnel</CardTitle>
-              <Badge variant="secondary" className="text-[10px]">30d</Badge>
+            <div className="mn-insights-row-11 flex items-center justify-between">
+              <CardTitle className="mn-insights-el-12 text-sm font-semibold">Conversion Funnel</CardTitle>
+              <Badge variant="secondary" className="mn-insights-el-13 text-[10px]">30d</Badge>
             </div>
           </CardHeader>
           <CardContent className="pb-4">

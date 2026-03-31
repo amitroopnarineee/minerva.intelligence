@@ -18,18 +18,18 @@ export function PropensityRing({ score, size = 48, label, className }: Propensit
 
   return (
     <div className={cn("mn-propensity-ring flex flex-col items-center gap-1", className)}>
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth={3} className="text-secondary" />
+      <div className="mn-score-el-1 relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="mn-score-el-2 -rotate-90">
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth={3} className="mn-score-el-3 text-secondary" />
           <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={3} strokeLinecap="round" className={color}
             strokeDasharray={circumference} strokeDashoffset={dashOffset}
             style={{ transition: "stroke-dashoffset 0.6s ease" }} />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-bold tabular-nums">{pct}</span>
+        <div className="mn-score-el-4 absolute inset-0 flex items-center justify-center">
+          <span className="mn-score-el-5 text-xs font-bold tabular-nums">{pct}</span>
         </div>
       </div>
-      {label && <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>}
+      {label && <span className="mn-score-label-6 text-[9px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>}
     </div>
   )
 }
@@ -66,17 +66,17 @@ interface IdentityBarProps {
 export function IdentityBar({ confidence, completeness, className }: IdentityBarProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div className="flex items-center gap-1.5">
-        <div className="h-1.5 w-12 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-primary/60" style={{ width: `${confidence * 100}%` }} />
+      <div className="mn-score-group-7 flex items-center gap-1.5">
+        <div className="mn-score-el-8 h-1.5 w-12 overflow-hidden rounded-full bg-secondary">
+          <div className="mn-score-el-9 h-full rounded-full bg-primary/60" style={{ width: `${confidence * 100}%` }} />
         </div>
-        <span className="text-[9px] text-muted-foreground tabular-nums">{Math.round(confidence * 100)}% ID</span>
+        <span className="mn-score-el-10 text-[9px] text-muted-foreground tabular-nums">{Math.round(confidence * 100)}% ID</span>
       </div>
-      <div className="flex items-center gap-1.5">
-        <div className="h-1.5 w-12 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-primary/40" style={{ width: `${completeness * 100}%` }} />
+      <div className="mn-score-group-11 flex items-center gap-1.5">
+        <div className="mn-score-el-12 h-1.5 w-12 overflow-hidden rounded-full bg-secondary">
+          <div className="mn-score-el-13 h-full rounded-full bg-primary/40" style={{ width: `${completeness * 100}%` }} />
         </div>
-        <span className="text-[9px] text-muted-foreground tabular-nums">{Math.round(completeness * 100)}% complete</span>
+        <span className="mn-score-el-14 text-[9px] text-muted-foreground tabular-nums">{Math.round(completeness * 100)}% complete</span>
       </div>
     </div>
   )

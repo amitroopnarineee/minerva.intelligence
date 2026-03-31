@@ -11,22 +11,22 @@ export default function ProspectingPage() {
   return (
     <>
       <PageHeader breadcrumb="Prospecting" title="Prospecting Segments" subtitle="Create and manage your prospect audiences."
-        actions={<Button size="sm"><Plus className="mr-1 h-4 w-4" /> Create Prospect</Button>}
+        actions={<Button size="sm"><Plus className="mn-prospect-el-1 mr-1 h-4 w-4" /> Create Prospect</Button>}
       />
       <div className="mn-page flex-1 overflow-y-auto p-6">
-        <div className="mx-auto max-w-6xl">
+        <div className="mn-prospect-el-2 mx-auto max-w-6xl">
           <PageTransition>
             <FadeIn className="mb-6">
-              <h1 className="text-[28px] font-semibold tracking-tight">Prospecting Segments</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Create and manage your prospect audiences for targeting.</p>
+              <h1 className="mn-prospect-label-3 text-[28px] font-semibold tracking-tight">Prospecting Segments</h1>
+              <p className="mn-prospect-el-4 mt-1 text-sm text-muted-foreground">Create and manage your prospect audiences for targeting.</p>
             </FadeIn>
             <FadeIn>
-              <div className="mb-4 flex items-center gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <div className="mn-prospect-group-5 mb-4 flex items-center gap-3">
+                <div className="mn-prospect-el-6 relative flex-1">
+                  <Search className="mn-prospect-el-7 absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input placeholder="Search prospects..." className="pl-9" />
                 </div>
-                <Button variant="outline" size="sm"><SlidersHorizontal className="mr-1 h-4 w-4" /> Filters</Button>
+                <Button variant="outline" size="sm"><SlidersHorizontal className="mn-prospect-el-8 mr-1 h-4 w-4" /> Filters</Button>
               </div>
             </FadeIn>
             <FadeIn>

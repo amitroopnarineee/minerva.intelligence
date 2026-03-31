@@ -99,10 +99,10 @@ export function SelectionToolbar({ onAskAI }: SelectionToolbarProps) {
             className="mn-toolbar-btn flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
             <Search className="h-3 w-3" /> Analyze
           </button>
-          <div className="h-4 w-px bg-white/10" />
+          <div className="mn-seltool-el-1 h-4 w-px bg-white/10" />
           <button onClick={handleCopy}
             className="mn-toolbar-btn flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-            {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+            {copied ? <Check className="mn-seltool-el-2 h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
             {copied ? "Copied" : "Copy"}
           </button>
         </motion.div>

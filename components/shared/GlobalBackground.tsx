@@ -121,9 +121,9 @@ export function GlobalBackground() {
 
   return (
     <div className="mn-global-bg fixed inset-0 z-0 pointer-events-none">
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <canvas ref={canvasRef} className="mn-bg-el-1 absolute inset-0 w-full h-full" />
       {/* Single subtle blur to smooth any banding */}
-      <div className="absolute inset-0" style={{ backdropFilter: "blur(1px)", WebkitBackdropFilter: "blur(1px)" }} />
+      <div className="mn-bg-el-2 absolute inset-0" style={{ backdropFilter: "blur(1px)", WebkitBackdropFilter: "blur(1px)" }} />
     </div>
   )
 }
