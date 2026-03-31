@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react"
 
 export function Typewriter({ text, speed = 20, onDone }: { text: string; speed?: number; onDone?: () => void }) {
-  const [displayed, setDisplayed] = useState("")
+  const [displayed, setDisplayed] = useState("" )
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    setDisplayed("")
+    setDisplayed("" )
     setDone(false)
     let i = 0
     const words = text.split(" ")
@@ -25,7 +25,7 @@ export function Typewriter({ text, speed = 20, onDone }: { text: string; speed?:
   }, [text, speed])
 
   return (
-    <span className={done ? "" : "after:content-['▍'] after:ml-0.5 after:text-white/30 after:animate-pulse"}>
+    <span className={`mn-chat-typewriter ${done ? "mn-chat-typewriter-done" : "mn-chat-typewriter-streaming after:content-['▍'] after:ml-0.5 after:text-white/30 after:animate-pulse"}`}>
       {displayed}
     </span>
   )

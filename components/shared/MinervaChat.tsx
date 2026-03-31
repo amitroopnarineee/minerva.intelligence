@@ -179,37 +179,37 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
   if (!open) return null
 
   return (
-    <div className="mn-chat-panel h-full flex flex-col border-l border-white/[0.06] bg-[#0c0e1a]/60 backdrop-blur-xl">
+    <div className="mn-chat-panel mn-chat-root h-full flex flex-col border-l border-white/[0.06] bg-[#0c0e1a]/60 backdrop-blur-xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] shrink-0">
+      <div className="mn-chat-header flex items-center justify-between px-4 py-3 border-b border-white/[0.06] shrink-0">
         <div className="flex items-center gap-2">
-          <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[13px] font-medium text-white/80 tracking-[-0.01em]" style={{ fontFamily: "'Overused Grotesk', sans-serif" }}>Minerva AI</span>
-          {isStreaming && <span className="text-[10px] text-white/25 ml-1">streaming...</span>}
+          <div className="mn-chat-status-dot h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="mn-chat-title text-[13px] font-medium text-white/80 tracking-[-0.01em]" style={{ fontFamily: "'Overused Grotesk', sans-serif" }}>Minerva AI</span>
+          {isStreaming && <span className="mn-chat-streaming-indicator text-[10px] text-white/25 ml-1">streaming...</span>}
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] text-white/20 font-mono">{pathname}</span>
-          <button onClick={onClose} className="text-white/25 hover:text-white/60 transition-colors">
+          <button onClick={onClose} className="mn-chat-close-btn text-white/25 hover:text-white/60 transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-5" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
+      <div ref={scrollRef} className="mn-chat-messages flex-1 overflow-y-auto px-4 py-4 space-y-5" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
         {/* Empty state */}
         {allMessages.length === 0 && !isStreaming && (
-          <div className="flex flex-col items-center justify-center h-full text-center gap-5">
+          <div className="mn-chat-empty flex flex-col items-center justify-center h-full text-center gap-5">
             <div className="flex flex-col items-center gap-2">
-              <div className="h-10 w-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
+              <div className="mn-chat-empty-icon h-10 w-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-white/25" />
               </div>
               <p className="text-[13px] text-white/35 max-w-[260px]">Ask about audiences, campaigns, or consumer profiles. I can navigate the dashboard for you.</p>
             </div>
-            <div className="flex flex-wrap gap-2 justify-center max-w-[320px]">
+            <div className="mn-chat-suggestions flex flex-wrap gap-2 justify-center max-w-[320px]">
               {suggestions.map((s) => (
                 <button key={s} onClick={() => handleSend(s)}
-                  className="text-[11.5px] text-white/50 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors text-left">
+                  className="mn-chat-suggestion-chip text-[11.5px] text-white/50 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] rounded-lg px-3 py-1.5 transition-colors text-left">
                   {s}
                 </button>
               ))}
@@ -221,19 +221,19 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
         {allMessages.map((msg) => (
           <div key={msg.id} className={msg.role === "user" ? "flex justify-end" : "group"}>
             {msg.role === "user" ? (
-              <div className="max-w-[85%] rounded-2xl bg-white/[0.06] border border-white/[0.06] px-4 py-2.5 text-[13.5px] text-white/88 leading-relaxed">
+              <div className="mn-chat-user-msg max-w-[85%] rounded-2xl bg-white/[0.06] border border-white/[0.06] px-4 py-2.5 text-[13.5px] text-white/88 leading-relaxed">
                 {msg.content || msg.parts?.filter(p => p.type === "text").map((p, i) => <span key={i}>{(p as {text:string}).text}</span>)}
               </div>
             ) : (
-              <div className="relative">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="h-5 w-5 rounded-md bg-white/[0.04] flex items-center justify-center">
+              <div className="mn-chat-ai-msg relative">
+                <div className="mn-chat-ai-header flex items-center gap-1.5 mb-2">
+                  <div className="mn-chat-ai-avatar h-5 w-5 rounded-md bg-white/[0.04] flex items-center justify-center">
                     <Sparkles className="h-3 w-3 text-white/30" />
                   </div>
-                  <span className="text-[10px] text-white/25 font-medium uppercase tracking-wider">Minerva</span>
+                  <span className="mn-chat-ai-label text-[10px] text-white/25 font-medium uppercase tracking-wider">Minerva</span>
                   <div className="ml-auto"><CopyBtn text="" /></div>
                 </div>
-                <div className="pl-[26px]">
+                <div className="mn-chat-ai-content pl-[26px]">
                   {msg.demo ? (
                     <DemoResponsePlayer blocks={msg.demo.blocks} />
                   ) : msg.parts ? (
@@ -264,11 +264,11 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
         ))}
 
         {isStreaming && allMessages[allMessages.length - 1]?.role !== "assistant" && (
-          <div className="flex items-center gap-2 py-2 pl-[26px]">
+          <div className="mn-chat-thinking flex items-center gap-2 py-2 pl-[26px]">
             <div className="flex gap-1">
-              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "0ms" }} />
-              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "150ms" }} />
-              <div className="h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "0ms" }} />
+              <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "150ms" }} />
+              <div className="mn-chat-thinking-dot h-1.5 w-1.5 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: "300ms" }} />
             </div>
             <span className="text-[11px] text-white/25">Thinking...</span>
           </div>
@@ -279,18 +279,18 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
       {showScrollBtn && (
         <div className="absolute bottom-[80px] right-8 z-20">
           <button onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })}
-            className="h-7 w-7 rounded-full bg-white/10 border border-white/[0.08] flex items-center justify-center hover:bg-white/15 transition-colors backdrop-blur-sm">
+            className="mn-chat-scroll-btn h-7 w-7 rounded-full bg-white/10 border border-white/[0.08] flex items-center justify-center hover:bg-white/15 transition-colors backdrop-blur-sm">
             <ArrowDown className="h-3.5 w-3.5 text-white/50" />
           </button>
         </div>
       )}
 
       {/* Progressive blur */}
-      <div className="pointer-events-none relative -mt-10 h-10 bg-gradient-to-t from-[#0c0e1a]/80 to-transparent z-10" />
+      <div className="mn-chat-blur pointer-events-none relative -mt-10 h-10 bg-gradient-to-t from-[#0c0e1a]/80 to-transparent z-10" />
 
       {/* Input */}
-      <div className="shrink-0 px-3 pb-3 pt-1 relative z-20">
-        <div className="relative flex items-end rounded-[14px] border border-white/[0.08] bg-white/[0.04] transition-colors focus-within:border-white/[0.15]">
+      <div className="mn-chat-input-area shrink-0 px-3 pb-3 pt-1 relative z-20">
+        <div className="mn-chat-input-box relative flex items-end rounded-[14px] border border-white/[0.08] bg-white/[0.04] transition-colors focus-within:border-white/[0.15]">
           <textarea
             ref={inputRef}
             value={inputValue}
@@ -298,7 +298,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
             onKeyDown={handleKeyDown}
             placeholder="Ask Minerva anything..."
             rows={1}
-            className="flex-1 bg-transparent text-[13.5px] text-white/88 placeholder:text-white/20 px-4 py-3 pr-12 resize-none outline-none leading-relaxed"
+            className="mn-chat-textarea flex-1 bg-transparent text-[13.5px] text-white/88 placeholder:text-white/20 px-4 py-3 pr-12 resize-none outline-none leading-relaxed"
             style={{ fontFamily: "'Overused Grotesk', sans-serif", scrollbarWidth: "none", maxHeight: "120px" }}
           />
           {isStreaming ? (
@@ -311,7 +311,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
             </button>
           )}
         </div>
-        <p className="text-[9px] text-white/15 text-center mt-1.5">Enter to send · Shift+Enter for new line</p>
+        <p className="mn-chat-hint text-[9px] text-white/15 text-center mt-1.5">Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   )

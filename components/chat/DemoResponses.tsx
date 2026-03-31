@@ -35,7 +35,7 @@ function DemoBlockRenderer({ block, onCta }: { block: DemoBlock; onCta?: (action
   switch (block.type) {
     case "text":
       return (
-        <div className="text-[13.5px] text-white/82 leading-[1.65]">
+        <div className="mn-chat-demo-text text-[13.5px] text-white/82 leading-[1.65]">
           <Typewriter text={block.text || ""} speed={25} />
         </div>
       )
@@ -52,16 +52,16 @@ function DemoBlockRenderer({ block, onCta }: { block: DemoBlock; onCta?: (action
     case "table":
       return (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-          className="my-3 rounded-[10px] border border-white/[0.06] overflow-hidden text-[12px]">
+          className="mn-chat-demo-table my-3 rounded-[10px] border border-white/[0.06] overflow-hidden text-[12px]">
           <table className="w-full">
-            <thead><tr className="bg-white/[0.03]">
+            <thead><tr className="mn-chat-demo-table-head bg-white/[0.03]">
               {block.headers?.map((h, i) => (
-                <th key={i} className="px-3 py-2 text-left text-[10px] text-white/40 uppercase tracking-wider font-medium">{h}</th>
+                <th key={i} className="mn-chat-demo-th px-3 py-2 text-left text-[10px] text-white/40 uppercase tracking-wider font-medium">{h}</th>
               ))}
             </tr></thead>
             <tbody>
               {block.rows?.map((row, ri) => (
-                <tr key={ri} className="border-t border-white/[0.04]">
+                <tr key={ri} className="mn-chat-demo-tr border-t border-white/[0.04]">
                   {row.map((cell, ci) => (
                     <td key={ci} className={`px-3 py-2 ${ci === 0 ? "text-white/70 font-medium" : "text-white/50"}`}>{cell}</td>
                   ))}
@@ -74,7 +74,7 @@ function DemoBlockRenderer({ block, onCta }: { block: DemoBlock; onCta?: (action
     case "cta":
       return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
-          className="text-[13px] text-white/55 leading-relaxed mt-2">
+          className="mn-chat-demo-cta text-[13px] text-white/55 leading-relaxed mt-2">
           <Typewriter text={block.ctaText || ""} speed={20} />
         </motion.div>
       )
@@ -98,7 +98,7 @@ export function DemoResponsePlayer({ blocks, onCta, onAction }: { blocks: DemoBl
   }, [blocks])
 
   return (
-    <div className="space-y-1">
+    <div className="mn-chat-demo-player space-y-1">
       <AnimatePresence>
         {visibleBlocks.map((idx) => (
           <motion.div key={idx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>

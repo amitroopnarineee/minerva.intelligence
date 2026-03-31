@@ -35,7 +35,7 @@ export function ToolChain({ steps, startDelay = 200 }: { steps: { icon: string; 
   }, [steps, startDelay])
 
   return (
-    <div className="space-y-1.5 my-2">
+    <div className="mn-chat-tool-chain space-y-1.5 my-2">
       <AnimatePresence>
         {steps.slice(0, visibleCount).map((step, i) => {
           const Icon = iconMap[step.icon] || Sparkles
@@ -46,19 +46,19 @@ export function ToolChain({ steps, startDelay = 200 }: { steps: { icon: string; 
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center gap-2.5 rounded-[10px] border border-white/[0.06] bg-white/[0.025] px-3 py-2"
+              className={`mn-chat-tool-step ${isDone ? "mn-chat-tool-step-done" : "mn-chat-tool-step-pending"} flex items-center gap-2.5 rounded-[10px] border border-white/[0.06] bg-white/[0.025] px-3 py-2`}
             >
-              <div className={`h-5 w-5 rounded-md flex items-center justify-center shrink-0 ${isDone ? "bg-emerald-500/10" : "bg-white/[0.04]"}`}>
+              <div className={`mn-chat-tool-icon h-5 w-5 rounded-md flex items-center justify-center shrink-0 ${isDone ? "bg-emerald-500/10" : "bg-white/[0.04]"}`}>
                 {isDone ? <Check className="h-3 w-3 text-emerald-400/70" /> : <Icon className="h-3 w-3 text-white/30" />}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="mn-chat-tool-text flex-1 min-w-0">
                 <span className="text-[11.5px] text-white/40">{step.label}</span>
                 <span className="text-[11.5px] text-white/60 ml-1">{step.detail}</span>
               </div>
               {isDone ? (
-                <span className="text-[9px] text-emerald-400/50 font-medium uppercase tracking-wider">Done</span>
+                <span className="mn-chat-tool-done-badge text-[9px] text-emerald-400/50 font-medium uppercase tracking-wider">Done</span>
               ) : (
-                <div className="h-3 w-3 border-2 border-white/15 border-t-white/40 rounded-full animate-spin" />
+                <div className="mn-chat-tool-spinner h-3 w-3 border-2 border-white/15 border-t-white/40 rounded-full animate-spin" />
               )}
             </motion.div>
           )

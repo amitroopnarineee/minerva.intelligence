@@ -24,11 +24,11 @@ export function MetricCard({ label, value, sub, color = "white", delay = 0 }: Me
       initial={{ opacity: 0, y: 8, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.3, delay }}
-      className={`rounded-xl border bg-gradient-to-b px-3.5 py-2.5 ${colorMap[color]}`}
+      className={`mn-chat-metric-card rounded-xl border bg-gradient-to-b px-3.5 py-2.5 ${colorMap[color]}`}
     >
-      <div className="text-[10px] text-white/35 uppercase tracking-wider mb-0.5">{label}</div>
-      <div className={`text-[18px] font-semibold tracking-tight ${colorMap[color].split(" ").pop()}`}>{value}</div>
-      {sub && <div className="text-[10.5px] text-white/30 mt-0.5">{sub}</div>}
+      <div className="mn-chat-metric-label text-[10px] text-white/35 uppercase tracking-wider mb-0.5">{label}</div>
+      <div className={`mn-chat-metric-value text-[18px] font-semibold tracking-tight ${colorMap[color].split(" ").pop()}`}>{value}</div>
+      {sub && <div className="mn-chat-metric-sub text-[10.5px] text-white/30 mt-0.5">{sub}</div>}
     </motion.div>
   )
 }
@@ -39,7 +39,7 @@ export function MetricGrid({ children, delay = 0 }: { children: React.ReactNode;
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, delay }}
-      className="grid grid-cols-2 gap-2 my-3"
+      className="mn-chat-metric-grid grid grid-cols-2 gap-2 my-3"
     >
       {children}
     </motion.div>
