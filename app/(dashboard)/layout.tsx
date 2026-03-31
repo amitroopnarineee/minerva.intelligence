@@ -4,7 +4,8 @@ import { MinervaMenuBar } from "@/components/shared/MinervaMenuBar"
 import { GlobalBackground } from "@/components/shared/GlobalBackground"
 import { CommandPalette } from "@/components/shared/CommandPalette"
 import { MinervaChat } from "@/components/shared/MinervaChat"
-import { useState, useEffect } from "react"
+import { SelectionToolbar } from "@/components/shared/SelectionToolbar"
+import { useState, useEffect, useCallback } from "react"
 
 export default function DashboardLayout({
   children,
@@ -36,6 +37,11 @@ export default function DashboardLayout({
     setInitialMessage(null)
   }
 
+  const handleSelectionAI = useCallback((text: string) => {
+    setInitialMessage(text)
+    setChatOpen(true)
+  }, [])
+
   return (
     <div className="mn-root h-screen relative overflow-hidden">
       <GlobalBackground />
@@ -47,6 +53,7 @@ export default function DashboardLayout({
       </div>
       <CommandPalette />
       <MinervaChat open={chatOpen} onClose={handleClose} initialMessage={initialMessage} />
+      <SelectionToolbar onAskAI={handleSelectionAI} />
     </div>
   )
 }
