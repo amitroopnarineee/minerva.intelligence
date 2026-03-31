@@ -11,31 +11,28 @@ interface SelectedItem {
 }
 
 interface DragSelectProps {
-  onAnalyze?: (formatted: string) => void
+  onAnalyze?: (userMessage: string) => void
 }
 
 function formatForAI(items: SelectedItem[]): string {
   if (items.length === 0) return ""
 
   const types = [...new Set(items.map(i => i.type))]
-  let prompt = `I've selected ${items.length} item${items.length > 1 ? "s" : ""} from the dashboard. Please analyze this data and provide actionable insights:\n\n`
+  const parts: string[] = []
 
   for (const type of types) {
     const group = items.filter(i => i.type === type)
-    prompt += `### ${type} (${group.length})\n`
     for (const item of group) {
-      prompt += `- **${item.label}**`
       const entries = Object.entries(item.data).filter(([k]) => k !== "label" && k !== "type")
-      if (entries.length > 0) {
-        prompt += ": " + entries.map(([k, v]) => `${k}=${v}`).join(", ")
-      }
-      prompt += "\n"
+      const metrics = entries.map(([k, v]) => `${k}: ${v}`).join(", ")
+      parts.push(`${item.label} (${metrics})`)
     }
-    prompt += "\n"
   }
 
-  prompt += "What patterns do you see? What actions should I take?"
-  return prompt
+  const summary = parts.join(" · ")
+  const typeList = types.join(" and ").toLowerCase()
+
+  return `Analyze these ${items.length} ${typeList} items I selected: ${summary}. What patterns do you see and what should I do?`
 }
 
 export function DragSelect({ onAnalyze }: DragSelectProps) {
@@ -53,7 +50,6 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
   const getItemFromElement = useCallback((el: Element): SelectedItem => {
     const dataset = (el as HTMLElement).dataset
     const data: Record<string, string> = {}
-    // Extract all data-select-* attributes
     for (const [key, value] of Object.entries(dataset)) {
       if (key.startsWith("select") && key !== "selectable") {
         const cleanKey = key.replace("select", "").replace(/^./, c => c.toLowerCase())
@@ -72,12 +68,9 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
   }, [])
 
   const handleMouseDown = useCallback((e: MouseEvent) => {
-    // Only trigger on Alt+click (Option on Mac)
     if (!e.altKey) return
-    // Don't drag on interactive elements
     const target = e.target as HTMLElement
     if (target.closest("button, input, textarea, a, [role=dialog]")) return
-
     e.preventDefault()
     setDragStart({ x: e.clientX, y: e.clientY })
     setDragEnd({ x: e.clientX, y: e.clientY })
@@ -90,16 +83,11 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
     if (!isDragging) return
     e.preventDefault()
     setDragEnd({ x: e.clientX, y: e.clientY })
-
-    // Check which selectable elements are inside the drag rectangle
     if (dragStart) {
       const selRect = {
-        left: Math.min(dragStart.x, e.clientX),
-        top: Math.min(dragStart.y, e.clientY),
-        right: Math.max(dragStart.x, e.clientX),
-        bottom: Math.max(dragStart.y, e.clientY),
+        left: Math.min(dragStart.x, e.clientX), top: Math.min(dragStart.y, e.clientY),
+        right: Math.max(dragStart.x, e.clientX), bottom: Math.max(dragStart.y, e.clientY),
       }
-
       const elements = getSelectableElements()
       const items: SelectedItem[] = []
       elements.forEach(el => {
@@ -122,16 +110,11 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
   const handleMouseUp = useCallback(() => {
     if (!isDragging) return
     setIsDragging(false)
-
-    // Clear outlines
     getSelectableElements().forEach(el => {
       ;(el as HTMLElement).style.outline = ""
       ;(el as HTMLElement).style.outlineOffset = ""
     })
-
-    if (selectedItems.length > 0) {
-      setShowSummary(true)
-    }
+    if (selectedItems.length > 0) setShowSummary(true)
   }, [isDragging, selectedItems, getSelectableElements])
 
   useEffect(() => {
@@ -146,21 +129,23 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
   }, [handleMouseDown, handleMouseMove, handleMouseUp])
 
   const dragRect = dragStart && dragEnd ? {
-    left: Math.min(dragStart.x, dragEnd.x),
-    top: Math.min(dragStart.y, dragEnd.y),
-    width: Math.abs(dragEnd.x - dragStart.x),
-    height: Math.abs(dragEnd.y - dragStart.y),
+    left: Math.min(dragStart.x, dragEnd.x), top: Math.min(dragStart.y, dragEnd.y),
+    width: Math.abs(dragEnd.x - dragStart.x), height: Math.abs(dragEnd.y - dragStart.y),
   } : null
+
+  // Build rich chip summary
+  const typeCounts = selectedItems.reduce((acc, item) => {
+    acc[item.type] = (acc[item.type] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
 
   return (
     <>
-      {/* Drag rectangle overlay */}
       {isDragging && dragRect && dragRect.width > 5 && (
         <div ref={overlayRef} className="fixed z-40 pointer-events-none border-2 border-white/30 bg-white/[0.04] backdrop-blur-sm rounded"
           style={{ left: dragRect.left, top: dragRect.top, width: dragRect.width, height: dragRect.height }} />
       )}
 
-      {/* Selection summary card */}
       <AnimatePresence>
         {showSummary && selectedItems.length > 0 && (
           <motion.div
@@ -172,17 +157,17 @@ export function DragSelect({ onAnalyze }: DragSelectProps) {
           >
             <div className="flex items-center gap-2">
               <Layers className="h-4 w-4 text-white/50" />
-              <span className="text-[13px] font-medium text-white/80">
-                {selectedItems.length} item{selectedItems.length > 1 ? "s" : ""} selected
-              </span>
-              <span className="text-[11px] text-white/30">
-                {[...new Set(selectedItems.map(i => i.type))].join(", ")}
-              </span>
+              <div className="flex items-center gap-1.5">
+                {Object.entries(typeCounts).map(([type, count]) => (
+                  <span key={type} className="inline-flex items-center rounded-md bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white/70">
+                    {count} {type}{count > 1 ? "s" : ""}
+                  </span>
+                ))}
+              </div>
             </div>
             <button
               onClick={() => {
-                const formatted = formatForAI(selectedItems)
-                onAnalyze?.(formatted)
+                onAnalyze?.(formatForAI(selectedItems))
                 setShowSummary(false)
                 setSelectedItems([])
               }}
