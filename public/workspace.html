@@ -9,7 +9,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --mn-bg:#000;
-  --mn-sf:#0d0d0f;
+  --mn-sf:rgba(255,255,255,0.04);
   --mn-border:rgba(255,255,255,0.06);
   --mn-border-h:rgba(255,255,255,0.12);
   --mn-t1:rgba(255,255,255,0.90);
@@ -18,7 +18,7 @@
   --mn-white:#fff;
   --mn-r:10px;
   --mn-g:10px;
-  --mn-font:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Helvetica Neue','DM Sans',sans-serif;
+  --mn-font:'Overused Grotesk',ui-sans-serif,system-ui,sans-serif;
 }
 html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;background:var(--mn-bg);color:var(--mn-t1);font-family:var(--mn-font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;margin:0;padding:0}
 ::selection{background:rgba(255,255,255,0.15)}
@@ -798,6 +798,30 @@ document.addEventListener("pointerup",function(e){
   document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
 });
 
+
+// ── PostMessage bridge for parent ──
+window.addEventListener('message', function(e) {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === 'minerva-tour-click') {
+    var el = document.querySelector(e.data.selector);
+    if (el) el.click();
+  }
+  if (e.data.type === 'minerva-init') {
+    if (e.data.mode) setMode(e.data.mode.charAt(0).toUpperCase() + e.data.mode.slice(1));
+  }
+  if (e.data.type === 'minerva-request-state') {
+    var l=gf(),n=l.length,tot=PP.length;
+    var ec=l.filter(function(p){return p.email}).length;
+    var oc=l.filter(function(p){return p.owner}).length;
+    var avg=n?(l.reduce(function(s,p){return s+p.score},0)/n).toFixed(1):'0';
+    window.parent.postMessage({type:'minerva-state',count:n,lo:sLo,hi:sHi,avg:avg,email:ec,owners:oc,filters:extraFilters,savedSegs:savedSegs},'*');
+  }
+});
+var origDoSave = doSave;
+doSave = function() {
+  origDoSave();
+  window.parent.postMessage({type:'minerva-segment-saved',segments:savedSegs.map(function(s){return {name:s.name,lo:s.lo,hi:s.hi,count:s.count}})},'*');
+};
 usv();ren()
 </script>
 </body>

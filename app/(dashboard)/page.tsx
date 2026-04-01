@@ -1,5 +1,5 @@
-import { HomeContent } from "@/components/home/HomeContent"
+import { MinervaApp } from "@/components/home/MinervaApp"
 
 export default function DashboardPage() {
-  return <HomeContent />
+  return <MinervaApp />
 }
