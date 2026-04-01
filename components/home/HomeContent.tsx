@@ -267,7 +267,6 @@ export function HomeContent() {
   const enterCanvas = useCallback((sectionId: string) => {
     setActiveSection(sectionId)
     setShowCanvas(true)
-    setTimeout(() => sectionRefs.current[sectionId]?.scrollIntoView({ behavior: "smooth", block: "start" }), 100)
   }, [])
 
   // Listen for logo "go home" event
@@ -277,24 +276,7 @@ export function HomeContent() {
     return () => window.removeEventListener('minerva-go-home', goHome)
   }, [])
 
-  // IntersectionObserver for scroll-anchor pills
-  useEffect(() => {
-    const observers: IntersectionObserver[] = []
-    sections.forEach(({ id }) => {
-      const el = sectionRefs.current[id]
-      if (!el) return
-      const io = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) setActiveSection(id)
-      }, { root: scrollRef.current, threshold: 0.3 })
-      io.observe(el)
-      observers.push(io)
-    })
-    return () => observers.forEach(io => io.disconnect())
-  }, [])
 
-  const scrollTo = useCallback((id: string) => {
-    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }, [])
 
   return (
     <div className="mn-home flex flex-col h-full">
@@ -344,34 +326,42 @@ export function HomeContent() {
         /* ═══ CANVAS VIEW ═══ */
         <motion.div key="canvas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
           className="mn-canvas flex-1 flex flex-col min-h-0 relative">
-      <div ref={scrollRef} className="mn-canvas-scroll flex-1 overflow-y-auto relative z-10 scroll-smooth" style={{ scrollbarWidth: "none" }}>
-        <div className="mn-canvas-inner px-6 pt-4 pb-20 max-w-[1100px] mx-auto space-y-14">
 
-          {/* ═══ SECTION 1: BRIEFING ═══ */}
-          <section ref={(el) => { sectionRefs.current.briefing = el }} id="briefing" className="mn-section mn-briefing scroll-mt-6 space-y-5">
-            <motion.div {...f(0.05)}>
-              <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
-              <p className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
-                Good morning, Sarah. <span className="mn-briefing-highlight text-sky-400">5 insights</span> surfaced overnight.
-                Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with
-                ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging.
-              </p>
+      {/* Sticky header: briefing + tabs */}
+      <div className="mn-canvas-header shrink-0 px-6 pt-4 pb-0 max-w-[1100px] mx-auto w-full">
+        <motion.div {...f(0.05)}>
+          <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
+          <p className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
+            Good morning, Sarah. <span className="mn-briefing-highlight text-sky-400">5 insights</span> surfaced overnight.
+            Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with
+            ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging.
+          </p>
 
-              {/* Inline tab bar */}
-              <div className="mn-inline-tabs flex items-center gap-1 mt-4">
-                {sections.map((s) => {
-                  const on = activeSection === s.id
-                  return (
-                    <button key={s.id} onClick={() => scrollTo(s.id)}
-                      className={`mn-inline-tab text-[12px] px-3 py-1.5 rounded-lg transition-all ${
-                        on ? "bg-white text-black font-medium shadow-sm" : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
-                      }`}>
-                      {s.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </motion.div>
+          {/* Inline tab bar — FILTERS, not scroll anchors */}
+          <div className="mn-inline-tabs flex items-center gap-1 mt-4 mb-5">
+            {sections.map((s) => {
+              const on = activeSection === s.id
+              return (
+                <button key={s.id} onClick={() => setActiveSection(s.id)}
+                  className={`mn-inline-tab text-[12px] px-3 py-1.5 rounded-lg transition-all ${
+                    on ? "bg-white text-black font-medium shadow-sm" : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
+                  }`}>
+                  {s.label}
+                </button>
+              )
+            })}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Scrollable content — only the active section */}
+      <div ref={scrollRef} className="mn-canvas-scroll flex-1 overflow-y-auto relative z-10" style={{ scrollbarWidth: "none" }}>
+        <div className="mn-canvas-inner px-6 pb-20 max-w-[1100px] mx-auto">
+
+        <AnimatePresence mode="wait">
+        {activeSection === "briefing" && (
+          <motion.section key="briefing" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
+            className="mn-section mn-briefing space-y-5">
 
             {/* KPI Strip */}
             <motion.div {...f(0.12)} className="mn-kpi-strip grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
@@ -426,10 +416,12 @@ export function HomeContent() {
                   </tr>))}</tbody>
               </table>
             </motion.div>
-          </section>
+          </motion.section>
+        )}
 
-          {/* ═══ SECTION 2: INSIGHTS ═══ */}
-          <section ref={(el) => { sectionRefs.current.insights = el }} id="insights" className="mn-section mn-insights scroll-mt-6">
+        {activeSection === "insights" && (
+          <motion.section key="insights" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
+            className="mn-section mn-insights">
             <motion.div {...f(0)} className="mn-insights-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>What needs your attention</Lbl>
@@ -453,10 +445,12 @@ export function HomeContent() {
                 </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
+        )}
 
-          {/* ═══ SECTION 3: AUDIENCES ═══ */}
-          <section ref={(el) => { sectionRefs.current.audiences = el }} id="audiences" className="mn-section mn-audiences scroll-mt-6">
+        {activeSection === "audiences" && (
+          <motion.section key="audiences" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
+            className="mn-section mn-audiences">
             <motion.div {...f(0)} className="mn-audiences-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>Your segments</Lbl>
@@ -497,10 +491,12 @@ export function HomeContent() {
                 </motion.div>
               ))}
             </div>
-          </section>
+          </motion.section>
+        )}
 
-          {/* ═══ SECTION 4: PEOPLE ═══ */}
-          <section ref={(el) => { sectionRefs.current.people = el }} id="people" className="mn-section mn-people scroll-mt-6">
+        {activeSection === "people" && (
+          <motion.section key="people" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
+            className="mn-section mn-people">
             <motion.div {...f(0)} className="mn-people-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>Top profiles to act on</Lbl>
@@ -544,7 +540,9 @@ export function HomeContent() {
                   </tr>))}</tbody>
               </table>
             </motion.div>
-          </section>
+          </motion.section>
+        )}
+        </AnimatePresence>
 
         </div>
       </div>
