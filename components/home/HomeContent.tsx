@@ -11,6 +11,7 @@ import { opportunities } from "@/lib/data/opportunities"
 import { persons } from "@/lib/data/persons"
 import { audiences } from "@/lib/data/audiences"
 import { Sparkline } from "@/components/shared/Sparkline"
+import { CountUp } from "@/components/shared/CountUp"
 import { FunnelChart } from "@/components/shared/FunnelChart"
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
 
@@ -59,10 +60,10 @@ function DiscoverDisplay() {
         <p className="text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">Good morning, Sarah. <span className="text-sky-400">{topInsights.length} insights</span> surfaced overnight. Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>.</p>
       </motion.div>
       <motion.div {...f(0.2)} className="grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
-        {[{ l:"Revenue",v:`$${(currentKpi.influencedRevenue/1000).toFixed(0)}K`,d:revD,s:kpiHistory.map(k=>k.influencedRevenue)},{l:"ROAS",v:`${currentKpi.roas.toFixed(1)}x`,d:roasD,s:kpiHistory.map(k=>k.roas)},{l:"Conv Rate",v:`${(currentKpi.ticketConversionRate*100).toFixed(1)}%`,d:convD,s:kpiHistory.map(k=>k.ticketConversionRate)},{l:"Match Rate",v:`${(currentKpi.dataMatchRate*100).toFixed(0)}%`,d:matchD,s:kpiHistory.map(k=>k.dataMatchRate)}].map((m,i)=>(
+        {[{ l:"Revenue",n:currentKpi.influencedRevenue/1000,dec:0,pre:"$",suf:"K",d:revD,s:kpiHistory.map(k=>k.influencedRevenue)},{l:"ROAS",n:currentKpi.roas,dec:1,pre:"",suf:"x",d:roasD,s:kpiHistory.map(k=>k.roas)},{l:"Conv Rate",n:currentKpi.ticketConversionRate*100,dec:1,pre:"",suf:"%",d:convD,s:kpiHistory.map(k=>k.ticketConversionRate)},{l:"Match Rate",n:currentKpi.dataMatchRate*100,dec:0,pre:"",suf:"%",d:matchD,s:kpiHistory.map(k=>k.dataMatchRate)}].map((m,i)=>(
           <div key={i} className="bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
             <div className="flex items-center justify-between mb-1"><p className="text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
-            <div className="flex items-end justify-between"><p className="text-[20px] tracking-tight text-white leading-none">{m.v}</p><Tr d={m.d} /></div>
+            <div className="flex items-end justify-between"><p className="text-[20px] tracking-tight text-white leading-none"><CountUp end={m.n} decimals={m.dec} prefix={m.pre} suffix={m.suf} /></p><Tr d={m.d} /></div>
           </div>))}
       </motion.div>
       {/* Funnel */}
