@@ -58,10 +58,10 @@ function makeTrend(base: number, delta: number, noise = 0.08): { date: Date; pri
 
 const insights: InsightCard[] = [
   {
-    id: "1", label: "Attention", mainValue: "+18%", valueColor: "text-sky-400",
+    id: "1", label: "Attention", mainValue: "+18%", valueColor: "text-white/90",
     copy: "Player-led content and offseason conversation drove a broad lift in brand visibility across Instagram, TikTok, and owned web.",
     meaning: "Brand awareness is up meaningfully, but this is mostly a top-of-funnel signal.",
-    cta: "See channel breakdown", color: "border-l-sky-400/40", category: "Signal",
+    cta: "See channel breakdown", color: "border-l-white/[0.15]", category: "Signal",
     relatedAudienceIds: ["aud_001", "aud_010", "aud_007"],
     drillDown: {
       title: "Brand Attention Increased",
@@ -85,10 +85,10 @@ const insights: InsightCard[] = [
     },
   },
   {
-    id: "2", label: "Premium Experience", mainValue: "+11%", valueColor: "text-sky-400",
+    id: "2", label: "Premium Experience", mainValue: "+11%", valueColor: "text-white/90",
     copy: "Premium game-day messaging is outperforming general hype and creating the strongest downstream ticket-intent lift.",
     meaning: "This is the strongest near-term revenue opportunity in the dataset.",
-    cta: "Analyze in Audience Spectrum →", color: "border-l-sky-400/40", category: "Signal",
+    cta: "Analyze in Audience Spectrum →", color: "border-l-white/[0.15]", category: "Signal",
     openSpectrum: true,
     relatedAudienceIds: ["aud_002", "aud_006"],
     drillDown: {
@@ -113,10 +113,10 @@ const insights: InsightCard[] = [
     },
   },
   {
-    id: "3", label: "Family Audience", mainValue: "+14%", valueColor: "text-sky-400",
+    id: "3", label: "Family Audience", mainValue: "+14%", valueColor: "text-white/90",
     copy: "Family ticket consideration rose across Miami-Dade and Broward, led by planning, convenience, and shared weekend messaging.",
     meaning: "This is the fastest-rising high-intent audience segment.",
-    cta: "View regional data", color: "border-l-sky-400/40", category: "Audience",
+    cta: "View regional data", color: "border-l-white/[0.15]", category: "Audience",
     relatedAudienceIds: ["aud_003"],
     drillDown: {
       title: "Family Ticket Interest Rose In South Florida",
@@ -140,10 +140,10 @@ const insights: InsightCard[] = [
     },
   },
   {
-    id: "4", label: "Owned Conversion", mainValue: "-4%", valueColor: "text-sky-400/60",
+    id: "4", label: "Owned Conversion", mainValue: "-4%", valueColor: "text-white/90/60",
     copy: "Social engagement rose sharply, but movement into app, ticketing, and lifecycle capture still trails total reach growth.",
     meaning: "There is a clear conversion gap between attention and owned value.",
-    cta: "See funnel gaps", color: "border-l-sky-400/40", category: "Signal",
+    cta: "See funnel gaps", color: "border-l-white/[0.15]", category: "Signal",
     relatedAudienceIds: ["aud_010", "aud_001"],
     drillDown: {
       title: "Owned Conversion Is Still Lagging",
@@ -167,10 +167,10 @@ const insights: InsightCard[] = [
     },
   },
   {
-    id: "5", label: "Sponsor Resonance", mainValue: "+9%", valueColor: "text-sky-400",
+    id: "5", label: "Sponsor Resonance", mainValue: "+9%", valueColor: "text-white/90",
     copy: "Luxury, hospitality, and Miami-lifestyle narratives are creating the strongest sponsor-adjacent value in the current mix.",
     meaning: "This is the strongest partner narrative right now.",
-    cta: "View sponsor data", color: "border-l-sky-400/40", category: "Signal",
+    cta: "View sponsor data", color: "border-l-white/[0.15]", category: "Signal",
     relatedAudienceIds: ["aud_002", "aud_007"],
     drillDown: {
       title: "Luxury And Hospitality Narratives Are Winning",
@@ -198,7 +198,7 @@ const insights: InsightCard[] = [
     subtitle: "Player Spotlight Series", pill: "High reach · low CTA",
     copy: "The strongest awareness driver in the dataset, but still underperforming premium and family campaigns on owned action.",
     meaning: "Best campaign for reach, not best for conversion.",
-    cta: "See campaign performance", color: "border-l-sky-400/40", category: "Campaign",
+    cta: "See campaign performance", color: "border-l-white/[0.15]", category: "Campaign",
     relatedAudienceIds: ["aud_001", "aud_010", "aud_007"],
     drillDown: {
       title: "Player Spotlight Is The Strongest Awareness Driver",
@@ -226,7 +226,7 @@ const insights: InsightCard[] = [
     subtitle: "Families up · Gen Z flat",
     copy: "Higher-intent local audiences are becoming more valuable than broad casual reach this week.",
     meaning: "Value is shifting toward segments with stronger intent, not just larger reach.",
-    cta: "Analyze in Audience Spectrum →", color: "border-l-sky-400/40", category: "Audience",
+    cta: "Analyze in Audience Spectrum →", color: "border-l-white/[0.15]", category: "Audience",
     openSpectrum: true,
     relatedAudienceIds: ["aud_003", "aud_002"],
     drillDown: {
@@ -255,7 +255,7 @@ const insights: InsightCard[] = [
     subtitle: "Turn reach into owned capture", pill: "3 actions ready",
     copy: "Shift more weight toward premium experience, launch a family variant, and fix the short-form CTA gap.",
     meaning: "This is the synthesized action card.",
-    cta: "View priority actions", color: "border-l-sky-400/40", category: "Action",
+    cta: "View priority actions", color: "border-l-white/[0.15]", category: "Action",
     relatedAudienceIds: ["aud_002", "aud_003", "aud_010", "aud_001"],
     drillDown: {
       title: "Today's Priority Actions",
@@ -282,8 +282,8 @@ const insights: InsightCard[] = [
 
 /* ── Helpers ── */
 function deltaColor(val: string): string {
-  if (val.startsWith("+")) return "text-sky-400"
-  if (val.startsWith("-")) return "text-sky-400/60"
+  if (val.startsWith("+")) return "text-white/90"
+  if (val.startsWith("-")) return "text-white/90/60"
   return "text-foreground/60"
 }
 
@@ -292,9 +292,9 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
   const [rightTab, setRightTab] = useState<"detail" | "people">("detail")
 
   // Get related people based on audience IDs
-  const relatedPeople = persons.filter(p =>
-    p.audiences.some(a => card.relatedAudienceIds.includes(a))
-  )
+  const relatedPeople = card.relatedAudienceIds.length > 0
+    ? persons.filter(p => p.audiences.some(a => card.relatedAudienceIds.includes(a)))
+    : [...persons].sort((a, b) => b.scores.ticketBuy - a.scores.ticketBuy).slice(0, 5)
 
   useEffect(() => {
     setRightTab("detail")
@@ -342,11 +342,11 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                   value={card.mainValue.replace(/[^0-9.]/g, "")}
                   suffix={card.mainValue.replace(/[0-9.,+\-\s]/g, "") || undefined}
                   height={56}
-                  onColor="#38bdf8"
-                  offColor="rgba(56,189,248,0.05)"
+                  onColor="#f5f5f5"
+                  offColor="rgba(245,245,245,0.05)"
                 />
                 {(card.mainValue.startsWith("+") || card.mainValue.startsWith("-")) && (
-                  <span className="text-[32px] text-sky-400/40 leading-none mb-1">{card.mainValue.startsWith("+") ? "↑" : "↓"}</span>
+                  <span className="text-[32px] text-white/90/40 leading-none mb-1">{card.mainValue.startsWith("+") ? "↑" : "↓"}</span>
                 )}
               </div>
             ) : card.subtitle ? (
@@ -361,10 +361,22 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
               <p className="text-[14px] text-foreground/90 leading-relaxed">{dd.meaning}</p>
             </div>
 
+            {/* Action pills */}
+            {dd.actions && dd.actions.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {dd.actions.map((a, i) => (
+                  <button key={i} onClick={() => toast.success(`${a}`, { description: 'Action queued for execution.' })}
+                    className="text-[11px] px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/50 hover:text-white/80 hover:bg-white/[0.06] hover:border-white/[0.15] transition-all">
+                    {a}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Spectrum CTA for eligible cards */}
             {card.openSpectrum && onOpenSpectrum && (
               <button onClick={() => { onClose(); onOpenSpectrum() }}
-                className="rounded-xl border border-sky-400/20 bg-sky-400/5 px-4 py-3 text-[13px] font-medium text-sky-400 hover:bg-sky-400/10 transition-colors text-left">
+                className="rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 py-3 text-[13px] font-medium text-white/90 hover:bg-white/[0.06] transition-colors text-left">
                 Explore audience in Spectrum →
               </button>
             )}
@@ -397,13 +409,13 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                   <div className="rounded-lg border border-border/20 overflow-hidden p-3">
                     <VisxAreaChart data={dd.chartData} xDataKey="date" aspectRatio="3 / 1" margin={{ top: 12, right: 12, bottom: 28, left: 12 }}>
                       <VisxGrid horizontal numTicksRows={4} strokeDasharray="3,3" strokeOpacity={0.3} />
-                      <VisxArea dataKey="primary" fill="#38bdf8" fillOpacity={0.25} stroke="#38bdf8" strokeWidth={2} fadeEdges />
+                      <VisxArea dataKey="primary" fill="#f5f5f5" fillOpacity={0.25} stroke="#f5f5f5" strokeWidth={2} fadeEdges />
                       {dd.chartData[0]?.secondary !== undefined && (
-                        <VisxArea dataKey="secondary" fill="#38bdf8" fillOpacity={0.08} stroke="#38bdf880" strokeWidth={1.5} fadeEdges />
+                        <VisxArea dataKey="secondary" fill="#f5f5f5" fillOpacity={0.08} stroke="#f5f5f580" strokeWidth={1.5} fadeEdges />
                       )}
                       <VisxTooltip rows={(point) => {
-                        const rows = [{ color: "#38bdf8", label: dd.chartLabels?.primary ?? "Primary", value: point.primary as number }];
-                        if (point.secondary !== undefined) rows.push({ color: "#38bdf880", label: dd.chartLabels?.secondary ?? "Secondary", value: point.secondary as number });
+                        const rows = [{ color: "#f5f5f5", label: dd.chartLabels?.primary ?? "Primary", value: point.primary as number }];
+                        if (point.secondary !== undefined) rows.push({ color: "#f5f5f580", label: dd.chartLabels?.secondary ?? "Secondary", value: point.secondary as number });
                         return rows;
                       }} />
                     </VisxAreaChart>
@@ -418,7 +430,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                   {dd.metrics.map((m, i) => (
                     <div key={i} className="rounded-lg border border-border/20 px-3.5 py-3">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{m.label}</p>
-                      <span className={`text-[20px] font-bold tracking-tight ${m.value.startsWith("+") || m.value.startsWith("-") ? "text-sky-400" : ""}`}>{m.value}</span>
+                      <span className={`text-[20px] font-bold tracking-tight ${m.value.startsWith("+") || m.value.startsWith("-") ? "text-white/90" : ""}`}>{m.value}</span>
                       <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-snug">{m.context}</p>
                     </div>
                   ))}
@@ -478,7 +490,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                     {dd.immediateActions.map((a, i) => (
                       <button key={i} onClick={() => toast.success(`Action started: ${a}`, { description: "This action has been queued for execution.", duration: 3000 })} className="mn-action-btn flex items-start gap-2.5 w-full text-left hover:bg-white/[0.04] rounded-lg px-2 py-1.5 -mx-2 transition-colors group cursor-pointer">
                         <span className="text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
-                        <span className="text-[13px] text-foreground/80 leading-snug group-hover:text-sky-400 transition-colors">{a}</span>
+                        <span className="text-[13px] text-foreground/80 leading-snug group-hover:text-white/90 transition-colors">{a}</span>
                       </button>
                     ))}
                   </div>
@@ -536,22 +548,28 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                         </td>
                         <td className="px-3 py-2.5">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                            p.fanStatus === "active_fan" ? "bg-sky-500/10 text-sky-400" :
-                            p.fanStatus === "season_ticket_holder" ? "bg-sky-500/10 text-sky-400" :
-                            p.fanStatus === "lapsed" ? "bg-sky-500/10 text-sky-400/50" :
-                            "bg-sky-500/10 text-sky-400/60"
+                            p.fanStatus === "active_fan" ? "bg-white/[0.04] text-white/90" :
+                            p.fanStatus === "season_ticket_holder" ? "bg-white/[0.04] text-white/90" :
+                            p.fanStatus === "lapsed" ? "bg-white/[0.04] text-white/90/50" :
+                            "bg-white/[0.04] text-white/90/60"
                           }`}>{p.fanStatus.replace(/_/g, " ")}</span>
                         </td>
                         <td className="px-3 py-2.5 text-[12px] tabular-nums font-medium">{Math.round(p.scores.ticketBuy * 100)}</td>
                         <td className="px-3 py-2.5 text-[12px] tabular-nums font-medium">{Math.round(p.scores.premium * 100)}</td>
-                        <td className={`px-3 py-2.5 text-[12px] tabular-nums font-medium ${p.scores.churn > 0.5 ? "text-sky-400/60" : ""}`}>{Math.round(p.scores.churn * 100)}</td>
+                        <td className={`px-3 py-2.5 text-[12px] tabular-nums font-medium ${p.scores.churn > 0.5 ? "text-white/90/60" : ""}`}>{Math.round(p.scores.churn * 100)}</td>
                         <td className="px-3 py-2.5 text-[11px] text-muted-foreground">{p.household.incomeBand}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-3">{relatedPeople.length} people in related audience segments</p>
+              {relatedPeople.length > 0 ? (
+                <p className="text-[10px] text-muted-foreground mt-3">{relatedPeople.length} suggested profiles for this context</p>
+              ) : (
+                <div className="flex items-center justify-center py-16">
+                  <p className="text-[13px] text-muted-foreground/40">No matching profiles found</p>
+                </div>
+              )}
             </div>
             )}
 

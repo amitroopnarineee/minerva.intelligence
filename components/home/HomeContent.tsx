@@ -31,10 +31,10 @@ const topCampaigns = allCampaigns.slice(0, 5)
 const topPeople = [...persons].sort((a, b) => b.scores.ticketBuy - a.scores.ticketBuy).slice(0, 5)
 
 const funnelData = [
-  { label: "Reached", value: 48200, displayValue: "48.2K", color: "#38bdf8" },
-  { label: "Engaged", value: 12800, displayValue: "12.8K", color: "#38bdf8" },
-  { label: "Converted", value: 3400, displayValue: "3.4K", color: "#38bdf8" },
-  { label: "Revenue", value: 890, displayValue: "$242K", color: "#38bdf8" },
+  { label: "Reached", value: 48200, displayValue: "48.2K", color: "#f5f5f5" },
+  { label: "Engaged", value: 12800, displayValue: "12.8K", color: "#f5f5f5" },
+  { label: "Converted", value: 3400, displayValue: "3.4K", color: "#f5f5f5" },
+  { label: "Revenue", value: 890, displayValue: "$242K", color: "#f5f5f5" },
 ]
 
 const insightCards = [
@@ -60,15 +60,15 @@ const f = (d: number) => ({ initial: { opacity: 0, y: 12 } as const, animate: { 
 function Lbl({ children }: { children: string }) { return <p className="text-[9px] tracking-widest text-white/20 uppercase mb-2.5">{children}</p> }
 function Tr({ d }: { d: { value: number; direction: "up"|"down"|"stable" } }) {
   const I = d.direction === "up" ? TrendingUp : d.direction === "down" ? TrendingDown : Minus
-  return <span className={`flex items-center gap-0.5 text-[10px] ${d.direction === "up" ? "text-sky-400" : "text-white/30"}`}><I className="h-3 w-3" />{d.value.toFixed(1)}%</span>
+  return <span className={`flex items-center gap-0.5 text-[10px] ${d.direction === "up" ? "text-white/90" : "text-white/30"}`}><I className="h-3 w-3" />{d.value.toFixed(1)}%</span>
 }
 
 const statusColors: Record<string, string> = {
-  active_fan: "text-emerald-400", season_ticket_holder: "text-sky-400",
+  active_fan: "text-emerald-400", season_ticket_holder: "text-white/90",
   lapsed: "text-red-400/70", prospect: "text-amber-400", anonymous: "text-white/30",
 }
 const typeColors: Record<string, string> = {
-  lifecycle: "bg-sky-500/10 text-sky-400", predictive: "bg-amber-500/10 text-amber-400",
+  lifecycle: "bg-white/[0.04] text-white/90", predictive: "bg-amber-500/10 text-amber-400",
   sales: "bg-emerald-500/10 text-emerald-400", retargeting: "bg-purple-500/10 text-purple-400",
 }
 
@@ -91,9 +91,9 @@ function audienceToCard(a: typeof audiences[0]): InsightCard {
     : { headers: ["Metric", "Value"], rows: [["Size", a.estimatedSize.toLocaleString()], ["Type", a.type], ["Channel", a.channelRecommendation], ["Email Reach", `${Math.round((a.emailReachRate ?? 0) * 100)}%`], ["Phone Reach", `${Math.round((a.phoneReachRate ?? 0) * 100)}%`]] }
 
   return {
-    id: `aud-${a.id}`, label: a.type.toUpperCase(), mainValue: a.estimatedSize.toLocaleString(), valueColor: "text-sky-400",
+    id: `aud-${a.id}`, label: a.type.toUpperCase(), mainValue: a.estimatedSize.toLocaleString(), valueColor: "text-white/90",
     copy: a.description, meaning: `${a.businessUnit} · ${a.channelRecommendation} recommended · ${a.isActivationReady ? "Activation ready" : "Not yet ready"} · Trend: ${trendArrow} ${a.valueTrend}`,
-    cta: a.isActivationReady ? "Activate segment" : "View segment", color: "border-l-sky-400/40", category: "Audience",
+    cta: a.isActivationReady ? "Activate segment" : "View segment", color: "border-l-white/[0.15]", category: "Audience",
     relatedAudienceIds: [a.id],
     drillDown: {
       title: a.name, summary: `${a.description}. Business unit: ${a.businessUnit}. Last refreshed: ${refreshDate}.`,
@@ -129,10 +129,10 @@ function campaignToCard(c: typeof allCampaigns[0]): InsightCard {
   const trendLabel = c.trend === "up" ? `↑ +${c.trendPct}%` : c.trend === "down" ? `↓ ${c.trendPct}%` : "→ Stable"
 
   return {
-    id: `camp-${c.id}`, label: c.channel.toUpperCase(), mainValue: `${c.roas.toFixed(1)}x`, valueColor: "text-sky-400",
+    id: `camp-${c.id}`, label: c.channel.toUpperCase(), mainValue: `${c.roas.toFixed(1)}x`, valueColor: "text-white/90",
     subtitle: c.name, copy: `${c.objective} via ${c.channel} on ${c.platform} · ${utilization}% of budget used · ${trendLabel}`,
     meaning: `${costPerConversion.toLocaleString()} per conversion · ${c.conversions} total · ${(remainingBudget/1000).toFixed(0)}K remaining`,
-    cta: "View campaign detail", color: "border-l-sky-400/40", category: "Campaign",
+    cta: "View campaign detail", color: "border-l-white/[0.15]", category: "Campaign",
     relatedAudienceIds: [],
     drillDown: {
       title: c.name, summary: `${c.objective} campaign on ${c.platform} via ${c.channel}. Currently ${c.status}. Budget: ${(c.budget/1000).toFixed(0)}K allocated, ${(c.spend/1000).toFixed(0)}K spent (${utilization}%).`,
@@ -188,10 +188,10 @@ function personToCard(p: Person): InsightCard {
     : { headers: ["Detail", "Value"], rows: [["Age", String(p.age)], ["Gender", p.gender], ["Location", `${p.city}, ${p.state} ${p.zip}`], ["Homeownership", p.household.homeownership], ["Household Size", String(p.household.householdSize)], ["Distance", `${p.household.distanceToStadium.toFixed(1)} mi`]] }
 
   return {
-    id: `person-${p.id}`, label: p.fanStatus.replace(/_/g, " ").toUpperCase(), mainValue: `${Math.round(p.scores.ticketBuy * 100)}`, valueColor: "text-sky-400",
+    id: `person-${p.id}`, label: p.fanStatus.replace(/_/g, " ").toUpperCase(), mainValue: `${Math.round(p.scores.ticketBuy * 100)}`, valueColor: "text-white/90",
     subtitle: `${p.firstName} ${p.lastName}`, copy: `${p.jobTitle} at ${p.company} · ${p.city}, ${p.state} · ${p.household.incomeBand}`,
     meaning: `${p.fanStatus.replace(/_/g, " ")} · Fan for ${daysSinceFirst}d · Last seen ${daysSinceLast}d ago · ${segmentNames}`,
-    cta: "Contact with AI", color: "border-l-sky-400/40", category: "Audience",
+    cta: "Contact with AI", color: "border-l-white/[0.15]", category: "Audience",
     relatedAudienceIds: p.audiences,
     drillDown: {
       title: `${p.firstName} ${p.lastName}`,
@@ -227,10 +227,10 @@ function personToCard(p: Person): InsightCard {
 function kpiToCard(label: string, value: number, formatted: string, delta: { value: number; direction: string }, history: number[]): InsightCard {
   const trend = history.map((v, i) => ({ date: new Date(Date.now() - (history.length - 1 - i) * 86400000), primary: v }))
   return {
-    id: `kpi-${label.toLowerCase().replace(/\s/g, "-")}`, label: "KPI", mainValue: formatted, valueColor: "text-sky-400",
+    id: `kpi-${label.toLowerCase().replace(/\s/g, "-")}`, label: "KPI", mainValue: formatted, valueColor: "text-white/90",
     subtitle: label, copy: `${label} is ${delta.direction === "up" ? "trending up" : delta.direction === "down" ? "trending down" : "stable"} at ${formatted}.`,
     meaning: `${delta.direction === "up" ? "+" : ""}${delta.value.toFixed(1)}% vs previous period.`,
-    cta: "View daily breakdown", color: "border-l-sky-400/40", category: "Signal",
+    cta: "View daily breakdown", color: "border-l-white/[0.15]", category: "Signal",
     relatedAudienceIds: [],
     drillDown: {
       title: `${label} — Daily Breakdown`,
@@ -343,7 +343,7 @@ export function HomeContent() {
           <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
           <p className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
             <span className="mn-copy-greeting">Good morning, Sarah.</span>{" "}
-            <span className="mn-copy-insights"><span className="mn-briefing-highlight text-sky-400">5 insights</span> surfaced overnight.</span>{" "}
+            <span className="mn-copy-insights"><span className="mn-briefing-highlight text-white/90">5 insights</span> surfaced overnight.</span>{" "}
             <span className="mn-copy-revenue">Revenue is <span className="mn-copy-revenue-value text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with ROAS at <span className="mn-copy-roas-value text-white/90">{currentKpi.roas.toFixed(1)}x</span>.</span>{" "}
             <span className="mn-copy-audience">Family audience is surging.</span>
           </p>
@@ -375,22 +375,22 @@ export function HomeContent() {
             className="mn-section mn-briefing space-y-5">
 
             {/* AI Recommendation */}
-            <motion.div {...f(0.08)} className="mn-ai-rec rounded-lg border border-sky-400/10 bg-sky-400/[0.03] p-4">
+            <motion.div {...f(0.08)} className="mn-ai-rec rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
               <div className="flex items-start gap-3">
-                <Sparkles className="h-4 w-4 text-sky-400 mt-0.5 shrink-0" />
+                <Sparkles className="h-4 w-4 text-white/90 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="mn-ai-rec-label text-[9px] tracking-widest text-sky-400/40 uppercase mb-1">Minerva recommends</p>
+                  <p className="mn-ai-rec-label text-[9px] tracking-widest text-white/90/40 uppercase mb-1">Minerva recommends</p>
                   <p className="mn-ai-rec-copy text-[13px] text-white/70 leading-relaxed">
                     Scale <span className="text-white/90">Family Ticket Bundle</span> budget by 20% and activate <span className="text-white/90">Seatmap Retargeting Pool</span> (900 profiles). Combined estimated lift: <span className="text-white/90">+$34K revenue</span> this week.
                   </p>
                   <div className="flex items-center gap-3 mt-3">
                     {!completedActions.has('ai-rec-1') ? (
                       <button onClick={() => { markAction('ai-rec-1'); toast.success('Executed: Budget scaled +20% and retargeting pool activated', { description: 'Both actions queued. Estimated lift: +$34K.' }) }}
-                        className="mn-ai-rec-btn text-[11px] font-medium text-sky-400 bg-sky-400/10 hover:bg-sky-400/20 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
+                        className="mn-ai-rec-btn text-[11px] font-medium text-white/90 bg-white/[0.06] hover:bg-white/[0.1] px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
                         <ArrowRight className="h-3 w-3" /> Execute both
                       </button>
                     ) : (
-                      <span className="mn-ai-rec-done text-[11px] text-sky-400/60 flex items-center gap-1.5"><Check className="h-3 w-3" /> Executed · Budget scaled · Retargeting activated</span>
+                      <span className="mn-ai-rec-done text-[11px] text-white/90/60 flex items-center gap-1.5"><Check className="h-3 w-3" /> Executed · Budget scaled · Retargeting activated</span>
                     )}
                     <span className="text-[10px] text-white/15 flex items-center gap-1"><Clock className="h-3 w-3" /> Generated 12 min ago · 91% confidence</span>
                   </div>
@@ -416,7 +416,7 @@ export function HomeContent() {
             <div className="mn-briefing-charts grid grid-cols-3 gap-4">
               <motion.div {...f(0.2)} className="mn-funnel-card rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
                 <Lbl>Conversion Funnel</Lbl>
-                <FunnelChart data={funnelData} color="#38bdf8" layers={2} edges="straight" gap={2}
+                <FunnelChart data={funnelData} color="#f5f5f5" layers={2} edges="straight" gap={2}
                   showPercentage={false} showValues={true} showLabels={true}
                   className="h-[100px]" style={{ aspectRatio: "unset" }} />
               </motion.div>
@@ -424,8 +424,8 @@ export function HomeContent() {
                 <Lbl>Revenue vs Spend · 7d</Lbl>
                 <VisxAreaChart data={chart7d} xDataKey="date" aspectRatio="3 / 1" margin={{top:8,right:8,bottom:24,left:8}}>
                   <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.15} />
-                  <VisxArea dataKey="revenue" fill="rgba(56,189,248,0.08)" stroke="rgba(56,189,248,0.5)" strokeWidth={1.5} />
-                  <VisxArea dataKey="spend" fill="rgba(56,189,248,0.03)" stroke="rgba(56,189,248,0.2)" strokeWidth={1} />
+                  <VisxArea dataKey="revenue" fill="rgba(245,245,245,0.08)" stroke="rgba(245,245,245,0.5)" strokeWidth={1.5} />
+                  <VisxArea dataKey="spend" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.2)" strokeWidth={1} />
                   <VisxXAxis numTicks={5} />
                 </VisxAreaChart>
               </motion.div>
@@ -443,10 +443,10 @@ export function HomeContent() {
                 </tr></thead>
                 <tbody>{topCampaigns.map(c=>(
                   <tr key={c.id} onClick={() => setActiveCard(campaignToCard(c))} className="mn-campaign-row border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
-                    <td className="mn-campaign-name px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-sky-400/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
+                    <td className="mn-campaign-name px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-white/90/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
                     <td className="mn-campaign-platform px-3 py-2 text-white/20">{c.platform}</td>
                     <td className="mn-campaign-spend text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
-                    <td className="mn-campaign-roas text-right px-3 py-2 text-sky-400 tabular-nums">{c.roas.toFixed(1)}x</td>
+                    <td className="mn-campaign-roas text-right px-3 py-2 text-white/90 tabular-nums">{c.roas.toFixed(1)}x</td>
                     <td className="mn-campaign-conv text-right px-3.5 py-2 text-white/30 tabular-nums">{c.conversions}</td>
                   </tr>))}</tbody>
               </table>
@@ -467,11 +467,11 @@ export function HomeContent() {
                   </div>
                   {!completedActions.has(a.id) ? (
                     <button onClick={() => { markAction(a.id); toast.success(`Done: ${a.label}`) }}
-                      className="mn-nba-btn text-[10px] text-white/25 hover:text-sky-400 transition-colors shrink-0 flex items-center gap-1">
+                      className="mn-nba-btn text-[10px] text-white/25 hover:text-white/90 transition-colors shrink-0 flex items-center gap-1">
                       Execute <ArrowRight className="h-3 w-3" />
                     </button>
                   ) : (
-                    <span className="mn-nba-done text-[10px] text-sky-400/50 flex items-center gap-1 shrink-0"><Check className="h-3 w-3" /> Done</span>
+                    <span className="mn-nba-done text-[10px] text-white/90/50 flex items-center gap-1 shrink-0"><Check className="h-3 w-3" /> Done</span>
                   )}
                 </div>
               ))}
@@ -481,7 +481,7 @@ export function HomeContent() {
             <motion.div {...f(0.4)} className="mn-sources flex items-center gap-4 text-[10px] text-white/15">
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Last sync: 8:12 AM</span>
               <span>Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph</span>
-              <span className="text-sky-400/30">5 sources connected</span>
+              <span className="text-white/90/30">5 sources connected</span>
             </motion.div>
           </motion.section>
         )}
@@ -492,7 +492,7 @@ export function HomeContent() {
             {/* AI Analysis summary */}
             <motion.div {...f(0)} className="mn-insights-ai rounded-lg border border-white/[0.04] bg-white/[0.015] p-4 mb-5">
               <div className="flex items-start gap-3">
-                <Sparkles className="h-4 w-4 text-sky-400/40 mt-0.5 shrink-0" />
+                <Sparkles className="h-4 w-4 text-white/90/40 mt-0.5 shrink-0" />
                 <div>
                   <p className="mn-insights-ai-copy text-[13px] text-white/60 leading-relaxed">
                     <span className="text-white/80">3 positive signals</span>, <span className="text-white/80">1 declining metric</span>, and <span className="text-white/80">1 weekend opportunity</span>. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap: social engagement is rising but lifecycle capture trails. <span className="text-white/40">Minerva suggests prioritizing the conversion funnel audit and the family geo-targeting campaign.</span>
@@ -511,13 +511,13 @@ export function HomeContent() {
                 <motion.div key={card.id} {...f(0.05 + idx * 0.04)}
                   whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCard(card)}
-                  className="mn-insight-card mn-glass-card snap-start shrink-0 w-[260px] h-[210px] rounded-xl border-l-[3px] border-l-sky-400/40 backdrop-blur-sm p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
+                  className="mn-insight-card mn-glass-card snap-start shrink-0 w-[260px] h-[210px] rounded-xl border-l-[3px] border-l-white/[0.15] backdrop-blur-sm p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
                   <span className="mn-insight-label mn-glass-label text-[8px] tracking-widest text-white/25 uppercase">{card.label}</span>
-                  {card.mainValue && <span className="mn-insight-value text-[28px] font-bold tracking-tight leading-none mt-1 text-sky-400">{card.mainValue}</span>}
+                  {card.mainValue && <span className="mn-insight-value text-[28px] font-bold tracking-tight leading-none mt-1 text-white/90">{card.mainValue}</span>}
                   {card.subtitle && <span className="mn-insight-subtitle text-[15px] font-semibold tracking-tight leading-tight mt-1">{card.subtitle}</span>}
                   <p className="mn-insight-copy text-[11px] text-white/40 leading-snug mt-2 flex-1">{card.copy}</p>
                   <div className="mn-insight-footer pt-3 border-t border-white/[0.06] mt-auto">
-                    <span className="mn-insight-cta text-[11px] font-medium text-sky-400/60">{card.cta}</span>
+                    <span className="mn-insight-cta text-[11px] font-medium text-white/90/60">{card.cta}</span>
                   </div>
                 </motion.div>
               ))}
@@ -555,7 +555,7 @@ export function HomeContent() {
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-[8px] mn-audience-type tracking-widest uppercase font-medium ${typeColors[a.type]?.split(" ")[1] ?? "text-white/20"}`}>{a.type}</span>
                     {a.isActivationReady && (
-                      <span className="mn-audience-badge text-[9px] px-2 py-0.5 rounded-full bg-sky-400/10 text-sky-400 font-medium flex items-center gap-1">
+                      <span className="mn-audience-badge text-[9px] px-2 py-0.5 rounded-full bg-white/[0.06] text-white/90 font-medium flex items-center gap-1">
                         <Zap className="h-2.5 w-2.5" /> Ready
                       </span>
                     )}
@@ -564,19 +564,19 @@ export function HomeContent() {
                   <p className="mn-audience-size text-[22px] font-bold tracking-tight text-white leading-none mb-1.5">{a.estimatedSize.toLocaleString()}</p>
                   {/* Propensity bar */}
                   <div className="mn-audience-propensity-bar w-full h-1 rounded-full bg-white/[0.04] mb-2">
-                    <div className="h-full rounded-full bg-sky-400/30" style={{ width: `${(a.avgPropensityScore ?? 0) * 100}%` }} />
+                    <div className="h-full rounded-full bg-white/[0.15]" style={{ width: `${(a.avgPropensityScore ?? 0) * 100}%` }} />
                   </div>
                   <div className="mn-audience-meta flex items-center gap-3 text-[10px] text-white/25">
                     <span>${Math.round(a.estimatedSize * (a.avgPropensityScore ?? 0) * 150 / 1000)}K pipeline</span>
                     <span>{a.channelRecommendation}</span>
                     {a.memberDelta != null && a.memberDelta !== 0 && (
-                      <span className={a.memberDelta > 0 ? "text-sky-400/50" : "text-white/20"}>
+                      <span className={a.memberDelta > 0 ? "text-white/90/50" : "text-white/20"}>
                         {a.memberDelta > 0 ? "+" : ""}{a.memberDelta}
                       </span>
                     )}
                   </div>
                   {a.isActivationReady && (
-                    <button className="mn-audience-cta mt-3 text-[10px] text-sky-400/60 group-hover:text-sky-400 transition-colors flex items-center gap-1">
+                    <button className="mn-audience-cta mt-3 text-[10px] text-white/90/60 group-hover:text-white/90 transition-colors flex items-center gap-1">
                       Activate <ChevronRight className="h-3 w-3" />
                     </button>
                   )}
@@ -592,7 +592,7 @@ export function HomeContent() {
             {/* People AI summary */}
             <motion.div {...f(0)} className="mn-people-ai rounded-lg border border-white/[0.04] bg-white/[0.015] p-4 mb-5">
               <div className="flex items-start gap-3">
-                <Sparkles className="h-4 w-4 text-sky-400/40 mt-0.5 shrink-0" />
+                <Sparkles className="h-4 w-4 text-white/90/40 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[13px] text-white/60 leading-relaxed">
                     <span className="text-white/80">Marcus Johnson</span> is your highest-value contact — $8.4K total revenue, 97 ticket-buy propensity, and a 72 Club season ticket holder. <span className="text-white/80">Sofia Reyes</span> has a 78 churn risk and hasn't purchased since October — retention outreach recommended. <span className="text-white/40">2 prospects are ready for premium sales routing.</span>
@@ -635,7 +635,7 @@ export function HomeContent() {
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2">
                         <div className="mn-propensity-bar w-16 h-1.5 rounded-full bg-white/[0.04]">
-                          <div className="h-full rounded-full bg-sky-400/40" style={{ width: `${p.scores.ticketBuy * 100}%` }} />
+                          <div className="h-full rounded-full bg-white/[0.2]" style={{ width: `${p.scores.ticketBuy * 100}%` }} />
                         </div>
                         <span className="text-[10px] text-white/40 tabular-nums">{Math.round(p.scores.ticketBuy * 100)}</span>
                       </div>
@@ -648,11 +648,11 @@ export function HomeContent() {
                     <td className="text-right px-3.5 py-2.5">
                       {!completedActions.has(`contact-${p.id}`) ? (
                         <button onClick={(e) => { e.stopPropagation(); markAction(`contact-${p.id}`); toast.success(`Outreach queued: ${p.firstName} ${p.lastName}`) }}
-                          className="mn-row-action text-[10px] text-white/20 hover:text-sky-400 transition-colors">
+                          className="mn-row-action text-[10px] text-white/20 hover:text-white/90 transition-colors">
                           Contact
                         </button>
                       ) : (
-                        <span className="text-[10px] text-sky-400/50 flex items-center justify-end gap-1"><Check className="h-3 w-3" /> Sent</span>
+                        <span className="text-[10px] text-white/90/50 flex items-center justify-end gap-1"><Check className="h-3 w-3" /> Sent</span>
                       )}
                     </td>
                   </tr>))}</tbody>

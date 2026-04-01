@@ -48,7 +48,7 @@ export const SevenSegmentNumber: React.FC<SevenSegmentNumberProps> = ({
 };
 
 // Multi-digit display helper
-export function SevenSegmentDisplay({ value, suffix, height = 48, onColor = "#38bdf8", offColor = "rgba(56,189,248,0.06)", className = "" }: {
+export function SevenSegmentDisplay({ value, suffix, height = 48, onColor = "#f5f5f5", offColor = "rgba(245,245,245,0.06)", className = "" }: {
   value: string; suffix?: string; height?: number; onColor?: string; offColor?: string; className?: string;
 }) {
   const chars = value.replace(/[^0-9.]/g, "").split("");
@@ -62,7 +62,7 @@ export function SevenSegmentDisplay({ value, suffix, height = 48, onColor = "#38
           <SevenSegmentNumber key={i} value={parseInt(c)} height={height} width={digitWidth} onColor={onColor} offColor={offColor} />
         )
       )}
-      {suffix && <span className="text-sky-400 ml-1" style={{ fontSize: height * 0.45, lineHeight: 1 }}>{suffix}</span>}
+      {suffix && <span className="text-white/90 ml-1" style={{ fontSize: height * 0.45, lineHeight: 1 }}>{suffix}</span>}
     </span>
   );
 }
