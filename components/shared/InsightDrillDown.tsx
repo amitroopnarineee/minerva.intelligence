@@ -289,7 +289,7 @@ function deltaColor(val: string): string {
 
 function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }: { card: InsightCard; onClose: () => void; onOpenSpectrum?: () => void; onNav?: (dir: -1 | 1) => void; onPersonClick?: (personId: string) => void }) {
   const dd = card.drillDown
-  const [rightTab, setRightTab] = useState<"detail" | "people">("detail")
+  const [rightTab, setRightTab] = useState<"detail" | "people" | "minerva">("detail")
   const [expandedPerson, setExpandedPerson] = useState<typeof persons[0] | null>(null)
   const [selectedPeople, setSelectedPeople] = useState<Set<string>>(new Set())
 
@@ -339,17 +339,20 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
 
             {/* Hero value or subtitle */}
             {card.mainValue ? (
-              <div className="flex items-end gap-2">
-                <SevenSegmentDisplay
-                  value={card.mainValue.replace(/[^0-9.]/g, "")}
-                  suffix={card.mainValue.replace(/[0-9.,+\-\s]/g, "") || undefined}
-                  height={56}
-                  onColor="#f5f5f5"
-                  offColor="rgba(245,245,245,0.05)"
-                />
-                {(card.mainValue.startsWith("+") || card.mainValue.startsWith("-")) && (
-                  <span className="text-[32px] text-white/90/40 leading-none mb-1">{card.mainValue.startsWith("+") ? "↑" : "↓"}</span>
-                )}
+              <div>
+                <div className="flex items-end gap-2">
+                  <SevenSegmentDisplay
+                    value={card.mainValue.replace(/[^0-9.]/g, "")}
+                    suffix={card.mainValue.replace(/[0-9.,+\-\s]/g, "") || undefined}
+                    height={56}
+                    onColor="#f5f5f5"
+                    offColor="rgba(245,245,245,0.05)"
+                  />
+                  {(card.mainValue.startsWith("+") || card.mainValue.startsWith("-")) && (
+                    <span className="text-[28px] text-white/25 leading-none mb-1">{card.mainValue.startsWith("+") ? "↑" : "↓"}</span>
+                  )}
+                </div>
+                <p className="text-[10px] uppercase tracking-widest text-white/20 mt-2">{card.label}</p>
               </div>
             ) : card.subtitle ? (
               <div>
@@ -366,7 +369,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
             {/* Action pills */}
             {dd.actions && dd.actions.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {dd.actions.map((a, i) => (
+                {dd.actions.slice(0, 4).map((a, i) => (
                   <button key={i} onClick={() => toast.success(`${a}`, { description: 'Action queued for execution.' })}
                     className="text-[11px] px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-white/50 hover:text-white/80 hover:bg-white/[0.06] hover:border-white/[0.15] transition-all">
                     {a}
@@ -388,12 +391,12 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
           <div className="overflow-hidden flex flex-col">
             {/* Tab bar */}
             <div className="shrink-0 flex items-center gap-1 px-10 pt-6 pb-0">
-              {(["detail", "people"] as const).map((t) => (
-                <button key={t} onClick={() => setRightTab(t)}
-                  className={`text-[12px] px-3 py-1.5 rounded-lg transition-all capitalize ${
+              {(["detail", "people", "minerva"] as const).map((t) => (
+                <button key={t} onClick={() => { setRightTab(t); setExpandedPerson(null) }}
+                  className={`text-[12px] px-3 py-1.5 rounded-lg transition-all ${
                     rightTab === t ? "bg-white/10 text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                   }`}>
-                  {t === "people" ? `People (${relatedPeople.length})` : "Detail"}
+                  {t === "people" ? `People (${relatedPeople.length})` : t === "minerva" ? "Minerva AI" : "Detail"}
                 </button>
               ))}
             </div>
@@ -521,11 +524,89 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
               </div>
 
             </div>
-            ) : (
-            /* ═══ PEOPLE TAB ═══ */
-            <div className="flex h-full">
-              {/* Table side */}
-              <div className={`${expandedPerson ? 'w-[45%] shrink-0' : 'w-full'} transition-all duration-300`}>
+            ) : rightTab === "people" ? (
+            /* PEOPLE TAB */
+            <div>
+              {expandedPerson ? (
+                /* Profile view — replaces table */
+                <div style={{ animation: 'fadeIn 200ms ease' }}>
+                  <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }`}</style>
+                  <button onClick={() => setExpandedPerson(null)} className="text-[11px] text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1">&larr; Back to list</button>
+                  <div className="flex items-center gap-3 mb-5">
+                    <UserAvatar name={`${expandedPerson.firstName} ${expandedPerson.lastName}`} size={40} />
+                    <div>
+                      <p className="text-[16px] font-medium">{expandedPerson.firstName} {expandedPerson.lastName}</p>
+                      <p className="text-[12px] text-muted-foreground">{expandedPerson.jobTitle} at {expandedPerson.company} · {expandedPerson.city}, {expandedPerson.state}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-3 mb-5">
+                    {[{l:'Ticket Buy',v:expandedPerson.scores.ticketBuy},{l:'Premium',v:expandedPerson.scores.premium},{l:'Renewal',v:expandedPerson.scores.renewal},{l:'Churn',v:expandedPerson.scores.churn}].map(s=>(
+                      <div key={s.l} className="rounded-lg bg-muted/10 p-3 text-center">
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{s.l}</p>
+                        <p className="text-[20px] font-medium tabular-nums mt-1">{Math.round(s.v*100)}</p>
+                        <div className="w-full h-1 rounded-full bg-white/[0.04] mt-1.5"><div className="h-full rounded-full bg-white/25" style={{width:`${s.v*100}%`}} /></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Contact</p>
+                        {expandedPerson.contacts.map((c,i)=>(
+                          <div key={i} className="flex items-center justify-between text-[11px] py-1">
+                            <span className="text-muted-foreground">{c.type}</span>
+                            <span className="text-foreground/80">{c.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Affinities</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {expandedPerson.affinities.map((a,i)=>(
+                            <span key={i} className="text-[10px] px-2 py-0.5 rounded-full border border-white/[0.06] text-white/45">{a.name} {Math.round(a.score*100)}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Household</p>
+                        <div className="space-y-1 text-[11px]">
+                          <div className="flex justify-between"><span className="text-muted-foreground">Income</span><span className="text-foreground/70">{expandedPerson.household.incomeBand}</span></div>
+                          <div className="flex justify-between"><span className="text-muted-foreground">Net Worth</span><span className="text-foreground/70">{expandedPerson.household.netWorthBand}</span></div>
+                          <div className="flex justify-between"><span className="text-muted-foreground">Distance</span><span className="text-foreground/70">{expandedPerson.household.distanceToStadium.toFixed(1)} mi</span></div>
+                          <div className="flex justify-between"><span className="text-muted-foreground">Household</span><span className="text-foreground/70">{expandedPerson.household.householdSize} people{expandedPerson.household.hasChildren ? ', has children' : ''}</span></div>
+                        </div>
+                      </div>
+                      {expandedPerson.tickets.length > 0 && (
+                        <div>
+                          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Ticket History</p>
+                          {expandedPerson.tickets.map((t,i)=>(
+                            <div key={i} className="flex items-center justify-between text-[11px] py-1 border-b border-border/5 last:border-0">
+                              <span className="text-muted-foreground">{t.date.split('T')[0]}</span>
+                              <span className="text-foreground/60">{t.product}</span>
+                              <span className="text-foreground/70 font-medium">${t.revenue.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-5">
+                    {['Contact with AI', 'Add to segment', 'Flag for review', 'Export profile'].map(a=>(
+                      <button key={a} onClick={() => toast.success(`${a}: ${expandedPerson.firstName} ${expandedPerson.lastName}`)}
+                        className="text-[10px] px-3 py-1.5 rounded-full border border-white/[0.06] text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all">
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                /* Table view */
+                <div>
               <div className="rounded-lg border border-border/20 overflow-hidden">
                 <table className="w-full text-[12px]">
                   <thead>
@@ -538,8 +619,8 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                   </thead>
                   <tbody>
                     {relatedPeople.map((p) => (
-                      <tr key={p.id} onClick={() => setExpandedPerson(expandedPerson?.id === p.id ? null : p)}
-                        className={`border-t border-border/10 hover:bg-muted/10 transition-all duration-150 cursor-pointer ${expandedPerson?.id === p.id ? 'bg-muted/10' : ''}`}>
+                      <tr key={p.id} onClick={() => setExpandedPerson(p)}
+                        className={`border-t border-border/10 hover:bg-muted/10 transition-all duration-150 cursor-pointer`}>
                         <td className="px-2 py-2.5" onClick={(e) => e.stopPropagation()}>
                           <input type="checkbox" checked={selectedPeople.has(p.id)} className="rounded border-white/20 bg-transparent"
                             onChange={() => { const s = new Set(selectedPeople); s.has(p.id) ? s.delete(p.id) : s.add(p.id); setSelectedPeople(s) }} />
@@ -586,87 +667,15 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                 </div>
               )}
               </div>
-
-              {/* Expanded profile panel */}
-              {expandedPerson && (
-                <div className="flex-1 border-l border-border/10 pl-5 ml-5 overflow-y-auto" style={{ animation: 'fadeIn 200ms ease' }}>
-                  <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }`}</style>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <UserAvatar name={`${expandedPerson.firstName} ${expandedPerson.lastName}`} size={36} />
-                      <div>
-                        <p className="text-[14px] font-medium">{expandedPerson.firstName} {expandedPerson.lastName}</p>
-                        <p className="text-[11px] text-muted-foreground">{expandedPerson.jobTitle} at {expandedPerson.company}</p>
-                      </div>
-                    </div>
-                    <button onClick={() => setExpandedPerson(null)} className="text-[10px] text-muted-foreground hover:text-foreground">Close</button>
-                  </div>
-
-                  {/* Scores — compact 4-col row */}
-                  <div className="grid grid-cols-4 gap-2 mb-3">
-                    {[{l:'Buy',v:expandedPerson.scores.ticketBuy},{l:'Prem',v:expandedPerson.scores.premium},{l:'Renew',v:expandedPerson.scores.renewal},{l:'Churn',v:expandedPerson.scores.churn}].map(s=>(
-                      <div key={s.l} className="text-center">
-                        <p className="text-[8px] text-muted-foreground uppercase tracking-wider">{s.l}</p>
-                        <p className="text-[14px] font-medium tabular-nums mt-0.5">{Math.round(s.v*100)}</p>
-                        <div className="w-full h-1 rounded-full bg-white/[0.04] mt-1"><div className="h-full rounded-full bg-white/25" style={{width:`${s.v*100}%`}} /></div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Contact */}
-                  <div className="mb-3">
-                    <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Contact</p>
-                    {expandedPerson.contacts.slice(0,2).map((c,i)=>(
-                      <p key={i} className="text-[10px] text-foreground/70 truncate">{c.value}</p>
-                    ))}
-                  </div>
-
-                  {/* Affinities */}
-                  <div className="mb-3">
-                    <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Affinities</p>
-                    <div className="flex flex-wrap gap-1">
-                      {expandedPerson.affinities.slice(0,4).map((a,i)=>(
-                        <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-full border border-white/[0.05] text-white/40">{a.name}</span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Household — compact 2-col */}
-                  <div className="mb-3">
-                    <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Household</p>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
-                      <p className="text-foreground/60">{expandedPerson.household.incomeBand}</p>
-                      <p className="text-foreground/60">{expandedPerson.household.netWorthBand}</p>
-                      <p className="text-foreground/40">{expandedPerson.household.distanceToStadium.toFixed(1)} mi</p>
-                      <p className="text-foreground/40">{expandedPerson.household.hasChildren ? 'Has children' : 'No children'}</p>
-                    </div>
-                  </div>
-
-                  {/* Tickets — compact */}
-                  {expandedPerson.tickets.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Tickets ({expandedPerson.tickets.length})</p>
-                      {expandedPerson.tickets.slice(0,3).map((t,i)=>(
-                        <div key={i} className="flex items-center justify-between text-[10px] py-1 border-b border-border/5 last:border-0">
-                          <span className="text-muted-foreground">{t.date.split('T')[0]}</span>
-                          <span className="text-foreground/60">{t.product}</span>
-                          <span className="text-foreground/70 font-medium">${t.revenue}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Quick actions */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {['Contact', 'Add to segment', 'Flag'].map(a=>(
-                      <button key={a} onClick={() => toast.success(`${a}: ${expandedPerson.firstName}`)}
-                        className="text-[9px] px-2.5 py-1 rounded-full border border-white/[0.06] text-white/35 hover:text-white/60 hover:bg-white/[0.04] transition-all">
-                        {a}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               )}
+            </div>
+            ) : (
+            /* MINERVA AI TAB */
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <p className="text-[14px] text-muted-foreground/30 mb-2">Minerva AI</p>
+                <p className="text-[11px] text-muted-foreground/20">Ask Minerva anything about this data.</p>
+              </div>
             </div>
             )}
 
