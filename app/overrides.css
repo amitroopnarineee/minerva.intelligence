@@ -313,10 +313,7 @@ h1, h2, h3, h4, h5, h6,
   font-family: "SF Pro", ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.5px !important;
 }
-.text-\[9px\] {
-  font-size: 9px;
-  display: none !important;
-}
+/* .text-[9px] — kept visible for labels, chart axes, section headers */
 
 /* ── Menu Bar ── */
 /* Notch menubar — inherits styles from component */
@@ -472,7 +469,6 @@ svg.text-\[\#0A66C2\] {
 .mn-main {
   padding: 0px 0px !important;
   margin: 0 !important;
-  overflow: hidden !important;
 }
 
 .mn-menubar {

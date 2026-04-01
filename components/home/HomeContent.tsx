@@ -331,7 +331,7 @@ export function HomeContent() {
           {/* Footer credit */}
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
             className="mn-hero-credit absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide">
-            Minerva<sup className="text-[7px]">™</sup> Intelligence. By Amit Roopnarine.
+            Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine
           </motion.p>
         </motion.div>
       ) : (
