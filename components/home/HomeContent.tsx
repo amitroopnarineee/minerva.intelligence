@@ -258,7 +258,6 @@ export function HomeContent() {
 
   const [activeSection, setActiveSection] = useState("briefing")
   const [activeMode, setActiveMode] = useState(0)
-  const [inputValue, setInputValue] = useState("")
   const [showCanvas, setShowCanvas] = useState(false)
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
@@ -268,6 +267,15 @@ export function HomeContent() {
     setActiveSection(sectionId)
     setShowCanvas(true)
   }, [])
+
+  // Auto-cycle headlines on welcome screen
+  useEffect(() => {
+    if (showCanvas) return
+    const interval = setInterval(() => {
+      setActiveMode(prev => (prev + 1) % sections.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [showCanvas])
 
   // Listen for logo "go home" event
   useEffect(() => {
@@ -288,39 +296,18 @@ export function HomeContent() {
           <AnimatePresence mode="wait">
             <motion.h1 key={sections[activeMode].id} initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-              transition={{ duration: 0.25 }} className="mn-hero-headline text-2xl sm:text-3xl tracking-tight text-white mb-8 text-center">
+              transition={{ duration: 0.25 }} className="mn-hero-headline text-2xl sm:text-3xl tracking-tight text-white mb-10 text-center">
               {sections[activeMode].headline}
             </motion.h1>
           </AnimatePresence>
 
-          {/* Input bar */}
-          <div className="mn-hero-input-wrap max-w-2xl w-full mb-6">
-            <div className="mn-hero-input-bar flex items-center rounded-full border bg-white/[0.04] border-white/[0.06] hover:border-white/12 focus-within:border-white/18 transition-all duration-200 px-5 py-2.5 gap-3">
-              <input value={inputValue} onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && inputValue.trim()) { e.preventDefault(); enterCanvas(sections[activeMode].id) } }}
-                placeholder={sections[activeMode].placeholder}
-                className="mn-hero-input flex-1 bg-transparent border-0 outline-none text-[14px] text-white placeholder:text-white/20" />
-              <button onClick={() => { if (inputValue.trim()) enterCanvas(sections[activeMode].id) }}
-                className={`mn-hero-send flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${inputValue.trim() ? "bg-white text-black" : "bg-white/6 text-white/15"}`}>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Pills — swap title, don't open canvas */}
-          <div className="mn-hero-pills flex items-center gap-2">
-            {sections.map((s, i) => {
-              const Icon = s.icon; const on = i === activeMode
-              return (
-                <motion.button key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.06 }} onClick={() => { setActiveMode(i); setInputValue(""); enterCanvas(s.id) }}
-                  className={`relative flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] transition-all duration-200 ${on ? "border-white/25 text-white bg-white/[0.08]" : "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"}`}>
-                  <Icon className="h-3.5 w-3.5" /> {s.label}
-                  {on && <motion.div layoutId="hero-pill" className="absolute inset-0 rounded-full border border-white/25" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-                </motion.button>
-              )
-            })}
-          </div>
+          {/* Single Enter button */}
+          <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            onClick={() => enterCanvas("briefing")}
+            className="mn-hero-enter flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/30 px-6 py-2.5 text-[14px] text-white/80 hover:text-white transition-all duration-200">
+            Enter
+            <ChevronRight className="h-4 w-4" />
+          </motion.button>
         </motion.div>
       ) : (
         /* ═══ CANVAS VIEW ═══ */
