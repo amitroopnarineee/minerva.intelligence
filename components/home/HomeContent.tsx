@@ -50,10 +50,10 @@ const insightCards = [
 ]
 
 const sections = [
-  { id: "briefing", label: "Briefing", icon: Brain, headline: "Clarity beyond scale", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
-  { id: "insights", label: "Insights", icon: Lightbulb, headline: "Patterns in infinite data", placeholder: "Ask about signals, campaigns, or audience shifts..." },
-  { id: "audiences", label: "Audiences", icon: Users, headline: "Meaning in every profile", placeholder: "Find high-value families within 30 miles of the stadium..." },
-  { id: "people", label: "People", icon: UserSearch, headline: "Intelligence in boundless reach", placeholder: "Search for software engineers in Miami earning over $150K..." },
+  { id: "briefing", label: "Briefing", icon: Brain, headline: "Ask Minerva", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
+  { id: "insights", label: "Insights", icon: Lightbulb, headline: "Ask Minerva", placeholder: "Ask about signals, campaigns, or audience shifts..." },
+  { id: "audiences", label: "Audiences", icon: Users, headline: "Ask Minerva", placeholder: "Find high-value families within 30 miles of the stadium..." },
+  { id: "people", label: "People", icon: UserSearch, headline: "Ask Minerva", placeholder: "Search for software engineers in Miami earning over $150K..." },
 ]
 
 /* ── Helpers ── */
@@ -265,14 +265,7 @@ export function HomeContent() {
   const [activeMode, setActiveMode] = useState(0)
   const [showCanvas, setShowCanvas] = useState(false)
 
-  // Rotate hero taglines every 4 seconds when on welcome screen
-  useEffect(() => {
-    if (showCanvas) return
-    const interval = setInterval(() => {
-      setActiveMode(prev => (prev + 1) % sections.length)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [showCanvas])
+
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
   const [completedActions, setCompletedActions] = useState<Set<string>>(new Set())
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
@@ -325,20 +318,16 @@ export function HomeContent() {
         <motion.div key="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }} className="mn-hero flex-1 flex flex-col items-center justify-center px-6">
           <AnimatePresence mode="wait">
-            <motion.h1 key={sections[activeMode].id} initial={{ opacity: 0, y: 6, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
-              transition={{ duration: 0.4, ease: "easeInOut" }} className="mn-hero-headline text-4xl sm:text-5xl tracking-tight text-white mb-12 text-center" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>
+            <motion.h1 key={sections[activeMode].id} initial={{ opacity: 0, y: 8, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -8, filter: "blur(6px)" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} className="mn-hero-headline text-4xl sm:text-5xl tracking-tight text-white mb-12 text-center" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>
               {sections[activeMode].headline}
             </motion.h1>
           </AnimatePresence>
 
-          {/* Hero CTA buttons */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-center gap-4">
-            <LiquidMetalButton label="Prospect" onClick={() => enterCanvas("briefing")} />
-            <button onClick={() => router.push("/workspace")}
-              className="px-6 py-2.5 rounded-full bg-transparent border border-white/15 text-white/50 text-[13px] tracking-tight hover:bg-white/[0.05] hover:text-white/70 hover:border-white/25 transition-all">
-              Segment
-            </button>
+          {/* Hero CTA */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <LiquidMetalButton label="Enter" onClick={() => enterCanvas("briefing")} />
           </motion.div>
 
           {/* Footer credit */}
@@ -679,10 +668,8 @@ export function HomeContent() {
         </div>
       </div>
 
-      {/* ═══ BOTTOM FADE ═══ */}
-      <div className="mn-canvas-fade pointer-events-none absolute bottom-0 left-0 right-0 h-32 z-[5]" style={{
-        background: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.4) 60%, transparent 100%)',
-      }} />
+      {/* ═══ BOTTOM PROGRESSIVE BLUR ═══ */}
+      <ProgressiveBlur position="bottom" height="140px" backgroundColor="#000" blurAmount="8px" className="z-[5]" />
         </motion.div>
       )}
       </AnimatePresence>
