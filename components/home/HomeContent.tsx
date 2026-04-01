@@ -218,6 +218,39 @@ function personToCard(p: Person): InsightCard {
   }
 }
 
+/* ── KPI → InsightCard converter ── */
+function kpiToCard(label: string, value: number, formatted: string, delta: { value: number; direction: string }, history: number[]): InsightCard {
+  const trend = history.map((v, i) => ({ date: new Date(Date.now() - (history.length - 1 - i) * 86400000), primary: v }))
+  return {
+    id: `kpi-${label.toLowerCase().replace(/\s/g, "-")}`, label: "KPI", mainValue: formatted, valueColor: "text-sky-400",
+    subtitle: label, copy: `${label} is ${delta.direction === "up" ? "trending up" : delta.direction === "down" ? "trending down" : "stable"} at ${formatted}.`,
+    meaning: `${delta.direction === "up" ? "+" : ""}${delta.value.toFixed(1)}% vs previous period.`,
+    cta: "View daily breakdown", color: "border-l-sky-400/40", category: "Signal",
+    relatedAudienceIds: [],
+    drillDown: {
+      title: `${label} — Daily Breakdown`,
+      summary: `Current ${label.toLowerCase()}: ${formatted}. ${delta.direction === "up" ? "Trending upward" : delta.direction === "down" ? "Declining" : "Stable"} with ${delta.value.toFixed(1)}% change.`,
+      meaning: `This KPI ${delta.direction === "up" ? "is improving — momentum is positive." : delta.direction === "down" ? "needs attention — negative trend." : "is holding steady."}`,
+      metrics: [
+        { label: "Current", value: formatted, context: "Latest value." },
+        { label: "Change", value: `${delta.direction === "up" ? "+" : ""}${delta.value.toFixed(1)}%`, context: "vs previous period." },
+        { label: "7d High", value: String(Math.round(Math.max(...history))), context: "Best day this week." },
+        { label: "7d Low", value: String(Math.round(Math.min(...history))), context: "Weakest day this week." },
+      ],
+      evidence: `${label} has been tracked over 7 days with ${delta.direction === "up" ? "positive" : delta.direction === "down" ? "negative" : "neutral"} trajectory.`,
+      highlight: `Current value ${formatted} is ${delta.direction === "up" ? "above" : delta.direction === "down" ? "below" : "at"} the 7-day average.`,
+      analysis: `Review the daily trend to identify which days drove the ${delta.direction === "up" ? "improvement" : delta.direction === "down" ? "decline" : "stability"} and correlate with campaign activity.`,
+      immediateActions: [delta.direction === "down" ? "Investigate root cause of decline" : "Maintain current strategy", "Compare with campaign timing", "Share report with team"],
+      followUpActions: ["Set up automated alerts for this KPI", "Build weekly review cadence", "Correlate with audience changes"],
+      sources: ["Minerva Analytics Pipeline", "Daily KPI Tracker"],
+      table: { headers: ["Day", "Value"], rows: history.slice(-7).map((v, i) => [new Date(Date.now() - (6 - i) * 86400000).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }), String(Math.round(v))]) },
+      actions: ["Export CSV", "Set alert threshold", "Compare periods", "Share with team"],
+      chartData: trend,
+      chartLabels: { primary: label },
+    },
+  }
+}
+
 /* ═══ MAIN COMPONENT ═══ */
 export function HomeContent() {
   const router = useRouter()
@@ -297,7 +330,7 @@ export function HomeContent() {
               const Icon = s.icon; const on = i === activeMode
               return (
                 <motion.button key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.06 }} onClick={() => { setActiveMode(i); setInputValue("") }}
+                  transition={{ delay: 0.2 + i * 0.06 }} onClick={() => { setActiveMode(i); setInputValue(""); enterCanvas(s.id) }}
                   className={`relative flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] transition-all duration-200 ${on ? "border-white/25 text-white bg-white/[0.08]" : "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"}`}>
                   <Icon className="h-3.5 w-3.5" /> {s.label}
                   {on && <motion.div layoutId="hero-pill" className="absolute inset-0 rounded-full border border-white/25" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
@@ -332,7 +365,7 @@ export function HomeContent() {
                 { l:"Conv Rate",n:currentKpi.ticketConversionRate*100,dec:1,pre:"",suf:"%",d:convD,s:kpiHistory.map(k=>k.ticketConversionRate) },
                 { l:"Match Rate",n:currentKpi.dataMatchRate*100,dec:0,pre:"",suf:"%",d:matchD,s:kpiHistory.map(k=>k.dataMatchRate) },
               ].map((m,i)=>(
-                <div key={i} className="mn-kpi-cell bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
+                <div key={i} onClick={() => setActiveCard(kpiToCard(m.l, m.n, `${m.pre}${m.n.toFixed(m.dec)}${m.suf}`, m.d, m.s))} className="mn-kpi-cell bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
                   <div className="flex items-center justify-between mb-1"><p className="mn-kpi-label text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
                   <div className="mn-kpi-row flex items-end justify-between"><p className="mn-kpi-value text-[20px] tracking-tight text-white leading-none"><CountUp end={m.n} decimals={m.dec} prefix={m.pre} suffix={m.suf} /></p><Tr d={m.d} /></div>
                 </div>))}
@@ -527,7 +560,11 @@ export function HomeContent() {
 
       <AnimatePresence>
         {activeCard && (
-          <DrillDownModal card={activeCard} onClose={() => setActiveCard(null)} />
+          <DrillDownModal card={activeCard} onClose={() => setActiveCard(null)}
+            onPersonClick={(personId) => {
+              const p = persons.find(x => x.id === personId)
+              if (p) setActiveCard(personToCard(p))
+            }} />
         )}
       </AnimatePresence>
     </div>

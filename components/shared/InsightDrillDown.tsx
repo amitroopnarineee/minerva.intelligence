@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import { persons } from "@/lib/data/persons"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, ChartTooltip as VisxTooltip } from "@/components/ui/area-chart"
@@ -285,7 +286,7 @@ function deltaColor(val: string): string {
   return "text-foreground/60"
 }
 
-function DrillDownModal({ card, onClose, onOpenSpectrum, onNav }: { card: InsightCard; onClose: () => void; onOpenSpectrum?: () => void; onNav?: (dir: -1 | 1) => void }) {
+function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }: { card: InsightCard; onClose: () => void; onOpenSpectrum?: () => void; onNav?: (dir: -1 | 1) => void; onPersonClick?: (personId: string) => void }) {
   const dd = card.drillDown
   const [rightTab, setRightTab] = useState<"detail" | "people">("detail")
 
@@ -466,10 +467,10 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav }: { card: Insigh
                   <p className="text-[11px] font-semibold text-foreground/70 mb-2">Immediate</p>
                   <div className="space-y-1.5">
                     {dd.immediateActions.map((a, i) => (
-                      <div key={i} className="flex items-start gap-2.5">
+                      <button key={i} onClick={() => toast.success(`Action started: ${a}`, { description: "This action has been queued for execution.", duration: 3000 })} className="mn-action-btn flex items-start gap-2.5 w-full text-left hover:bg-white/[0.04] rounded-lg px-2 py-1.5 -mx-2 transition-colors group cursor-pointer">
                         <span className="text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
-                        <span className="text-[13px] text-foreground/80 leading-snug">{a}</span>
-                      </div>
+                        <span className="text-[13px] text-foreground/80 leading-snug group-hover:text-sky-400 transition-colors">{a}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -477,10 +478,10 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav }: { card: Insigh
                   <p className="text-[11px] font-semibold text-foreground/70 mb-2">Follow-up</p>
                   <div className="space-y-1.5">
                     {dd.followUpActions.map((a, i) => (
-                      <div key={i} className="flex items-start gap-2.5">
+                      <button key={i} onClick={() => toast(`Scheduled: ${a}`, { description: "Added to your follow-up queue.", duration: 3000 })} className="mn-action-btn flex items-start gap-2.5 w-full text-left hover:bg-white/[0.04] rounded-lg px-2 py-1.5 -mx-2 transition-colors group cursor-pointer">
                         <span className="text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
-                        <span className="text-[13px] text-foreground/80 leading-snug">{a}</span>
-                      </div>
+                        <span className="text-[13px] text-foreground/80 leading-snug group-hover:text-foreground transition-colors">{a}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -514,7 +515,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav }: { card: Insigh
                   </thead>
                   <tbody>
                     {relatedPeople.map((p) => (
-                      <tr key={p.id} className="border-t border-border/10 hover:bg-muted/5 transition-colors">
+                      <tr key={p.id} onClick={() => onPersonClick?.(p.id)} className="border-t border-border/10 hover:bg-muted/5 transition-colors cursor-pointer">
                         <td className="px-3 py-2.5">
                           <div className="flex items-center gap-2.5">
                             <UserAvatar name={`${p.firstName} ${p.lastName}`} size={28} />
