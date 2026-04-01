@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Plus, ArrowUp, Brain, Search, Users, BarChart3, Upload, Zap, Sparkles, TrendingUp, TrendingDown, ArrowRight } from "lucide-react"
+import { ArrowUp, Brain, Search, Users, BarChart3, Upload, Zap, TrendingUp, TrendingDown, X } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
 /* ═══════════════════════════════════════════════════════════
@@ -246,17 +246,10 @@ export function HomeContent() {
   const [inputValue, setInputValue] = useState("")
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([])
   const [isTyping, setIsTyping] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const mode = modes[activeMode]
   const hasChat = chatMessages.length > 0
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto"
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + "px"
-    }
-  }, [inputValue])
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -280,7 +273,7 @@ export function HomeContent() {
     const text = inputValue.trim()
     if (!text) return
     setInputValue("")
-    if (textareaRef.current) textareaRef.current.style.height = "auto"
+
     sendMock(text, mode.id)
   }, [inputValue, sendMock, mode.id])
 
@@ -357,25 +350,22 @@ export function HomeContent() {
         {/* ═══ INPUT BAR ═══ */}
         <motion.div layout transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className={`w-full max-w-2xl mx-auto ${hasChat ? "shrink-0 pb-4 pt-2" : ""}`}>
-          <div className="flex flex-col rounded-2xl border bg-white/[0.08] border-white/[0.12] hover:border-white/20 focus-within:border-white/25 backdrop-blur-sm transition-all duration-200">
-            <div className="flex flex-col px-4 pt-4 pb-3 gap-2">
-              <div className="min-h-[1.5em]">
-                <textarea ref={textareaRef} value={inputValue} onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyDown} placeholder={hasChat ? "Ask a follow-up..." : mode.placeholder}
-                  className="mn-chat-textarea w-full bg-transparent border-0 outline-none text-[15px] resize-none overflow-hidden leading-relaxed text-white placeholder:text-white/30"
-                  rows={1} style={{ minHeight: "1.5em" }} />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <button className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-white/70 transition-colors"><Plus className="h-5 w-5" /></button>
-                  <button className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-white/70 transition-colors"><Sparkles className="h-4 w-4" /></button>
-                </div>
-                <button onClick={handleSend} disabled={!hasContent}
-                  className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${hasContent ? "bg-white text-black" : "bg-white/10 text-white/30"}`}>
-                  <ArrowUp className="h-4 w-4" />
-                </button>
-              </div>
+          {hasChat && (
+            <div className="flex justify-center mb-2">
+              <button onClick={() => { setChatMessages([]); setActiveMode(0) }}
+                className="flex items-center gap-1.5 text-[11px] text-white/30 hover:text-white/60 transition-colors">
+                <X className="h-3 w-3" /> New conversation
+              </button>
             </div>
+          )}
+          <div className="flex items-center rounded-full border bg-white/[0.06] border-white/[0.10] hover:border-white/20 focus-within:border-white/25 backdrop-blur-sm transition-all duration-200 px-5 py-3 gap-3">
+            <input ref={inputRef} value={inputValue} onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown} placeholder={hasChat ? "Ask a follow-up..." : mode.placeholder}
+              className="mn-chat-textarea flex-1 bg-transparent border-0 outline-none text-[15px] text-white placeholder:text-white/30" />
+            <button onClick={handleSend} disabled={!hasContent}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all ${hasContent ? "bg-white text-black" : "bg-white/10 text-white/30"}`}>
+              <ArrowUp className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Mode chips — hero only */}
