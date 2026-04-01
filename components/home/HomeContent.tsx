@@ -209,22 +209,22 @@ export function HomeContent() {
       {!showCanvas ? (
         /* ═══ HERO LANDING ═══ */
         <motion.div key="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }} className="flex-1 flex flex-col items-center justify-center px-6">
+          transition={{ duration: 0.3 }} className="mn-hero flex-1 flex flex-col items-center justify-center px-6">
           <AnimatePresence mode="wait">
             <motion.h1 key={sections[activeMode].id} initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-              transition={{ duration: 0.25 }} className="text-2xl sm:text-3xl tracking-tight text-white mb-8 text-center">
+              transition={{ duration: 0.25 }} className="mn-hero-headline text-2xl sm:text-3xl tracking-tight text-white mb-8 text-center">
               {sections[activeMode].headline}
             </motion.h1>
           </AnimatePresence>
 
           {/* Input bar */}
-          <div className="max-w-2xl w-full mb-6">
-            <div className="flex items-center rounded-full border bg-white/[0.04] border-white/[0.06] hover:border-white/12 focus-within:border-white/18 transition-all duration-200 px-5 py-2.5 gap-3">
+          <div className="mn-hero-input-wrap max-w-2xl w-full mb-6">
+            <div className="mn-hero-input-bar flex items-center rounded-full border bg-white/[0.04] border-white/[0.06] hover:border-white/12 focus-within:border-white/18 transition-all duration-200 px-5 py-2.5 gap-3">
               <input value={inputValue} onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && inputValue.trim()) { e.preventDefault(); enterCanvas(sections[activeMode].id) } }}
                 placeholder={sections[activeMode].placeholder}
-                className="flex-1 bg-transparent border-0 outline-none text-[14px] text-white placeholder:text-white/20" />
+                className="mn-hero-input flex-1 bg-transparent border-0 outline-none text-[14px] text-white placeholder:text-white/20" />
               <button onClick={() => { if (inputValue.trim()) enterCanvas(sections[activeMode].id) }}
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${inputValue.trim() ? "bg-white text-black" : "bg-white/6 text-white/15"}`}>
                 <ChevronRight className="h-3.5 w-3.5" />
@@ -233,7 +233,7 @@ export function HomeContent() {
           </div>
 
           {/* Pills — swap title, don't open canvas */}
-          <div className="flex items-center gap-2">
+          <div className="mn-hero-pills flex items-center gap-2">
             {sections.map((s, i) => {
               const Icon = s.icon; const on = i === activeMode
               return (
@@ -250,15 +250,15 @@ export function HomeContent() {
       ) : (
         /* ═══ CANVAS VIEW ═══ */
         <motion.div key="canvas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
-          className="flex-1 flex flex-col min-h-0">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto relative z-10 scroll-smooth" style={{ scrollbarWidth: "none" }}>
-        <div className="px-6 pt-4 pb-20 max-w-[1100px] mx-auto space-y-14">
+          className="mn-canvas flex-1 flex flex-col min-h-0">
+      <div ref={scrollRef} className="mn-canvas-scroll flex-1 overflow-y-auto relative z-10 scroll-smooth" style={{ scrollbarWidth: "none" }}>
+        <div className="mn-canvas-inner px-6 pt-4 pb-20 max-w-[1100px] mx-auto space-y-14">
 
           {/* ═══ SECTION 1: BRIEFING ═══ */}
-          <section ref={(el) => { sectionRefs.current.briefing = el }} id="briefing" className="scroll-mt-6 space-y-5">
+          <section ref={(el) => { sectionRefs.current.briefing = el }} id="briefing" className="mn-section mn-briefing scroll-mt-6 space-y-5">
             <motion.div {...f(0.05)}>
-              <p className="text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
-              <p className="text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
+              <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
+              <p className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
                 Good morning, Sarah. <span className="text-sky-400">5 insights</span> surfaced overnight.
                 Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with
                 ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging.
@@ -266,28 +266,28 @@ export function HomeContent() {
             </motion.div>
 
             {/* KPI Strip */}
-            <motion.div {...f(0.12)} className="grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
+            <motion.div {...f(0.12)} className="mn-kpi-strip grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
               {[
                 { l:"Revenue",n:currentKpi.influencedRevenue/1000,dec:0,pre:"$",suf:"K",d:revD,s:kpiHistory.map(k=>k.influencedRevenue) },
                 { l:"ROAS",n:currentKpi.roas,dec:1,pre:"",suf:"x",d:roasD,s:kpiHistory.map(k=>k.roas) },
                 { l:"Conv Rate",n:currentKpi.ticketConversionRate*100,dec:1,pre:"",suf:"%",d:convD,s:kpiHistory.map(k=>k.ticketConversionRate) },
                 { l:"Match Rate",n:currentKpi.dataMatchRate*100,dec:0,pre:"",suf:"%",d:matchD,s:kpiHistory.map(k=>k.dataMatchRate) },
               ].map((m,i)=>(
-                <div key={i} className="bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
+                <div key={i} className="mn-kpi-cell bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
                   <div className="flex items-center justify-between mb-1"><p className="text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
                   <div className="flex items-end justify-between"><p className="text-[20px] tracking-tight text-white leading-none"><CountUp end={m.n} decimals={m.dec} prefix={m.pre} suffix={m.suf} /></p><Tr d={m.d} /></div>
                 </div>))}
             </motion.div>
 
             {/* Funnel + Chart row */}
-            <div className="grid grid-cols-3 gap-4">
-              <motion.div {...f(0.2)} className="rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+            <div className="mn-briefing-charts grid grid-cols-3 gap-4">
+              <motion.div {...f(0.2)} className="mn-funnel-card rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
                 <Lbl>Conversion Funnel</Lbl>
                 <FunnelChart data={funnelData} color="#38bdf8" layers={2} edges="straight" gap={2}
                   showPercentage={false} showValues={true} showLabels={true}
                   className="h-[100px]" style={{ aspectRatio: "unset" }} />
               </motion.div>
-              <motion.div {...f(0.25)} className="col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+              <motion.div {...f(0.25)} className="mn-revenue-card col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
                 <Lbl>Revenue vs Spend · 7d</Lbl>
                 <VisxAreaChart data={chart7d} xDataKey="date" aspectRatio="3 / 1" margin={{top:8,right:8,bottom:24,left:8}}>
                   <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.15} />
@@ -299,8 +299,8 @@ export function HomeContent() {
             </div>
 
             {/* Top campaigns */}
-            <motion.div {...f(0.3)} className="rounded-lg border border-white/[0.06] overflow-hidden">
-              <table className="w-full text-[11.5px]">
+            <motion.div {...f(0.3)} className="mn-campaign-table-wrap rounded-lg border border-white/[0.06] overflow-hidden">
+              <table className="mn-campaign-table w-full text-[11.5px]">
                 <thead><tr className="bg-white/[0.02]">
                   <th className="text-left px-3.5 py-2 text-white/15 text-[8px] uppercase tracking-widest">Campaign</th>
                   <th className="text-left px-3 py-2 text-white/15 text-[8px] uppercase tracking-widest">Platform</th>
@@ -321,20 +321,20 @@ export function HomeContent() {
           </section>
 
           {/* ═══ SECTION 2: INSIGHTS ═══ */}
-          <section ref={(el) => { sectionRefs.current.insights = el }} id="insights" className="scroll-mt-6">
-            <motion.div {...f(0)} className="flex items-center justify-between mb-4">
+          <section ref={(el) => { sectionRefs.current.insights = el }} id="insights" className="mn-section mn-insights scroll-mt-6">
+            <motion.div {...f(0)} className="mn-insights-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>What needs your attention</Lbl>
                 <p className="text-[15px] text-white/70">5 signals surfaced overnight. Click any card to explore.</p>
               </div>
               <span className="text-[11px] text-white/15">{insightCardsFull.length} signals</span>
             </motion.div>
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2" style={{ scrollbarWidth: "none" }}>
+            <div className="mn-insights-scroll flex gap-4 overflow-x-auto pb-2 -mx-2 px-2" style={{ scrollbarWidth: "none" }}>
               {insightCardsFull.map((card, idx) => (
                 <motion.div key={card.id} {...f(0.05 + idx * 0.04)}
                   whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCard(card)}
-                  className="mn-glass-card snap-start shrink-0 w-[260px] h-[210px] rounded-xl border-l-[3px] border-l-sky-400/40 backdrop-blur-sm p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
+                  className="mn-insight-card mn-glass-card snap-start shrink-0 w-[260px] h-[210px] rounded-xl border-l-[3px] border-l-sky-400/40 backdrop-blur-sm p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
                   <span className="mn-glass-label text-[8px] tracking-widest text-white/25 uppercase">{card.label}</span>
                   {card.mainValue && <span className="text-[28px] font-bold tracking-tight leading-none mt-1 text-sky-400">{card.mainValue}</span>}
                   {card.subtitle && <span className="text-[15px] font-semibold tracking-tight leading-tight mt-1">{card.subtitle}</span>}
@@ -348,8 +348,8 @@ export function HomeContent() {
           </section>
 
           {/* ═══ SECTION 3: AUDIENCES ═══ */}
-          <section ref={(el) => { sectionRefs.current.audiences = el }} id="audiences" className="scroll-mt-6">
-            <motion.div {...f(0)} className="flex items-center justify-between mb-4">
+          <section ref={(el) => { sectionRefs.current.audiences = el }} id="audiences" className="mn-section mn-audiences scroll-mt-6">
+            <motion.div {...f(0)} className="mn-audiences-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>Your segments</Lbl>
                 <p className="text-[15px] text-white/70"><span className="text-sky-400">{audiences.length} audience segments</span> across lifecycle, predictive, and behavioral types.</p>
@@ -358,22 +358,22 @@ export function HomeContent() {
                 Manage <ChevronRight className="h-3 w-3" />
               </button>
             </motion.div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="mn-audiences-grid grid grid-cols-3 gap-4">
               {audiences.map((a, idx) => (
                 <motion.div key={a.id} {...f(0.03 + idx * 0.04)}
                   onClick={() => setActiveCard(audienceToCard(a))}
-                  className="mn-glass-card rounded-xl p-5 cursor-pointer hover:bg-white/[0.04] transition-colors group">
+                  className="mn-audience-card mn-glass-card rounded-xl p-5 cursor-pointer hover:bg-white/[0.04] transition-colors group">
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`text-[8px] tracking-widest uppercase font-medium ${typeColors[a.type]?.split(" ")[1] ?? "text-white/20"}`}>{a.type}</span>
+                    <span className={`text-[8px] mn-audience-type tracking-widest uppercase font-medium ${typeColors[a.type]?.split(" ")[1] ?? "text-white/20"}`}>{a.type}</span>
                     {a.isActivationReady && (
                       <span className="text-[9px] px-2 py-0.5 rounded-full bg-sky-400/10 text-sky-400 font-medium flex items-center gap-1">
                         <Zap className="h-2.5 w-2.5" /> Ready
                       </span>
                     )}
                   </div>
-                  <p className="text-[13px] font-medium text-white/80 mb-0.5">{a.name}</p>
-                  <p className="text-[22px] font-bold tracking-tight text-white leading-none mb-2">{a.estimatedSize.toLocaleString()}</p>
-                  <div className="flex items-center gap-3 text-[10px] text-white/25">
+                  <p className="mn-audience-name text-[13px] font-medium text-white/80 mb-0.5">{a.name}</p>
+                  <p className="mn-audience-size text-[22px] font-bold tracking-tight text-white leading-none mb-2">{a.estimatedSize.toLocaleString()}</p>
+                  <div className="mn-audience-meta flex items-center gap-3 text-[10px] text-white/25">
                     <span>{a.channelRecommendation}</span>
                     {a.memberDelta !== 0 && (
                       <span className={a.memberDelta > 0 ? "text-sky-400/50" : "text-white/20"}>
@@ -392,8 +392,8 @@ export function HomeContent() {
           </section>
 
           {/* ═══ SECTION 4: PEOPLE ═══ */}
-          <section ref={(el) => { sectionRefs.current.people = el }} id="people" className="scroll-mt-6">
-            <motion.div {...f(0)} className="flex items-center justify-between mb-4">
+          <section ref={(el) => { sectionRefs.current.people = el }} id="people" className="mn-section mn-people scroll-mt-6">
+            <motion.div {...f(0)} className="mn-people-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>Top profiles to act on</Lbl>
                 <p className="text-[15px] text-white/70">Highest-propensity people across your segments.</p>
@@ -402,10 +402,10 @@ export function HomeContent() {
                 All people <ChevronRight className="h-3 w-3" />
               </button>
             </motion.div>
-            <motion.div {...f(0.05)} className="rounded-lg border border-white/[0.06] overflow-hidden">
-              <table className="w-full text-[12px]">
-                <thead><tr className="bg-white/[0.02]">
-                  <th className="text-left px-3.5 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Person</th>
+            <motion.div {...f(0.05)} className="mn-people-table-wrap rounded-lg border border-white/[0.06] overflow-hidden">
+              <table className="mn-people-table w-full text-[12px]">
+                <thead><tr className="mn-people-thead bg-white/[0.02]">
+                  <th className="mn-people-th text-left px-3.5 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Person</th>
                   <th className="text-left px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Status</th>
                   <th className="text-right px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Ticket Buy</th>
                   <th className="text-right px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Premium</th>
@@ -414,7 +414,7 @@ export function HomeContent() {
                 </tr></thead>
                 <tbody>{topPeople.map(p=>(
                   <tr key={p.id} onClick={() => setActiveCard(personToCard(p))}
-                    className="border-t border-white/[0.03] hover:bg-white/[0.03] cursor-pointer transition-colors">
+                    className="mn-people-row border-t border-white/[0.03] hover:bg-white/[0.03] cursor-pointer transition-colors">
                     <td className="px-3.5 py-2.5">
                       <div className="flex items-center gap-2.5">
                         <UserAvatar name={`${p.firstName} ${p.lastName}`} size={28} />
@@ -442,8 +442,8 @@ export function HomeContent() {
       </div>
 
       {/* ═══ TAB BAR ═══ */}
-      <div className="shrink-0 relative z-10 flex justify-center pb-4 pt-2">
-        <div className="flex items-center gap-1 rounded-xl bg-white/[0.04] border border-white/[0.06] p-1 backdrop-blur-sm">
+      <div className="mn-tabbar-wrap shrink-0 relative z-10 flex justify-center pb-4 pt-2">
+        <div className="mn-tabbar flex items-center gap-1 rounded-xl bg-white/[0.04] border border-white/[0.06] p-1 backdrop-blur-sm">
           {sections.map((s) => {
             const on = activeSection === s.id
             return (
