@@ -327,19 +327,16 @@ export function HomeContent() {
           <AnimatePresence mode="wait">
             <motion.h1 key={sections[activeMode].id} initial={{ opacity: 0, y: 6, filter: "blur(4px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
-              transition={{ duration: 0.4, ease: "easeInOut" }} className="mn-hero-headline text-2xl sm:text-3xl tracking-tight text-white mb-10 text-center">
+              transition={{ duration: 0.4, ease: "easeInOut" }} className="mn-hero-headline text-4xl sm:text-5xl tracking-tight text-white mb-12 text-center" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>
               {sections[activeMode].headline}
             </motion.h1>
           </AnimatePresence>
 
           {/* Hero CTA buttons */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-center gap-3">
-            <button onClick={() => enterCanvas("briefing")}
-              className="px-5 py-2.5 rounded-full bg-white text-black text-[13px] font-medium tracking-tight hover:bg-white/90 transition-all">
-              Prospect
-            </button>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-center gap-4">
+            <LiquidMetalButton label="Prospect" onClick={() => enterCanvas("briefing")} />
             <button onClick={() => router.push("/workspace")}
-              className="px-5 py-2.5 rounded-full bg-transparent border border-white/20 text-white/70 text-[13px] font-medium tracking-tight hover:bg-white/[0.06] hover:text-white hover:border-white/30 transition-all">
+              className="px-6 py-2.5 rounded-full bg-transparent border border-white/15 text-white/50 text-[13px] tracking-tight hover:bg-white/[0.05] hover:text-white/70 hover:border-white/25 transition-all">
               Segment
             </button>
           </motion.div>
