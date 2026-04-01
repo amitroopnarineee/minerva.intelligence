@@ -7,10 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { persons } from "@/lib/data/persons"
+import { persons, type Person } from "@/lib/data/persons"
 import { audiences } from "@/lib/data/audiences"
 import { Search, ChevronRight, Plus } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { PersonProfileSheet } from "@/components/shared/PersonProfileSheet"
 
 const statusColors: Record<string, string> = {
   active_fan: "bg-emerald-500/10 text-emerald-500",
@@ -25,8 +25,8 @@ function getAudienceNames(audienceIds: string[]): string[] {
 }
 
 export default function PeoplePage() {
-  const router = useRouter()
   const [query, setQuery] = useState("")
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
 
   const filtered = persons.filter(p => {
     if (!query) return true
@@ -84,7 +84,7 @@ export default function PeoplePage() {
                                         const segmentNames = getAudienceNames(p.audiences)
                     return (
                       <TableRow key={p.id} className="mn-people-row cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() => router.push(`/person-search/person/${p.id}`)}>
+                        onClick={() => setSelectedPerson(p)}>
                         <TableCell className="mn-people-cell-name">
                           <div className="flex items-center gap-3">
                             <UserAvatar name={`${p.firstName} ${p.lastName}`} size={32} />
@@ -130,6 +130,12 @@ export default function PeoplePage() {
           </FadeIn>
         </PageTransition>
       </div>
+
+      <PersonProfileSheet
+        person={selectedPerson}
+        open={!!selectedPerson}
+        onClose={() => setSelectedPerson(null)}
+      />
     </div>
   )
 }

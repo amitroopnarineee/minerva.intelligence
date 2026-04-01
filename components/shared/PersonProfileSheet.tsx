@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { FeatureCard } from "@/components/shared/FeatureCard"
-import { Mail, Phone, MapPin, Building2, Calendar, User2, Briefcase } from "lucide-react"
+import { Mail, Phone, MapPin, Building2, Calendar, User2, Briefcase, Sparkles, Ticket } from "lucide-react"
 import type { Person } from "@/lib/data/persons"
 
 interface PersonProfileSheetProps { person: Person | null; open: boolean; onClose: () => void }
@@ -131,6 +131,10 @@ export function PersonProfileSheet({ person, open, onClose }: PersonProfileSheet
 
             {/* Right column (sidebar) */}
             <div className="mn-profile-right space-y-4">
+              {/* Contact with AI CTA */}
+              <button className="mn-profile-cta w-full flex items-center justify-center gap-2 rounded-lg bg-sky-500/90 hover:bg-sky-500 text-white text-[13px] font-semibold py-3 px-4 transition-colors">
+                <Sparkles className="h-4 w-4" /> Contact with AI
+              </button>
               {/* Email Addresses */}
               <FeatureCard className="mn-profile-emails p-4">
                 <h3 className="mn-profile-section-title flex items-center gap-2 text-[12px] font-semibold mb-3">
@@ -195,6 +199,30 @@ export function PersonProfileSheet({ person, open, onClose }: PersonProfileSheet
                   ))}
                 </div>
               </FeatureCard>
+
+              {/* Ticket History */}
+              {person.tickets.length > 0 && (
+                <FeatureCard className="mn-profile-tickets p-4">
+                  <h3 className="mn-profile-section-title flex items-center gap-2 text-[12px] font-semibold mb-3">
+                    <Ticket className="h-3.5 w-3.5 text-muted-foreground" /> Ticket History
+                  </h3>
+                  <div className="mn-profile-ticket-list space-y-2.5">
+                    {person.tickets.map((t, i) => (
+                      <div key={i} className="mn-profile-ticket-row flex items-center justify-between">
+                        <div className="mn-profile-ticket-info">
+                          <p className="text-[12px] font-medium">{t.product}</p>
+                          <p className="text-[10px] text-muted-foreground">{t.date} · {t.seatCategory}{t.isPremium ? ' ✦' : ''}</p>
+                        </div>
+                        <span className="text-[12px] font-semibold tabular-nums">${t.revenue.toLocaleString()}</span>
+                      </div>
+                    ))}
+                    <div className="mn-profile-ticket-total flex items-center justify-between pt-2 border-t">
+                      <span className="text-[11px] text-muted-foreground">Total Revenue</span>
+                      <span className="text-[13px] font-bold tabular-nums">${person.tickets.reduce((s, t) => s + t.revenue, 0).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </FeatureCard>
+              )}
 
               {/* Propensity Scores */}
               <FeatureCard className="mn-profile-scores p-4">
