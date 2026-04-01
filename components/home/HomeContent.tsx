@@ -50,10 +50,10 @@ const insightCards = [
 ]
 
 const sections = [
-  { id: "briefing", label: "Briefing", icon: Brain, headline: "What matters today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
-  { id: "insights", label: "Insights", icon: Lightbulb, headline: "What's happening right now?", placeholder: "Ask about signals, campaigns, or audience shifts..." },
-  { id: "audiences", label: "Audiences", icon: Users, headline: "Intelligent audience segments.", placeholder: "Find high-value families within 30 miles of the stadium..." },
-  { id: "people", label: "People", icon: UserSearch, headline: "260M+ profiles.", placeholder: "Search for software engineers in Miami earning over $150K..." },
+  { id: "briefing", label: "Briefing", icon: Brain, headline: "Clarity beyond scale", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
+  { id: "insights", label: "Insights", icon: Lightbulb, headline: "Patterns in infinite data", placeholder: "Ask about signals, campaigns, or audience shifts..." },
+  { id: "audiences", label: "Audiences", icon: Users, headline: "Meaning in every profile", placeholder: "Find high-value families within 30 miles of the stadium..." },
+  { id: "people", label: "People", icon: UserSearch, headline: "Intelligence in boundless reach", placeholder: "Search for software engineers in Miami earning over $150K..." },
 ]
 
 /* ── Helpers ── */
@@ -264,6 +264,15 @@ export function HomeContent() {
   const [activeSection, setActiveSection] = useState("briefing")
   const [activeMode, setActiveMode] = useState(0)
   const [showCanvas, setShowCanvas] = useState(false)
+
+  // Rotate hero taglines every 4 seconds when on welcome screen
+  useEffect(() => {
+    if (showCanvas) return
+    const interval = setInterval(() => {
+      setActiveMode(prev => (prev + 1) % sections.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [showCanvas])
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
   const [completedActions, setCompletedActions] = useState<Set<string>>(new Set())
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
@@ -323,9 +332,16 @@ export function HomeContent() {
             </motion.h1>
           </AnimatePresence>
 
-          {/* Liquid metal Enter button */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <LiquidMetalButton label="Enter" onClick={() => enterCanvas("briefing")} />
+          {/* Hero CTA buttons */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-center gap-3">
+            <button onClick={() => enterCanvas("briefing")}
+              className="px-5 py-2.5 rounded-full bg-white text-black text-[13px] font-medium tracking-tight hover:bg-white/90 transition-all">
+              Prospect
+            </button>
+            <button onClick={() => router.push("/workspace")}
+              className="px-5 py-2.5 rounded-full bg-transparent border border-white/20 text-white/70 text-[13px] font-medium tracking-tight hover:bg-white/[0.06] hover:text-white hover:border-white/30 transition-all">
+              Segment
+            </button>
           </motion.div>
 
           {/* Footer credit */}

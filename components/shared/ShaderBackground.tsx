@@ -25,6 +25,14 @@ export function ShaderBackground() {
   })
 
   useEffect(() => {
+    // If Three.js already loaded (remount case), init immediately
+    if (window.THREE && containerRef.current) {
+      initThreeJS()
+      return () => {
+        if (sceneRef.current.animationId) cancelAnimationFrame(sceneRef.current.animationId)
+        if (sceneRef.current.renderer) { sceneRef.current.renderer.dispose(); sceneRef.current.renderer = null }
+      }
+    }
     const script = document.createElement("script")
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"
     script.onload = () => {
@@ -34,8 +42,7 @@ export function ShaderBackground() {
 
     return () => {
       if (sceneRef.current.animationId) cancelAnimationFrame(sceneRef.current.animationId)
-      if (sceneRef.current.renderer) sceneRef.current.renderer.dispose()
-      if (document.head.contains(script)) document.head.removeChild(script)
+      if (sceneRef.current.renderer) { sceneRef.current.renderer.dispose(); sceneRef.current.renderer = null }
     }
   }, [])
 

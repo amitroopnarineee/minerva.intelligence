@@ -26,9 +26,9 @@ function MinervaLogo({ size = 16 }: { size?: number }) {
 
 const NAV_ITEMS = [
   { type: "link" as const, label: "Home", href: "/", paths: ["/"] },
-  { type: "link" as const, label: "Insights", href: "/command-center", paths: ["/command-center"] },
+  { type: "link" as const, label: "Insights", href: "/", paths: ["/command-center"] },
   { type: "link" as const, label: "Prospects", href: "/prospecting", paths: ["/people", "/prospecting"] },
-  { type: "link" as const, label: "Audience", href: "/person-search", paths: ["/owned-audience", "/person-search"] },
+  { type: "link" as const, label: "Audience", href: "/workspace", paths: ["/owned-audience", "/person-search", "/workspace"] },
 ]
 
 export function MinervaMenuBar() {
