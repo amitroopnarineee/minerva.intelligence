@@ -525,7 +525,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
             /* ═══ PEOPLE TAB ═══ */
             <div className="flex h-full">
               {/* Table side */}
-              <div className={`${expandedPerson ? 'w-1/2' : 'w-full'} transition-all duration-300`}>
+              <div className={`${expandedPerson ? 'w-[45%] shrink-0' : 'w-full'} transition-all duration-300`}>
               <div className="rounded-lg border border-border/20 overflow-hidden">
                 <table className="w-full text-[12px]">
                   <thead>
@@ -589,7 +589,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
 
               {/* Expanded profile panel */}
               {expandedPerson && (
-                <div className="w-1/2 border-l border-border/10 pl-5 ml-5 overflow-y-auto" style={{ animation: 'fadeIn 200ms ease' }}>
+                <div className="flex-1 border-l border-border/10 pl-5 ml-5 overflow-y-auto" style={{ animation: 'fadeIn 200ms ease' }}>
                   <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }`}</style>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -602,70 +602,65 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                     <button onClick={() => setExpandedPerson(null)} className="text-[10px] text-muted-foreground hover:text-foreground">Close</button>
                   </div>
 
-                  {/* Scores */}
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    {[{l:'Ticket Buy',v:expandedPerson.scores.ticketBuy},{l:'Premium',v:expandedPerson.scores.premium},{l:'Renewal',v:expandedPerson.scores.renewal},{l:'Churn',v:expandedPerson.scores.churn}].map(s=>(
-                      <div key={s.l} className="rounded-md bg-muted/10 px-3 py-2">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{s.l}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex-1 h-1.5 rounded-full bg-white/[0.04]"><div className="h-full rounded-full bg-white/30" style={{width:`${s.v*100}%`}} /></div>
-                          <span className="text-[12px] font-medium tabular-nums">{Math.round(s.v*100)}</span>
-                        </div>
+                  {/* Scores — compact 4-col row */}
+                  <div className="grid grid-cols-4 gap-2 mb-3">
+                    {[{l:'Buy',v:expandedPerson.scores.ticketBuy},{l:'Prem',v:expandedPerson.scores.premium},{l:'Renew',v:expandedPerson.scores.renewal},{l:'Churn',v:expandedPerson.scores.churn}].map(s=>(
+                      <div key={s.l} className="text-center">
+                        <p className="text-[8px] text-muted-foreground uppercase tracking-wider">{s.l}</p>
+                        <p className="text-[14px] font-medium tabular-nums mt-0.5">{Math.round(s.v*100)}</p>
+                        <div className="w-full h-1 rounded-full bg-white/[0.04] mt-1"><div className="h-full rounded-full bg-white/25" style={{width:`${s.v*100}%`}} /></div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Contact + Details */}
-                  <div className="space-y-3 mb-4">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Contact</div>
-                    {expandedPerson.contacts.map((c,i)=>(
-                      <div key={i} className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground">{c.type}</span>
-                        <span className="text-foreground/80">{c.value}</span>
-                      </div>
+                  {/* Contact */}
+                  <div className="mb-3">
+                    <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Contact</p>
+                    {expandedPerson.contacts.slice(0,2).map((c,i)=>(
+                      <p key={i} className="text-[10px] text-foreground/70 truncate">{c.value}</p>
                     ))}
                   </div>
 
                   {/* Affinities */}
-                  <div className="mb-4">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Affinities</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {expandedPerson.affinities.map((a,i)=>(
-                        <span key={i} className="text-[10px] px-2 py-0.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/50">{a.name} {Math.round(a.score*100)}</span>
+                  <div className="mb-3">
+                    <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Affinities</p>
+                    <div className="flex flex-wrap gap-1">
+                      {expandedPerson.affinities.slice(0,4).map((a,i)=>(
+                        <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-full border border-white/[0.05] text-white/40">{a.name}</span>
                       ))}
                     </div>
                   </div>
 
-                  {/* Household */}
-                  <div className="mb-4">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Household</div>
-                    <div className="grid grid-cols-2 gap-2 text-[11px]">
-                      <div><span className="text-muted-foreground">Income:</span> <span className="text-foreground/70">{expandedPerson.household.incomeBand}</span></div>
-                      <div><span className="text-muted-foreground">Net Worth:</span> <span className="text-foreground/70">{expandedPerson.household.netWorthBand}</span></div>
-                      <div><span className="text-muted-foreground">Distance:</span> <span className="text-foreground/70">{expandedPerson.household.distanceToStadium.toFixed(1)} mi</span></div>
-                      <div><span className="text-muted-foreground">Children:</span> <span className="text-foreground/70">{expandedPerson.household.hasChildren ? 'Yes' : 'No'}</span></div>
+                  {/* Household — compact 2-col */}
+                  <div className="mb-3">
+                    <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Household</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
+                      <p className="text-foreground/60">{expandedPerson.household.incomeBand}</p>
+                      <p className="text-foreground/60">{expandedPerson.household.netWorthBand}</p>
+                      <p className="text-foreground/40">{expandedPerson.household.distanceToStadium.toFixed(1)} mi</p>
+                      <p className="text-foreground/40">{expandedPerson.household.hasChildren ? 'Has children' : 'No children'}</p>
                     </div>
                   </div>
 
-                  {/* Ticket history */}
+                  {/* Tickets — compact */}
                   {expandedPerson.tickets.length > 0 && (
-                    <div className="mb-4">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Ticket History</div>
-                      {expandedPerson.tickets.map((t,i)=>(
-                        <div key={i} className="flex items-center justify-between text-[11px] py-1.5 border-b border-border/10 last:border-0">
+                    <div className="mb-3">
+                      <p className="text-[8px] uppercase tracking-wider text-muted-foreground mb-1.5">Tickets ({expandedPerson.tickets.length})</p>
+                      {expandedPerson.tickets.slice(0,3).map((t,i)=>(
+                        <div key={i} className="flex items-center justify-between text-[10px] py-1 border-b border-border/5 last:border-0">
                           <span className="text-muted-foreground">{t.date.split('T')[0]}</span>
-                          <span className="text-foreground/70">{t.product}</span>
-                          <span className="text-foreground/80 font-medium">${t.revenue}</span>
+                          <span className="text-foreground/60">{t.product}</span>
+                          <span className="text-foreground/70 font-medium">${t.revenue}</span>
                         </div>
                       ))}
                     </div>
                   )}
 
                   {/* Quick actions */}
-                  <div className="flex flex-wrap gap-2">
-                    {['Contact with AI', 'Add to segment', 'Flag for review'].map(a=>(
-                      <button key={a} onClick={() => toast.success(`${a}: ${expandedPerson.firstName} ${expandedPerson.lastName}`)}
-                        className="text-[10px] px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-all">
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Contact', 'Add to segment', 'Flag'].map(a=>(
+                      <button key={a} onClick={() => toast.success(`${a}: ${expandedPerson.firstName}`)}
+                        className="text-[9px] px-2.5 py-1 rounded-full border border-white/[0.06] text-white/35 hover:text-white/60 hover:bg-white/[0.04] transition-all">
                         {a}
                       </button>
                     ))}
