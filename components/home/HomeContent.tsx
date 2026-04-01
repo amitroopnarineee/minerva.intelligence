@@ -275,6 +275,7 @@ export function HomeContent() {
   const enterCanvas = useCallback((sectionId: string) => {
     setActiveSection(sectionId)
     setShowCanvas(true)
+    window.dispatchEvent(new CustomEvent('minerva-nav-section', { detail: sectionId }))
   }, [])
 
   // Auto-cycle headlines on welcome screen
