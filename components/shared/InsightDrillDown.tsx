@@ -290,6 +290,8 @@ function deltaColor(val: string): string {
 function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }: { card: InsightCard; onClose: () => void; onOpenSpectrum?: () => void; onNav?: (dir: -1 | 1) => void; onPersonClick?: (personId: string) => void }) {
   const dd = card.drillDown
   const [rightTab, setRightTab] = useState<"detail" | "people">("detail")
+  const [expandedPerson, setExpandedPerson] = useState<typeof persons[0] | null>(null)
+  const [selectedPeople, setSelectedPeople] = useState<Set<string>>(new Set())
 
   // Get related people based on audience IDs
   const relatedPeople = card.relatedAudienceIds.length > 0
@@ -521,22 +523,27 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
             </div>
             ) : (
             /* ═══ PEOPLE TAB ═══ */
-            <div>
+            <div className="flex h-full">
+              {/* Table side */}
+              <div className={`${expandedPerson ? 'w-1/2' : 'w-full'} transition-all duration-300`}>
               <div className="rounded-lg border border-border/20 overflow-hidden">
                 <table className="w-full text-[12px]">
                   <thead>
                     <tr className="bg-muted/10">
+                      <th className="px-2 py-2.5 w-8"><input type="checkbox" className="rounded border-white/20 bg-transparent" onChange={(e) => { if (e.target.checked) setSelectedPeople(new Set(relatedPeople.map(p=>p.id))); else setSelectedPeople(new Set()) }} /></th>
                       <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Person</th>
-                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Status</th>
-                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Ticket Buy</th>
-                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Premium</th>
-                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Churn</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Propensity</th>
                       <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</th>
                     </tr>
                   </thead>
                   <tbody>
                     {relatedPeople.map((p) => (
-                      <tr key={p.id} onClick={() => onPersonClick?.(p.id)} className="border-t border-border/10 hover:bg-muted/5 transition-colors cursor-pointer">
+                      <tr key={p.id} onClick={() => setExpandedPerson(expandedPerson?.id === p.id ? null : p)}
+                        className={`border-t border-border/10 hover:bg-muted/10 transition-all duration-150 cursor-pointer ${expandedPerson?.id === p.id ? 'bg-muted/10' : ''}`}>
+                        <td className="px-2 py-2.5" onClick={(e) => e.stopPropagation()}>
+                          <input type="checkbox" checked={selectedPeople.has(p.id)} className="rounded border-white/20 bg-transparent"
+                            onChange={() => { const s = new Set(selectedPeople); s.has(p.id) ? s.delete(p.id) : s.add(p.id); setSelectedPeople(s) }} />
+                        </td>
                         <td className="px-3 py-2.5">
                           <div className="flex items-center gap-2.5">
                             <UserAvatar name={`${p.firstName} ${p.lastName}`} size={28} />
@@ -547,16 +554,11 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                           </div>
                         </td>
                         <td className="px-3 py-2.5">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                            p.fanStatus === "active_fan" ? "bg-white/[0.04] text-white/90" :
-                            p.fanStatus === "season_ticket_holder" ? "bg-white/[0.04] text-white/90" :
-                            p.fanStatus === "lapsed" ? "bg-white/[0.04] text-white/90/50" :
-                            "bg-white/[0.04] text-white/90/60"
-                          }`}>{p.fanStatus.replace(/_/g, " ")}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-14 h-1.5 rounded-full bg-white/[0.04]"><div className="h-full rounded-full bg-white/30" style={{ width: `${p.scores.ticketBuy*100}%` }} /></div>
+                            <span className="text-[10px] tabular-nums text-muted-foreground">{Math.round(p.scores.ticketBuy*100)}</span>
+                          </div>
                         </td>
-                        <td className="px-3 py-2.5 text-[12px] tabular-nums font-medium">{Math.round(p.scores.ticketBuy * 100)}</td>
-                        <td className="px-3 py-2.5 text-[12px] tabular-nums font-medium">{Math.round(p.scores.premium * 100)}</td>
-                        <td className={`px-3 py-2.5 text-[12px] tabular-nums font-medium ${p.scores.churn > 0.5 ? "text-white/90/60" : ""}`}>{Math.round(p.scores.churn * 100)}</td>
                         <td className="px-3 py-2.5 text-[11px] text-muted-foreground">{p.household.incomeBand}</td>
                       </tr>
                     ))}
@@ -568,6 +570,106 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
               ) : (
                 <div className="flex items-center justify-center py-16">
                   <p className="text-[13px] text-muted-foreground/40">No matching profiles found</p>
+                </div>
+              )}
+
+              {/* Selection action bar */}
+              {selectedPeople.size > 0 && (
+                <div className="mt-3 flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5">
+                  <span className="text-[11px] text-white/50 mr-2">{selectedPeople.size} selected</span>
+                  {['Add to segment', 'Send outreach', 'Export CSV', 'Ask Minerva'].map(a => (
+                    <button key={a} onClick={() => { toast.success(`${a}: ${selectedPeople.size} people`); setSelectedPeople(new Set()) }}
+                      className="text-[10px] px-2.5 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-all">
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              )}
+              </div>
+
+              {/* Expanded profile panel */}
+              {expandedPerson && (
+                <div className="w-1/2 border-l border-border/10 pl-5 ml-5 overflow-y-auto" style={{ animation: 'fadeIn 200ms ease' }}>
+                  <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }`}</style>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <UserAvatar name={`${expandedPerson.firstName} ${expandedPerson.lastName}`} size={36} />
+                      <div>
+                        <p className="text-[14px] font-medium">{expandedPerson.firstName} {expandedPerson.lastName}</p>
+                        <p className="text-[11px] text-muted-foreground">{expandedPerson.jobTitle} at {expandedPerson.company}</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setExpandedPerson(null)} className="text-[10px] text-muted-foreground hover:text-foreground">Close</button>
+                  </div>
+
+                  {/* Scores */}
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {[{l:'Ticket Buy',v:expandedPerson.scores.ticketBuy},{l:'Premium',v:expandedPerson.scores.premium},{l:'Renewal',v:expandedPerson.scores.renewal},{l:'Churn',v:expandedPerson.scores.churn}].map(s=>(
+                      <div key={s.l} className="rounded-md bg-muted/10 px-3 py-2">
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{s.l}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex-1 h-1.5 rounded-full bg-white/[0.04]"><div className="h-full rounded-full bg-white/30" style={{width:`${s.v*100}%`}} /></div>
+                          <span className="text-[12px] font-medium tabular-nums">{Math.round(s.v*100)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Contact + Details */}
+                  <div className="space-y-3 mb-4">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Contact</div>
+                    {expandedPerson.contacts.map((c,i)=>(
+                      <div key={i} className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">{c.type}</span>
+                        <span className="text-foreground/80">{c.value}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Affinities */}
+                  <div className="mb-4">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Affinities</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {expandedPerson.affinities.map((a,i)=>(
+                        <span key={i} className="text-[10px] px-2 py-0.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/50">{a.name} {Math.round(a.score*100)}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Household */}
+                  <div className="mb-4">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Household</div>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div><span className="text-muted-foreground">Income:</span> <span className="text-foreground/70">{expandedPerson.household.incomeBand}</span></div>
+                      <div><span className="text-muted-foreground">Net Worth:</span> <span className="text-foreground/70">{expandedPerson.household.netWorthBand}</span></div>
+                      <div><span className="text-muted-foreground">Distance:</span> <span className="text-foreground/70">{expandedPerson.household.distanceToStadium.toFixed(1)} mi</span></div>
+                      <div><span className="text-muted-foreground">Children:</span> <span className="text-foreground/70">{expandedPerson.household.hasChildren ? 'Yes' : 'No'}</span></div>
+                    </div>
+                  </div>
+
+                  {/* Ticket history */}
+                  {expandedPerson.tickets.length > 0 && (
+                    <div className="mb-4">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Ticket History</div>
+                      {expandedPerson.tickets.map((t,i)=>(
+                        <div key={i} className="flex items-center justify-between text-[11px] py-1.5 border-b border-border/10 last:border-0">
+                          <span className="text-muted-foreground">{t.date.split('T')[0]}</span>
+                          <span className="text-foreground/70">{t.product}</span>
+                          <span className="text-foreground/80 font-medium">${t.revenue}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Quick actions */}
+                  <div className="flex flex-wrap gap-2">
+                    {['Contact with AI', 'Add to segment', 'Flag for review'].map(a=>(
+                      <button key={a} onClick={() => toast.success(`${a}: ${expandedPerson.firstName} ${expandedPerson.lastName}`)}
+                        className="text-[10px] px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-all">
+                        {a}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
