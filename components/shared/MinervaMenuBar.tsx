@@ -10,8 +10,8 @@ const LEFT_NAV = [
   { label: "Insights", href: "/", section: "insights" },
 ]
 const RIGHT_NAV = [
-  { label: "Audiences", href: "/", section: "audiences" },
-  { label: "People", href: "/", section: "people" },
+  { label: "Audience", href: "/workspace", section: "" },
+  { label: "Prospects", href: "/prospecting", section: "" },
 ]
 
 type NotchState = "hidden" | "peek" | "open"
