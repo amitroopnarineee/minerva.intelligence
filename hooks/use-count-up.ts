@@ -12,7 +12,7 @@ interface UseCountUpOptions {
 }
 
 export function useCountUp({ end, duration = 1200, decimals = 0, prefix = "", suffix = "", startOnView = true }: UseCountUpOptions) {
-  const [display, setDisplay] = useState(`${prefix}${(0).toFixed(decimals)}${suffix}`)
+  const [display, setDisplay] = useState(`${prefix}${end.toFixed(decimals)}${suffix}`)
   const [started, setStarted] = useState(false)
   const ref = useRef<HTMLElement | null>(null)
   const rafRef = useRef<number>(0)

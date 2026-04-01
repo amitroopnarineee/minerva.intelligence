@@ -13,9 +13,9 @@ interface MinervaMode {
 }
 
 const modes: MinervaMode[] = [
-  { id: "discover", label: "Discover", icon: Brain, headline: "What should I focus on today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
-  { id: "person-search", label: "People", icon: Search, headline: "Find anyone in 260M+ profiles.", placeholder: "Find software engineers in Miami who earn over $150K and attended a Dolphins game..." },
-  { id: "audiences", label: "Audiences", icon: Users, headline: "Build intelligent audience segments.", placeholder: "Create an audience of families within 30 miles who've browsed ticket pages..." },
+  { id: "discover", label: "Discover", icon: Brain, headline: "What matters today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
+  { id: "person-search", label: "People", icon: Search, headline: "260M+ profiles.", placeholder: "Find software engineers in Miami who earn over $150K and attended a Dolphins game..." },
+  { id: "audiences", label: "Audiences", icon: Users, headline: "Intelligent audience segments.", placeholder: "Create an audience of families within 30 miles who've browsed ticket pages..." },
   { id: "analytics", label: "Analytics", icon: BarChart3, headline: "Understand what's working.", placeholder: "How did our Meta retargeting campaign perform vs last month?" },
   { id: "enrich", label: "Enrich", icon: Upload, headline: "Enrich your data at scale.", placeholder: "Enrich my Salesforce contacts with income, interests, and purchase behavior..." },
   { id: "activate", label: "Activate", icon: Zap, headline: "Push audiences to your channels.", placeholder: "Activate the premium suite prospects segment on Klaviyo and Meta Ads..." },

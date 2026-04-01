@@ -211,7 +211,7 @@ export const demoResponses: DemoResponse[] = [
   {
     match: (input) => /focus|today|morning|brief/i.test(input),
     blocks: [
-      { type: "text", delay: 0, text: "Good morning, Sarah. Here's your priority dashboard for today:" },
+      { type: "text", delay: 0, text: "Morning, Sarah. Here's your priority dashboard for today:" },
       { type: "metrics", delay: 800, metrics: [
         { label: "Active Campaigns", value: "5", sub: "All performing", color: "emerald" },
         { label: "Renewal Risk", value: "700", sub: "Need attention", color: "red" },

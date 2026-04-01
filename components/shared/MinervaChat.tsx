@@ -155,7 +155,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
               <div className="mn-chat-empty-icon h-10 w-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-white/25" />
               </div>
-              <p className="text-[13px] text-white/35 max-w-[260px]">Ask about audiences, campaigns, or consumer profiles. I can navigate the dashboard for you.</p>
+              <p className="text-[13px] text-white/35 max-w-[260px]">Ask about audiences, campaigns, or profiles. I can navigate for you.</p>
             </div>
             <div className="mn-chat-suggestions flex flex-wrap gap-2 justify-center max-w-[320px]">
               {SUGGESTED_PROMPTS.map((s) => (
@@ -245,7 +245,7 @@ export function MinervaChat({ open, onClose, initialMessage }: MinervaChatProps)
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Minerva anything..."
+            placeholder="Ask anything..."
             rows={1}
             className="flex-1 bg-transparent text-[13.5px] text-white/88 placeholder:text-white/20 px-4 py-3 pr-12 resize-none outline-none leading-relaxed"
             style={{ fontFamily: "'Overused Grotesk', sans-serif", scrollbarWidth: "none", maxHeight: "120px" }}

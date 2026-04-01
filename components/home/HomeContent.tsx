@@ -50,10 +50,10 @@ const insightCards = [
 ]
 
 const sections = [
-  { id: "briefing", label: "Briefing", icon: Brain, headline: "What should I focus on today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
+  { id: "briefing", label: "Briefing", icon: Brain, headline: "What matters today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
   { id: "insights", label: "Insights", icon: Lightbulb, headline: "What's happening right now?", placeholder: "Ask about signals, campaigns, or audience shifts..." },
-  { id: "audiences", label: "Audiences", icon: Users, headline: "Build intelligent audience segments.", placeholder: "Find high-value families within 30 miles of the stadium..." },
-  { id: "people", label: "People", icon: UserSearch, headline: "Find anyone in 260M+ profiles.", placeholder: "Search for software engineers in Miami earning over $150K..." },
+  { id: "audiences", label: "Audiences", icon: Users, headline: "Intelligent audience segments.", placeholder: "Find high-value families within 30 miles of the stadium..." },
+  { id: "people", label: "People", icon: UserSearch, headline: "260M+ profiles.", placeholder: "Search for software engineers in Miami earning over $150K..." },
 ]
 
 /* ── Helpers ── */
@@ -93,28 +93,28 @@ function audienceToCard(a: typeof audiences[0]): InsightCard {
 
   return {
     id: `aud-${a.id}`, label: a.type.toUpperCase(), mainValue: a.estimatedSize.toLocaleString(), valueColor: "text-white/90",
-    copy: a.description, meaning: `${a.businessUnit} · ${a.channelRecommendation} recommended · ${a.isActivationReady ? "Activation ready" : "Not yet ready"} · Trend: ${trendArrow} ${a.valueTrend}`,
-    cta: a.isActivationReady ? "Activate segment" : "View segment", color: "border-l-white/[0.15]", category: "Audience",
+    copy: a.description, meaning: `${a.businessUnit} · ${a.channelRecommendation} recommended · ${a.isActivationReady ? "Activation ready" : "Not ready"} · Trend: ${trendArrow} ${a.valueTrend}`,
+    cta: a.isActivationReady ? "Activate" : "View", color: "border-l-white/[0.15]", category: "Audience",
     relatedAudienceIds: [a.id],
     drillDown: {
       title: a.name, summary: `${a.description}. Business unit: ${a.businessUnit}. Last refreshed: ${refreshDate}.`,
       meaning: `${a.estimatedSize.toLocaleString()} members ${a.memberDelta && a.memberDelta > 0 ? `(+${a.memberDelta} recently)` : a.memberDelta && a.memberDelta < 0 ? `(${a.memberDelta})` : "(stable)"}. Estimated pipeline: ${estRevenue.toLocaleString()} at $150 avg ticket × ${Math.round((a.avgPropensityScore ?? 0) * 100)}% propensity.`,
       metrics: [
         { label: "Size", value: a.estimatedSize.toLocaleString(), context: `${a.memberDelta && a.memberDelta > 0 ? "+" : ""}${a.memberDelta ?? 0} recent change.` },
-        { label: "Propensity", value: `${Math.round((a.avgPropensityScore ?? 0) * 100)}`, context: "Average score across segment." },
+        { label: "Propensity", value: `${Math.round((a.avgPropensityScore ?? 0) * 100)}`, context: "Avg segment score" },
         { label: "Email Reach", value: `${Math.round((a.emailReachRate ?? 0) * 100)}%`, context: `Phone: ${Math.round((a.phoneReachRate ?? 0) * 100)}%` },
-        { label: "Est. Pipeline", value: `${(estRevenue / 1000).toFixed(0)}K`, context: "Size × propensity × $150 avg." },
+        { label: "Est. Pipeline", value: `${(estRevenue / 1000).toFixed(0)}K`, context: "Size × propensity × $150 avg" },
       ],
       evidence: `${a.name} is a ${a.type} segment in the ${a.businessUnit} unit. ${members.length} matched profiles in the system with avg ticket-buy propensity of ${Math.round(avgTicketBuy * 100)}.`,
       highlight: a.isActivationReady ? `Activation-ready via ${a.channelRecommendation}. Estimated ${Math.round(a.estimatedSize * (a.emailReachRate ?? 0))} reachable by email.` : `Not yet activation-ready. ${Math.round((a.avgPropensityScore ?? 0) * 100)} avg propensity — worth building.`,
-      analysis: `Value trend: ${a.valueTrend}. ${a.memberDelta && Math.abs(a.memberDelta) > 50 ? "Significant movement — review segment composition." : "Stable composition."} ${members.length} profiles matched in Minerva with ${topMembers.length > 0 ? `top scorer: ${topMembers[0].firstName} ${topMembers[0].lastName} (${Math.round(topMembers[0].scores.ticketBuy * 100)})` : "no matched profiles"}.`,
+      analysis: `Value trend: ${a.valueTrend}. ${a.memberDelta && Math.abs(a.memberDelta) > 50 ? "Big movement — review composition" : "Stable"} ${members.length} profiles matched in Minerva with ${topMembers.length > 0 ? `top scorer: ${topMembers[0].firstName} ${topMembers[0].lastName} (${Math.round(topMembers[0].scores.ticketBuy * 100)})` : "no matched profiles"}.`,
       immediateActions: [
-        a.isActivationReady ? `Push ${a.estimatedSize.toLocaleString()} profiles to ${a.channelRecommendation}` : "Complete audience enrichment",
+        a.isActivationReady ? `Push ${a.estimatedSize.toLocaleString()} profiles to ${a.channelRecommendation}` : "Enrich audience",
         `Review top ${Math.min(topMembers.length, 5)} profiles for outreach priority`,
-        "Create campaign brief for this segment",
+        "Build campaign brief for segment",
       ],
-      followUpActions: ["Build lookalike audience", "Set up automated refresh", "A/B test messaging variants"],
-      sources: ["Minerva Audience Engine", "CRM Data", "Ticketmaster", `Last refresh: ${refreshDate}`],
+      followUpActions: ["Build lookalike", "Set auto-refresh", "A/B test messaging"],
+      sources: ["Audience Engine", "CRM Data", "Ticketmaster", `Last refresh: ${refreshDate}`],
       table: memberTable,
       actions: ["Activate", "Export CSV", "Build lookalike", "Compare segments"],
       chartData: makeTrendLocal(a.estimatedSize, (a.memberDelta ?? 0) / a.estimatedSize),
@@ -133,27 +133,27 @@ function campaignToCard(c: typeof allCampaigns[0]): InsightCard {
     id: `camp-${c.id}`, label: c.channel.toUpperCase(), mainValue: `${c.roas.toFixed(1)}x`, valueColor: "text-white/90",
     subtitle: c.name, copy: `${c.objective} via ${c.channel} on ${c.platform} · ${utilization}% of budget used · ${trendLabel}`,
     meaning: `${costPerConversion.toLocaleString()} per conversion · ${c.conversions} total · ${(remainingBudget/1000).toFixed(0)}K remaining`,
-    cta: "View campaign detail", color: "border-l-white/[0.15]", category: "Campaign",
+    cta: "View detail", color: "border-l-white/[0.15]", category: "Campaign",
     relatedAudienceIds: [],
     drillDown: {
       title: c.name, summary: `${c.objective} campaign on ${c.platform} via ${c.channel}. Currently ${c.status}. Budget: ${(c.budget/1000).toFixed(0)}K allocated, ${(c.spend/1000).toFixed(0)}K spent (${utilization}%).`,
       meaning: `ROAS: ${c.roas.toFixed(1)}x · Cost per conversion: ${costPerConversion.toLocaleString()} · Remaining budget: ${(remainingBudget/1000).toFixed(0)}K · Performance trend: ${trendLabel}`,
       metrics: [
-        { label: "ROAS", value: `${c.roas.toFixed(1)}x`, context: "Return on ad spend." },
+        { label: "ROAS", value: `${c.roas.toFixed(1)}x`, context: "Return on ad spend" },
         { label: "Cost/Conv", value: `${costPerConversion}`, context: `${c.conversions} conversions on ${(c.spend/1000).toFixed(0)}K.` },
         { label: "Utilization", value: `${utilization}%`, context: `${(remainingBudget/1000).toFixed(0)}K remaining of ${(c.budget/1000).toFixed(0)}K.` },
-        { label: "Trend", value: trendLabel, context: "Recent performance direction." },
+        { label: "Trend", value: trendLabel, context: "Performance direction" },
       ],
       evidence: `${c.name} is a ${c.status} ${c.channel} campaign on ${c.platform} targeting ${c.objective}. ${c.conversions} conversions at ${costPerConversion} each. ${utilization}% of budget consumed.`,
       highlight: c.roas >= 4 ? `Strong performer: ${c.roas.toFixed(1)}x ROAS is above the 4x benchmark.` : c.roas >= 3 ? `Solid: ${c.roas.toFixed(1)}x ROAS. Room to scale.` : `Below benchmark: ${c.roas.toFixed(1)}x ROAS needs optimization.`,
-      analysis: `${c.name} is ${c.trend === "up" ? "trending upward — consider scaling budget" : c.trend === "down" ? "declining — review targeting and creative" : "performing steadily"}. At current pace, remaining ${(remainingBudget/1000).toFixed(0)}K will sustain ~${Math.round(remainingBudget / (c.spend / 30))} more days. ${c.conversions > 200 ? "High conversion volume — strong signal." : "Moderate volume — needs more data."}`,
+      analysis: `${c.name} is ${c.trend === "up" ? "Trending up — consider scaling" : c.trend === "down" ? "Declining — review targeting + creative" : "Steady"}. At current pace, remaining ${(remainingBudget/1000).toFixed(0)}K will sustain ~${Math.round(remainingBudget / (c.spend / 30))} more days. ${c.conversions > 200 ? "High volume — strong signal" : "Moderate volume — needs data"}`,
       immediateActions: [
-        c.trend === "up" ? `Scale budget by 20% (+${Math.round(c.budget * 0.2 / 1000)}K)` : "Audit targeting and creative performance",
+        c.trend === "up" ? `Scale budget by 20% (+${Math.round(c.budget * 0.2 / 1000)}K)` : "Audit targeting + creative",
         `Export ${c.conversions} converters as a segment for lookalike`,
         c.roas < 3 ? "Pause underperforming ad sets" : "Expand to new placements",
       ],
-      followUpActions: ["Build lookalike from converter profiles", "Test 3 creative variants", "Plan next campaign flight"],
-      sources: [c.platform, "Minerva Campaign Table", "Conversion Tracking", "Budget Planner"],
+      followUpActions: ["Build lookalike from converters", "Test 3 creative variants", "Plan next campaign flight"],
+      sources: [c.platform, "Campaign Table", "Conversion Tracking", "Budget Planner"],
       table: { headers: ["Metric", "Value", "Context"], rows: [
         ["Platform", c.platform, c.channel],
         ["Objective", c.objective, c.status],
@@ -199,23 +199,23 @@ function personToCard(p: Person): InsightCard {
       summary: `${p.jobTitle} at ${p.company}. ${p.city}, ${p.state}. ${p.household.incomeBand} income, ${p.household.netWorthBand} net worth. ${p.household.homeownership}${p.household.hasChildren ? ", has children" : ""}. ${p.household.distanceToStadium.toFixed(1)} mi from stadium.`,
       meaning: `Identity confidence: ${Math.round(p.identityConfidence * 100)}% · Profile completeness: ${Math.round(p.profileCompleteness * 100)}% · Known status: ${p.knownStatus}${primaryEmail ? ` · ${primaryEmail.value}` : ""}${primaryPhone ? ` · ${primaryPhone.value}` : ""}`,
       metrics: [
-        { label: "Ticket Buy", value: String(Math.round(p.scores.ticketBuy * 100)), context: "Propensity to purchase tickets." },
-        { label: "Premium", value: String(Math.round(p.scores.premium * 100)), context: "Propensity for premium upgrade." },
-        { label: "Renewal", value: String(Math.round(p.scores.renewal * 100)), context: "Likelihood to renew." },
+        { label: "Ticket Buy", value: String(Math.round(p.scores.ticketBuy * 100)), context: "Ticket buy propensity" },
+        { label: "Premium", value: String(Math.round(p.scores.premium * 100)), context: "Premium upgrade propensity" },
+        { label: "Renewal", value: String(Math.round(p.scores.renewal * 100)), context: "Renewal likelihood" },
         { label: "Churn Risk", value: String(Math.round(p.scores.churn * 100)), context: p.scores.churn > 0.5 ? "High risk — needs attention." : "Low risk." },
       ],
-      evidence: `${p.firstName} is a ${p.fanStatus.replace(/_/g, " ")} in the ${p.lifecycleStage} stage. ${p.tickets.length > 0 ? `${p.tickets.length} ticket purchases totaling ${totalRevenue.toLocaleString()}.` : "No ticket purchases yet — acquisition opportunity."} Affinities: ${topAffinities || "None recorded"}.`,
+      evidence: `${p.firstName} is a ${p.fanStatus.replace(/_/g, " ")} in the ${p.lifecycleStage} stage. ${p.tickets.length > 0 ? `${p.tickets.length} ticket purchases totaling ${totalRevenue.toLocaleString()}.` : "No purchases yet — acquisition opp"} Affinities: ${topAffinities || "None recorded"}.`,
       highlight: p.tickets.length > 0
         ? `${totalRevenue.toLocaleString()} total revenue · ${p.tickets.filter(t => t.isPremium).length} premium purchases · Most recent: ${p.tickets[0]?.product ?? "—"}`
         : `High-value prospect: ${p.household.incomeBand} income, ${p.household.netWorthBand} net worth. ${Math.round(p.scores.premium * 100)} premium propensity.`,
       analysis: `Segments: ${segmentNames}. Household: ${p.household.householdSize} people, ${p.household.homeownership}. Contact: ${p.contacts.length} channels (${p.contacts.map(c => `${c.type} ${Math.round(c.score * 100)}%`).join(", ")}). Age ${p.age}, ${p.gender}.`,
       immediateActions: [
         primaryEmail ? `Send personalized email to ${primaryEmail.value}` : "Enrich contact data",
-        p.scores.churn > 0.5 ? "Flag for retention outreach" : "Add to upsell segment",
+        p.scores.churn > 0.5 ? "Flag for retention" : "Add to upsell segment",
         p.scores.premium > 0.7 ? "Route to premium sales team" : "Include in next campaign",
       ],
-      followUpActions: ["Build lookalike audience from this profile", "Track engagement weekly", "Review for VIP program"],
-      sources: ["Minerva Profile Engine", "CRM", "Ticketmaster", "Identity Graph"],
+      followUpActions: ["Build lookalike from this profile", "Track engagement weekly", "Review for VIP program"],
+      sources: ["Profile Engine", "CRM", "Ticketmaster", "Identity Graph"],
       table: tableData,
       actions: ["Contact with AI", "Generate personalized email", "Add to segment", "Export profile"],
       chartData: ticketChart,
@@ -236,19 +236,19 @@ function kpiToCard(label: string, value: number, formatted: string, delta: { val
     drillDown: {
       title: `${label} — Daily Breakdown`,
       summary: `Current ${label.toLowerCase()}: ${formatted}. ${delta.direction === "up" ? "Trending upward" : delta.direction === "down" ? "Declining" : "Stable"} with ${delta.value.toFixed(1)}% change.`,
-      meaning: `This KPI ${delta.direction === "up" ? "is improving — momentum is positive." : delta.direction === "down" ? "needs attention — negative trend." : "is holding steady."}`,
+      meaning: `This KPI ${delta.direction === "up" ? "is improving — momentum is positive." : delta.direction === "down" ? "Needs attention — negative trend" : "is holding steady."}`,
       metrics: [
-        { label: "Current", value: formatted, context: "Latest value." },
+        { label: "Current", value: formatted, context: "Current" },
         { label: "Change", value: `${delta.direction === "up" ? "+" : ""}${delta.value.toFixed(1)}%`, context: "vs previous period." },
-        { label: "7d High", value: String(Math.round(Math.max(...history))), context: "Best day this week." },
-        { label: "7d Low", value: String(Math.round(Math.min(...history))), context: "Weakest day this week." },
+        { label: "7d High", value: String(Math.round(Math.max(...history))), context: "Week high" },
+        { label: "7d Low", value: String(Math.round(Math.min(...history))), context: "Week low" },
       ],
       evidence: `${label} has been tracked over 7 days with ${delta.direction === "up" ? "positive" : delta.direction === "down" ? "negative" : "neutral"} trajectory.`,
       highlight: `Current value ${formatted} is ${delta.direction === "up" ? "above" : delta.direction === "down" ? "below" : "at"} the 7-day average.`,
       analysis: `Review the daily trend to identify which days drove the ${delta.direction === "up" ? "improvement" : delta.direction === "down" ? "decline" : "stability"} and correlate with campaign activity.`,
-      immediateActions: [delta.direction === "down" ? "Investigate root cause of decline" : "Maintain current strategy", "Compare with campaign timing", "Share report with team"],
-      followUpActions: ["Set up automated alerts for this KPI", "Build weekly review cadence", "Correlate with audience changes"],
-      sources: ["Minerva Analytics Pipeline", "Daily KPI Tracker"],
+      immediateActions: [delta.direction === "down" ? "Investigate decline" : "Maintain current strategy", "Compare with campaign timing", "Share report with team"],
+      followUpActions: ["Set KPI alert", "Set weekly review", "Correlate with audience shifts"],
+      sources: ["Analytics Pipeline", "Daily KPI Tracker"],
       table: { headers: ["Day", "Value"], rows: history.slice(-7).map((v, i) => [new Date(Date.now() - (6 - i) * 86400000).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }), String(Math.round(v))]) },
       actions: ["Export CSV", "Set alert threshold", "Compare periods", "Share with team"],
       chartData: trend,
@@ -342,15 +342,15 @@ export function HomeContent() {
       {/* Header: briefing + tabs — scrolls with content */}
       <div className="mn-canvas-header px-6 pt-4 pb-0 max-w-[1100px] mx-auto w-full">
         <motion.div {...f(0.05)}>
-          <p className="mn-briefing-date text-[10px] tracking-widest text-white/30 uppercase">Tuesday, April 1 · Morning Briefing</p>
+          <p className="mn-briefing-date text-[10px] tracking-widest text-white/30 uppercase">Tue, Apr 1 · Briefing</p>
           <AnimatePresence mode="wait">
             <motion.p key={activeSection} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.2 }}
               className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-3xl">
               {activeSection === "briefing" && (<>
-                <span className="text-white/90">Good morning, Sarah.</span> Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging. <span className="text-white/40">3 actions ready to execute.</span>
+                <span className="text-white/90">Morning, Sarah.</span> Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience surging. <span className="text-white/40">3 actions ready.</span>
               </>)}
               {activeSection === "insights" && (<>
-                <span className="text-white/90">3 positive signals</span>, <span className="text-white/90">1 declining metric</span>, and <span className="text-white/90">1 weekend opportunity</span>. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap. <span className="text-white/40">Minerva suggests prioritizing the conversion funnel audit.</span>
+                <span className="text-white/90">3 positive signals</span>, <span className="text-white/90">1 declining metric</span>, and <span className="text-white/90">1 weekend opportunity</span>. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap. <span className="text-white/40">Prioritize the funnel audit and the family geo campaign.</span>
               </>)}
               {activeSection === "audiences" && (<>
                 <span className="text-white/90">{audiences.length} segments</span> across lifecycle, predictive, and behavioral types. <span className="text-white/90">{audiences.filter(a=>a.isActivationReady).length} are activation-ready</span> with a combined pipeline of <span className="text-white/90">${Math.round(audiences.reduce((s,a) => s + a.estimatedSize * (a.avgPropensityScore ?? 0) * 150, 0) / 1000)}K</span>. <span className="text-white/40">Seatmap Retargeting Pool grew +142 this week.</span>
@@ -398,7 +398,7 @@ export function HomeContent() {
                   </p>
                   <div className="flex items-center gap-3 mt-3">
                     {!completedActions.has('ai-rec-1') ? (
-                      <button onClick={() => { markAction('ai-rec-1'); toast.success('Executed: Budget scaled +20% and retargeting pool activated', { description: 'Both actions queued. Estimated lift: +$34K.' }) }}
+                      <button onClick={() => { markAction('ai-rec-1'); toast.success('Executed: Budget scaled +20% and retargeting pool activated', { description: 'Both queued. Est. lift: +$34K.' }) }}
                         className="mn-ai-rec-btn text-[11px] font-medium text-white/90 bg-white/[0.06] hover:bg-white/[0.1] px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
                         <ArrowRight className="h-3 w-3" /> Execute both
                       </button>
@@ -485,7 +485,7 @@ export function HomeContent() {
               <Lbl>Next best actions</Lbl>
               {[
                 { id: 'nba-1', label: 'Activate Seatmap Retargeting Pool', detail: '900 profiles · paid channel · $99K pipeline', icon: Send },
-                { id: 'nba-2', label: 'Send renewal reminder to 700 at-risk members', detail: 'Renewal Risk Members · email · 94% reach', icon: Send },
+                { id: 'nba-2', label: 'Remind 700 at-risk members to renew', detail: 'Renewal Risk Members · email · 94% reach', icon: Send },
                 { id: 'nba-3', label: 'Route Marcus Johnson to premium sales', detail: 'Ticket Buy: 97 · Premium: 88 · $8.4K revenue', icon: Flag },
               ].map((a) => (
                 <div key={a.id} className="mn-nba-item flex items-center gap-3 rounded-lg border border-white/[0.04] bg-white/[0.03] px-4 py-3 group">
@@ -643,7 +643,7 @@ export function HomeContent() {
                     </td>
                     <td className="px-3 py-2.5">
                       <span className="mn-ai-reason text-[10px] text-white/30">
-                        {p.scores.churn > 0.5 ? 'Churn risk — needs retention' : p.scores.premium > 0.7 ? 'Premium sales candidate' : p.tickets.length === 0 ? 'Acquisition opportunity' : `${p.tickets.reduce((s,t)=>s+t.revenue,0).toLocaleString()} revenue`}
+                        {p.scores.churn > 0.5 ? 'Churn risk — retention needed' : p.scores.premium > 0.7 ? 'Premium sales candidate' : p.tickets.length === 0 ? 'Acquisition opportunity' : `${p.tickets.reduce((s,t)=>s+t.revenue,0).toLocaleString()} revenue`}
                       </span>
                     </td>
                     <td className="text-right px-3.5 py-2.5">
