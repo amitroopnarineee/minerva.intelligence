@@ -8,6 +8,7 @@ import { persons } from "@/lib/data/persons"
 import { SevenSegmentDisplay } from "@/components/ui/seven-segment"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, ChartTooltip as VisxTooltip } from "@/components/ui/area-chart"
+import { PlatformIcon } from "@/components/shared/PlatformIcon"
 
 export interface InsightCard {
   id: string
@@ -562,7 +563,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
                 <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Sources</h3>
                 <div className="flex flex-wrap gap-2">
                   {dd.sources.map((s, i) => (
-                    <span key={i} className="text-[10px] px-2.5 py-1 rounded-md border border-border/20 bg-muted/5 text-muted-foreground">{s}</span>
+                    <span key={i} className="text-[10px] px-2.5 py-1 rounded-md border border-border/20 bg-muted/5 text-muted-foreground inline-flex items-center gap-1.5"><PlatformIcon name={s} size={10} />{s}</span>
                   ))}
                 </div>
               </div>

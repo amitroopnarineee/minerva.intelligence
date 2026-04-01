@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import { Check, Sparkles, Clock, ArrowRight, Send, Flag, BarChart3 } from "lucide-react"
 import { ProgressiveBlur } from "@/components/ui/progressive-blur"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
+import { PlatformLabel, PlatformIcon } from "@/components/shared/PlatformIcon"
 import { SpecialText } from "@/components/ui/special-text"
 
 /* ── Data ── */
@@ -472,7 +473,7 @@ export function HomeContent() {
                 <tbody>{topCampaigns.map(c=>(
                   <tr key={c.id} onClick={() => setActiveCard(campaignToCard(c))} className="mn-campaign-row border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
                     <td className="mn-campaign-name px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-white/30"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
-                    <td className="mn-campaign-platform px-3 py-2 text-white/20">{c.platform}</td>
+                    <td className="mn-campaign-platform px-3 py-2 text-white/20"><PlatformLabel name={c.platform} size={11} className="text-white/30" /></td>
                     <td className="mn-campaign-spend text-right px-3 py-2 text-white/35 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
                     <td className="mn-campaign-roas text-right px-3 py-2 text-white/90 tabular-nums">{c.roas.toFixed(1)}x</td>
                     <td className="mn-campaign-conv text-right px-3.5 py-2 text-white/30 tabular-nums">{c.conversions}</td>
@@ -508,7 +509,7 @@ export function HomeContent() {
             {/* Data sources */}
             <motion.div {...f(0.4)} className="mn-sources flex items-center gap-4 text-[10px] text-white/25">
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Last sync: 8:12 AM</span>
-              <span>Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph</span>
+              <span className="flex items-center gap-3"><PlatformLabel name="Ticketmaster" size={10} className="text-white/20" /> <PlatformLabel name="Klaviyo" size={10} className="text-white/20" /> <PlatformLabel name="Meta" size={10} className="text-white/20" /> <PlatformLabel name="Salesforce" size={10} className="text-white/20" /> <span className="text-white/20">Identity Graph</span></span>
               <span className="text-white/90/30">5 sources connected</span>
             </motion.div>
           </motion.section>
