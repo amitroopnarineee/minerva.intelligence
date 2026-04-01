@@ -80,7 +80,7 @@ export default function DashboardLayout({
         {/* Left: full app shell (menu bar + content) */}
         <div className="flex-1 min-w-0 flex flex-col transition-all duration-300 ease-out">
           <MinervaMenuBar />
-          <main className="mn-main flex-1 overflow-hidden pt-9" onClick={() => { if (chatOpen) setChatOpen(false) }}>
+          <main className="mn-main flex-1 flex flex-col overflow-hidden pt-9" onClick={() => { if (chatOpen) setChatOpen(false) }}>
             {children}
           </main>
         </div>
