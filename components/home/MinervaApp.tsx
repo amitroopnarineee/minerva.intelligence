@@ -310,34 +310,49 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
     return () => { clearTimeout(t1) }
   }, [playing, tab, greetingDone, step])
 
-  // Connector done → show card → advance
+  // Track which step's connector we're waiting for
+  const awaitingConnectorForStep = useRef(-1)
+
+  // When connectorActive turns on, mark which step we're waiting for
+  useEffect(() => {
+    if (connectorActive && step >= 1) {
+      awaitingConnectorForStep.current = step
+    }
+  }, [connectorActive, step])
+
+  // Connector done → show card → schedule next step
   useEffect(() => {
     if (!playing || !connDone || !connectorActive || step < 1) return
-    cancelRef.current = false
+    // Only proceed if this is the connector we're actually waiting for
+    if (awaitingConnectorForStep.current !== step) return
+    awaitingConnectorForStep.current = -1 // consume it
+
     const t = setTimeout(() => {
-      if (cancelRef.current) return
       setShowCard(step)
       setConnectorActive(false)
-      // Schedule next step
+
       const nextStep = step + 1
       if (nextStep > 7) return
       const delay = STEP_DELAYS[nextStep] || 1000
+
       setTimeout(() => {
-        if (cancelRef.current) return
         if (nextStep <= 6) {
           setStep(nextStep)
           setShowDots(true)
+          // Use requestAnimationFrame to ensure connDone resets before connectorActive goes true
           setTimeout(() => {
-            if (cancelRef.current) return
             setShowDots(false)
-            setConnectorActive(true)
+            requestAnimationFrame(() => {
+              setConnectorActive(true)
+            })
           }, 650)
         } else {
-          setShowCard(7) // footer
+          setShowCard(7)
         }
       }, delay)
     }, 200)
-    return () => { clearTimeout(t); cancelRef.current = true }
+
+    return () => clearTimeout(t)
   }, [playing, connDone, connectorActive, step])
 
   // Auto-scroll
