@@ -33,9 +33,15 @@ function useTypewriter(text: string, active: boolean, speed = 25) {
   const [segments, setSegments] = useState<{text:string,type:'char'|'num'|'warm'}[]>([])
   const [done, setDone] = useState(false)
   const [cursorVis, setCursorVis] = useState(true)
+  const chunksRef = useRef<{text:string,type:'char'|'num'|'warm'}[]>([])
+  const idxRef = useRef(0)
+  const nextTickRef = useRef(0)
+
   useEffect(() => {
     if (!active) { setSegments([]); setDone(false); setCursorVis(true); return }
-    let cancelled = false; setSegments([]); setDone(false); setCursorVis(true)
+    setSegments([]); setDone(false); setCursorVis(true)
+
+    // Parse chunks
     const chunks: {text:string,type:'char'|'num'|'warm'}[] = []
     let r = text
     while (r.length > 0) {
@@ -48,17 +54,31 @@ function useTypewriter(text: string, active: boolean, speed = 25) {
       }
       if (!found) { chunks.push({ text: r[0], type: 'char' }); r = r.slice(1) }
     }
-    let idx = 0; const built: typeof chunks = []
-    function tick() {
-      if (cancelled) return
-      if (idx >= chunks.length) { setDone(true); setTimeout(() => { if (!cancelled) setCursorVis(false) }, 200); return }
-      const c = chunks[idx]; built.push(c); setSegments([...built]); idx++
+    chunksRef.current = chunks
+    idxRef.current = 0
+    nextTickRef.current = Date.now()
+
+    const built: typeof chunks = []
+    const iv = setInterval(() => {
+      if (Date.now() < nextTickRef.current) return
+      if (idxRef.current >= chunksRef.current.length) {
+        clearInterval(iv)
+        setDone(true)
+        setTimeout(() => setCursorVis(false), 200)
+        return
+      }
+      const c = chunksRef.current[idxRef.current]
+      built.push(c)
+      setSegments([...built])
+      idxRef.current++
+
       let d = speed
       if (c.type === 'num' || c.type === 'warm') d = 180
       else { const ch = c.text; d = ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 15 : speed }
-      setTimeout(tick, d)
-    }
-    tick(); return () => { cancelled = true }
+      nextTickRef.current = Date.now() + d
+    }, 10)
+
+    return () => clearInterval(iv)
   }, [active, text, speed])
   return { segments, done, cursorVis }
 }
@@ -66,15 +86,26 @@ function useTypewriter(text: string, active: boolean, speed = 25) {
 function useSimpleTyper(text: string, active: boolean, speed = 20) {
   const [displayed, setDisplayed] = useState("")
   const [done, setDone] = useState(false)
+  const idxRef = useRef(0)
+  const nextTickRef = useRef(0)
+
   useEffect(() => {
     if (!active) { setDisplayed(""); setDone(false); return }
-    let cancelled = false; setDisplayed(""); setDone(false); let i = 0
-    function tick() {
-      if (cancelled || i >= text.length) { if (!cancelled) setDone(true); return }
-      const ch = text[i]; i++; setDisplayed(text.slice(0, i))
-      setTimeout(tick, ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 12 : speed)
-    }
-    tick(); return () => { cancelled = true }
+    setDisplayed(""); setDone(false)
+    idxRef.current = 0
+    nextTickRef.current = Date.now()
+
+    const iv = setInterval(() => {
+      if (Date.now() < nextTickRef.current) return
+      if (idxRef.current >= text.length) { clearInterval(iv); setDone(true); return }
+      const ch = text[idxRef.current]
+      idxRef.current++
+      setDisplayed(text.slice(0, idxRef.current))
+      const d = ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 12 : speed
+      nextTickRef.current = Date.now() + d
+    }, 10)
+
+    return () => clearInterval(iv)
   }, [active, text, speed])
   return { displayed, done }
 }
