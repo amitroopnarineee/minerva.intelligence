@@ -57,7 +57,7 @@ const sections = [
 
 /* ── Helpers ── */
 const f = (d: number) => ({ initial: { opacity: 0, y: 12 } as const, animate: { opacity: 1, y: 0 } as const, transition: { delay: d, duration: 0.45 } })
-function Lbl({ children }: { children: string }) { return <p className="text-[9px] tracking-widest text-white/20 uppercase mb-2.5">{children}</p> }
+function Lbl({ children }: { children: string }) { return <p className="text-[9px] tracking-widest text-white/30 uppercase mb-2.5">{children}</p> }
 function Tr({ d }: { d: { value: number; direction: "up"|"down"|"stable" } }) {
   const I = d.direction === "up" ? TrendingUp : d.direction === "down" ? TrendingDown : Minus
   return <span className={`flex items-center gap-0.5 text-[10px] ${d.direction === "up" ? "text-white/90" : "text-white/30"}`}><I className="h-3 w-3" />{d.value.toFixed(1)}%</span>
@@ -341,7 +341,7 @@ export function HomeContent() {
       {/* Sticky header: briefing + tabs */}
       <div className="mn-canvas-header shrink-0 px-6 pt-4 pb-0 max-w-[1100px] mx-auto w-full">
         <motion.div {...f(0.05)}>
-          <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
+          <p className="mn-briefing-date text-[10px] tracking-widest text-white/30 uppercase">Tuesday, April 1 · Morning Briefing</p>
           <AnimatePresence mode="wait">
             <motion.p key={activeSection} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.2 }}
               className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-3xl">
@@ -387,7 +387,7 @@ export function HomeContent() {
             className="mn-section mn-briefing space-y-5">
 
             {/* AI Recommendation */}
-            <motion.div {...f(0.08)} className="mn-ai-rec rounded-lg border border-white/[0.06] bg-white/[0.03] p-4">
+            <motion.div {...f(0.08)} className="mn-ai-rec rounded-lg border border-white/[0.08] bg-white/[0.04] p-4">
               <div className="flex items-start gap-3">
                 <Sparkles className="h-4 w-4 text-white/90 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -404,7 +404,7 @@ export function HomeContent() {
                     ) : (
                       <span className="mn-ai-rec-done text-[11px] text-white/50 flex items-center gap-1.5"><Check className="h-3 w-3" /> Executed · Budget scaled · Retargeting activated</span>
                     )}
-                    <span className="text-[10px] text-white/15 flex items-center gap-1"><Clock className="h-3 w-3" /> Generated 12 min ago · 91% confidence</span>
+                    <span className="text-[10px] text-white/25 flex items-center gap-1"><Clock className="h-3 w-3" /> Generated 12 min ago · 91% confidence</span>
                   </div>
                 </div>
               </div>
@@ -419,7 +419,7 @@ export function HomeContent() {
                 { l:"Match Rate",n:currentKpi.dataMatchRate*100,dec:0,pre:"",suf:"%",d:matchD,s:kpiHistory.map(k=>k.dataMatchRate) },
               ].map((m,i)=>(
                 <div key={i} onClick={() => setActiveCard(kpiToCard(m.l, m.n, `${m.pre}${m.n.toFixed(m.dec)}${m.suf}`, m.d, m.s))} className="mn-kpi-cell bg-black/60 px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
-                  <div className="flex items-center justify-between mb-1"><p className="mn-kpi-label text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
+                  <div className="flex items-center justify-between mb-1"><p className="mn-kpi-label text-[8px] text-white/30 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
                   <div className="mn-kpi-row flex items-end justify-between"><p className="mn-kpi-value text-[20px] tracking-tight text-white leading-none"><CountUp end={m.n} decimals={m.dec} prefix={m.pre} suffix={m.suf} /></p><Tr d={m.d} /></div>
                 </div>))}
             </motion.div>
@@ -473,7 +473,7 @@ export function HomeContent() {
                   <tr key={c.id} onClick={() => setActiveCard(campaignToCard(c))} className="mn-campaign-row border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
                     <td className="mn-campaign-name px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-white/30"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
                     <td className="mn-campaign-platform px-3 py-2 text-white/20">{c.platform}</td>
-                    <td className="mn-campaign-spend text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
+                    <td className="mn-campaign-spend text-right px-3 py-2 text-white/35 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
                     <td className="mn-campaign-roas text-right px-3 py-2 text-white/90 tabular-nums">{c.roas.toFixed(1)}x</td>
                     <td className="mn-campaign-conv text-right px-3.5 py-2 text-white/30 tabular-nums">{c.conversions}</td>
                   </tr>))}</tbody>
@@ -487,7 +487,7 @@ export function HomeContent() {
                 { id: 'nba-2', label: 'Send renewal reminder to 700 at-risk members', detail: 'Renewal Risk Members · email · 94% reach', icon: Send },
                 { id: 'nba-3', label: 'Route Marcus Johnson to premium sales', detail: 'Ticket Buy: 97 · Premium: 88 · $8.4K revenue', icon: Flag },
               ].map((a) => (
-                <div key={a.id} className="mn-nba-item flex items-center gap-3 rounded-lg border border-white/[0.04] bg-white/[0.015] px-4 py-3 group">
+                <div key={a.id} className="mn-nba-item flex items-center gap-3 rounded-lg border border-white/[0.04] bg-white/[0.03] px-4 py-3 group">
                   <a.icon className="h-3.5 w-3.5 text-white/15 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="mn-nba-label text-[12px] text-white/60">{a.label}</p>
@@ -506,7 +506,7 @@ export function HomeContent() {
             </motion.div>
 
             {/* Data sources */}
-            <motion.div {...f(0.4)} className="mn-sources flex items-center gap-4 text-[10px] text-white/15">
+            <motion.div {...f(0.4)} className="mn-sources flex items-center gap-4 text-[10px] text-white/25">
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Last sync: 8:12 AM</span>
               <span>Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph</span>
               <span className="text-white/90/30">5 sources connected</span>
@@ -519,7 +519,7 @@ export function HomeContent() {
             className="mn-section mn-insights">
             <motion.div {...f(0.05)} className="mn-insights-header flex items-center justify-between mb-4">
               <Lbl>Signals</Lbl>
-              <span className="mn-insights-count text-[10px] text-white/15">{insightCardsFull.length} detected · sorted by impact</span>
+              <span className="mn-insights-count text-[10px] text-white/25">{insightCardsFull.length} detected · sorted by impact</span>
             </motion.div>
             <div className="mn-insights-grid grid grid-cols-4 gap-3">
               {insightCardsFull.map((card, idx) => (
@@ -527,7 +527,7 @@ export function HomeContent() {
                   whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCard(card)}
                   className="mn-insight-card rounded-lg border border-white/[0.04] p-4 flex flex-col cursor-pointer hover:bg-white/[0.02] transition-all" style={{ background: 'rgba(0,0,0,0.4)' }}>
-                  <span className="mn-insight-label text-[8px] tracking-widest text-white/20 uppercase">{card.label}</span>
+                  <span className="mn-insight-label text-[8px] tracking-widest text-white/30 uppercase">{card.label}</span>
                   {card.mainValue && <span className="mn-insight-value text-[22px] font-bold tracking-tight leading-none mt-1 text-white/90">{card.mainValue}</span>}
                   {card.subtitle && <span className="mn-insight-subtitle text-[15px] font-semibold tracking-tight leading-tight mt-1">{card.subtitle}</span>}
                   <p className="mn-insight-copy text-[11px] text-white/40 leading-snug mt-2 flex-1">{card.copy}</p>
@@ -549,8 +549,8 @@ export function HomeContent() {
                 { l: 'Est. Pipeline', v: `${(audiences.reduce((s,a) => s + a.estimatedSize * (a.avgPropensityScore ?? 0) * 150, 0) / 1000).toFixed(0)}K` },
                 { l: 'Net Growth', v: `+${audiences.reduce((s,a) => s + Math.max(a.memberDelta ?? 0, 0), 0).toLocaleString()}` },
               ].map((s,i) => (
-                <div key={i} className="bg-white/[0.015] px-4 py-3">
-                  <p className="text-[8px] text-white/15 uppercase tracking-widest mb-1">{s.l}</p>
+                <div key={i} className="bg-white/[0.03] px-4 py-3">
+                  <p className="text-[8px] text-white/30 uppercase tracking-widest mb-1">{s.l}</p>
                   <p className="text-[16px] text-white/70 font-medium tracking-tight">{s.v}</p>
                 </div>
               ))}
@@ -558,7 +558,7 @@ export function HomeContent() {
 
             <motion.div {...f(0.05)} className="mn-audiences-header flex items-center justify-between mb-4">
               <Lbl>Segments</Lbl>
-              <span className="text-[10px] text-white/15">{audiences.length} segments · {audiences.filter(a=>a.isActivationReady).length} ready to activate</span>
+              <span className="text-[10px] text-white/25">{audiences.length} segments · {audiences.filter(a=>a.isActivationReady).length} ready to activate</span>
             </motion.div>
             <div className="mn-audiences-grid grid grid-cols-3 gap-4">
               {audiences.map((a, idx) => (
@@ -604,7 +604,7 @@ export function HomeContent() {
             className="mn-section mn-people">
             <motion.div {...f(0.05)} className="mn-people-header flex items-center justify-between mb-4">
               <Lbl>Top profiles</Lbl>
-              <span className="text-[10px] text-white/15">{persons.length} matched · sorted by ticket-buy propensity</span>
+              <span className="text-[10px] text-white/25">{persons.length} matched · sorted by ticket-buy propensity</span>
             </motion.div>
             <motion.div {...f(0.05)} className="mn-people-table-wrap rounded-lg border border-white/[0.06] overflow-hidden">
               <table className="mn-people-table w-full text-[12px]">

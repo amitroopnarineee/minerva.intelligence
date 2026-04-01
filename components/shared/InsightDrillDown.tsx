@@ -140,7 +140,7 @@ const insights: InsightCard[] = [
     },
   },
   {
-    id: "4", label: "Owned Conversion", mainValue: "-4%", valueColor: "text-white/90/60",
+    id: "4", label: "Owned Conversion", mainValue: "-4%", valueColor: "text-white/50",
     copy: "Social engagement rose sharply, but movement into app, ticketing, and lifecycle capture still trails total reach growth.",
     meaning: "There is a clear conversion gap between attention and owned value.",
     cta: "See funnel gaps", color: "border-l-white/[0.15]", category: "Signal",
@@ -283,7 +283,7 @@ const insights: InsightCard[] = [
 /* ── Helpers ── */
 function deltaColor(val: string): string {
   if (val.startsWith("+")) return "text-white/90"
-  if (val.startsWith("-")) return "text-white/90/60"
+  if (val.startsWith("-")) return "text-white/50"
   return "text-foreground/60"
 }
 
