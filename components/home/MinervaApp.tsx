@@ -68,44 +68,138 @@ function HomeScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
   )
 }
 
+
 /* ══════════════════════════════════════════════════════════
-   BRIEFING: Helpers
+   BRIEFING: Advanced Typewriter
    ══════════════════════════════════════════════════════════ */
 
-/* Typewriter hook */
-function useTypewriter(text: string, active: boolean, speed = 25, pauseMs = 150) {
+const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.']
+
+function useAdvancedTypewriter(text: string, active: boolean, speed = 25) {
+  const [segments, setSegments] = useState<{text:string,type:'char'|'number'|'warm'}[]>([])
+  const [done, setDone] = useState(false)
+  const [cursorVisible, setCursorVisible] = useState(true)
+
+  useEffect(() => {
+    if (!active) { setSegments([]); setDone(false); setCursorVisible(true); return }
+    setSegments([]); setDone(false); setCursorVisible(true)
+
+    // Pre-parse text into chunks
+    const chunks: {text:string,type:'char'|'number'|'warm'}[] = []
+    let remaining = text
+    while (remaining.length > 0) {
+      let found = false
+      for (const nc of NUMBER_CHUNKS) {
+        if (remaining.startsWith(nc)) {
+          const type = nc === '3 actions ready.' ? 'warm' : 'number'
+          chunks.push({ text: nc, type })
+          remaining = remaining.slice(nc.length)
+          found = true
+          break
+        }
+      }
+      if (!found) {
+        chunks.push({ text: remaining[0], type: 'char' })
+        remaining = remaining.slice(1)
+      }
+    }
+
+    let idx = 0
+    const built: typeof chunks = []
+
+    function tick() {
+      if (idx >= chunks.length) {
+        setDone(true)
+        setTimeout(() => setCursorVisible(false), 200)
+        return
+      }
+      const chunk = chunks[idx]
+      built.push(chunk)
+      setSegments([...built])
+      idx++
+
+      // Determine delay for next chunk
+      let delay = speed
+      if (chunk.type === 'number' || chunk.type === 'warm') delay = 180
+      else {
+        const ch = chunk.text
+        if (ch === '.') delay = 180
+        else if (ch === ',') delay = 100
+        else if (ch === '—' || ch === ':') delay = 120
+        else if (ch === ' ') delay = 15
+        else delay = speed
+      }
+      setTimeout(tick, delay)
+    }
+    tick()
+  }, [active, text, speed])
+
+  return { segments, done, cursorVisible }
+}
+
+/* Simple typewriter for connector text */
+function useSimpleTypewriter(text: string, active: boolean, speed = 20) {
   const [displayed, setDisplayed] = useState("")
   const [done, setDone] = useState(false)
   useEffect(() => {
-    if (!active) return
+    if (!active) { setDisplayed(""); setDone(false); return }
     setDisplayed(""); setDone(false)
     let i = 0
     function tick() {
       if (i >= text.length) { setDone(true); return }
       const ch = text[i]
-      setDisplayed(text.slice(0, i + 1))
       i++
-      const pause = (ch === '.' || ch === ',') ? pauseMs : speed
-      setTimeout(tick, pause)
+      setDisplayed(text.slice(0, i))
+      const delay = ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 12 : speed
+      setTimeout(tick, delay)
     }
     tick()
-  }, [active, text, speed, pauseMs])
+  }, [active, text, speed])
   return { displayed, done }
 }
 
-/* Sparkline SVG */
-function Sparkline({ data, w = 60, h = 20 }: { data: number[]; w?: number; h?: number }) {
-  const mn = Math.min(...data), mx = Math.max(...data), r = mx - mn || 1
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - mn) / r) * h}`).join(' ')
-  return <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}><polyline points={pts} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" /></svg>
+/* Render typed segments with styling */
+function TypedText({ segments, cursorVisible, done }: { segments: {text:string,type:'char'|'number'|'warm'}[]; cursorVisible: boolean; done: boolean }) {
+  return (
+    <span style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em' }}>
+      {segments.map((s, i) => {
+        if (s.type === 'number') return <span key={i} className="animate-number-pop" style={{ color: '#fff', fontWeight: 500 }}>{s.text}</span>
+        if (s.type === 'warm') return <span key={i} className="animate-number-pop" style={{ color: 'rgba(255,230,180,0.65)' }}>{s.text}</span>
+        return <span key={i} style={{ color: 'rgba(255,255,255,0.85)' }}>{s.text}</span>
+      })}
+      {cursorVisible && <span className={done ? 'animate-cursor-fade' : 'animate-blink'} style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>}
+    </span>
+  )
+}
+
+/* Thinking dots */
+function ThinkingDots({ visible }: { visible: boolean }) {
+  if (!visible) return null
+  return (
+    <div className="flex items-center gap-1.5 py-3" style={{ opacity: visible ? 1 : 0, transition: 'opacity 150ms' }}>
+      <div className="w-1 h-1 rounded-full animate-dot-1" style={{ background: 'rgba(255,255,255,0.3)' }} />
+      <div className="w-1 h-1 rounded-full animate-dot-2" style={{ background: 'rgba(255,255,255,0.3)' }} />
+      <div className="w-1 h-1 rounded-full animate-dot-3" style={{ background: 'rgba(255,255,255,0.3)' }} />
+    </div>
+  )
+}
+
+/* Sparkline with unique paths */
+function Sparkline({ path }: { path: string }) {
+  return (
+    <svg width="60" height="20" viewBox="0 0 60 20" fill="none">
+      <path d={path} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  )
 }
 
 /* Stagger entrance */
-function Stagger({ children, delay = 0, stagger = 150, active }: { children: React.ReactNode[]; delay?: number; stagger?: number; active: boolean }) {
+function Stagger({ children, delay = 0, stagger = 120, active }: { children: React.ReactNode[]; delay?: number; stagger?: number; active: boolean }) {
   return <>{children.map((child, i) => (
     <div key={i} style={{
-      opacity: active ? 1 : 0, transform: active ? 'translateY(0)' : 'translateY(6px)',
-      transition: `opacity 350ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms, transform 350ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms`
+      opacity: active ? 1 : 0, transform: active ? 'translateY(0)' : 'translateY(14px)',
+      filter: active ? 'blur(0)' : 'blur(4px)',
+      transition: `opacity 400ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms, transform 400ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms, filter 400ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms`
     }}>{child}</div>
   ))}</>
 }
@@ -114,10 +208,10 @@ function Stagger({ children, delay = 0, stagger = 150, active }: { children: Rea
    SCREEN: BRIEFING
    ══════════════════════════════════════════════════════════ */
 const METRICS = [
-  { label: "REVENUE", value: "$242K", trend: "↗ 7.6%", spark: [180, 195, 210, 205, 225, 238, 242] },
-  { label: "ROAS", value: "4.0x", trend: "↗ 8.3%", spark: [3.2, 3.4, 3.5, 3.6, 3.7, 3.9, 4.0] },
-  { label: "CONV RATE", value: "3.9%", trend: "↗ 8.3%", spark: [3.0, 3.1, 3.2, 3.3, 3.5, 3.7, 3.9] },
-  { label: "MATCH RATE", value: "62%", trend: "↘ 11.6%", spark: [70, 68, 67, 65, 64, 63, 62], dim: true },
+  { label: "REVENUE", value: "$242K", trend: "↗ 7.6%", spark: "M0,15 L8,13 L16,14 L24,10 L32,8 L40,11 L48,6 L56,3 L60,4" },
+  { label: "ROAS", value: "4.0x", trend: "↗ 8.3%", spark: "M0,16 L8,15 L16,13 L24,14 L32,11 L40,9 L48,7 L56,5 L60,4" },
+  { label: "CONV RATE", value: "3.9%", trend: "↗ 8.3%", spark: "M0,12 L8,15 L16,10 L24,13 L32,8 L40,11 L48,6 L56,9 L60,5" },
+  { label: "MATCH RATE", value: "62%", trend: "↘ 11.6%", spark: "M0,5 L8,6 L16,4 L24,7 L32,9 L40,8 L48,11 L56,13 L60,14", dim: true },
 ]
 const CAMPAIGNS = [
   { name: "Season Ticket Renewals", platform: "Klaviyo", spend: "$142K", roas: "5.2x", conv: "312", up: true },
@@ -135,7 +229,7 @@ const SIGNALS = [
   { label: "ATTENTION", delta: "+18%", copy: "Awareness way up — but still mostly top-of-funnel.", cta: "See channel breakdown" },
   { label: "PREMIUM EXPERIENCE", delta: "+11%", copy: "Premium game-day messaging beating general hype on ticket intent.", cta: "Analyze in Audience Studio →", nav: true },
   { label: "FAMILY AUDIENCE", delta: "+14%", copy: "Family consideration up 14%. Strongest in Dade + Broward.", cta: "View regional data" },
-  { label: "OWNED CONVERSION", delta: "-4%", copy: "Social engagement surged, but ticketing and lifecycle aren't keeping up.", cta: "See funnel gaps" },
+  { label: "OWNED CONVERSION", delta: "-4%", copy: "Social engagement surged, but ticketing and lifecycle aren’t keeping up.", cta: "See funnel gaps" },
   { label: "SPONSOR RESONANCE", delta: "+9%", copy: "Luxury and hospitality narratives driving strongest sponsor value.", cta: "View sponsor data" },
 ]
 const FUNNEL = [
@@ -145,47 +239,115 @@ const FUNNEL = [
   { label: "Revenue", value: "$242K", pct: 3.5 },
 ]
 
+/*
+  Thread timeline:
+  step 0: greeting types
+  step 1: thinking dots → connector "Here’s my top recommendation —" → Recommends card
+  step 2: connector "Key metrics this week:" → Metrics card
+  step 3: connector "Here’s how the funnel looks:" → Funnel
+  step 4: connector "Revenue versus spend, last 7 days:" → Chart
+  step 5: connector "Campaign breakdown:" → Table
+  step 6: connector "Three actions I’d prioritize:" → Action cards
+  step 7: footer
+*/
+const CONNECTORS = [
+  "",
+  "Here’s my top recommendation —",
+  "Key metrics this week:",
+  "Here’s how the funnel looks:",
+  "Revenue versus spend, last 7 days:",
+  "Campaign breakdown:",
+  "Three actions I’d prioritize:",
+  "",
+]
+// Delays between steps (ms after previous step completes)
+const STEP_DELAYS = [0, 800, 1000, 1000, 1000, 1500, 1500, 1000]
+
 function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
   const [tab, setTab] = useState<'briefing' | 'signals'>('briefing')
   const [playing, setPlaying] = useState(true)
-  const [step, setStep] = useState(0) // 0-8 for timed sections
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const [step, setStep] = useState(0)
+  const [showDots, setShowDots] = useState(false)
+  const [connectorText, setConnectorText] = useState("")
+  const [connectorDone, setConnectorDone] = useState(false)
+  const [connectorActive, setConnectorActive] = useState(false)
+  const [showCard, setShowCard] = useState(-1) // which card to show
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const latestSectionRef = useRef<HTMLDivElement>(null)
 
-  // Timed section schedule (cumulative ms from start)
-  const schedule = [0, 2500, 3300, 5800, 8500, 11000, 15000, 19000, 22000]
+  // Greeting
+  const greetingText = "Morning, Sarah. Revenue is $242K with ROAS at 4.0x. Family audience surging. 3 actions ready."
+  const { segments: greetingSegs, done: greetingDone, cursorVisible } = useAdvancedTypewriter(greetingText, step >= 0 && tab === 'briefing')
 
+  // Connector typewriter
+  const currentConnector = step >= 1 && step <= 6 ? CONNECTORS[step] : ""
+  const { displayed: connectorDisp, done: connDone } = useSimpleTypewriter(currentConnector, connectorActive, 20)
+
+  // Signals tab
+  const signalsText = "3 positive signals, 1 declining metric, and 1 weekend opportunity. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap."
+  const { displayed: signalsGreeting, done: signalsDone } = useSimpleTypewriter(signalsText, tab === 'signals')
+
+  // Auto-advance timeline
   useEffect(() => {
     if (!playing || tab !== 'briefing') return
-    let cancelled = false
-    function advance(s: number) {
-      if (cancelled || s >= schedule.length) return
-      const delay = s === 0 ? 0 : schedule[s] - schedule[s - 1]
-      timerRef.current = setTimeout(() => {
-        if (!cancelled) { setStep(s); advance(s + 1) }
-      }, delay)
+    if (step === 0 && greetingDone) {
+      // Greeting done → start step 1 after delay
+      const t = setTimeout(() => {
+        setStep(1)
+        setShowDots(true)
+        setTimeout(() => {
+          setShowDots(false)
+          setConnectorActive(true)
+        }, 650)
+      }, STEP_DELAYS[1])
+      return () => clearTimeout(t)
     }
-    advance(step)
-    return () => { cancelled = true; if (timerRef.current) clearTimeout(timerRef.current) }
-  }, [playing, tab])
+  }, [playing, tab, step, greetingDone])
 
-  const greetingText = "Morning, Sarah. Revenue is $242K with ROAS at 4.0x. Family audience surging. 3 actions ready."
-  const { displayed: greeting, done: greetingDone } = useTypewriter(greetingText, step >= 0 && tab === 'briefing')
+  // When connector finishes → show card
+  useEffect(() => {
+    if (!playing || !connDone || !connectorActive) return
+    const t = setTimeout(() => {
+      setShowCard(step)
+      setConnectorActive(false)
+    }, 200)
+    return () => clearTimeout(t)
+  }, [connDone, connectorActive, playing, step])
 
-  // Signals tab typewriter
-  const signalsText = "3 positive signals, 1 declining metric, and 1 weekend opportunity. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap."
-  const { displayed: signalsGreeting, done: signalsDone } = useTypewriter(signalsText, tab === 'signals')
+  // When card shown → advance to next step
+  useEffect(() => {
+    if (!playing || showCard < 1 || showCard >= 7) return
+    const nextStep = showCard + 1
+    if (nextStep > 7) return
+    const t = setTimeout(() => {
+      setStep(nextStep)
+      if (nextStep <= 6) {
+        setShowDots(true)
+        setConnectorActive(false)
+        setTimeout(() => {
+          setShowDots(false)
+          setConnectorActive(true)
+        }, 650)
+      } else {
+        // Step 7 = footer, no connector
+        setShowCard(7)
+      }
+    }, STEP_DELAYS[nextStep])
+    return () => clearTimeout(t)
+  }, [playing, showCard])
 
-  // Format greeting with styled numbers
-  function renderGreeting(text: string) {
-    return text.replace(/(\$242K|4\.0x|3 actions ready\.?)/g, (match) => {
-      if (match === '3 actions ready.' || match === '3 actions ready') return `<span style="color:rgba(255,230,180,0.7)">${match}</span>`
-      return `<span style="color:#fff;font-weight:500">${match}</span>`
-    })
-  }
+  // Auto-scroll
+  useEffect(() => {
+    if (latestSectionRef.current && playing) {
+      latestSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [showCard, step, playing])
+
+  const isComplete = showCard >= 7
 
   return (
     <div className="flex-1 flex flex-col min-h-0 relative">
-      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
         <div className="max-w-[720px] mx-auto px-6 pt-6 pb-32">
 
           {/* Header */}
@@ -196,7 +358,6 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
           {/* Mode tabs */}
           <div className="flex items-center gap-1 mb-10">
             {['Briefing', 'Signals', 'Audiences', 'People'].map(t => {
-              const isTab = t === 'Briefing' || t === 'Signals'
               const active = (t === 'Briefing' && tab === 'briefing') || (t === 'Signals' && tab === 'signals')
               return (
                 <button key={t} onClick={() => {
@@ -213,55 +374,80 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
           </div>
 
           {tab === 'briefing' ? (
-          <div className="space-y-6">
-            {/* S1: Greeting */}
-            <div style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.88)' }}>
-              <span dangerouslySetInnerHTML={{ __html: renderGreeting(greeting) }} />
-              {!greetingDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>}
-            </div>
+          <div className="space-y-4">
+            {/* S0: Greeting */}
+            <div><TypedText segments={greetingSegs} cursorVisible={cursorVisible} done={greetingDone} /></div>
 
-            {/* S2: Minerva Recommends */}
+            {/* Thinking dots (between greeting and first card) */}
+            {step >= 1 && showCard < 1 && <ThinkingDots visible={showDots} />}
+
+            {/* S1: Connector + Minerva Recommends */}
             {step >= 1 && (
-              <div className="animate-section-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '16px 18px' }}>
-                <p className="text-[9px] uppercase tracking-[0.06em] mb-2" style={{ color: 'rgba(255,255,255,0.22)' }}>✦ MINERVA RECOMMENDS</p>
-                <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                  Scale Family Ticket Bundle budget by 20% and activate Seatmap Retargeting Pool (900 profiles). Combined estimated lift: <span className="text-white font-medium">+$34K</span> revenue this week.
-                </p>
-                <div className="flex items-center justify-between mt-3">
-                  <button onClick={() => toast.success("Executing 2 actions…")} className="text-[11px] px-3 py-1 rounded-full transition-all" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.02)' }}>→ Execute both</button>
-                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ Generated 12 min ago · 91% confidence</span>
-                </div>
-              </div>
-            )}
-
-            {/* S3: Key Metrics */}
-            {step >= 2 && (
-              <div className="animate-section-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
-                <Stagger active={step >= 2} delay={0} stagger={150}>
-                  {METRICS.map((m, i) => (
-                    <div key={m.label} onClick={() => toast(`Opening ${m.label} detail…`)}
-                      className="flex items-center px-[18px] py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
-                      style={{ borderBottom: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                      <span className="text-[9px] uppercase tracking-[0.06em] w-24" style={{ color: 'rgba(255,255,255,0.22)' }}>{m.label}</span>
-                      <span className="text-[22px] font-semibold tracking-tight tabular-nums text-white flex-1" style={{ letterSpacing: '-0.02em' }}>{m.value}</span>
-                      <span className="text-[11px] w-20 text-right" style={{ color: m.dim ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.35)' }}>{m.trend}</span>
-                      <div className="ml-4"><Sparkline data={m.spark} /></div>
+              <div ref={showCard >= 1 ? latestSectionRef : undefined}>
+                {connectorActive && step === 1 && (
+                  <p className="text-[14px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: '16px 0 12px 0' }}>
+                    {connectorDisp}{!connDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>}
+                  </p>
+                )}
+                {step === 1 && connDone && showCard < 1 && <ThinkingDots visible={showDots} />}
+                {showCard >= 1 && (
+                  <>
+                    <p className="text-[14px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[1]}</p>
+                    <div className="animate-card-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '16px 18px' }}>
+                      <p className="text-[9px] uppercase tracking-[0.06em] mb-2" style={{ color: 'rgba(255,255,255,0.22)' }}>✦ MINERVA RECOMMENDS</p>
+                      <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                        Scale Family Ticket Bundle budget by 20% and activate Seatmap Retargeting Pool (900 profiles). Combined estimated lift: <span className="text-white font-medium">+$34K</span> revenue this week.
+                      </p>
+                      <div className="flex items-center justify-between mt-3">
+                        <button onClick={() => toast.success("Executing 2 actions…")} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.02)' }}>→ Execute both</button>
+                        <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ Generated 12 min ago · 91% confidence</span>
+                      </div>
                     </div>
-                  ))}
-                </Stagger>
+                  </>
+                )}
               </div>
             )}
 
-            {/* S4: Conversion Funnel */}
-            {step >= 3 && (
-              <div className="animate-section-in">
-                <p className="text-[9px] uppercase tracking-[0.06em] mb-3" style={{ color: 'rgba(255,255,255,0.22)' }}>CONVERSION FUNNEL</p>
+            {/* S2: Metrics */}
+            {step >= 2 && (
+              <div ref={showCard >= 2 ? latestSectionRef : undefined}>
+                {connectorActive && step === 2 && (
+                  <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>
+                    {connectorDisp}{!connDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>}
+                  </p>
+                )}
+                {showCard >= 2 && (
+                  <>
+                    <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[2]}</p>
+                    <div className="animate-card-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
+                      <Stagger active={showCard >= 2} delay={0} stagger={120}>
+                        {METRICS.map((m, i) => (
+                          <div key={m.label} onClick={() => toast(`Opening ${m.label} detail…`)}
+                            className="flex items-center px-[18px] py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
+                            style={{ borderBottom: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                            <span className="text-[9px] uppercase tracking-[0.06em] w-24" style={{ color: 'rgba(255,255,255,0.22)' }}>{m.label}</span>
+                            <span className="text-[22px] tabular-nums text-white flex-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{m.value}</span>
+                            <span className="text-[11px] w-20 text-right" style={{ color: m.dim ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.35)' }}>{m.trend}</span>
+                            <div className="ml-4"><Sparkline path={m.spark} /></div>
+                          </div>
+                        ))}
+                      </Stagger>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* S3: Funnel */}
+            {step >= 3 && showCard >= 3 && (
+              <div ref={latestSectionRef} className="animate-card-in">
+                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[3]}</p>
                 <div className="flex items-end gap-2">
                   {FUNNEL.map((f, i) => (
-                    <div key={f.label} className="flex-1 text-center" style={{ animationDelay: `${i * 150}ms` }}>
-                      <p className="text-[20px] font-semibold tabular-nums text-white mb-1" style={{ letterSpacing: '-0.02em' }}>{f.value}</p>
+                    <div key={f.label} className="flex-1 text-center">
+                      <p className="text-[20px] tabular-nums text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{f.value}</p>
                       <div className="mx-auto rounded-sm overflow-hidden" style={{ height: 4, background: 'rgba(255,255,255,0.04)' }}>
-                        <div style={{ width: `${f.pct}%`, height: '100%', background: 'rgba(255,255,255,0.2)', transition: 'width 0.6s ease', transitionDelay: `${i * 150}ms` }} />
+                        <div style={{ width: `${f.pct}%`, height: '100%', background: 'rgba(255,255,255,0.2)', animation: 'bar-grow 300ms ease both', animationDelay: `${i * 150}ms` }} />
                       </div>
                       <p className="text-[9px] uppercase tracking-[0.04em] mt-2" style={{ color: 'rgba(255,255,255,0.22)' }}>{f.label}</p>
                     </div>
@@ -270,14 +456,14 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
               </div>
             )}
 
-            {/* S5: Revenue vs Spend chart */}
-            {step >= 4 && (
-              <div className="animate-section-in">
-                <p className="text-[9px] uppercase tracking-[0.06em] mb-3" style={{ color: 'rgba(255,255,255,0.22)' }}>REVENUE VS SPEND · 7D</p>
+            {/* S4: Revenue chart */}
+            {step >= 4 && showCard >= 4 && (
+              <div ref={latestSectionRef} className="animate-card-in">
+                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[4]}</p>
                 <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 16, height: 120 }}>
                   <svg viewBox="0 0 300 80" className="w-full h-full">
-                    <polyline points="0,60 50,55 100,48 150,42 200,35 250,28 300,20" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
-                    <polyline points="0,70 50,68 100,65 150,62 200,60 250,58 300,55" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+                    <polyline points="0,60 50,55 100,48 150,42 200,35 250,28 300,20" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
+                    <polyline points="0,70 50,68 100,65 150,62 200,60 250,58 300,55" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
                     <text x="295" y="18" fill="rgba(255,255,255,0.3)" fontSize="6" textAnchor="end">Revenue</text>
                     <text x="295" y="53" fill="rgba(255,255,255,0.15)" fontSize="6" textAnchor="end">Spend</text>
                   </svg>
@@ -285,10 +471,10 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
               </div>
             )}
 
-            {/* S6: Campaign Table */}
-            {step >= 5 && (
-              <div className="animate-section-in">
-                <p className="text-[9px] uppercase tracking-[0.06em] mb-3" style={{ color: 'rgba(255,255,255,0.22)' }}>CAMPAIGNS</p>
+            {/* S5: Campaign table */}
+            {step >= 5 && showCard >= 5 && (
+              <div ref={latestSectionRef} className="animate-card-in">
+                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[5]}</p>
                 <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
                   <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     <span className="text-[9px] uppercase tracking-[0.06em] flex-1" style={{ color: 'rgba(255,255,255,0.22)' }}>Campaign</span>
@@ -297,7 +483,7 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
                     <span className="text-[9px] uppercase tracking-[0.06em] w-14 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>ROAS</span>
                     <span className="text-[9px] uppercase tracking-[0.06em] w-14 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Conv</span>
                   </div>
-                  <Stagger active={step >= 5} stagger={100}>
+                  <Stagger active={showCard >= 5} stagger={120}>
                     {CAMPAIGNS.map((c, i) => (
                       <div key={c.name} onClick={() => toast(`Opening ${c.name}…`)}
                         className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
@@ -307,7 +493,7 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
                         </span>
                         <span className="w-16 text-right text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{c.platform}</span>
                         <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
-                        <span className="w-14 text-right text-[12px] tabular-nums font-medium text-white">{c.roas}</span>
+                        <span className="w-14 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
                         <span className="w-14 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.conv}</span>
                       </div>
                     ))}
@@ -316,11 +502,11 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
               </div>
             )}
 
-            {/* S7: Next Best Actions */}
-            {step >= 6 && (
-              <div className="animate-section-in">
-                <p className="text-[9px] uppercase tracking-[0.06em] mb-3" style={{ color: 'rgba(255,255,255,0.22)' }}>NEXT BEST ACTIONS</p>
-                <Stagger active={step >= 6} stagger={200}>
+            {/* S6: Next Best Actions */}
+            {step >= 6 && showCard >= 6 && (
+              <div ref={latestSectionRef} className="animate-card-in">
+                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[6]}</p>
+                <Stagger active={showCard >= 6} stagger={200}>
                   {ACTIONS.map((a, i) => (
                     <div key={a.title} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 18px', marginBottom: 8 }}
                       className="flex items-center justify-between">
@@ -329,7 +515,7 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
                         <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{a.sub}</p>
                       </div>
                       <button onClick={() => i === 2 ? navigateTo('studio-entry') : toast.success(`Executing: ${a.title}`)}
-                        className="text-[11px] px-3 py-1 rounded-full shrink-0 ml-4 transition-all"
+                        className="text-[11px] px-3 py-1 rounded-full shrink-0 ml-4 transition-all hover:bg-white/[0.04]"
                         style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.02)' }}>
                         Execute →
                       </button>
@@ -339,19 +525,22 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
               </div>
             )}
 
-            {/* S8: Footer */}
-            {step >= 7 && (
-              <div className="animate-section-in text-center pt-4">
+            {/* S7: Footer */}
+            {showCard >= 7 && (
+              <div ref={latestSectionRef} className="animate-card-in text-center pt-4">
                 <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
                   Last sync: 8:12 AM — Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph · 5 sources connected
                 </p>
               </div>
             )}
+
+            {/* Thinking dots for mid-steps */}
+            {step >= 2 && step <= 6 && showCard < step && <ThinkingDots visible={showDots} />}
           </div>
           ) : (
           /* ══ SIGNALS TAB ══ */
           <div className="space-y-6">
-            <div style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.88)' }}>
+            <div style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.85)' }}>
               <span>{signalsGreeting}</span>
               {!signalsDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>}
             </div>
@@ -360,10 +549,10 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
                 {SIGNALS.map(s => (
                   <div key={s.label} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 18px' }}>
                     <p className="text-[9px] uppercase tracking-[0.06em] mb-1" style={{ color: 'rgba(255,255,255,0.22)' }}>{s.label}</p>
-                    <p className="text-[28px] font-semibold tabular-nums text-white mb-1" style={{ letterSpacing: '-0.02em' }}>{s.delta}</p>
+                    <p className="text-[28px] tabular-nums text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{s.delta}</p>
                     <p className="text-[13px] mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>{s.copy}</p>
-                    <button onClick={() => s.nav ? navigateTo('studio-entry') : toast(`${s.cta}`)}
-                      className="text-[11px] transition-colors" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                    <button onClick={() => s.nav ? navigateTo('studio-entry') : toast(s.cta)}
+                      className="text-[11px] transition-colors hover:text-white/50" style={{ color: 'rgba(255,255,255,0.3)' }}>
                       {s.cta}
                     </button>
                   </div>
@@ -376,11 +565,11 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
       </div>
 
       {/* Play/Pause floating pill */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
-        <button onClick={() => setPlaying(!playing)}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100]">
+        <button onClick={() => { if (isComplete) { setStep(0); setShowCard(-1); setConnectorActive(false); setPlaying(true) } else setPlaying(!playing) }}
           className="h-8 px-4 rounded-full text-[11px] transition-all"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(12px)' }}>
-          {playing ? '⏸ Playing' : '▶ Paused'}{step >= 7 ? ' · Briefing complete' : ''}
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: isComplete ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)', backdropFilter: 'blur(16px)', fontWeight: 500 }}>
+          {isComplete ? '✓ Complete' : playing ? '⏸ Pause' : '▶ Resume'}
         </button>
       </div>
     </div>

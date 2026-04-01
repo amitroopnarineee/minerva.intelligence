@@ -152,3 +152,35 @@
 .animate-studio-entry-plus { animation: studio-entry-plus 400ms cubic-bezier(0.22,1,0.36,1) both; }
 .animate-studio-entry-text { animation: fade-in-delay-300 300ms ease 200ms both; }
 .animate-studio-entry-pills { animation: fade-in-delay-300 300ms ease 400ms both; }
+
+
+/* ══ Briefing Thread Animations ══ */
+@keyframes number-pop {
+  from { opacity: 0; transform: scale(1.08); filter: blur(2px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+.animate-number-pop {
+  display: inline-block;
+  animation: number-pop 150ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cursor-fade-out {
+  from { opacity: 0.5; } to { opacity: 0; }
+}
+.animate-cursor-fade { animation: cursor-fade-out 200ms ease forwards; }
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.45; }
+}
+.animate-dot-1 { animation: dot-pulse 1.2s ease-in-out infinite 0ms; }
+.animate-dot-2 { animation: dot-pulse 1.2s ease-in-out infinite 120ms; }
+.animate-dot-3 { animation: dot-pulse 1.2s ease-in-out infinite 240ms; }
+
+@keyframes card-materialize {
+  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.animate-card-in { animation: card-materialize 400ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes bar-grow { from { width: 0; } }
