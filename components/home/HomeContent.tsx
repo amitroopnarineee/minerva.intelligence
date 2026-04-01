@@ -49,6 +49,7 @@ function TrendBadge({ delta }: { delta: { value: number; direction: "up"|"down"|
 
 function DailyBriefing() {
   const router = useRouter()
+  const [expandedInsight, setExpandedInsight] = useState<string | null>(null)
   return (
     <div className="max-w-[1100px] mx-auto space-y-5 pb-10">
       {/* ── HEADER ── */}
@@ -88,8 +89,8 @@ function DailyBriefing() {
             <p className="text-[9px] tracking-widest text-white/15 uppercase">Revenue vs Spend · 7 Day</p>
             <p className="text-[10px] text-white/20">Daily</p>
           </div>
-          <div className="h-[160px]">
-            <VisxAreaChart data={revenueChart} xDataKey="date" aspectRatio="unset" margin={{ top: 8, right: 8, bottom: 24, left: 8 }}>
+          <div>
+            <VisxAreaChart data={revenueChart} xDataKey="date" aspectRatio="3 / 1" margin={{ top: 8, right: 8, bottom: 24, left: 8 }}>
               <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.15} />
               <VisxArea dataKey="revenue" fill="#38bdf8" fillOpacity={0.15} stroke="#38bdf8" strokeWidth={1.5} />
               <VisxArea dataKey="spend" fill="#38bdf8" fillOpacity={0.05} stroke="#38bdf850" strokeWidth={1} />
@@ -101,14 +102,25 @@ function DailyBriefing() {
         <motion.div {...f(0.5)}>
           <Dl label="Insights" />
           <div className="rounded-lg border border-white/[0.06] overflow-hidden">
-            {topInsights.map((ins, i) => (
-              <div key={ins.id} onClick={() => router.push("/command-center")}
+            {topInsights.map((ins) => (
+              <div key={ins.id} onClick={() => setExpandedInsight(expandedInsight === ins.id ? null : ins.id)}
                 className="bg-white/[0.025] px-3.5 py-2.5 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.04] transition-colors cursor-pointer">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[11px] text-white/70 leading-snug">{ins.title}</p>
                   <span className={`text-[8px] px-1.5 py-0.5 rounded shrink-0 mt-0.5 ${ins.severity === "high" ? "bg-sky-400/10 text-sky-400" : "bg-white/5 text-white/20"}`}>{ins.severity}</span>
                 </div>
-                <p className="text-[9px] text-white/20 mt-1">{ins.confidenceScore ? `${(ins.confidenceScore*100).toFixed(0)}% confidence` : ""}</p>
+                {expandedInsight === ins.id ? (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-2 pt-2 border-t border-white/[0.04]">
+                    <p className="text-[10px] text-white/40 leading-relaxed">{ins.summary}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-[8px] text-white/15">{ins.confidenceScore ? `${(ins.confidenceScore*100).toFixed(0)}% confidence` : ""}</span>
+                      <button onClick={(e) => { e.stopPropagation(); router.push("/command-center") }}
+                        className="text-[9px] text-sky-400/60 hover:text-sky-400 transition-colors">View in Command Center →</button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <p className="text-[9px] text-white/15 mt-1">{ins.confidenceScore ? `${(ins.confidenceScore*100).toFixed(0)}% confidence` : ""}</p>
+                )}
               </div>
             ))}
           </div>
@@ -167,13 +179,18 @@ function DailyBriefing() {
         <div className="grid grid-cols-5 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
           {topPeople.map((p) => (
             <div key={p.id} onClick={() => router.push(`/person-search/person/${p.id}`)}
-              className="bg-white/[0.025] px-3 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer">
-              <div className="flex items-center justify-between mb-1">
-                <div className="h-5 w-5 rounded-full bg-sky-400/10 flex items-center justify-center text-[8px] font-bold text-sky-400">{p.firstName[0]}{p.lastName[0]}</div>
-                <span className="text-[10px] font-bold tabular-nums text-white/25">{Math.round(p.scores.ticketBuy * 100)}</span>
+              className="bg-white/[0.025] px-3 py-3 hover:bg-white/[0.05] transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="h-6 w-6 rounded-full bg-sky-400/10 flex items-center justify-center text-[9px] font-bold text-sky-400">{p.firstName[0]}{p.lastName[0]}</div>
+                <span className="text-[11px] font-bold tabular-nums text-white/20">{Math.round(p.scores.ticketBuy * 100)}</span>
               </div>
-              <p className="text-[11px] font-medium text-white/60 leading-tight">{p.firstName} {p.lastName}</p>
-              <p className="text-[8.5px] text-white/15 mt-0.5">{p.jobTitle}</p>
+              <p className="text-[11px] font-medium text-white/65 leading-tight group-hover:text-white/90 transition-colors">{p.firstName} {p.lastName}</p>
+              <p className="text-[9px] text-white/15 mt-0.5">{p.jobTitle}</p>
+              <p className="text-[8px] text-white/10 mt-0.5">{p.city}, {p.state}</p>
+              <div className="mt-1.5 pt-1.5 border-t border-white/[0.04] flex items-center justify-between">
+                <span className="text-[8px] px-1.5 py-0.5 rounded bg-sky-400/8 text-sky-400/50">{p.fanStatus?.replace(/_/g, " ") || "prospect"}</span>
+                <span className="text-[8px] text-sky-400/40 opacity-0 group-hover:opacity-100 transition-opacity">View →</span>
+              </div>
             </div>
           ))}
         </div>

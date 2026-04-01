@@ -30,8 +30,8 @@ export function Sparkline({
   }));
 
   const trend = data[data.length - 1] > data[0] ? "up" : data[data.length - 1] < data[0] ? "down" : "flat";
-  const strokeColor = trend === "up" ? "var(--color-positive)" : trend === "down" ? "var(--color-negative)" : "var(--color-muted-foreground)";
-  const fillColor = trend === "up" ? "var(--color-positive)" : trend === "down" ? "var(--color-negative)" : "var(--color-muted-foreground)";
+  const strokeColor = trend === "up" ? "#38bdf8" : trend === "down" ? "#64748b" : "#475569";
+  const fillColor = strokeColor;
 
   const polyline = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
   const areaPath = `M0,${height} ${pts.map((p) => `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")} L${width},${height} Z`;
