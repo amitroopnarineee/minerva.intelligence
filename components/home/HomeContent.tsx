@@ -44,10 +44,10 @@ const insightCards = [
 ]
 
 const sections = [
-  { id: "briefing", label: "Briefing", icon: Brain },
-  { id: "insights", label: "Insights", icon: Lightbulb },
-  { id: "audiences", label: "Audiences", icon: Users },
-  { id: "people", label: "People", icon: UserSearch },
+  { id: "briefing", label: "Briefing", icon: Brain, headline: "What should I focus on today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
+  { id: "insights", label: "Insights", icon: Lightbulb, headline: "What's happening right now?", placeholder: "Ask about signals, campaigns, or audience shifts..." },
+  { id: "audiences", label: "Audiences", icon: Users, headline: "Build intelligent audience segments.", placeholder: "Find high-value families within 30 miles of the stadium..." },
+  { id: "people", label: "People", icon: UserSearch, headline: "Find anyone in 260M+ profiles.", placeholder: "Search for software engineers in Miami earning over $150K..." },
 ]
 
 /* ── Helpers ── */
@@ -164,6 +164,8 @@ export function HomeContent() {
   const router = useRouter()
 
   const [activeSection, setActiveSection] = useState("briefing")
+  const [activeMode, setActiveMode] = useState(0)
+  const [inputValue, setInputValue] = useState("")
   const [showCanvas, setShowCanvas] = useState(false)
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -208,16 +210,38 @@ export function HomeContent() {
         /* ═══ HERO LANDING ═══ */
         <motion.div key="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }} className="flex-1 flex flex-col items-center justify-center px-6">
-          <motion.h1 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="text-2xl sm:text-3xl tracking-tight text-white mb-8 text-center">What should I focus on today?</motion.h1>
+          <AnimatePresence mode="wait">
+            <motion.h1 key={sections[activeMode].id} initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
+              transition={{ duration: 0.25 }} className="text-2xl sm:text-3xl tracking-tight text-white mb-8 text-center">
+              {sections[activeMode].headline}
+            </motion.h1>
+          </AnimatePresence>
+
+          {/* Input bar */}
+          <div className="max-w-2xl w-full mb-6">
+            <div className="flex items-center rounded-full border bg-white/[0.04] border-white/[0.06] hover:border-white/12 focus-within:border-white/18 transition-all duration-200 px-5 py-2.5 gap-3">
+              <input value={inputValue} onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && inputValue.trim()) { e.preventDefault(); enterCanvas(sections[activeMode].id) } }}
+                placeholder={sections[activeMode].placeholder}
+                className="flex-1 bg-transparent border-0 outline-none text-[14px] text-white placeholder:text-white/20" />
+              <button onClick={() => { if (inputValue.trim()) enterCanvas(sections[activeMode].id) }}
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${inputValue.trim() ? "bg-white text-black" : "bg-white/6 text-white/15"}`}>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Pills — swap title, don't open canvas */}
           <div className="flex items-center gap-2">
             {sections.map((s, i) => {
-              const Icon = s.icon
+              const Icon = s.icon; const on = i === activeMode
               return (
                 <motion.button key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.06 }} onClick={() => enterCanvas(s.id)}
-                  className="flex items-center gap-1.5 rounded-full border border-white/10 px-4 py-2 text-[13px] text-white/50 hover:text-white hover:border-white/25 hover:bg-white/[0.06] transition-all">
+                  transition={{ delay: 0.2 + i * 0.06 }} onClick={() => { setActiveMode(i); setInputValue("") }}
+                  className={`relative flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] transition-all duration-200 ${on ? "border-white/25 text-white bg-white/[0.08]" : "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"}`}>
                   <Icon className="h-3.5 w-3.5" /> {s.label}
+                  {on && <motion.div layoutId="hero-pill" className="absolute inset-0 rounded-full border border-white/25" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
                 </motion.button>
               )
             })}
