@@ -365,7 +365,7 @@ export function HomeContent() {
             {sections.map((s) => {
               const on = activeSection === s.id
               return (
-                <button key={s.id} onClick={() => setActiveSection(s.id)}
+                <button key={s.id} onClick={() => { if (s.id === 'audiences') { router.push('/workspace'); return; } setActiveSection(s.id) }}
                   className={`mn-inline-tab text-[12px] px-3 py-1.5 rounded-lg transition-all ${
                     on ? "bg-white text-black font-medium shadow-sm" : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
                   }`}>
