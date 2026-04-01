@@ -6,10 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { FeatureCard } from "@/components/shared/FeatureCard";
 import { kpiHistory } from "@/lib/data/kpis";
 import { FunnelChart } from "@/components/shared/FunnelChart";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import {
+  AreaChart as VisxAreaChart,
+  Area as VisxArea,
+  Grid as VisxGrid,
+  XAxis as VisxXAxis,
+  ChartTooltip as VisxTooltip,
+} from "@/components/ui/area-chart";
 
+// Transform KPI data for visx (needs Date objects)
 const chartData = kpiHistory.map((k) => ({
-  date: new Date(k.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+  date: new Date(k.date),
   revenue: Math.round(k.influencedRevenue / 1000),
   spend: Math.round(k.paidSpend / 1000),
 }));
@@ -20,20 +27,6 @@ const funnelData = [
   { label: "Converted", value: 3400, displayValue: "3.4K", color: "hsl(var(--chart-3))" },
   { label: "Revenue", value: 890, displayValue: "$242K", color: "hsl(var(--chart-4))" },
 ];
-
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string }>; label?: string }) {
-  if (!active || !payload) return null;
-  return (
-    <div className="mn-insights-card-1 rounded-none border bg-popover px-3 py-2 shadow-md">
-      <p className="mn-insights-el-2 text-xs font-medium mb-1">{label}</p>
-      {payload.map((p) => (
-        <p key={p.name} className="mn-insights-el-3 text-xs text-muted-foreground">
-          <span className="mn-insights-el-4 font-medium text-foreground">${p.value}K</span> {p.name}
-        </p>
-      ))}
-    </div>
-  );
-}
 
 export function InsightsCharts() {
   return (
@@ -47,28 +40,17 @@ export function InsightsCharts() {
             </div>
           </CardHeader>
           <CardContent className="pb-4">
-            <div className="mn-insights-el-9 h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v}K`} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <defs>
-                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="spendGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--chart-5))" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="hsl(var(--chart-5))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="revenue" stroke="hsl(var(--chart-2))" strokeWidth={2} fill="url(#revGrad)" name="Revenue" />
-                  <Area type="monotone" dataKey="spend" stroke="hsl(var(--chart-5))" strokeWidth={1.5} fill="url(#spendGrad)" name="Spend" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            <VisxAreaChart data={chartData} xDataKey="date" aspectRatio="2.2 / 1"
+              margin={{ top: 12, right: 12, bottom: 32, left: 12 }}>
+              <VisxGrid horizontal numTicksRows={4} strokeDasharray="3,3" strokeOpacity={0.3} />
+              <VisxArea dataKey="revenue" fill="#38bdf8" fillOpacity={0.3} stroke="#38bdf8" strokeWidth={2} fadeEdges />
+              <VisxArea dataKey="spend" fill="#38bdf8" fillOpacity={0.1} stroke="#38bdf880" strokeWidth={1.5} fadeEdges />
+              <VisxXAxis numTicks={5} />
+              <VisxTooltip rows={(point) => [
+                { color: "#38bdf8", label: "Revenue", value: `${(point.revenue as number)?.toLocaleString()}K` },
+                { color: "#38bdf880", label: "Spend", value: `${(point.spend as number)?.toLocaleString()}K` },
+              ]} />
+            </VisxAreaChart>
           </CardContent>
         </FeatureCard>
       </motion.div>
@@ -82,7 +64,9 @@ export function InsightsCharts() {
             </div>
           </CardHeader>
           <CardContent className="pb-4">
-            <FunnelChart data={funnelData} layers={4} gap={3} staggerDelay={0.15} showPercentage={true} showValues={true} showLabels={true} className="h-[220px]" style={{ aspectRatio: "unset" }} />
+            <FunnelChart data={funnelData} layers={4} gap={3} staggerDelay={0.15}
+              showPercentage={true} showValues={true} showLabels={true}
+              className="h-[220px]" style={{ aspectRatio: "unset" }} />
           </CardContent>
         </FeatureCard>
       </motion.div>

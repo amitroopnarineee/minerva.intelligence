@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import "./overrides.css";
@@ -14,18 +13,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <TooltipProvider>
-            {children}
-            <Toaster position="bottom-right" />
-          </TooltipProvider>
-        </ThemeProvider>
+      <body>
+        <TooltipProvider>
+          {children}
+          <Toaster position="bottom-right" />
+        </TooltipProvider>
       </body>
     </html>
   );

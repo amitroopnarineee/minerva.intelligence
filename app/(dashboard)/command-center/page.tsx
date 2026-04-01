@@ -1,11 +1,14 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
-import { X, Clock, ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react"
+import { X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AudienceSpectrum } from "@/components/shared/AudienceSpectrum"
 import { toast } from "sonner"
+import { persons } from "@/lib/data/persons"
+import { UserAvatar } from "@/components/shared/UserAvatar"
+import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, ChartTooltip as VisxTooltip } from "@/components/ui/area-chart"
 
 interface InsightCard {
   id: string
@@ -20,6 +23,7 @@ interface InsightCard {
   color: string
   category: string
   openSpectrum?: true
+  relatedAudienceIds: string[]
   drillDown: {
     title: string
     summary: string
@@ -33,17 +37,33 @@ interface InsightCard {
     sources: string[]
     table: { headers: string[]; rows: string[][]; deltaCol?: number }
     actions: string[]
+    chartData?: { date: Date; primary: number; secondary?: number }[]
+    chartLabels?: { primary: string; secondary?: string }
   }
 }
 
 const categories = ["All", "Signal", "Audience", "Campaign", "Action"]
 
+// Generate 7-day mock trend data
+function makeTrend(base: number, delta: number, noise = 0.08): { date: Date; primary: number; secondary?: number }[] {
+  return Array.from({ length: 7 }, (_, i) => {
+    const t = i / 6;
+    const jitter = 1 + (Math.sin(i * 2.1) * noise);
+    return {
+      date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000),
+      primary: Math.round(base * (1 + t * delta) * jitter),
+      secondary: Math.round(base * 0.6 * (1 + t * delta * 0.5) * jitter),
+    };
+  });
+}
+
 const insights: InsightCard[] = [
   {
-    id: "1", label: "Attention", mainValue: "+18%", valueColor: "text-emerald-400",
+    id: "1", label: "Attention", mainValue: "+18%", valueColor: "text-sky-400",
     copy: "Player-led content and offseason conversation drove a broad lift in brand visibility across Instagram, TikTok, and owned web.",
     meaning: "Brand awareness is up meaningfully, but this is mostly a top-of-funnel signal.",
-    cta: "See channel breakdown", color: "border-l-emerald-400/60", category: "Signal",
+    cta: "See channel breakdown", color: "border-l-sky-400/40", category: "Signal",
+    relatedAudienceIds: ["aud_001", "aud_010", "aud_007"],
     drillDown: {
       title: "Brand Attention Increased",
       summary: "Attention is up 18% vs yesterday, driven primarily by player-led content, premium experience messaging, and a rise in schedule-related search behavior.",
@@ -62,14 +82,16 @@ const insights: InsightCard[] = [
       followUpActions: ["A/B test CTA variants on next Player Spotlight", "Build retargeting audience from social engagers", "Schedule weekly attention-to-conversion review"],
       sources: ["Instagram Insights API", "TikTok Analytics", "Google Search Console", "Minerva Engagement Pipeline"],
       actions: ["View top contributing posts", "Compare by audience", "Export attention summary", "Ask Minerva why it rose"],
+      chartData: makeTrend(76, 0.18), chartLabels: { primary: "Attention Score", secondary: "Owned Capture" },
     },
   },
   {
-    id: "2", label: "Premium Experience", mainValue: "+11%", valueColor: "text-blue-400",
+    id: "2", label: "Premium Experience", mainValue: "+11%", valueColor: "text-sky-400",
     copy: "Premium game-day messaging is outperforming general hype and creating the strongest downstream ticket-intent lift.",
     meaning: "This is the strongest near-term revenue opportunity in the dataset.",
-    cta: "Analyze in Audience Spectrum →", color: "border-l-blue-400/60", category: "Signal",
+    cta: "Analyze in Audience Spectrum →", color: "border-l-sky-400/40", category: "Signal",
     openSpectrum: true,
+    relatedAudienceIds: ["aud_002", "aud_006"],
     drillDown: {
       title: "Premium Experience Is The Strongest Revenue Signal",
       summary: "Premium game-day messaging is outperforming general hype across high-intent audiences and creating the clearest path to premium ticket sales.",
@@ -88,13 +110,15 @@ const insights: InsightCard[] = [
       followUpActions: ["Test premium creative on Family segment", "Build premium retargeting sequence", "Prep Q2 premium campaign brief"],
       sources: ["Meta Ads Manager", "Minerva Campaign Table", "Ticketmaster Premium Sales API", "CRM Suite Holder Data"],
       actions: ["Generate premium sales brief", "Send to ticketing team", "Expand winning creative", "Compare with general hype"],
+      chartData: makeTrend(54, 0.11, 0.06), chartLabels: { primary: "Ticket Intent", secondary: "Owned Action" },
     },
   },
   {
-    id: "3", label: "Family Audience", mainValue: "+14%", valueColor: "text-emerald-400",
+    id: "3", label: "Family Audience", mainValue: "+14%", valueColor: "text-sky-400",
     copy: "Family ticket consideration rose across Miami-Dade and Broward, led by planning, convenience, and shared weekend messaging.",
     meaning: "This is the fastest-rising high-intent audience segment.",
-    cta: "View regional data", color: "border-l-purple-400/60", category: "Audience",
+    cta: "View regional data", color: "border-l-sky-400/40", category: "Audience",
+    relatedAudienceIds: ["aud_003"],
     drillDown: {
       title: "Family Ticket Interest Rose In South Florida",
       summary: "Family ticket consideration increased 14%, with the strongest lift in Miami-Dade and Broward, linked to planning and weekend messaging.",
@@ -113,13 +137,15 @@ const insights: InsightCard[] = [
       followUpActions: ["Test family messaging in Palm Beach", "Build family lookalike from high-intent converters", "Develop family gameday experience landing page"],
       sources: ["Minerva Audience Table", "Regional Sales Data", "Email Platform Analytics", "Minerva Geo Pipeline"],
       actions: ["Create family campaign brief", "Launch regional variant", "Assign to lifecycle team", "Compare vs premium"],
+      chartData: makeTrend(44, 0.14, 0.07), chartLabels: { primary: "Family Consideration", secondary: "Regional Lift" },
     },
   },
   {
-    id: "4", label: "Owned Conversion", mainValue: "-4%", valueColor: "text-red-400",
+    id: "4", label: "Owned Conversion", mainValue: "-4%", valueColor: "text-sky-400/60",
     copy: "Social engagement rose sharply, but movement into app, ticketing, and lifecycle capture still trails total reach growth.",
     meaning: "There is a clear conversion gap between attention and owned value.",
-    cta: "See funnel gaps", color: "border-l-red-400/60", category: "Signal",
+    cta: "See funnel gaps", color: "border-l-sky-400/40", category: "Signal",
+    relatedAudienceIds: ["aud_010", "aud_001"],
     drillDown: {
       title: "Owned Conversion Is Still Lagging",
       summary: "Even with strong engagement growth, owned action is down 4% in efficiency. The main drop-off is between social engagement and owned clickthrough.",
@@ -138,13 +164,15 @@ const insights: InsightCard[] = [
       followUpActions: ["Build social-to-app deep link infrastructure", "Test in-content QR codes at next home game", "Design CTA experiment framework for content team"],
       sources: ["TikTok Analytics", "Instagram Insights", "App Store Connect", "Minerva Funnel Pipeline", "Ticketmaster Click Data"],
       actions: ["Create CTA test", "Generate conversion brief", "Assign to performance team", "Create experiment"],
+      chartData: makeTrend(82, -0.04, 0.05), chartLabels: { primary: "Engagement", secondary: "Owned Conversion" },
     },
   },
   {
-    id: "5", label: "Sponsor Resonance", mainValue: "+9%", valueColor: "text-amber-400",
+    id: "5", label: "Sponsor Resonance", mainValue: "+9%", valueColor: "text-sky-400",
     copy: "Luxury, hospitality, and Miami-lifestyle narratives are creating the strongest sponsor-adjacent value in the current mix.",
     meaning: "This is the strongest partner narrative right now.",
-    cta: "View sponsor data", color: "border-l-amber-400/60", category: "Signal",
+    cta: "View sponsor data", color: "border-l-sky-400/40", category: "Signal",
+    relatedAudienceIds: ["aud_002", "aud_007"],
     drillDown: {
       title: "Luxury And Hospitality Narratives Are Winning",
       summary: "Sponsor resonance is up 9%, driven by narratives tied to premium lifestyle, hospitality, and elevated Miami identity.",
@@ -163,6 +191,7 @@ const insights: InsightCard[] = [
       followUpActions: ["Build lifestyle content calendar for Q2", "Propose co-branded content series to top sponsor", "Create sponsor value dashboard"],
       sources: ["Minerva Narrative Analysis", "Sponsor Tracking Platform", "Brand Sentiment Pipeline", "Social Listening Tools"],
       actions: ["Generate sponsor memo", "Export to partnerships", "Build partner summary", "Compare narratives"],
+      chartData: makeTrend(66, 0.09, 0.06), chartLabels: { primary: "Sponsor Resonance", secondary: "Brand Lift" },
     },
   },
   {
@@ -170,7 +199,8 @@ const insights: InsightCard[] = [
     subtitle: "Player Spotlight Series", pill: "High reach · low CTA",
     copy: "The strongest awareness driver in the dataset, but still underperforming premium and family campaigns on owned action.",
     meaning: "Best campaign for reach, not best for conversion.",
-    cta: "See campaign performance", color: "border-l-blue-400/60", category: "Campaign",
+    cta: "See campaign performance", color: "border-l-sky-400/40", category: "Campaign",
+    relatedAudienceIds: ["aud_001", "aud_010", "aud_007"],
     drillDown: {
       title: "Player Spotlight Is The Strongest Awareness Driver",
       summary: "Player Spotlight produced the largest attention lift, but trails premium and family campaigns on owned conversion.",
@@ -189,6 +219,7 @@ const insights: InsightCard[] = [
       followUpActions: ["Develop Player Spotlight + Premium hybrid format", "Test mid-roll CTA insertion on TikTok", "Build attribution model for Spotlight → ticket path"],
       sources: ["TikTok Creator Studio", "Instagram Insights", "Minerva Campaign Table", "Content Management System"],
       actions: ["Generate CTA-enhanced variants", "Route to content team", "Compare against premium", "Ask Minerva how to improve"],
+      chartData: makeTrend(42, 0.06, 0.1), chartLabels: { primary: "Reach", secondary: "Owned Action" },
     },
   },
   {
@@ -196,8 +227,9 @@ const insights: InsightCard[] = [
     subtitle: "Families up · Gen Z flat",
     copy: "Higher-intent local audiences are becoming more valuable than broad casual reach this week.",
     meaning: "Value is shifting toward segments with stronger intent, not just larger reach.",
-    cta: "Analyze in Audience Spectrum →", color: "border-l-purple-400/60", category: "Audience",
+    cta: "Analyze in Audience Spectrum →", color: "border-l-sky-400/40", category: "Audience",
     openSpectrum: true,
+    relatedAudienceIds: ["aud_003", "aud_002"],
     drillDown: {
       title: "Audience Value Is Shifting Toward Families And Premium",
       summary: "Families and premium buyers are becoming more valuable than broad casual Gen Z reach.",
@@ -216,6 +248,7 @@ const insights: InsightCard[] = [
       followUpActions: ["Build audience shift dashboard for weekly review", "Develop Gen Z → owned conversion experiment", "Create audience value scoring framework"],
       sources: ["Minerva Audience Scoring", "Media Mix Model", "CRM Engagement Data", "Ticketmaster Purchase History"],
       actions: ["Create audience brief", "Compare segments", "Build campaign recommendation", "Export"],
+      chartData: makeTrend(50, 0.08, 0.09), chartLabels: { primary: "Family Intent", secondary: "Premium Intent" },
     },
   },
   {
@@ -223,7 +256,8 @@ const insights: InsightCard[] = [
     subtitle: "Turn reach into owned capture", pill: "3 actions ready",
     copy: "Shift more weight toward premium experience, launch a family variant, and fix the short-form CTA gap.",
     meaning: "This is the synthesized action card.",
-    cta: "View priority actions", color: "border-l-white/40", category: "Action",
+    cta: "View priority actions", color: "border-l-sky-400/40", category: "Action",
+    relatedAudienceIds: ["aud_002", "aud_003", "aud_010", "aud_001"],
     drillDown: {
       title: "Today's Priority Actions",
       summary: "Three moves stand out: push premium harder, activate a family variant, and fix the owned CTA gap.",
@@ -242,249 +276,281 @@ const insights: InsightCard[] = [
       followUpActions: ["Build weekly priority action review cadence", "Create cross-channel attribution dashboard", "Prepare Q2 strategic brief with these three pillars"],
       sources: ["All Minerva Pipelines", "Campaign Performance Data", "Audience Scoring Models", "Funnel Analytics"],
       actions: ["Create premium brief", "Create family task", "Create CTA experiment", "Export to leadership", "Assign owners"],
+      chartData: makeTrend(60, 0.12, 0.07), chartLabels: { primary: "Signal Strength", secondary: "Readiness" },
     },
   },
 ]
 
 /* ── Helpers ── */
 function deltaColor(val: string): string {
-  if (val.startsWith("+")) return "text-emerald-400"
-  if (val.startsWith("-")) return "text-red-400"
+  if (val.startsWith("+")) return "text-sky-400"
+  if (val.startsWith("-")) return "text-sky-400/60"
   return "text-foreground/60"
 }
 
-const MODAL_TABS = ["Overview", "Analysis", "Data", "Sources"] as const
-type ModalTab = typeof MODAL_TABS[number]
-
-function DrillDownModal({ card, onClose, onOpenSpectrum }: { card: InsightCard; onClose: () => void; onOpenSpectrum?: () => void }) {
-  const [tab, setTab] = useState<ModalTab>("Overview")
+function DrillDownModal({ card, onClose, onOpenSpectrum, onNav }: { card: InsightCard; onClose: () => void; onOpenSpectrum?: () => void; onNav?: (dir: -1 | 1) => void }) {
   const dd = card.drillDown
+  const [rightTab, setRightTab] = useState<"detail" | "people">("detail")
+
+  // Get related people based on audience IDs
+  const relatedPeople = persons.filter(p =>
+    p.audiences.some(a => card.relatedAudienceIds.includes(a))
+  )
+
+  useEffect(() => {
+    setRightTab("detail")
+  }, [card.id])
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") { e.preventDefault(); onNav?.(-1) }
+      if (e.key === "ArrowRight") { e.preventDefault(); onNav?.(1) }
+      if (e.key === "Escape") { e.preventDefault(); onClose() }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [onNav, onClose])
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
       className="mn-cc-modal fixed inset-0 z-50 bg-black/60 backdrop-blur-md" onClick={onClose}>
       <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="mn-cc-modal-content absolute inset-4 top-12 bg-card border border-border/50 rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+        className="mn-cc-modal-content absolute inset-4 top-12 rounded-2xl overflow-hidden shadow-2xl border border-white/[0.06]"
+        style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(30px)", WebkitBackdropFilter: "blur(30px)" }}
         onClick={(e) => e.stopPropagation()}>
 
-        {/* Header with tabs */}
-        <div className="mn-cc-modal-topbar shrink-0 border-b border-border/20">
-          <div className="mn-cc-modal-header-row flex items-center justify-between px-8 pt-4 pb-0">
-            <div className="mn-cc-modal-header-left flex-1 min-w-0">
-              <h2 className="mn-cc-modal-title text-[18px] font-semibold tracking-tight">{dd.title}</h2>
-              <p className="mn-cc-modal-summary text-[12px] text-muted-foreground mt-0.5 truncate">{dd.summary}</p>
+        {/* Close button — floating top-right */}
+        <button onClick={onClose} className="absolute top-4 right-4 z-10 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all">
+          <X className="h-4 w-4" />
+        </button>
+
+        {/* Two-column layout — full height */}
+        <div className="h-full grid grid-cols-2">
+
+          {/* ═══ LEFT: Title + Summary + Hero + Meaning — evenly spaced vertically ═══ */}
+          <div className="border-r border-white/[0.06] p-10 flex flex-col justify-between">
+            {/* Title + summary */}
+            <div>
+              <h2 className="text-[22px] font-semibold tracking-tight leading-tight">{dd.title}</h2>
+              <p className="text-[13px] text-muted-foreground mt-2 leading-relaxed">{dd.summary}</p>
             </div>
-            <button onClick={onClose} className="mn-cc-modal-close h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all shrink-0 ml-4">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="mn-cc-modal-tabs flex items-center gap-0 px-8 mt-3">
-            {MODAL_TABS.map((t) => (
-              <button key={t} onClick={() => setTab(t)}
-                className={`mn-cc-modal-tab text-[12px] px-4 py-2 transition-colors border-b-2 ${
-                  tab === t ? "text-foreground font-medium border-foreground" : "text-muted-foreground hover:text-foreground border-transparent"
-                }`}>
-                {t}
+
+            {/* Hero value or subtitle */}
+            {card.mainValue ? (
+              <div>
+                <span className={`text-[72px] font-bold tracking-tighter leading-none ${card.valueColor}`}>{card.mainValue}</span>
+                <span className="text-[48px] ml-1">{card.mainValue.startsWith("+") ? "↑" : card.mainValue.startsWith("-") ? "↓" : ""}</span>
+              </div>
+            ) : card.subtitle ? (
+              <div>
+                <span className="text-[32px] font-bold tracking-tight leading-tight">{card.subtitle}</span>
+              </div>
+            ) : null}
+
+            {/* What it means */}
+            <div className="rounded-xl bg-muted/10 border-l-2 border-foreground/20 px-5 py-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">What it means</p>
+              <p className="text-[14px] text-foreground/90 leading-relaxed">{dd.meaning}</p>
+            </div>
+
+            {/* Spectrum CTA for eligible cards */}
+            {card.openSpectrum && onOpenSpectrum && (
+              <button onClick={() => { onClose(); onOpenSpectrum() }}
+                className="rounded-xl border border-sky-400/20 bg-sky-400/5 px-4 py-3 text-[13px] font-medium text-sky-400 hover:bg-sky-400/10 transition-colors text-left">
+                Explore audience in Spectrum →
               </button>
-            ))}
+            )}
           </div>
-        </div>
 
-        {/* Body */}
-        <div className="mn-cc-modal-body flex-1 grid grid-cols-2 min-h-0">
-          {/* LEFT */}
-          <div className="mn-cc-modal-left border-r border-border/20 p-8 overflow-y-auto flex flex-col gap-6" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
-            {tab === "Overview" && (<>
-              {card.mainValue && (
-                <div className="mn-cc-modal-hero">
-                  <span className={`mn-cc-modal-hero-value text-[56px] font-bold tracking-tighter leading-none ${card.valueColor}`}>{card.mainValue}</span>
-                  <span className="mn-cc-modal-hero-arrow text-[40px] ml-1">{card.mainValue.startsWith("+") ? "↑" : card.mainValue.startsWith("-") ? "↓" : ""}</span>
-                </div>
-              )}
-              {card.subtitle && !card.mainValue && (
-                <div className="mn-cc-modal-hero">
-                  <span className="mn-cc-modal-hero-subtitle text-[28px] font-bold tracking-tight leading-tight">{card.subtitle}</span>
-                </div>
-              )}
-              <div className="mn-cc-modal-meaning rounded-xl bg-muted/10 border-l-2 border-foreground/20 px-5 py-4">
-                <p className="mn-cc-modal-meaning-label text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">What it means</p>
-                <p className="mn-cc-modal-meaning-text text-[14px] text-foreground/90 leading-relaxed">{dd.meaning}</p>
-              </div>
-              <div className="mn-cc-modal-metrics-section">
-                <h3 className="mn-cc-modal-metrics-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Key Metrics</h3>
-                <div className="mn-cc-modal-metrics grid grid-cols-2 gap-2.5">
-                  {dd.metrics.map((m, i) => (
-                    <div key={i} className="mn-cc-modal-metric rounded-lg border border-border/20 px-3.5 py-3">
-                      <p className="mn-cc-modal-metric-label text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{m.label}</p>
-                      <span className={`mn-cc-modal-metric-number text-[20px] font-bold tracking-tight ${m.value.startsWith("+") ? "text-emerald-400" : m.value.startsWith("-") ? "text-red-400" : ""}`}>{m.value}</span>
-                      <p className="mn-cc-modal-metric-context text-[10.5px] text-muted-foreground mt-0.5 leading-snug">{m.context}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* Spectrum CTA for eligible cards */}
-              {card.openSpectrum && onOpenSpectrum && (
-                <button onClick={() => { onClose(); onOpenSpectrum() }}
-                  className="w-full rounded-xl border border-blue-400/20 bg-blue-400/5 px-4 py-3 text-[13px] font-medium text-blue-400 hover:bg-blue-400/10 transition-colors text-left flex items-center justify-between group">
-                  <span>Explore audience in Spectrum →</span>
-                  <span className="text-blue-400/40 group-hover:text-blue-400/70 transition-colors text-[11px]">Score distribution · demographics · recommendations</span>
+          {/* ═══ RIGHT: Detail / People tabs ═══ */}
+          <div className="overflow-hidden flex flex-col">
+            {/* Tab bar */}
+            <div className="shrink-0 flex items-center gap-1 px-10 pt-6 pb-0">
+              {(["detail", "people"] as const).map((t) => (
+                <button key={t} onClick={() => setRightTab(t)}
+                  className={`text-[12px] px-3 py-1.5 rounded-lg transition-all capitalize ${
+                    rightTab === t ? "bg-white/10 text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                  }`}>
+                  {t === "people" ? `People (${relatedPeople.length})` : "Detail"}
                 </button>
-              )}
-            </>)}
+              ))}
+            </div>
 
-            {tab === "Analysis" && (<>
-              {card.mainValue && (
-                <div className="mn-cc-modal-hero">
-                  <span className={`mn-cc-modal-hero-value text-[56px] font-bold tracking-tighter leading-none ${card.valueColor}`}>{card.mainValue}</span>
-                  <span className="mn-cc-modal-hero-arrow text-[40px] ml-1">{card.mainValue.startsWith("+") ? "↑" : card.mainValue.startsWith("-") ? "↓" : ""}</span>
+            {/* Tab content */}
+            <div className="flex-1 overflow-y-auto p-10 pr-12" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
+
+            {rightTab === "detail" ? (
+            <div className="space-y-8">
+
+              {/* Trend Chart */}
+              {dd.chartData && (
+                <div>
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">7-Day Trend</h3>
+                  <div className="rounded-lg border border-border/20 overflow-hidden p-3">
+                    <VisxAreaChart data={dd.chartData} xDataKey="date" aspectRatio="3 / 1" margin={{ top: 12, right: 12, bottom: 28, left: 12 }}>
+                      <VisxGrid horizontal numTicksRows={4} strokeDasharray="3,3" strokeOpacity={0.3} />
+                      <VisxArea dataKey="primary" fill="#38bdf8" fillOpacity={0.25} stroke="#38bdf8" strokeWidth={2} fadeEdges />
+                      {dd.chartData[0]?.secondary !== undefined && (
+                        <VisxArea dataKey="secondary" fill="#38bdf8" fillOpacity={0.08} stroke="#38bdf880" strokeWidth={1.5} fadeEdges />
+                      )}
+                      <VisxTooltip rows={(point) => {
+                        const rows = [{ color: "#38bdf8", label: dd.chartLabels?.primary ?? "Primary", value: point.primary as number }];
+                        if (point.secondary !== undefined) rows.push({ color: "#38bdf880", label: dd.chartLabels?.secondary ?? "Secondary", value: point.secondary as number });
+                        return rows;
+                      }} />
+                    </VisxAreaChart>
+                  </div>
                 </div>
               )}
-              <div className="mn-cc-modal-analysis-section">
-                <h3 className="mn-cc-modal-analysis-label text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Minerva Analysis</h3>
-                <p className="mn-cc-modal-analysis-text text-[14px] text-foreground/85 leading-[1.8]">{dd.analysis}</p>
-              </div>
-              <div className="mn-cc-modal-highlight rounded-lg bg-primary/5 border border-primary/10 px-4 py-3">
-                <p className="mn-cc-modal-highlight-text text-[13px] text-foreground/90 font-medium leading-snug">{dd.highlight}</p>
-              </div>
-            </>)}
 
-            {tab === "Data" && (<>
-              <div className="mn-cc-modal-metrics-section">
-                <h3 className="mn-cc-modal-metrics-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Key Metrics</h3>
-                <div className="mn-cc-modal-metrics grid grid-cols-2 gap-2.5">
+              {/* Key Metrics */}
+              <div>
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Key Metrics</h3>
+                <div className="grid grid-cols-2 gap-2.5">
                   {dd.metrics.map((m, i) => (
-                    <div key={i} className="mn-cc-modal-metric rounded-lg border border-border/20 px-3.5 py-3">
-                      <p className="mn-cc-modal-metric-label text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{m.label}</p>
-                      <span className="mn-cc-modal-metric-number text-[20px] font-bold tracking-tight">{m.value}</span>
+                    <div key={i} className="rounded-lg border border-border/20 px-3.5 py-3">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{m.label}</p>
+                      <span className={`text-[20px] font-bold tracking-tight ${m.value.startsWith("+") || m.value.startsWith("-") ? "text-sky-400" : ""}`}>{m.value}</span>
+                      <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-snug">{m.context}</p>
                     </div>
                   ))}
                 </div>
               </div>
-            </>)}
 
-            {tab === "Sources" && (<>
-              <div className="mn-cc-modal-sources-hero">
-                <h3 className="mn-cc-modal-sources-title text-[14px] font-semibold mb-2">Data Sources</h3>
-                <p className="mn-cc-modal-sources-desc text-[12px] text-muted-foreground leading-relaxed">This insight was generated by analyzing data from the following connected sources in the Minerva pipeline.</p>
+              {/* Evidence + Highlight */}
+              <div>
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Evidence</h3>
+                <p className="text-[13px] text-foreground/70 leading-[1.7] mb-3">{dd.evidence}</p>
+                <div className="rounded-lg bg-primary/5 border border-primary/10 px-4 py-3">
+                  <p className="text-[13px] text-foreground/90 font-medium leading-snug">{dd.highlight}</p>
+                </div>
               </div>
-              <div className="mn-cc-modal-sources-grid grid grid-cols-2 gap-3">
-                {dd.sources.map((s, i) => (
-                  <div key={i} className="mn-cc-modal-source-card rounded-xl border border-border/20 bg-muted/5 px-4 py-4 flex items-center gap-3">
-                    <div className="mn-cc-modal-source-icon h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="text-[16px] font-bold text-primary/60">#</span>
-                    </div>
-                    <span className="mn-cc-modal-source-name text-[13px] font-medium">{s}</span>
-                  </div>
-                ))}
-              </div>
-            </>)}
-          </div>
 
-          {/* RIGHT */}
-          <div className="mn-cc-modal-right overflow-y-auto p-8" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
-            <div className="mn-cc-modal-sections space-y-6">
-              {tab === "Overview" && (<>
-                <div className="mn-cc-modal-section">
-                  <h3 className="mn-cc-modal-section-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Evidence</h3>
-                  <p className="mn-cc-modal-evidence text-[13px] text-foreground/70 leading-[1.7] mb-3">{dd.evidence}</p>
-                  <div className="mn-cc-modal-highlight rounded-lg bg-primary/5 border border-primary/10 px-4 py-3">
-                    <p className="mn-cc-modal-highlight-text text-[13px] text-foreground/90 font-medium leading-snug">{dd.highlight}</p>
-                  </div>
-                </div>
-                <div className="mn-cc-modal-actions-wrap">
-                  <h3 className="mn-cc-modal-actions-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Suggested Actions</h3>
-                  <div className="mn-cc-modal-immediate mb-4">
-                    <p className="mn-cc-modal-actions-subtitle text-[11px] font-semibold text-foreground/70 mb-2">Immediate</p>
-                    <div className="mn-cc-modal-action-list space-y-1.5">
-                      {dd.immediateActions.map((a, i) => (
-                        <div key={i} className="mn-cc-modal-action-row flex items-start gap-2.5">
-                          <span className="mn-cc-modal-action-num text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
-                          <span className="mn-cc-modal-action-text text-[13px] text-foreground/80 leading-snug">{a}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="mn-cc-modal-followup">
-                    <p className="mn-cc-modal-actions-subtitle text-[11px] font-semibold text-foreground/70 mb-2">Follow-up</p>
-                    <div className="mn-cc-modal-action-list space-y-1.5">
-                      {dd.followUpActions.map((a, i) => (
-                        <div key={i} className="mn-cc-modal-action-row flex items-start gap-2.5">
-                          <span className="mn-cc-modal-action-num text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
-                          <span className="mn-cc-modal-action-text text-[13px] text-foreground/80 leading-snug">{a}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </>)}
-
-              {tab === "Analysis" && (<>
-                <div className="mn-cc-modal-section">
-                  <h3 className="mn-cc-modal-section-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Suggested Actions</h3>
-                  <div className="mn-cc-modal-immediate mb-4">
-                    <p className="mn-cc-modal-actions-subtitle text-[11px] font-semibold text-foreground/70 mb-2">Immediate</p>
-                    <div className="mn-cc-modal-action-list space-y-1.5">
-                      {dd.immediateActions.map((a, i) => (
-                        <div key={i} className="mn-cc-modal-action-row flex items-start gap-2.5">
-                          <span className="mn-cc-modal-action-num text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
-                          <span className="mn-cc-modal-action-text text-[13px] text-foreground/80 leading-snug">{a}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="mn-cc-modal-followup">
-                    <p className="mn-cc-modal-actions-subtitle text-[11px] font-semibold text-foreground/70 mb-2">Short Term</p>
-                    <div className="mn-cc-modal-action-list space-y-1.5">
-                      {dd.followUpActions.map((a, i) => (
-                        <div key={i} className="mn-cc-modal-action-row flex items-start gap-2.5">
-                          <span className="mn-cc-modal-action-num text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
-                          <span className="mn-cc-modal-action-text text-[13px] text-foreground/80 leading-snug">{a}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </>)}
-
-              {tab === "Data" && (<>
-                <div className="mn-cc-modal-table-wrap">
-                  <h3 className="mn-cc-modal-table-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Raw Data</h3>
-                  <div className="mn-cc-modal-table rounded-lg border border-border/20 overflow-hidden">
-                    <table className="mn-cc-modal-table-el w-full text-[12px]">
-                      <thead>
-                        <tr className="mn-cc-modal-thead bg-muted/10">
-                          {dd.table.headers.map((h, i) => (
-                            <th key={i} className="mn-cc-modal-th px-3 py-2 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{h}</th>
+              {/* Data Table */}
+              <div>
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Data</h3>
+                <div className="rounded-lg border border-border/20 overflow-hidden">
+                  <table className="w-full text-[12px]">
+                    <thead>
+                      <tr className="bg-muted/10">
+                        {dd.table.headers.map((h, i) => (
+                          <th key={i} className="px-3 py-2 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dd.table.rows.map((row, ri) => (
+                        <tr key={ri} className={`border-t border-border/10 ${ri === 0 ? "bg-muted/5" : ""}`}>
+                          {row.map((cell, ci) => (
+                            <td key={ci} className={`px-3 py-2 ${
+                              ci === 0 ? "text-foreground/80 font-medium" :
+                              ci === dd.table.deltaCol ? `font-semibold ${deltaColor(cell)}` :
+                              "text-muted-foreground"
+                            }`}>{cell}</td>
                           ))}
                         </tr>
-                      </thead>
-                      <tbody>
-                        {dd.table.rows.map((row, ri) => (
-                          <tr key={ri} className={`mn-cc-modal-tr border-t border-border/10 ${ri === 0 ? "bg-muted/5" : ""}`}>
-                            {row.map((cell, ci) => (
-                              <td key={ci} className={`mn-cc-modal-td px-3 py-2 ${
-                                ci === 0 ? "text-foreground/80 font-medium" :
-                                ci === dd.table.deltaCol ? `font-semibold ${deltaColor(cell)}` :
-                                "text-muted-foreground"
-                              }`}>{cell}</td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Analysis */}
+              <div>
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Analysis</h3>
+                <p className="text-[13px] text-foreground/85 leading-[1.8]">{dd.analysis}</p>
+              </div>
+
+              {/* Suggested Actions */}
+              <div>
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Suggested Actions</h3>
+                <div className="mb-4">
+                  <p className="text-[11px] font-semibold text-foreground/70 mb-2">Immediate</p>
+                  <div className="space-y-1.5">
+                    {dd.immediateActions.map((a, i) => (
+                      <div key={i} className="flex items-start gap-2.5">
+                        <span className="text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
+                        <span className="text-[13px] text-foreground/80 leading-snug">{a}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </>)}
-
-              {tab === "Sources" && (<>
-                <div className="mn-cc-modal-section">
-                  <h3 className="mn-cc-modal-section-title text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Minerva Analysis</h3>
-                  <p className="mn-cc-modal-analysis-text text-[14px] text-foreground/85 leading-[1.8]">{dd.analysis}</p>
+                <div>
+                  <p className="text-[11px] font-semibold text-foreground/70 mb-2">Follow-up</p>
+                  <div className="space-y-1.5">
+                    {dd.followUpActions.map((a, i) => (
+                      <div key={i} className="flex items-start gap-2.5">
+                        <span className="text-[11px] text-muted-foreground font-medium mt-0.5 shrink-0">{i + 1}.</span>
+                        <span className="text-[13px] text-foreground/80 leading-snug">{a}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </>)}
+              </div>
+
+              {/* Sources */}
+              <div>
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Sources</h3>
+                <div className="flex flex-wrap gap-2">
+                  {dd.sources.map((s, i) => (
+                    <span key={i} className="text-[11px] px-2.5 py-1 rounded-md border border-border/20 bg-muted/5 text-muted-foreground">{s}</span>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+            ) : (
+            /* ═══ PEOPLE TAB ═══ */
+            <div>
+              <div className="rounded-lg border border-border/20 overflow-hidden">
+                <table className="w-full text-[12px]">
+                  <thead>
+                    <tr className="bg-muted/10">
+                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Person</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Status</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Ticket Buy</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Premium</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Churn</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Income</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {relatedPeople.map((p) => (
+                      <tr key={p.id} className="border-t border-border/10 hover:bg-muted/5 transition-colors">
+                        <td className="px-3 py-2.5">
+                          <div className="flex items-center gap-2.5">
+                            <UserAvatar name={`${p.firstName} ${p.lastName}`} size={28} />
+                            <div>
+                              <p className="text-[12px] font-medium">{p.firstName} {p.lastName}</p>
+                              <p className="text-[10px] text-muted-foreground">{p.city}, {p.state}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                            p.fanStatus === "active_fan" ? "bg-sky-500/10 text-sky-400" :
+                            p.fanStatus === "season_ticket_holder" ? "bg-sky-500/10 text-sky-400" :
+                            p.fanStatus === "lapsed" ? "bg-sky-500/10 text-sky-400/50" :
+                            "bg-sky-500/10 text-sky-400/60"
+                          }`}>{p.fanStatus.replace(/_/g, " ")}</span>
+                        </td>
+                        <td className="px-3 py-2.5 text-[12px] tabular-nums font-medium">{Math.round(p.scores.ticketBuy * 100)}</td>
+                        <td className="px-3 py-2.5 text-[12px] tabular-nums font-medium">{Math.round(p.scores.premium * 100)}</td>
+                        <td className={`px-3 py-2.5 text-[12px] tabular-nums font-medium ${p.scores.churn > 0.5 ? "text-sky-400/60" : ""}`}>{Math.round(p.scores.churn * 100)}</td>
+                        <td className="px-3 py-2.5 text-[11px] text-muted-foreground">{p.household.incomeBand}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-3">{relatedPeople.length} people in related audience segments</p>
+            </div>
+            )}
+
             </div>
           </div>
+
         </div>
       </motion.div>
     </motion.div>
@@ -506,33 +572,19 @@ export default function CommandCenterPage() {
     })
   }
 
-  return (
-    <div className="mn-cc-page flex-1 flex flex-col relative overflow-hidden">
-      <PageTransition>
-        <FadeIn className="mn-cc-header flex-1 flex flex-col items-center justify-center text-center px-6">
-          <h1 className="mn-cc-title text-[32px] font-semibold tracking-tight mb-2" style={{ fontFamily: "'SF Pro Display', 'Overused Grotesk', sans-serif" }}>
-            Attention is up.
-          </h1>
-          <p className="mn-cc-subtitle text-[14px] text-muted-foreground max-w-lg mb-8">
-            Premium and family momentum are rising, but owned conversion is slipping — the move today is turning that demand into premium sales and stronger capture.
-          </p>
-          <div className="mn-cc-filters flex items-center gap-1 rounded-xl bg-muted/20 border border-border/30 p-1 backdrop-blur-sm">
-            {categories.map((cat) => (
-              <button key={cat} onClick={() => setActiveFilter(cat)}
-                className={`mn-cc-filter-chip text-[12px] px-3 py-1.5 rounded-lg transition-all ${
-                  activeFilter === cat
-                    ? "mn-cc-filter-active bg-primary text-primary-foreground font-medium shadow-sm"
-                    : "mn-cc-filter-inactive text-muted-foreground hover:text-foreground hover:bg-muted/30"
-                }`}>
-                {cat}
-              </button>
-            ))}
-          </div>
-        </FadeIn>
+  const handleNav = useCallback((dir: -1 | 1) => {
+    if (!activeCard) return
+    const currentIdx = filtered.findIndex(c => c.id === activeCard.id)
+    if (currentIdx === -1) return
+    const nextIdx = (currentIdx + dir + filtered.length) % filtered.length
+    setActiveCard(filtered[nextIdx])
+  }, [activeCard, filtered])
 
-        {/* Carousel */}
-        <div className="mn-cc-carousel-area shrink-0 pb-6 relative">
-          <div ref={scrollRef} className="mn-cc-carousel flex gap-4 overflow-x-auto px-8 pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
+  return (
+    <div className="mn-cc-page flex-1 flex flex-col relative overflow-hidden" style={{ height: "calc(100vh - 36px)", marginTop: "-36px" }}>
+      {/* Carousel — centered in the middle of the screen */}
+        <div className="mn-cc-carousel-area flex-1 flex items-center relative">
+          <div ref={scrollRef} className="mn-cc-carousel flex gap-4 overflow-x-auto px-8 pb-2 snap-x snap-mandatory w-full" style={{ scrollbarWidth: "none" }}>
             <AnimatePresence mode="popLayout">
               {filtered.map((card, idx) => (
                 <motion.div key={card.id} layout
@@ -554,9 +606,9 @@ export default function CommandCenterPage() {
                   <p className="mn-cc-card-meaning text-[11px] text-foreground/50 italic mt-auto mb-3 leading-snug">{card.meaning}</p>
 
                   <div className="mn-cc-card-bottom flex items-center justify-between pt-3 border-t border-border/20">
-                    <span className={`mn-cc-card-action text-[11px] font-medium ${card.openSpectrum ? "text-blue-400/70" : "text-primary/70"}`}>{card.cta}</span>
+                    <span className={`mn-cc-card-action text-[11px] font-medium text-sky-400/70`}>{card.cta}</span>
                     {card.openSpectrum && (
-                      <div className="h-1.5 w-1.5 rounded-full bg-blue-400/50" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-sky-400/50" />
                     )}
                   </div>
                 </motion.div>
@@ -564,7 +616,22 @@ export default function CommandCenterPage() {
             </AnimatePresence>
           </div>
         </div>
-      </PageTransition>
+
+        {/* Filter tabs — fixed to bottom center */}
+        <div className="shrink-0 flex justify-center pb-6">
+          <div className="mn-cc-filters flex items-center gap-1 rounded-xl bg-muted/20 border border-border/30 p-1 backdrop-blur-sm">
+            {categories.map((cat) => (
+              <button key={cat} onClick={() => setActiveFilter(cat)}
+                className={`mn-cc-filter-chip text-[12px] px-3 py-1.5 rounded-lg transition-all ${
+                  activeFilter === cat
+                    ? "mn-cc-filter-active bg-primary text-primary-foreground font-medium shadow-sm"
+                    : "mn-cc-filter-inactive text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                }`}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
 
       <AnimatePresence>
         {activeCard && (
@@ -572,6 +639,7 @@ export default function CommandCenterPage() {
             card={activeCard}
             onClose={() => setActiveCard(null)}
             onOpenSpectrum={activeCard.openSpectrum ? () => setShowSpectrum(true) : undefined}
+            onNav={handleNav}
           />
         )}
       </AnimatePresence>

@@ -24,10 +24,9 @@ const modes: MinervaMode[] = [
 interface MinervaInputProps {
   onSend?: (message: string, mode: string) => void
   onModeChange?: (modeId: string) => void
-  isDark?: boolean
 }
 
-export function MinervaInput({ onSend, onModeChange, isDark = true }: MinervaInputProps) {
+export function MinervaInput({ onSend, onModeChange }: MinervaInputProps) {
   const [message, setMessage] = useState("")
   const [activeMode, setActiveMode] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -58,13 +57,13 @@ export function MinervaInput({ onSend, onModeChange, isDark = true }: MinervaInp
   }
 
   const hasContent = message.trim().length > 0
-  const bg = isDark ? "bg-white/[0.08] border-white/[0.12] hover:border-white/20 focus-within:border-white/25" : "bg-black/[0.04] border-black/[0.08] hover:border-black/15 focus-within:border-black/20"
-  const textColor = isDark ? "text-white placeholder:text-white/30" : "text-black placeholder:text-black/30"
-  const iconMuted = isDark ? "text-white/40 hover:text-white/70" : "text-black/30 hover:text-black/60"
-  const sendActive = isDark ? "bg-white text-black" : "bg-black text-white"
-  const sendInactive = isDark ? "bg-white/10 text-white/30" : "bg-black/10 text-black/30"
-  const pillBase = isDark ? "border-white/10 text-white/40" : "border-black/10 text-black/30"
-  const pillActive = isDark ? "border-white/30 text-white bg-white/10" : "border-black/30 text-black bg-black/[0.06]"
+  const bg = "bg-white/[0.08] border-white/[0.12] hover:border-white/20 focus-within:border-white/25"
+  const textColor = "text-white placeholder:text-white/30"
+  const iconMuted = "text-white/40 hover:text-white/70"
+  const sendActive = "bg-white text-black"
+  const sendInactive = "bg-white/10 text-white/30"
+  const pillBase = "border-white/10 text-white/40"
+  const pillActive = "border-white/30 text-white bg-white/10"
 
   return (
     <div className="mn-input-container w-full max-w-2xl mx-auto">
@@ -78,7 +77,7 @@ export function MinervaInput({ onSend, onModeChange, isDark = true }: MinervaInp
           transition={{ duration: 0.3 }}
           className="mn-input-center-1 text-center mb-6"
         >
-          <h1 className={`text-2xl font-bold tracking-tight sm:text-3xl ${isDark ? "text-white" : "text-black"}`}>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl text-white">
             {mode.headline}
           </h1>
         </motion.div>
@@ -129,7 +128,7 @@ export function MinervaInput({ onSend, onModeChange, isDark = true }: MinervaInp
               {isActive && (
                 <motion.div
                   layoutId="mode-indicator"
-                  className={`absolute inset-0 rounded-full border ${isDark ? "border-white/30" : "border-black/25"}`}
+                  className="absolute inset-0 rounded-full border border-white/30"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}

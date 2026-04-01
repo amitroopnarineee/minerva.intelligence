@@ -109,17 +109,3 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Light mode overrides ─────────────────────────────────────────────── */
-
-:root:not(.dark) .mn-glass-surface { background: rgba(255, 255, 255, 0.5); }
-:root:not(.dark) .mn-glass-card { background: rgba(255, 255, 255, 0.6); border-color: rgba(0, 0, 0, 0.06); }
-:root:not(.dark) .mn-glass-elevated { background: rgba(255, 255, 255, 0.8); border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08); }
-:root:not(.dark) .mn-glass-overlay { background: rgba(255, 255, 255, 0.88); border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 24px 80px rgba(0, 0, 0, 0.12); }
-:root:not(.dark) .mn-glass-backdrop { background: rgba(0, 0, 0, 0.2); }
-:root:not(.dark) .mn-glass-divider, :root:not(.dark) .mn-glass-divider-v { background: rgba(0, 0, 0, 0.06); }
-:root:not(.dark) .mn-glass-text-primary { color: rgba(0, 0, 0, 0.88); }
-:root:not(.dark) .mn-glass-text-secondary { color: rgba(0, 0, 0, 0.50); }
-:root:not(.dark) .mn-glass-text-tertiary { color: rgba(0, 0, 0, 0.30); }
-:root:not(.dark) .mn-glass-label { color: rgba(0, 0, 0, 0.35); }
-:root:not(.dark) .mn-glass-stat { color: rgba(0, 0, 0, 0.90); }
-:root:not(.dark) .mn-glass-stat-sm { color: rgba(0, 0, 0, 0.85); }

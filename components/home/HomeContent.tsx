@@ -1,6 +1,5 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import { useEffect, useState, useCallback } from "react"
 import { motion } from "framer-motion"
 import { MinervaInput } from "@/components/home/MinervaInput"
@@ -8,13 +7,9 @@ import { AudienceSpectrum } from "@/components/shared/AudienceSpectrum"
 import { toast } from "sonner"
 
 export function HomeContent() {
-  const { resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const [showSpectrum, setShowSpectrum] = useState(false)
-  useEffect(() => setMounted(true), [])
 
-  const isDark = !mounted || resolvedTheme === "dark"
-  const textTertiary = isDark ? "text-white/25" : "text-black/20"
+  const textTertiary = "text-white/25"
 
   const handleSend = (message: string) => {
     window.dispatchEvent(new CustomEvent("minerva-chat-send", { detail: { message } }))
@@ -39,7 +34,7 @@ export function HomeContent() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
           className="mn-home-center flex flex-col items-center text-center w-full max-w-2xl">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="w-full">
-            <MinervaInput isDark={isDark} onSend={handleSend} onModeChange={handleModeChange} />
+            <MinervaInput onSend={handleSend} onModeChange={handleModeChange} />
           </motion.div>
         </motion.div>
       </div>

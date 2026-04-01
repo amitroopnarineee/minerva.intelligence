@@ -189,12 +189,7 @@ export default function SegmentDetailPage({ params }: { params: Promise<{ segmen
 
             {/* PEOPLE */}
             <TabsContent value="people" className="mt-0">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-[13px] text-muted-foreground">{results.length} people found</p>
-                <div className="flex flex-wrap gap-2">
-                  {filterChips.map((chip) => (<Badge key={chip} variant="outline" className="cursor-pointer hover:bg-accent/50 transition-colors text-[11px]" onClick={() => setQuery(chip.toLowerCase())}>{chip}</Badge>))}
-                </div>
-              </div>
+
               <PersonTable persons={results} />
             </TabsContent>
 

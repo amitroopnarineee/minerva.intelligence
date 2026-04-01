@@ -363,14 +363,8 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ── Command Center ── */
-.mn-cc-header {
-  padding-top: 300px;
-}
 .mn-cc-carousel {
   scrollbar-width: none;
-  position: fixed;
-  bottom: 0;
-  padding: 20px 0px;
 }
 .mn-cc-card {
   border: none;
@@ -393,21 +387,6 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ── Command Center Modal ── */
-.mn-cc-modal-content {
-  filter: invert(1);
-}
-.mn-cc-modal-left {
-  justify-content: start;
-  padding: 10px;
-}
-.mn-cc-modal-topbar {
-  padding: 10px;
-}
-.mn-cc-modal-metric {
-  background: transparent;
-  padding: 10px;
-  height: auto;
-}
 
 /* ── Command Palette ── */
 .mn-cmd-trigger {
@@ -449,4 +428,131 @@ h1, h2, h3, h4, h5, h6,
 .mn-cc-scroll-left,
 .mn-cc-scroll-right {
   display: none !important;
+}
+
+/* ── Global table cleanup ── */
+
+/* Hide all search bars + filter buttons above tables */
+.mn-people-toolbar,
+.mn-people-add-btn,
+.mn-prospect-group-5,
+.mn-owned-group-5,
+.mn-psearch-search-bar,
+.mn-psearch-new-btn {
+  display: none !important;
+}
+
+/* Hide all LinkedIn logos from tables */
+.mn-ptable-linkedin,
+.mn-people-cell-name svg[fill="currentColor"][class*="0A66C2"],
+svg.text-\[\#0A66C2\] {
+  display: none !important;
+}
+
+/* Hide profile sheet LinkedIn */
+.mn-profile-linkedin {
+  display: none !important;
+}
+
+/* Consistent table widths */
+.mn-people-table,
+.mn-ptable-root,
+.mn-psearch-segments-table {
+  width: 100% !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   LATEST POLISH
+   ══════════════════════════════════════════════════════════ */
+
+.mn-notch {
+  height: 40px !important;
+}
+
+.mn-main {
+  padding: 0px 0px !important;
+  margin: 0 !important;
+  backdrop-filter: blur(5px);
+}
+
+.mn-menubar {
+  font-family: "Overused Grotesk", ui-sans-serif, system-ui, sans-serif;
+  position: fixed !important;
+  width: 100% !important;
+  padding: 10px;
+}
+
+.mn-menubar-left {
+  gap: 0px;
+}
+
+.text-emerald-400 {
+  color: lab(97 -19.08 4.32);
+}
+
+.mn-cc-card-value {
+  color: white !important;
+  font-weight: 500;
+  font-size: 34px;
+}
+
+.mn-cc-card-copy {
+  display: none !important;
+}
+
+.mn-cc-card-bottom {
+  border-top: 1px solid #dddddd6b;
+}
+
+.mn-cc-carousel {
+  overflow: scroll;
+  width: 100%;
+}
+
+.mn-cc-modal-header-row {
+  padding: 0px;
+}
+
+/* ── Segment Detail Page ── */
+
+/* Hide breadcrumb (rendered inline on page) */
+.mn-segment-breadcrumb {
+  display: none !important;
+}
+
+/* Hide action buttons (Feedback, Export, Save) */
+.mn-segment-actions {
+  display: none !important;
+}
+
+/* Hide filter search input on tab bar */
+.mn-segment-tab-bar .relative.w-64 {
+  display: none !important;
+}
+
+/* Hide "8 people found" row + filter chips */
+.mn-segment-tabs [data-state="active"] + div > .flex.items-center.justify-between:first-child {
+  display: none !important;
+}
+
+/* Restyle tabs to pill style */
+.mn-segment-tabs [role="tablist"] {
+  gap: 4px !important;
+  background: transparent !important;
+}
+.mn-segment-tabs [role="tab"] {
+  border: none !important;
+  border-bottom: none !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  color: rgba(255,255,255,0.5) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.mn-segment-tabs [role="tab"][data-state="active"] {
+  background: rgba(255,255,255,0.1) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  border-bottom: none !important;
 }

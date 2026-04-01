@@ -2,64 +2,20 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { Sparkles, Moon, Sun, Command } from "lucide-react"
-import { useTheme } from "next-themes"
 
-interface DropdownItem { label: string; href: string }
 
-const HOME_ITEMS: DropdownItem[] = [
-  { label: "Dashboard", href: "/" },
-  { label: "Command Center", href: "/command-center" },
-]
-
-const PEOPLE_ITEMS: DropdownItem[] = [
-  { label: "All People", href: "/people" },
-  { label: "Person Search", href: "/person-search" },
-  { label: "Prospecting", href: "/prospecting" },
-  { label: "Owned Audience", href: "/owned-audience" },
-  { label: "Bulk Enrich", href: "/bulk-enrich" },
-]
-const SETTINGS_ITEMS: DropdownItem[] = [
-  { label: "Integrations", href: "/integrations" },
-  { label: "Usage", href: "/usage" },
-  { label: "Get Started", href: "/get-started" },
-]
 
 const LEFT_NAV = [
   { label: "Home", href: "/" },
-  { label: "People", href: "/people" },
+  { label: "Insights", href: "/command-center" },
 ]
 const RIGHT_NAV = [
-  { label: "Analytics", href: "/analytics" },
-  { label: "Settings", href: "/integrations" },
+  { label: "Prospects", href: "/prospecting" },
+  { label: "Audience", href: "/person-search" },
 ]
 
 type NotchState = "hidden" | "peek" | "open"
 
-/* ── Dropdown menu ── */
-function MenuDropdown({ items, open, onClose, onNav }: { items: DropdownItem[]; open: boolean; onClose: () => void; onNav: (href: string) => void }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) onClose() }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [open, onClose])
-  if (!open) return null
-  return (
-    <div ref={ref} className="mn-menubar-dropdown absolute top-full left-0 mt-1 min-w-[180px] bg-[#1a1a1a] border border-white/10 rounded-xl py-1.5 shadow-2xl z-50"
-      style={{ backdropFilter: "blur(20px)" }}>
-      {items.map((item) => (
-        <button key={item.href} onClick={() => { onNav(item.href); onClose() }}
-          className="mn-menubar-dropdown-item w-full text-left px-4 py-2 text-[13px] text-white/60 hover:text-white hover:bg-white/[0.06] transition-colors">
-          {item.label}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-/* ── Minerva Logo SVG ── */
 function MinervaLogo({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 223 223" fill="none">
@@ -75,20 +31,25 @@ function MinervaLogo({ size = 16 }: { size?: number }) {
   )
 }
 
+const NAV_ITEMS = [
+  { type: "link" as const, label: "Home", href: "/", paths: ["/"] },
+  { type: "link" as const, label: "Insights", href: "/command-center", paths: ["/command-center"] },
+  { type: "link" as const, label: "Prospects", href: "/prospecting", paths: ["/people", "/prospecting"] },
+  { type: "link" as const, label: "Audience", href: "/person-search", paths: ["/owned-audience", "/person-search"] },
+]
+
 export function MinervaMenuBar() {
   const [notchState, setNotchState] = useState<NotchState>("hidden")
   const stateRef = useRef<NotchState>("hidden")
   const notchRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [navVisible, setNavVisible] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
-  const { setTheme, resolvedTheme } = useTheme()
 
   const go = useCallback((s: NotchState) => {
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null }
-    stateRef.current = s
-    setNotchState(s)
+    stateRef.current = s; setNotchState(s)
   }, [])
 
   useEffect(() => {
@@ -118,9 +79,7 @@ export function MinervaMenuBar() {
   }, [go])
 
   const handleNav = useCallback((href: string) => {
-    router.push(href)
-    setOpenMenu(null)
-    go("peek")
+    router.push(href); go("peek")
     timerRef.current = setTimeout(() => { if (stateRef.current === "peek") go("hidden") }, 600)
   }, [router, go])
 
@@ -133,75 +92,44 @@ export function MinervaMenuBar() {
       {/* ═══ STATIC HEADER ═══ */}
       <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 relative z-30">
         <div className="mn-menubar-left flex items-center gap-1">
-          <button onClick={() => router.push("/")} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
+          <button onClick={() => setNavVisible(v => !v)} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
             <MinervaLogo size={16} />
             <span className="mn-menubar-brand text-[13px] font-semibold tracking-tight">Minerva</span>
           </button>
 
-          {/* Home — dropdown */}
-          <div className="mn-menubar-menu relative">
-            <button onClick={() => setOpenMenu(openMenu === "home" ? null : "home")}
-              className={`mn-menubar-item text-[13px] px-2.5 py-1 rounded-md transition-colors ${["/","/command-center"].includes(pathname) ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-              Home
-            </button>
-            <MenuDropdown items={HOME_ITEMS} open={openMenu === "home"} onClose={() => setOpenMenu(null)} onNav={handleNav} />
-          </div>
-
-          {/* People — dropdown */}
-          <div className="mn-menubar-menu relative">
-            <button onClick={() => setOpenMenu(openMenu === "people" ? null : "people")}
-              className={`mn-menubar-item text-[13px] px-2.5 py-1 rounded-md transition-colors ${["/people","/person-search","/prospecting","/owned-audience","/bulk-enrich"].includes(pathname) ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-              People
-            </button>
-            <MenuDropdown items={PEOPLE_ITEMS} open={openMenu === "people"} onClose={() => setOpenMenu(null)} onNav={handleNav} />
-          </div>
-
-          {/* Analytics — direct link */}
-          <button onClick={() => router.push("/analytics")}
-            className={`mn-menubar-item text-[13px] px-2.5 py-1 rounded-md transition-colors ${pathname === "/analytics" ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-            Analytics
-          </button>
-
-          {/* Settings — dropdown */}
-          <div className="mn-menubar-menu relative">
-            <button onClick={() => setOpenMenu(openMenu === "settings" ? null : "settings")}
-              className={`mn-menubar-item text-[13px] px-2.5 py-1 rounded-md transition-colors ${["/integrations","/usage","/get-started"].includes(pathname) ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-              Settings
-            </button>
-            <MenuDropdown items={SETTINGS_ITEMS} open={openMenu === "settings"} onClose={() => setOpenMenu(null)} onNav={handleNav} />
-          </div>
-
-
+          {NAV_ITEMS.map((item, i) => (
+            <div key={item.label} className="relative"
+              style={{
+                opacity: navVisible ? 1 : 0,
+                transform: navVisible ? "translateX(0)" : "translateX(-12px)",
+                transition: `opacity 250ms ease ${navVisible ? i * 60 : (NAV_ITEMS.length - 1 - i) * 40}ms, transform 300ms ease ${navVisible ? i * 60 : (NAV_ITEMS.length - 1 - i) * 40}ms`,
+                pointerEvents: navVisible ? "auto" : "none",
+              }}>
+              <button onClick={() => router.push(item.href!)}
+                className={`text-[13px] px-2.5 py-1 rounded-md transition-colors ${item.paths.includes(pathname) ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
+                {item.label}
+              </button>
+            </div>
+          ))}
         </div>
 
-        {/* Right icons */}
-        <div className="mn-menubar-right flex items-center gap-3">
-          <button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="mn-menubar-theme text-muted-foreground hover:text-foreground transition-colors">
-            {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
-          <button onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }))}
-            className="mn-menubar-cmd text-muted-foreground hover:text-foreground transition-colors">
-            <Command className="h-4 w-4" />
-          </button>
-          <button onClick={() => window.dispatchEvent(new CustomEvent("minerva-chat-toggle"))}
-            className="mn-menubar-ai text-muted-foreground hover:text-foreground transition-colors">
-            <Sparkles className="h-4 w-4" />
-          </button>
+        <div className="mn-menubar-right flex items-center gap-2.5">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User"
+            className="h-4 w-4 rounded-full object-cover ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer" />
         </div>
       </div>
 
       {/* ═══ DYNAMIC NOTCH ═══ */}
-      <div className={`mn-menubar-backdrop fixed inset-0 z-[99] ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+      <div className={`fixed inset-0 z-[99] ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
         onClick={handleBackdrop}
         style={{ background: isOpen ? "rgb(0 0 0 / 84%)" : "rgba(0,0,0,0)", backdropFilter: isOpen ? "blur(2px)" : "none", transition: "background 500ms, backdrop-filter 500ms" }} />
 
-      <div className="mn-menubar-topbar fixed top-0 left-0 right-0 h-[10px] bg-[#0a0a0a] z-[150]"
+      <div className="fixed top-0 left-0 right-0 h-[10px] bg-[#0a0a0a] z-[150]"
         style={{ transform: isVisible ? "translateY(0)" : "translateY(-100%)", transition: "transform 600ms cubic-bezier(.32,.72,0,1)" }} />
 
-      <div className="mn-menubar-wrapper fixed top-0 left-1/2 z-[200] flex flex-col items-center" style={{ transform: "translateX(-50%)" }}>
+      <div className="fixed top-0 left-1/2 z-[200] flex flex-col items-center" style={{ transform: "translateX(-50%)" }}>
         <div ref={notchRef} onClick={handleNotchClick}
-          className="mn-notch relative flex items-center justify-center cursor-pointer select-none"
+          className="relative flex items-center justify-center cursor-pointer select-none"
           style={{
             background: "#0a0a0a",
             width: isOpen ? 480 : isPeek ? 120 : 80,
@@ -212,32 +140,26 @@ export function MinervaMenuBar() {
             transform: isVisible ? "translateY(0)" : "translateY(-20px)",
             transition: "width 700ms cubic-bezier(.32,.72,0,1), height 500ms cubic-bezier(.32,.72,0,1), border-radius 600ms cubic-bezier(.32,.72,0,1), padding 500ms cubic-bezier(.32,.72,0,1), opacity 400ms ease, transform 500ms cubic-bezier(.32,.72,0,1)",
           }}>
-          <svg className="mn-notch-ear-l absolute top-0 pointer-events-none" style={{ right: "100%", width: 16, height: 16, opacity: isVisible ? 1 : 0, transition: "opacity 400ms ease 100ms" }} viewBox="0 0 20 20"><path d="M20 0L20 20C20 8.954 11.046 0 0 0L20 0Z" fill="#0a0a0a" /></svg>
-          <svg className="mn-notch-ear-r absolute top-0 pointer-events-none" style={{ left: "100%", width: 16, height: 16, opacity: isVisible ? 1 : 0, transition: "opacity 400ms ease 100ms" }} viewBox="0 0 20 20"><path d="M0 0L0 20C0 8.954 8.954 0 20 0L0 0Z" fill="#0a0a0a" /></svg>
+          <svg className="absolute top-0 pointer-events-none" style={{ right: "100%", width: 16, height: 16, opacity: isVisible ? 1 : 0, transition: "opacity 400ms ease 100ms" }} viewBox="0 0 20 20"><path d="M20 0L20 20C20 8.954 11.046 0 0 0L20 0Z" fill="#0a0a0a" /></svg>
+          <svg className="absolute top-0 pointer-events-none" style={{ left: "100%", width: 16, height: 16, opacity: isVisible ? 1 : 0, transition: "opacity 400ms ease 100ms" }} viewBox="0 0 20 20"><path d="M0 0L0 20C0 8.954 8.954 0 20 0L0 0Z" fill="#0a0a0a" /></svg>
 
-          <div className="mn-notch-nav-left flex items-center overflow-hidden"
-            style={{ maxWidth: isOpen ? 300 : 0, opacity: isOpen ? 1 : 0, marginRight: isOpen ? 14 : 0, transition: "max-width 700ms cubic-bezier(.32,.72,0,1), opacity 500ms cubic-bezier(.32,.72,0,1), margin 700ms cubic-bezier(.32,.72,0,1)" }}>
+          <div className="flex items-center overflow-hidden"
+            style={{ maxWidth: isOpen ? 300 : 0, opacity: isOpen ? 1 : 0, marginRight: isOpen ? 14 : 0, transition: "max-width 700ms cubic-bezier(.32,.72,0,1), opacity 500ms, margin 700ms cubic-bezier(.32,.72,0,1)" }}>
             {LEFT_NAV.map((item, i) => (
               <span key={item.href} data-nav="true" onClick={() => handleNav(item.href)}
-                className="mn-notch-item"
-                style={{ fontSize: 13, fontWeight: pathname === item.href ? 500 : 400, letterSpacing: "0.01em", whiteSpace: "nowrap", padding: "4px 14px", borderRadius: 20, cursor: "pointer", color: pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)", opacity: isOpen ? 1 : 0, transform: isOpen ? "translateY(0) scale(1)" : "translateY(6px) scale(0.92)", transition: `all 450ms cubic-bezier(.32,.72,0,1) ${isOpen ? 100 + i * 60 : 0}ms` }}
+                style={{ fontSize: 13, fontWeight: pathname === item.href ? 500 : 400, whiteSpace: "nowrap", padding: "4px 14px", borderRadius: 20, cursor: "pointer", color: pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)", opacity: isOpen ? 1 : 0, transform: isOpen ? "translateY(0) scale(1)" : "translateY(6px) scale(0.92)", transition: `all 450ms cubic-bezier(.32,.72,0,1) ${isOpen ? 100 + i * 60 : 0}ms` }}
                 onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "#fff"; (e.target as HTMLElement).style.background = "rgba(255,255,255,0.1)" }}
                 onMouseLeave={(e) => { (e.target as HTMLElement).style.color = pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)"; (e.target as HTMLElement).style.background = "transparent" }}>
                 {item.label}
               </span>
             ))}
           </div>
-
-          <div className="mn-notch-logo flex items-center justify-center shrink-0 z-[5] text-white">
-            <MinervaLogo size={18} />
-          </div>
-
-          <div className="mn-notch-nav-right flex items-center overflow-hidden"
-            style={{ maxWidth: isOpen ? 300 : 0, opacity: isOpen ? 1 : 0, marginLeft: isOpen ? 14 : 0, transition: "max-width 700ms cubic-bezier(.32,.72,0,1), opacity 500ms cubic-bezier(.32,.72,0,1), margin 700ms cubic-bezier(.32,.72,0,1)" }}>
+          <div className="flex items-center justify-center shrink-0 z-[5] text-white"><MinervaLogo size={18} /></div>
+          <div className="flex items-center overflow-hidden"
+            style={{ maxWidth: isOpen ? 300 : 0, opacity: isOpen ? 1 : 0, marginLeft: isOpen ? 14 : 0, transition: "max-width 700ms cubic-bezier(.32,.72,0,1), opacity 500ms, margin 700ms cubic-bezier(.32,.72,0,1)" }}>
             {RIGHT_NAV.map((item, i) => (
               <span key={item.href} data-nav="true" onClick={() => handleNav(item.href)}
-                className="mn-notch-item"
-                style={{ fontSize: 13, fontWeight: pathname === item.href ? 500 : 400, letterSpacing: "0.01em", whiteSpace: "nowrap", padding: "4px 14px", borderRadius: 20, cursor: "pointer", color: pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)", opacity: isOpen ? 1 : 0, transform: isOpen ? "translateY(0) scale(1)" : "translateY(6px) scale(0.92)", transition: `all 450ms cubic-bezier(.32,.72,0,1) ${isOpen ? 100 + i * 60 : 0}ms` }}
+                style={{ fontSize: 13, fontWeight: pathname === item.href ? 500 : 400, whiteSpace: "nowrap", padding: "4px 14px", borderRadius: 20, cursor: "pointer", color: pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)", opacity: isOpen ? 1 : 0, transform: isOpen ? "translateY(0) scale(1)" : "translateY(6px) scale(0.92)", transition: `all 450ms cubic-bezier(.32,.72,0,1) ${isOpen ? 100 + i * 60 : 0}ms` }}
                 onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "#fff"; (e.target as HTMLElement).style.background = "rgba(255,255,255,0.1)" }}
                 onMouseLeave={(e) => { (e.target as HTMLElement).style.color = pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)"; (e.target as HTMLElement).style.background = "transparent" }}>
                 {item.label}

@@ -3,30 +3,22 @@
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command"
-import { Home, LayoutDashboard, BarChart3, Search, FileStack, Telescope, Users, Plug, Activity, Rocket, User, Moon, Sun } from "lucide-react"
+import { Home, BarChart3, Search, Telescope, Users, User } from "lucide-react"
 import { persons } from "@/lib/data/persons"
 import { audiences } from "@/lib/data/audiences"
-import { useTheme } from "next-themes"
 
 const navItems = [
-  { label: "Dashboard", href: "/", icon: Home, group: "Navigation" },
-  { label: "Command Center", href: "/command-center", icon: LayoutDashboard, group: "Navigation" },
+  { label: "Home", href: "/", icon: Home, group: "Navigation" },
+  { label: "Insights", href: "/command-center", icon: Search, group: "Navigation" },
   { label: "All People", href: "/people", icon: Users, group: "Navigation" },
-  { label: "Analytics", href: "/analytics", icon: BarChart3, group: "Navigation" },
-  { label: "People Directory", href: "/people", icon: Users, group: "Navigation" },
-  { label: "Person Search", href: "/person-search", icon: Search, group: "Navigation" },
-  { label: "Bulk Enrich", href: "/bulk-enrich", icon: FileStack, group: "Navigation" },
   { label: "Prospecting", href: "/prospecting", icon: Telescope, group: "Navigation" },
   { label: "Owned Audience", href: "/owned-audience", icon: Users, group: "Navigation" },
-  { label: "Integrations", href: "/integrations", icon: Plug, group: "Navigation" },
-  { label: "Usage", href: "/usage", icon: Activity, group: "Navigation" },
-  { label: "Get Started", href: "/get-started", icon: Rocket, group: "Navigation" },
+  { label: "Audience Segments", href: "/person-search", icon: BarChart3, group: "Navigation" },
 ]
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
-  const { setTheme, resolvedTheme } = useTheme()
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -83,14 +75,6 @@ export function CommandPalette() {
           ))}
         </CommandGroup>
 
-        <CommandSeparator />
-
-        <CommandGroup heading="Settings">
-          <CommandItem onSelect={() => runCommand(() => setTheme(resolvedTheme === "dark" ? "light" : "dark"))} className="mn-cmd-item">
-            {resolvedTheme === "dark" ? <Sun className="mn-cmdpal-el-6 mr-2 h-4 w-4 text-muted-foreground" /> : <Moon className="mn-cmdpal-el-7 mr-2 h-4 w-4 text-muted-foreground" />}
-            Toggle {resolvedTheme === "dark" ? "Light" : "Dark"} Mode
-          </CommandItem>
-        </CommandGroup>
       </CommandList>
     </CommandDialog>
   )

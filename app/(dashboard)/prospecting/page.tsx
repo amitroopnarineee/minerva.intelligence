@@ -1,40 +1,41 @@
-import { PageHeader } from "@/components/shared/PageHeader"
+"use client"
+
+import { useState } from "react"
 import { PageTransition, FadeIn } from "@/components/shared/PageTransition"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { PersonTable } from "@/components/shared/PersonTable"
 import { persons } from "@/lib/data/persons"
-import { Search, SlidersHorizontal, Plus } from "lucide-react"
 
 export default function ProspectingPage() {
+  const [tab, setTab] = useState<"segments" | "all">("segments")
   const prospecting = persons.filter((p) => p.fanStatus === "prospect" || p.lifecycleStage === "acquisition")
+
   return (
-    <>
-      <PageHeader breadcrumb="Prospecting" title="Prospecting Segments" subtitle="Create and manage your prospect audiences."
-        actions={<Button size="sm"><Plus className="mn-prospect-el-1 mr-1 h-4 w-4" /> Create Prospect</Button>}
-      />
-      <div className="mn-page flex-1 overflow-y-auto p-6">
-        <div className="mn-prospect-el-2 mx-auto max-w-6xl">
-          <PageTransition>
-            <FadeIn className="mb-6">
-              <h1 className="mn-prospect-label-3 text-[28px] font-semibold tracking-tight">Prospecting Segments</h1>
-              <p className="mn-prospect-el-4 mt-1 text-sm text-muted-foreground">Create and manage your prospect audiences for targeting.</p>
-            </FadeIn>
-            <FadeIn>
-              <div className="mn-prospect-group-5 mb-4 flex items-center gap-3">
-                <div className="mn-prospect-el-6 relative flex-1">
-                  <Search className="mn-prospect-el-7 absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Search prospects..." className="pl-9" />
-                </div>
-                <Button variant="outline" size="sm"><SlidersHorizontal className="mn-prospect-el-8 mr-1 h-4 w-4" /> Filters</Button>
-              </div>
-            </FadeIn>
-            <FadeIn>
-              <PersonTable persons={prospecting} />
-            </FadeIn>
-          </PageTransition>
-        </div>
+    <div className="mn-page flex-1 overflow-y-auto p-6">
+      <div className="mx-auto max-w-6xl">
+        <PageTransition>
+          <FadeIn className="mb-6">
+            <h1 className="text-[24px] font-semibold tracking-tight">Prospects</h1>
+            <p className="mt-0.5 text-[13px] text-muted-foreground">Manage prospect segments and browse all prospects.</p>
+          </FadeIn>
+
+          <FadeIn className="mb-5">
+            <div className="flex items-center gap-1">
+              <button onClick={() => setTab("segments")}
+                className={`text-[12px] px-3 py-1.5 rounded-lg transition-all ${tab === "segments" ? "bg-white/10 text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}>
+                Prospecting Segments
+              </button>
+              <button onClick={() => setTab("all")}
+                className={`text-[12px] px-3 py-1.5 rounded-lg transition-all ${tab === "all" ? "bg-white/10 text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}>
+                All Prospects
+              </button>
+            </div>
+          </FadeIn>
+
+          <FadeIn>
+            <PersonTable persons={tab === "segments" ? prospecting : persons} />
+          </FadeIn>
+        </PageTransition>
       </div>
-    </>
+    </div>
   )
 }
