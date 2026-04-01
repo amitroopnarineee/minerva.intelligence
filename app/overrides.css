@@ -623,12 +623,10 @@ tr:last-child {
   border-bottom: none !important;
 }
 
-/* ── Consistent badges/pills ── */
+/* ── Consistent badges (not inputs/buttons) ── */
 .badge, [class*="badge"],
-[class*="rounded-full"][class*="px-"][class*="py-"],
-[class*="rounded"][class*="text-\[8px\]"],
-[class*="rounded"][class*="text-\[9px\]"],
-[class*="rounded"][class*="text-\[10px\]"] {
+td span[class*="rounded"],
+.mn-cc-card span[class*="rounded"] {
   font-size: 9px !important;
   padding: 2px 8px !important;
   font-weight: 500 !important;
