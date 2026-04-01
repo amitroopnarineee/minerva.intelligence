@@ -549,8 +549,10 @@ export function HomeContent() {
         </div>
       </div>
 
-      {/* ═══ BOTTOM PROGRESSIVE BLUR ═══ */}
-      <ProgressiveBlur position="bottom" backgroundColor="#000" height="120px" blurAmount="8px" className="mn-canvas-blur z-[5]" />
+      {/* ═══ BOTTOM FADE ═══ */}
+      <div className="mn-canvas-fade pointer-events-none absolute bottom-0 left-0 right-0 h-32 z-[5]" style={{
+        background: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.4) 60%, transparent 100%)',
+      }} />
         </motion.div>
       )}
       </AnimatePresence>
