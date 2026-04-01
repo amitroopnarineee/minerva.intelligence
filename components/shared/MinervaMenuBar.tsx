@@ -6,12 +6,12 @@ import { useRouter, usePathname } from "next/navigation"
 
 
 const LEFT_NAV = [
-  { label: "Home", href: "/" },
-  { label: "Insights", href: "/command-center" },
+  { label: "Home", href: "/", section: "briefing" },
+  { label: "Insights", href: "/", section: "insights" },
 ]
 const RIGHT_NAV = [
-  { label: "Prospects", href: "/prospecting" },
-  { label: "Audience", href: "/person-search" },
+  { label: "Audiences", href: "/", section: "audiences" },
+  { label: "People", href: "/", section: "people" },
 ]
 
 type NotchState = "hidden" | "peek" | "open"
@@ -74,7 +74,8 @@ export function MinervaMenuBar() {
     if (stateRef.current === "open") { go("peek"); timerRef.current = setTimeout(() => { if (stateRef.current === "peek") go("hidden") }, 800) }
   }, [go])
 
-  const handleNav = useCallback((href: string) => {
+  const handleNav = useCallback((href: string, section?: string) => {
+    if (section) window.dispatchEvent(new CustomEvent('minerva-nav-section', { detail: section }))
     router.push(href); go("peek")
     timerRef.current = setTimeout(() => { if (stateRef.current === "peek") go("hidden") }, 600)
   }, [router, go])
@@ -109,9 +110,11 @@ export function MinervaMenuBar() {
               </button>
             </div>
           ))}
-          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User"
+          <div aria-label="User"
             onClick={() => setNavVisible(v => !v)}
-            className="h-5 w-5 ml-2 rounded-full object-cover ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer" />
+            className="h-5 w-5 ml-2 rounded-full bg-white/90 ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer flex items-center justify-center">
+            <span className="text-[8px] font-semibold text-black/60 leading-none">SM</span>
+          </div>
         </div>
       </div>
 
@@ -142,7 +145,7 @@ export function MinervaMenuBar() {
           <div className="flex items-center overflow-hidden"
             style={{ maxWidth: isOpen ? 300 : 0, opacity: isOpen ? 1 : 0, marginRight: isOpen ? 14 : 0, transition: "max-width 700ms cubic-bezier(.32,.72,0,1), opacity 500ms, margin 700ms cubic-bezier(.32,.72,0,1)" }}>
             {LEFT_NAV.map((item, i) => (
-              <span key={item.href} data-nav="true" onClick={() => handleNav(item.href)}
+              <span key={item.label} data-nav="true" onClick={() => handleNav(item.href, item.section)}
                 style={{ fontSize: 13, fontWeight: pathname === item.href ? 500 : 400, whiteSpace: "nowrap", padding: "4px 14px", borderRadius: 20, cursor: "pointer", color: pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)", opacity: isOpen ? 1 : 0, transform: isOpen ? "translateY(0) scale(1)" : "translateY(6px) scale(0.92)", transition: `all 450ms cubic-bezier(.32,.72,0,1) ${isOpen ? 100 + i * 60 : 0}ms` }}
                 onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "#fff"; (e.target as HTMLElement).style.background = "rgba(255,255,255,0.1)" }}
                 onMouseLeave={(e) => { (e.target as HTMLElement).style.color = pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)"; (e.target as HTMLElement).style.background = "transparent" }}>
@@ -154,7 +157,7 @@ export function MinervaMenuBar() {
           <div className="flex items-center overflow-hidden"
             style={{ maxWidth: isOpen ? 300 : 0, opacity: isOpen ? 1 : 0, marginLeft: isOpen ? 14 : 0, transition: "max-width 700ms cubic-bezier(.32,.72,0,1), opacity 500ms, margin 700ms cubic-bezier(.32,.72,0,1)" }}>
             {RIGHT_NAV.map((item, i) => (
-              <span key={item.href} data-nav="true" onClick={() => handleNav(item.href)}
+              <span key={item.label} data-nav="true" onClick={() => handleNav(item.href, item.section)}
                 style={{ fontSize: 13, fontWeight: pathname === item.href ? 500 : 400, whiteSpace: "nowrap", padding: "4px 14px", borderRadius: 20, cursor: "pointer", color: pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)", opacity: isOpen ? 1 : 0, transform: isOpen ? "translateY(0) scale(1)" : "translateY(6px) scale(0.92)", transition: `all 450ms cubic-bezier(.32,.72,0,1) ${isOpen ? 100 + i * 60 : 0}ms` }}
                 onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "#fff"; (e.target as HTMLElement).style.background = "rgba(255,255,255,0.1)" }}
                 onMouseLeave={(e) => { (e.target as HTMLElement).style.color = pathname === item.href ? "#fff" : "rgba(255,255,255,0.5)"; (e.target as HTMLElement).style.background = "transparent" }}>

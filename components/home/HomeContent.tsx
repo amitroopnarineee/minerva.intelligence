@@ -286,6 +286,17 @@ export function HomeContent() {
     return () => window.removeEventListener('minerva-go-home', goHome)
   }, [])
 
+  // Listen for notch section navigation
+  useEffect(() => {
+    const navSection = (e: Event) => {
+      const section = (e as CustomEvent).detail
+      setShowCanvas(true)
+      setActiveSection(section)
+    }
+    window.addEventListener('minerva-nav-section', navSection)
+    return () => window.removeEventListener('minerva-nav-section', navSection)
+  }, [])
+
 
 
   return (
@@ -324,9 +335,10 @@ export function HomeContent() {
         <motion.div {...f(0.05)}>
           <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
           <p className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
-            Good morning, Sarah. <span className="mn-briefing-highlight text-sky-400">5 insights</span> surfaced overnight.
-            Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with
-            ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging.
+            <span className="mn-copy-greeting">Good morning, Sarah.</span>{" "}
+            <span className="mn-copy-insights"><span className="mn-briefing-highlight text-sky-400">5 insights</span> surfaced overnight.</span>{" "}
+            <span className="mn-copy-revenue">Revenue is <span className="mn-copy-revenue-value text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with ROAS at <span className="mn-copy-roas-value text-white/90">{currentKpi.roas.toFixed(1)}x</span>.</span>{" "}
+            <span className="mn-copy-audience">Family audience is surging.</span>
           </p>
 
           {/* Inline tab bar — FILTERS, not scroll anchors */}
