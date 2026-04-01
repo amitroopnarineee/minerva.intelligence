@@ -82,9 +82,9 @@ function useAdvancedTypewriter(text: string, active: boolean, speed = 25) {
 
   useEffect(() => {
     if (!active) { setSegments([]); setDone(false); setCursorVisible(true); return }
+    let cancelled = false
     setSegments([]); setDone(false); setCursorVisible(true)
 
-    // Pre-parse text into chunks
     const chunks: {text:string,type:'char'|'number'|'warm'}[] = []
     let remaining = text
     while (remaining.length > 0) {
@@ -108,9 +108,10 @@ function useAdvancedTypewriter(text: string, active: boolean, speed = 25) {
     const built: typeof chunks = []
 
     function tick() {
+      if (cancelled) return
       if (idx >= chunks.length) {
         setDone(true)
-        setTimeout(() => setCursorVisible(false), 200)
+        setTimeout(() => { if (!cancelled) setCursorVisible(false) }, 200)
         return
       }
       const chunk = chunks[idx]
@@ -118,7 +119,6 @@ function useAdvancedTypewriter(text: string, active: boolean, speed = 25) {
       setSegments([...built])
       idx++
 
-      // Determine delay for next chunk
       let delay = speed
       if (chunk.type === 'number' || chunk.type === 'warm') delay = 180
       else {
@@ -132,6 +132,7 @@ function useAdvancedTypewriter(text: string, active: boolean, speed = 25) {
       setTimeout(tick, delay)
     }
     tick()
+    return () => { cancelled = true }
   }, [active, text, speed])
 
   return { segments, done, cursorVisible }
@@ -143,10 +144,11 @@ function useSimpleTypewriter(text: string, active: boolean, speed = 20) {
   const [done, setDone] = useState(false)
   useEffect(() => {
     if (!active) { setDisplayed(""); setDone(false); return }
+    let cancelled = false
     setDisplayed(""); setDone(false)
     let i = 0
     function tick() {
-      if (i >= text.length) { setDone(true); return }
+      if (cancelled || i >= text.length) { if (!cancelled) setDone(true); return }
       const ch = text[i]
       i++
       setDisplayed(text.slice(0, i))
@@ -154,6 +156,7 @@ function useSimpleTypewriter(text: string, active: boolean, speed = 20) {
       setTimeout(tick, delay)
     }
     tick()
+    return () => { cancelled = true }
   }, [active, text, speed])
   return { displayed, done }
 }
@@ -287,61 +290,62 @@ function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
   const signalsText = "3 positive signals, 1 declining metric, and 1 weekend opportunity. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap."
   const { displayed: signalsGreeting, done: signalsDone } = useSimpleTypewriter(signalsText, tab === 'signals')
 
-  // Auto-advance timeline
-  useEffect(() => {
-    if (!playing || tab !== 'briefing') return
-    if (step === 0 && greetingDone) {
-      // Greeting done → start step 1 after delay
-      const t = setTimeout(() => {
-        setStep(1)
-        setShowDots(true)
-        setTimeout(() => {
-          setShowDots(false)
-          setConnectorActive(true)
-        }, 650)
-      }, STEP_DELAYS[1])
-      return () => clearTimeout(t)
-    }
-  }, [playing, tab, step, greetingDone])
+  // Single timeline driver — greeting done triggers the whole chain
+  const cancelRef = useRef(false)
 
-  // When connector finishes → show card
+  // Step 0→1: greeting done → dots → connector
   useEffect(() => {
-    if (!playing || !connDone || !connectorActive) return
+    if (!playing || tab !== 'briefing' || !greetingDone || step !== 0) return
+    cancelRef.current = false
+    const t1 = setTimeout(() => {
+      if (cancelRef.current) return
+      setStep(1)
+      setShowDots(true)
+      setTimeout(() => {
+        if (cancelRef.current) return
+        setShowDots(false)
+        setConnectorActive(true)
+      }, 650)
+    }, 800)
+    return () => { clearTimeout(t1) }
+  }, [playing, tab, greetingDone, step])
+
+  // Connector done → show card → advance
+  useEffect(() => {
+    if (!playing || !connDone || !connectorActive || step < 1) return
+    cancelRef.current = false
     const t = setTimeout(() => {
+      if (cancelRef.current) return
       setShowCard(step)
       setConnectorActive(false)
+      // Schedule next step
+      const nextStep = step + 1
+      if (nextStep > 7) return
+      const delay = STEP_DELAYS[nextStep] || 1000
+      setTimeout(() => {
+        if (cancelRef.current) return
+        if (nextStep <= 6) {
+          setStep(nextStep)
+          setShowDots(true)
+          setTimeout(() => {
+            if (cancelRef.current) return
+            setShowDots(false)
+            setConnectorActive(true)
+          }, 650)
+        } else {
+          setShowCard(7) // footer
+        }
+      }, delay)
     }, 200)
-    return () => clearTimeout(t)
-  }, [connDone, connectorActive, playing, step])
-
-  // When card shown → advance to next step
-  useEffect(() => {
-    if (!playing || showCard < 1 || showCard >= 7) return
-    const nextStep = showCard + 1
-    if (nextStep > 7) return
-    const t = setTimeout(() => {
-      setStep(nextStep)
-      if (nextStep <= 6) {
-        setShowDots(true)
-        setConnectorActive(false)
-        setTimeout(() => {
-          setShowDots(false)
-          setConnectorActive(true)
-        }, 650)
-      } else {
-        // Step 7 = footer, no connector
-        setShowCard(7)
-      }
-    }, STEP_DELAYS[nextStep])
-    return () => clearTimeout(t)
-  }, [playing, showCard])
+    return () => { clearTimeout(t); cancelRef.current = true }
+  }, [playing, connDone, connectorActive, step])
 
   // Auto-scroll
   useEffect(() => {
     if (latestSectionRef.current && playing) {
       latestSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
-  }, [showCard, step, playing])
+  }, [showCard, playing])
 
   const isComplete = showCard >= 7
 
