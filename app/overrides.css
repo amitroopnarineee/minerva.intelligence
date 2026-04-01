@@ -472,7 +472,7 @@ svg.text-\[\#0A66C2\] {
 .mn-main {
   padding: 0px 0px !important;
   margin: 0 !important;
-  backdrop-filter: blur(5px);
+  overflow: hidden !important;
 }
 
 .mn-menubar {

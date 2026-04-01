@@ -297,7 +297,7 @@ export function HomeContent() {
   }, [])
 
   return (
-    <div className="mn-home flex flex-col h-screen -mt-9 pt-9">
+    <div className="mn-home flex flex-col h-full">
       <AnimatePresence mode="wait">
       {!showCanvas ? (
         /* ═══ HERO LANDING ═══ */
