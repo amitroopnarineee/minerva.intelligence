@@ -168,7 +168,7 @@ export function HomeContent() {
   const [inputValue, setInputValue] = useState("")
   const [showCanvas, setShowCanvas] = useState(false)
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const enterCanvas = useCallback((sectionId: string) => {
@@ -293,7 +293,7 @@ export function HomeContent() {
                   <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.15} />
                   <VisxArea dataKey="revenue" fill="rgba(56,189,248,0.08)" stroke="rgba(56,189,248,0.5)" strokeWidth={1.5} />
                   <VisxArea dataKey="spend" fill="rgba(56,189,248,0.03)" stroke="rgba(56,189,248,0.2)" strokeWidth={1} />
-                  <VisxXAxis dataKey="date" tickFormat={(d: Date) => d.toLocaleDateString("en-US",{month:"short",day:"numeric"})} />
+                  <VisxXAxis numTicks={5} />
                 </VisxAreaChart>
               </motion.div>
             </div>
@@ -375,7 +375,7 @@ export function HomeContent() {
                   <p className="mn-audience-size text-[22px] font-bold tracking-tight text-white leading-none mb-2">{a.estimatedSize.toLocaleString()}</p>
                   <div className="mn-audience-meta flex items-center gap-3 text-[10px] text-white/25">
                     <span>{a.channelRecommendation}</span>
-                    {a.memberDelta !== 0 && (
+                    {a.memberDelta != null && a.memberDelta !== 0 && (
                       <span className={a.memberDelta > 0 ? "text-sky-400/50" : "text-white/20"}>
                         {a.memberDelta > 0 ? "+" : ""}{a.memberDelta}
                       </span>
