@@ -341,12 +341,23 @@ export function HomeContent() {
       <div className="mn-canvas-header shrink-0 px-6 pt-4 pb-0 max-w-[1100px] mx-auto w-full">
         <motion.div {...f(0.05)}>
           <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
-          <p className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
-            <span className="mn-copy-greeting">Good morning, Sarah.</span>{" "}
-            <span className="mn-copy-insights"><span className="mn-briefing-highlight text-white/90">5 insights</span> surfaced overnight.</span>{" "}
-            <span className="mn-copy-revenue">Revenue is <span className="mn-copy-revenue-value text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with ROAS at <span className="mn-copy-roas-value text-white/90">{currentKpi.roas.toFixed(1)}x</span>.</span>{" "}
-            <span className="mn-copy-audience">Family audience is surging.</span>
-          </p>
+          <AnimatePresence mode="wait">
+            <motion.p key={activeSection} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.2 }}
+              className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-3xl">
+              {activeSection === "briefing" && (<>
+                <span className="text-white/90">Good morning, Sarah.</span> Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging. <span className="text-white/40">3 actions ready to execute.</span>
+              </>)}
+              {activeSection === "insights" && (<>
+                <span className="text-white/90">3 positive signals</span>, <span className="text-white/90">1 declining metric</span>, and <span className="text-white/90">1 weekend opportunity</span>. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap. <span className="text-white/40">Minerva suggests prioritizing the conversion funnel audit.</span>
+              </>)}
+              {activeSection === "audiences" && (<>
+                <span className="text-white/90">{audiences.length} segments</span> across lifecycle, predictive, and behavioral types. <span className="text-white/90">{audiences.filter(a=>a.isActivationReady).length} are activation-ready</span> with a combined pipeline of <span className="text-white/90">${Math.round(audiences.reduce((s,a) => s + a.estimatedSize * (a.avgPropensityScore ?? 0) * 150, 0) / 1000)}K</span>. <span className="text-white/40">Seatmap Retargeting Pool grew +142 this week.</span>
+              </>)}
+              {activeSection === "people" && (<>
+                <span className="text-white/90">Marcus Johnson</span> is your highest-value contact — $8.4K total revenue, 97 ticket-buy propensity. <span className="text-white/90">Sofia Reyes</span> has a 78 churn risk — retention outreach recommended. <span className="text-white/40">2 prospects are ready for premium sales routing.</span>
+              </>)}
+            </motion.p>
+          </AnimatePresence>
 
           {/* Inline tab bar — FILTERS, not scroll anchors */}
           <div className="mn-inline-tabs flex items-center gap-1 mt-4 mb-5">
@@ -379,7 +390,7 @@ export function HomeContent() {
               <div className="flex items-start gap-3">
                 <Sparkles className="h-4 w-4 text-white/90 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="mn-ai-rec-label text-[9px] tracking-widest text-white/90/40 uppercase mb-1">Minerva recommends</p>
+                  <p className="mn-ai-rec-label text-[9px] tracking-widest text-white/30 uppercase mb-1">Minerva recommends</p>
                   <p className="mn-ai-rec-copy text-[13px] text-white/70 leading-relaxed">
                     Scale <span className="text-white/90">Family Ticket Bundle</span> budget by 20% and activate <span className="text-white/90">Seatmap Retargeting Pool</span> (900 profiles). Combined estimated lift: <span className="text-white/90">+$34K revenue</span> this week.
                   </p>
@@ -390,7 +401,7 @@ export function HomeContent() {
                         <ArrowRight className="h-3 w-3" /> Execute both
                       </button>
                     ) : (
-                      <span className="mn-ai-rec-done text-[11px] text-white/90/60 flex items-center gap-1.5"><Check className="h-3 w-3" /> Executed · Budget scaled · Retargeting activated</span>
+                      <span className="mn-ai-rec-done text-[11px] text-white/50 flex items-center gap-1.5"><Check className="h-3 w-3" /> Executed · Budget scaled · Retargeting activated</span>
                     )}
                     <span className="text-[10px] text-white/15 flex items-center gap-1"><Clock className="h-3 w-3" /> Generated 12 min ago · 91% confidence</span>
                   </div>
@@ -459,7 +470,7 @@ export function HomeContent() {
                 </tr></thead>
                 <tbody>{topCampaigns.map(c=>(
                   <tr key={c.id} onClick={() => setActiveCard(campaignToCard(c))} className="mn-campaign-row border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
-                    <td className="mn-campaign-name px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-white/90/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
+                    <td className="mn-campaign-name px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-white/30"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
                     <td className="mn-campaign-platform px-3 py-2 text-white/20">{c.platform}</td>
                     <td className="mn-campaign-spend text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
                     <td className="mn-campaign-roas text-right px-3 py-2 text-white/90 tabular-nums">{c.roas.toFixed(1)}x</td>
@@ -487,7 +498,7 @@ export function HomeContent() {
                       Execute <ArrowRight className="h-3 w-3" />
                     </button>
                   ) : (
-                    <span className="mn-nba-done text-[10px] text-white/90/50 flex items-center gap-1 shrink-0"><Check className="h-3 w-3" /> Done</span>
+                    <span className="mn-nba-done text-[10px] text-white/40 flex items-center gap-1 shrink-0"><Check className="h-3 w-3" /> Done</span>
                   )}
                 </div>
               ))}
@@ -505,36 +516,21 @@ export function HomeContent() {
         {activeSection === "insights" && (
           <motion.section key="insights" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
             className="mn-section mn-insights">
-            {/* AI Analysis summary */}
-            <motion.div {...f(0)} className="mn-insights-ai rounded-lg border border-white/[0.04] bg-white/[0.015] p-4 mb-5">
-              <div className="flex items-start gap-3">
-                <Sparkles className="h-4 w-4 text-white/90/40 mt-0.5 shrink-0" />
-                <div>
-                  <p className="mn-insights-ai-copy text-[13px] text-white/60 leading-relaxed">
-                    <span className="text-white/80">3 positive signals</span>, <span className="text-white/80">1 declining metric</span>, and <span className="text-white/80">1 weekend opportunity</span>. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap: social engagement is rising but lifecycle capture trails. <span className="text-white/40">Minerva suggests prioritizing the conversion funnel audit and the family geo-targeting campaign.</span>
-                  </p>
-                  <p className="text-[10px] text-white/15 mt-2 flex items-center gap-1"><Clock className="h-3 w-3" /> Analysis generated 8 min ago from 5 connected sources · {insightCardsFull.length} signals detected</p>
-                </div>
-              </div>
-            </motion.div>
-
             <motion.div {...f(0.05)} className="mn-insights-header flex items-center justify-between mb-4">
               <Lbl>Signals</Lbl>
               <span className="mn-insights-count text-[10px] text-white/15">{insightCardsFull.length} detected · sorted by impact</span>
             </motion.div>
-            <div className="mn-insights-scroll flex gap-4 overflow-x-auto pb-2 -mx-2 px-2" style={{ scrollbarWidth: "none" }}>
+            <div className="mn-insights-grid grid grid-cols-4 gap-3">
               {insightCardsFull.map((card, idx) => (
                 <motion.div key={card.id} {...f(0.05 + idx * 0.04)}
                   whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCard(card)}
-                  className="mn-insight-card mn-glass-card snap-start shrink-0 w-[260px] h-[210px] rounded-xl border-l-[3px] border-l-white/[0.15] backdrop-blur-sm p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
-                  <span className="mn-insight-label mn-glass-label text-[8px] tracking-widest text-white/25 uppercase">{card.label}</span>
-                  {card.mainValue && <span className="mn-insight-value text-[28px] font-bold tracking-tight leading-none mt-1 text-white/90">{card.mainValue}</span>}
+                  className="mn-insight-card rounded-lg border border-white/[0.04] p-4 flex flex-col cursor-pointer hover:bg-white/[0.02] transition-all" style={{ background: 'rgba(0,0,0,0.4)' }}>
+                  <span className="mn-insight-label text-[8px] tracking-widest text-white/20 uppercase">{card.label}</span>
+                  {card.mainValue && <span className="mn-insight-value text-[22px] font-bold tracking-tight leading-none mt-1 text-white/90">{card.mainValue}</span>}
                   {card.subtitle && <span className="mn-insight-subtitle text-[15px] font-semibold tracking-tight leading-tight mt-1">{card.subtitle}</span>}
                   <p className="mn-insight-copy text-[11px] text-white/40 leading-snug mt-2 flex-1">{card.copy}</p>
-                  <div className="mn-insight-footer pt-3 border-t border-white/[0.06] mt-auto">
-                    <span className="mn-insight-cta text-[11px] font-medium text-white/90/60">{card.cta}</span>
-                  </div>
+                  <span className="mn-insight-cta text-[10px] text-white/20 mt-3">{card.cta}</span>
                 </motion.div>
               ))}
             </div>
@@ -586,13 +582,13 @@ export function HomeContent() {
                     <span>${Math.round(a.estimatedSize * (a.avgPropensityScore ?? 0) * 150 / 1000)}K pipeline</span>
                     <span>{a.channelRecommendation}</span>
                     {a.memberDelta != null && a.memberDelta !== 0 && (
-                      <span className={a.memberDelta > 0 ? "text-white/90/50" : "text-white/20"}>
+                      <span className={a.memberDelta > 0 ? "text-white/40" : "text-white/20"}>
                         {a.memberDelta > 0 ? "+" : ""}{a.memberDelta}
                       </span>
                     )}
                   </div>
                   {a.isActivationReady && (
-                    <button className="mn-audience-cta mt-3 text-[10px] text-white/90/60 group-hover:text-white/90 transition-colors flex items-center gap-1">
+                    <button className="mn-audience-cta mt-3 text-[10px] text-white/50 group-hover:text-white/90 transition-colors flex items-center gap-1">
                       Activate <ChevronRight className="h-3 w-3" />
                     </button>
                   )}
@@ -605,19 +601,6 @@ export function HomeContent() {
         {activeSection === "people" && (
           <motion.section key="people" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
             className="mn-section mn-people">
-            {/* People AI summary */}
-            <motion.div {...f(0)} className="mn-people-ai rounded-lg border border-white/[0.04] bg-white/[0.015] p-4 mb-5">
-              <div className="flex items-start gap-3">
-                <Sparkles className="h-4 w-4 text-white/90/40 mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-[13px] text-white/60 leading-relaxed">
-                    <span className="text-white/80">Marcus Johnson</span> is your highest-value contact — $8.4K total revenue, 97 ticket-buy propensity, and a 72 Club season ticket holder. <span className="text-white/80">Sofia Reyes</span> has a 78 churn risk and hasn't purchased since October — retention outreach recommended. <span className="text-white/40">2 prospects are ready for premium sales routing.</span>
-                  </p>
-                  <p className="text-[10px] text-white/15 mt-2 flex items-center gap-1"><Clock className="h-3 w-3" /> Profiles enriched from 5 sources · 260M+ identity graph</p>
-                </div>
-              </div>
-            </motion.div>
-
             <motion.div {...f(0.05)} className="mn-people-header flex items-center justify-between mb-4">
               <Lbl>Top profiles</Lbl>
               <span className="text-[10px] text-white/15">{persons.length} matched · sorted by ticket-buy propensity</span>
@@ -668,7 +651,7 @@ export function HomeContent() {
                           Contact
                         </button>
                       ) : (
-                        <span className="text-[10px] text-white/90/50 flex items-center justify-end gap-1"><Check className="h-3 w-3" /> Sent</span>
+                        <span className="text-[10px] text-white/40 flex items-center justify-end gap-1"><Check className="h-3 w-3" /> Sent</span>
                       )}
                     </td>
                   </tr>))}</tbody>
