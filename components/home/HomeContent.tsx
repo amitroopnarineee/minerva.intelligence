@@ -337,10 +337,10 @@ export function HomeContent() {
       ) : (
         /* ═══ CANVAS VIEW ═══ */
         <motion.div key="canvas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
-          className="mn-canvas flex-1 flex flex-col min-h-0 relative">
+          className="mn-canvas flex-1 overflow-y-auto relative" style={{ scrollbarWidth: "none" }}>
 
-      {/* Sticky header: briefing + tabs */}
-      <div className="mn-canvas-header shrink-0 px-6 pt-4 pb-0 max-w-[1100px] mx-auto w-full">
+      {/* Header: briefing + tabs — scrolls with content */}
+      <div className="mn-canvas-header px-6 pt-4 pb-0 max-w-[1100px] mx-auto w-full">
         <motion.div {...f(0.05)}>
           <p className="mn-briefing-date text-[10px] tracking-widest text-white/30 uppercase">Tuesday, April 1 · Morning Briefing</p>
           <AnimatePresence mode="wait">
@@ -379,7 +379,7 @@ export function HomeContent() {
       </div>
 
       {/* Scrollable content — only the active section */}
-      <div ref={scrollRef} className="mn-canvas-scroll flex-1 overflow-y-auto relative z-10" style={{ scrollbarWidth: "none" }}>
+      <div ref={scrollRef} className="mn-canvas-scroll relative z-10">
         <div className="mn-canvas-inner px-6 pb-20 max-w-[1100px] mx-auto">
 
         <AnimatePresence mode="wait">

@@ -333,12 +333,13 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
   const [rightTab, setRightTab] = useState<"detail" | "people" | "minerva">("detail")
   const [expandedPerson, setExpandedPerson] = useState<typeof persons[0] | null>(null)
   const [selectedPeople, setSelectedPeople] = useState<Set<string>>(new Set())
+  const [actionsOpen, setActionsOpen] = useState(false)
 
   const relatedPeople = card.relatedAudienceIds.length > 0
     ? persons.filter(p => p.audiences.some(a => card.relatedAudienceIds.includes(a)))
     : [...persons].sort((a, b) => b.scores.ticketBuy - a.scores.ticketBuy).slice(0, 5)
 
-  useEffect(() => { setRightTab("detail") }, [card.id])
+  useEffect(() => { setRightTab("detail"); setActionsOpen(false) }, [card.id])
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") { e.preventDefault(); onNav?.(-1) }
@@ -394,78 +395,28 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
               {!dd.supportingContext && dd.summary && <p className="text-[12px] text-white/50 mt-2 leading-relaxed">{dd.summary}</p>}
             </div>
 
-            {/* ══ PROJECTED OUTCOME ══ */}
-            {(dd.projectedScale || dd.projectedInaction) && (
-            <div className="space-y-3">
-              {dd.projectedScale && <div className="rounded-lg border border-white/[0.06] px-4 py-3">
-                <p className="text-[9px] uppercase tracking-wider text-white/25 mb-1">If you act now</p>
-                <p className="text-[12px] text-white/70 leading-relaxed">{dd.projectedScale}</p>
-              </div>}
-              {dd.projectedInaction && <div className="rounded-lg border border-white/[0.04] px-4 py-3">
-                <p className="text-[9px] uppercase tracking-wider text-white/20 mb-1">If you do nothing</p>
-                <p className="text-[12px] text-white/40 leading-relaxed">{dd.projectedInaction}</p>
-              </div>}
-            </div>
-            )}
-
-            {/* ══ CONFIDENCE ══ */}
-            {dd.confidence && (
-            <div className="flex items-center gap-3">
+            {/* ══ EXPANDABLE ACTIONS ══ */}
+            <div className="mt-auto pt-4">
               <div className="flex items-center gap-2">
-                <div className="w-24 h-1.5 rounded-full bg-white/[0.04]">
-                  <div className="h-full rounded-full bg-white/25" style={{ width: `${dd.confidence.score}%` }} />
-                </div>
-                <span className="text-[11px] tabular-nums text-white/50">{dd.confidence.score}%</span>
-              </div>
-              <span className="text-[10px] text-white/25">{dd.confidence.reason}</span>
-            </div>
-            )}
-
-            {/* ══ RECOMMENDED + WATCH ══ */}
-            <div className="space-y-4">
-              <div>
-                <p className="text-[9px] uppercase tracking-wider text-white/30 mb-2">{dd.recommendedActions ? 'Recommended' : 'Immediate'}</p>
-                <div className="space-y-1">
-                  {(dd.recommendedActions ?? dd.immediateActions ?? []).map((a, i) => (
-                    <button key={i} onClick={() => toast.success(a, { description: "Queued" })}
-                      className="flex items-start gap-2 w-full text-left hover:bg-white/[0.04] rounded-lg px-2 py-1.5 -mx-2 transition-colors group cursor-pointer">
-                      <span className="text-[10px] text-white/20 mt-0.5 shrink-0">{i + 1}.</span>
-                      <span className="text-[12px] text-white/70 leading-snug group-hover:text-white/90 transition-colors">{a}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {(dd.watchConditions ?? dd.followUpActions) && <div>
-                <p className="text-[9px] uppercase tracking-wider text-white/20 mb-2">{dd.watchConditions ? 'Watch' : 'Follow-up'}</p>
-                <div className="space-y-1">
-                  {(dd.watchConditions ?? dd.followUpActions ?? []).map((w, i) => (
-                    <div key={i} className="flex items-start gap-2 px-2 py-1">
-                      <span className="text-[10px] text-white/15 mt-0.5">⚠</span>
-                      <span className="text-[11px] text-white/30 leading-snug">{w}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>}
-            </div>
-
-            {/* Action pills */}
-            {dd.actions && dd.actions.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {dd.actions.slice(0, 4).map((a, i) => (
-                  <button key={i} onClick={() => toast.success(a, { description: 'Queued' })}
-                    className="text-[10px] px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-all">
+                <button onClick={() => setActionsOpen(!actionsOpen)}
+                  className={`text-[11px] px-4 py-2 rounded-full border transition-all ${actionsOpen ? 'border-white/[0.15] bg-white/[0.06] text-white/70' : 'border-white/[0.08] bg-white/[0.02] text-white/40 hover:text-white/60 hover:bg-white/[0.04]'}`}>
+                  Actions {actionsOpen ? '✕' : '→'}
+                </button>
+                {actionsOpen && dd.actions && dd.actions.slice(0, 3).map((a, i) => (
+                  <motion.button key={a} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05, duration: 0.15 }}
+                    onClick={() => toast.success(a, { description: 'Queued' })}
+                    className="text-[10px] px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/40 hover:text-white/70 hover:bg-white/[0.05] transition-all whitespace-nowrap">
                     {a}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
-            )}
-
-            {card.openSpectrum && onOpenSpectrum && (
-              <button onClick={() => { onClose(); onOpenSpectrum() }}
-                className="rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 py-3 text-[12px] font-medium text-white/70 hover:bg-white/[0.06] transition-colors text-left">
-                Explore audience in Spectrum →
-              </button>
-            )}
+              {card.openSpectrum && onOpenSpectrum && (
+                <button onClick={() => { onClose(); onOpenSpectrum() }}
+                  className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-2.5 text-[11px] text-white/40 hover:text-white/60 hover:bg-white/[0.04] transition-colors text-left w-full">
+                  Explore audience in Spectrum →
+                </button>
+              )}
+            </div>
           </div>
 
           {/* ═══ RIGHT: Detail / People / Minerva ═══ */}
@@ -485,6 +436,62 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
 
             {rightTab === "detail" ? (
             <div className="space-y-8">
+
+              {/* ══ PROJECTED OUTCOME ══ */}
+              {(dd.projectedScale || dd.projectedInaction) && (
+              <div className="space-y-2.5">
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Projected Outcome</h3>
+                {dd.projectedScale && <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+                  <p className="text-[9px] uppercase tracking-wider text-white/25 mb-1">If you act now</p>
+                  <p className="text-[12px] text-white/70 leading-relaxed">{dd.projectedScale}</p>
+                </div>}
+                {dd.projectedInaction && <div className="rounded-lg border border-white/[0.04] px-4 py-3">
+                  <p className="text-[9px] uppercase tracking-wider text-white/20 mb-1">If you do nothing</p>
+                  <p className="text-[12px] text-white/40 leading-relaxed">{dd.projectedInaction}</p>
+                </div>}
+              </div>
+              )}
+
+              {/* ══ CONFIDENCE ══ */}
+              {dd.confidence && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-24 h-1.5 rounded-full bg-white/[0.04]">
+                    <div className="h-full rounded-full bg-white/25" style={{ width: `${dd.confidence.score}%` }} />
+                  </div>
+                  <span className="text-[11px] tabular-nums text-white/50">{dd.confidence.score}%</span>
+                </div>
+                <span className="text-[10px] text-white/25">{dd.confidence.reason}</span>
+              </div>
+              )}
+
+              {/* ══ RECOMMENDED + WATCH ══ */}
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[9px] uppercase tracking-wider text-white/30 mb-2">{dd.recommendedActions ? 'Recommended' : 'Immediate'}</p>
+                  <div className="space-y-1">
+                    {(dd.recommendedActions ?? dd.immediateActions ?? []).map((a, i) => (
+                      <button key={i} onClick={() => toast.success(a, { description: "Queued" })}
+                        className="flex items-start gap-2 w-full text-left hover:bg-white/[0.04] rounded-lg px-2 py-1.5 -mx-2 transition-colors group cursor-pointer">
+                        <span className="text-[10px] text-white/20 mt-0.5 shrink-0">{i + 1}.</span>
+                        <span className="text-[12px] text-white/70 leading-snug group-hover:text-white/90 transition-colors">{a}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {(dd.watchConditions ?? dd.followUpActions) && <div>
+                  <p className="text-[9px] uppercase tracking-wider text-white/20 mb-2">{dd.watchConditions ? 'Watch' : 'Follow-up'}</p>
+                  <div className="space-y-1">
+                    {(dd.watchConditions ?? dd.followUpActions ?? []).map((w, i) => (
+                      <div key={i} className="flex items-start gap-2 px-2 py-1">
+                        <span className="text-[10px] text-white/15 mt-0.5">⚠</span>
+                        <span className="text-[11px] text-white/30 leading-snug">{w}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>}
+              </div>
+
               {/* Trend Chart */}
               {dd.chartData && (
                 <div>
