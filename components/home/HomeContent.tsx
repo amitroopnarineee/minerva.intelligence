@@ -15,6 +15,8 @@ import { FunnelChart } from "@/components/shared/FunnelChart"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
+import { toast } from "sonner"
+import { Check, Sparkles, Clock, ArrowRight, Send, Flag, BarChart3 } from "lucide-react"
 import { ProgressiveBlur } from "@/components/ui/progressive-blur"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 import { SpecialText } from "@/components/ui/special-text"
@@ -262,8 +264,13 @@ export function HomeContent() {
   const [activeMode, setActiveMode] = useState(0)
   const [showCanvas, setShowCanvas] = useState(false)
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
+  const [completedActions, setCompletedActions] = useState<Set<string>>(new Set())
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  const markAction = useCallback((id: string) => {
+    setCompletedActions(prev => new Set(prev).add(id))
+  }, [])
 
   const enterCanvas = useCallback((sectionId: string) => {
     setActiveSection(sectionId)
@@ -367,6 +374,30 @@ export function HomeContent() {
           <motion.section key="briefing" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
             className="mn-section mn-briefing space-y-5">
 
+            {/* AI Recommendation */}
+            <motion.div {...f(0.08)} className="mn-ai-rec rounded-lg border border-sky-400/10 bg-sky-400/[0.03] p-4">
+              <div className="flex items-start gap-3">
+                <Sparkles className="h-4 w-4 text-sky-400 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="mn-ai-rec-label text-[9px] tracking-widest text-sky-400/40 uppercase mb-1">Minerva recommends</p>
+                  <p className="mn-ai-rec-copy text-[13px] text-white/70 leading-relaxed">
+                    Scale <span className="text-white/90">Family Ticket Bundle</span> budget by 20% and activate <span className="text-white/90">Seatmap Retargeting Pool</span> (900 profiles). Combined estimated lift: <span className="text-white/90">+$34K revenue</span> this week.
+                  </p>
+                  <div className="flex items-center gap-3 mt-3">
+                    {!completedActions.has('ai-rec-1') ? (
+                      <button onClick={() => { markAction('ai-rec-1'); toast.success('Executed: Budget scaled +20% and retargeting pool activated', { description: 'Both actions queued. Estimated lift: +$34K.' }) }}
+                        className="mn-ai-rec-btn text-[11px] font-medium text-sky-400 bg-sky-400/10 hover:bg-sky-400/20 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
+                        <ArrowRight className="h-3 w-3" /> Execute both
+                      </button>
+                    ) : (
+                      <span className="mn-ai-rec-done text-[11px] text-sky-400/60 flex items-center gap-1.5"><Check className="h-3 w-3" /> Executed · Budget scaled · Retargeting activated</span>
+                    )}
+                    <span className="text-[10px] text-white/15 flex items-center gap-1"><Clock className="h-3 w-3" /> Generated 12 min ago · 91% confidence</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
             {/* KPI Strip */}
             <motion.div {...f(0.12)} className="mn-kpi-strip grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
               {[
@@ -420,18 +451,60 @@ export function HomeContent() {
                   </tr>))}</tbody>
               </table>
             </motion.div>
+            {/* Next best actions queue */}
+            <motion.div {...f(0.35)} className="mn-actions-queue space-y-2">
+              <Lbl>Next best actions</Lbl>
+              {[
+                { id: 'nba-1', label: 'Activate Seatmap Retargeting Pool', detail: '900 profiles · paid channel · $99K pipeline', icon: Send },
+                { id: 'nba-2', label: 'Send renewal reminder to 700 at-risk members', detail: 'Renewal Risk Members · email · 94% reach', icon: Send },
+                { id: 'nba-3', label: 'Route Marcus Johnson to premium sales', detail: 'Ticket Buy: 97 · Premium: 88 · $8.4K revenue', icon: Flag },
+              ].map((a) => (
+                <div key={a.id} className="mn-nba-item flex items-center gap-3 rounded-lg border border-white/[0.04] bg-white/[0.015] px-4 py-3 group">
+                  <a.icon className="h-3.5 w-3.5 text-white/15 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="mn-nba-label text-[12px] text-white/60">{a.label}</p>
+                    <p className="mn-nba-detail text-[10px] text-white/20">{a.detail}</p>
+                  </div>
+                  {!completedActions.has(a.id) ? (
+                    <button onClick={() => { markAction(a.id); toast.success(`Done: ${a.label}`) }}
+                      className="mn-nba-btn text-[10px] text-white/25 hover:text-sky-400 transition-colors shrink-0 flex items-center gap-1">
+                      Execute <ArrowRight className="h-3 w-3" />
+                    </button>
+                  ) : (
+                    <span className="mn-nba-done text-[10px] text-sky-400/50 flex items-center gap-1 shrink-0"><Check className="h-3 w-3" /> Done</span>
+                  )}
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Data sources */}
+            <motion.div {...f(0.4)} className="mn-sources flex items-center gap-4 text-[10px] text-white/15">
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Last sync: 8:12 AM</span>
+              <span>Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph</span>
+              <span className="text-sky-400/30">5 sources connected</span>
+            </motion.div>
           </motion.section>
         )}
 
         {activeSection === "insights" && (
           <motion.section key="insights" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
             className="mn-section mn-insights">
-            <motion.div {...f(0)} className="mn-insights-header flex items-center justify-between mb-4">
-              <div>
-                <Lbl>What needs your attention</Lbl>
-                <p className="mn-insights-desc text-[15px] text-white/70">5 signals surfaced overnight. Click any card to explore.</p>
+            {/* AI Analysis summary */}
+            <motion.div {...f(0)} className="mn-insights-ai rounded-lg border border-white/[0.04] bg-white/[0.015] p-4 mb-5">
+              <div className="flex items-start gap-3">
+                <Sparkles className="h-4 w-4 text-sky-400/40 mt-0.5 shrink-0" />
+                <div>
+                  <p className="mn-insights-ai-copy text-[13px] text-white/60 leading-relaxed">
+                    <span className="text-white/80">3 positive signals</span>, <span className="text-white/80">1 declining metric</span>, and <span className="text-white/80">1 weekend opportunity</span>. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap: social engagement is rising but lifecycle capture trails. <span className="text-white/40">Minerva suggests prioritizing the conversion funnel audit and the family geo-targeting campaign.</span>
+                  </p>
+                  <p className="text-[10px] text-white/15 mt-2 flex items-center gap-1"><Clock className="h-3 w-3" /> Analysis generated 8 min ago from 5 connected sources · {insightCardsFull.length} signals detected</p>
+                </div>
               </div>
-              <span className="mn-insights-count text-[11px] text-white/15">{insightCardsFull.length} signals</span>
+            </motion.div>
+
+            <motion.div {...f(0.05)} className="mn-insights-header flex items-center justify-between mb-4">
+              <Lbl>Signals</Lbl>
+              <span className="mn-insights-count text-[10px] text-white/15">{insightCardsFull.length} detected · sorted by impact</span>
             </motion.div>
             <div className="mn-insights-scroll flex gap-4 overflow-x-auto pb-2 -mx-2 px-2" style={{ scrollbarWidth: "none" }}>
               {insightCardsFull.map((card, idx) => (
@@ -455,14 +528,24 @@ export function HomeContent() {
         {activeSection === "audiences" && (
           <motion.section key="audiences" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
             className="mn-section mn-audiences">
-            <motion.div {...f(0)} className="mn-audiences-header flex items-center justify-between mb-4">
-              <div>
-                <Lbl>Your segments</Lbl>
-                <p className="mn-audiences-desc text-[15px] text-white/70"><span className="mn-audiences-highlight text-sky-400">{audiences.length} audience segments</span> across lifecycle, predictive, and behavioral types.</p>
-              </div>
-              <button onClick={() => router.push("/person-search")} className="mn-audiences-link text-[11px] text-sky-400/60 hover:text-sky-400 transition-colors flex items-center gap-1">
-                Manage <ChevronRight className="h-3 w-3" />
-              </button>
+            {/* Audience summary stats */}
+            <motion.div {...f(0)} className="mn-aud-summary grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.04] mb-5">
+              {[
+                { l: 'Total Profiles', v: audiences.reduce((s,a) => s+a.estimatedSize, 0).toLocaleString() },
+                { l: 'Activation Ready', v: `${audiences.filter(a=>a.isActivationReady).length} of ${audiences.length}` },
+                { l: 'Est. Pipeline', v: `${(audiences.reduce((s,a) => s + a.estimatedSize * (a.avgPropensityScore ?? 0) * 150, 0) / 1000).toFixed(0)}K` },
+                { l: 'Net Growth', v: `+${audiences.reduce((s,a) => s + Math.max(a.memberDelta ?? 0, 0), 0).toLocaleString()}` },
+              ].map((s,i) => (
+                <div key={i} className="bg-white/[0.015] px-4 py-3">
+                  <p className="text-[8px] text-white/15 uppercase tracking-widest mb-1">{s.l}</p>
+                  <p className="text-[16px] text-white/70 font-medium tracking-tight">{s.v}</p>
+                </div>
+              ))}
+            </motion.div>
+
+            <motion.div {...f(0.05)} className="mn-audiences-header flex items-center justify-between mb-4">
+              <Lbl>Segments</Lbl>
+              <span className="text-[10px] text-white/15">{audiences.length} segments · {audiences.filter(a=>a.isActivationReady).length} ready to activate</span>
             </motion.div>
             <div className="mn-audiences-grid grid grid-cols-3 gap-4">
               {audiences.map((a, idx) => (
@@ -478,8 +561,13 @@ export function HomeContent() {
                     )}
                   </div>
                   <p className="mn-audience-name text-[13px] font-medium text-white/80 mb-0.5">{a.name}</p>
-                  <p className="mn-audience-size text-[22px] font-bold tracking-tight text-white leading-none mb-2">{a.estimatedSize.toLocaleString()}</p>
+                  <p className="mn-audience-size text-[22px] font-bold tracking-tight text-white leading-none mb-1.5">{a.estimatedSize.toLocaleString()}</p>
+                  {/* Propensity bar */}
+                  <div className="mn-audience-propensity-bar w-full h-1 rounded-full bg-white/[0.04] mb-2">
+                    <div className="h-full rounded-full bg-sky-400/30" style={{ width: `${(a.avgPropensityScore ?? 0) * 100}%` }} />
+                  </div>
                   <div className="mn-audience-meta flex items-center gap-3 text-[10px] text-white/25">
+                    <span>${Math.round(a.estimatedSize * (a.avgPropensityScore ?? 0) * 150 / 1000)}K pipeline</span>
                     <span>{a.channelRecommendation}</span>
                     {a.memberDelta != null && a.memberDelta !== 0 && (
                       <span className={a.memberDelta > 0 ? "text-sky-400/50" : "text-white/20"}>
@@ -501,24 +589,31 @@ export function HomeContent() {
         {activeSection === "people" && (
           <motion.section key="people" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
             className="mn-section mn-people">
-            <motion.div {...f(0)} className="mn-people-header flex items-center justify-between mb-4">
-              <div>
-                <Lbl>Top profiles to act on</Lbl>
-                <p className="mn-people-desc text-[15px] text-white/70">Highest-propensity people across your segments.</p>
+            {/* People AI summary */}
+            <motion.div {...f(0)} className="mn-people-ai rounded-lg border border-white/[0.04] bg-white/[0.015] p-4 mb-5">
+              <div className="flex items-start gap-3">
+                <Sparkles className="h-4 w-4 text-sky-400/40 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[13px] text-white/60 leading-relaxed">
+                    <span className="text-white/80">Marcus Johnson</span> is your highest-value contact — $8.4K total revenue, 97 ticket-buy propensity, and a 72 Club season ticket holder. <span className="text-white/80">Sofia Reyes</span> has a 78 churn risk and hasn't purchased since October — retention outreach recommended. <span className="text-white/40">2 prospects are ready for premium sales routing.</span>
+                  </p>
+                  <p className="text-[10px] text-white/15 mt-2 flex items-center gap-1"><Clock className="h-3 w-3" /> Profiles enriched from 5 sources · 260M+ identity graph</p>
+                </div>
               </div>
-              <button onClick={() => router.push("/people")} className="mn-people-link text-[11px] text-sky-400/60 hover:text-sky-400 transition-colors flex items-center gap-1">
-                All people <ChevronRight className="h-3 w-3" />
-              </button>
+            </motion.div>
+
+            <motion.div {...f(0.05)} className="mn-people-header flex items-center justify-between mb-4">
+              <Lbl>Top profiles</Lbl>
+              <span className="text-[10px] text-white/15">{persons.length} matched · sorted by ticket-buy propensity</span>
             </motion.div>
             <motion.div {...f(0.05)} className="mn-people-table-wrap rounded-lg border border-white/[0.06] overflow-hidden">
               <table className="mn-people-table w-full text-[12px]">
                 <thead><tr className="mn-people-thead bg-white/[0.02]">
                   <th className="mn-people-th text-left px-3.5 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Person</th>
                   <th className="text-left px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Status</th>
-                  <th className="text-right px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Ticket Buy</th>
-                  <th className="text-right px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Premium</th>
-                  <th className="text-right px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Churn</th>
-                  <th className="text-right px-3.5 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Income</th>
+                  <th className="text-left px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest w-[120px]">Propensity</th>
+                  <th className="text-left px-3 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">AI Reason</th>
+                  <th className="text-right px-3.5 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Action</th>
                 </tr></thead>
                 <tbody>{topPeople.map(p=>(
                   <tr key={p.id} onClick={() => setActiveCard(personToCard(p))}
@@ -537,10 +632,29 @@ export function HomeContent() {
                         {p.fanStatus.replace(/_/g, " ")}
                       </span>
                     </td>
-                    <td className="text-right px-3 py-2.5 text-white/60 tabular-nums font-medium">{Math.round(p.scores.ticketBuy * 100)}</td>
-                    <td className="text-right px-3 py-2.5 text-white/60 tabular-nums font-medium">{Math.round(p.scores.premium * 100)}</td>
-                    <td className={`text-right px-3 py-2.5 tabular-nums font-medium ${p.scores.churn > 0.5 ? "text-red-400/60" : "text-white/30"}`}>{Math.round(p.scores.churn * 100)}</td>
-                    <td className="text-right px-3.5 py-2.5 text-white/25">{p.household.incomeBand}</td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="mn-propensity-bar w-16 h-1.5 rounded-full bg-white/[0.04]">
+                          <div className="h-full rounded-full bg-sky-400/40" style={{ width: `${p.scores.ticketBuy * 100}%` }} />
+                        </div>
+                        <span className="text-[10px] text-white/40 tabular-nums">{Math.round(p.scores.ticketBuy * 100)}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span className="mn-ai-reason text-[10px] text-white/30">
+                        {p.scores.churn > 0.5 ? 'Churn risk — needs retention' : p.scores.premium > 0.7 ? 'Premium sales candidate' : p.tickets.length === 0 ? 'Acquisition opportunity' : `${p.tickets.reduce((s,t)=>s+t.revenue,0).toLocaleString()} revenue`}
+                      </span>
+                    </td>
+                    <td className="text-right px-3.5 py-2.5">
+                      {!completedActions.has(`contact-${p.id}`) ? (
+                        <button onClick={(e) => { e.stopPropagation(); markAction(`contact-${p.id}`); toast.success(`Outreach queued: ${p.firstName} ${p.lastName}`) }}
+                          className="mn-row-action text-[10px] text-white/20 hover:text-sky-400 transition-colors">
+                          Contact
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-sky-400/50 flex items-center justify-end gap-1"><Check className="h-3 w-3" /> Sent</span>
+                      )}
+                    </td>
                   </tr>))}</tbody>
               </table>
             </motion.div>
