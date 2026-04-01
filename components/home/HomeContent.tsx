@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Brain, Lightbulb, Users, UserSearch, TrendingUp, TrendingDown, Minus, Zap, ChevronRight, X } from "lucide-react"
+import { Brain, Lightbulb, Users, UserSearch, TrendingUp, TrendingDown, Minus, Zap, ChevronRight } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { insights as insightCardsFull, DrillDownModal, type InsightCard } from "@/components/shared/InsightDrillDown"
 import { kpiHistory, currentKpi, previousKpi, kpiDelta } from "@/lib/data/kpis"
 import { campaigns as allCampaigns } from "@/lib/data/campaigns"
 import { persons, type Person } from "@/lib/data/persons"
@@ -72,6 +73,7 @@ export function HomeContent() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
   const [activeSection, setActiveSection] = useState("briefing")
   const [showCanvas, setShowCanvas] = useState(false)
+  const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -202,19 +204,16 @@ export function HomeContent() {
                 <Lbl>What needs your attention</Lbl>
                 <p className="text-[15px] text-white/70">5 signals surfaced overnight. Click any card to explore.</p>
               </div>
-              <button onClick={() => router.push("/command-center")} className="text-[11px] text-sky-400/60 hover:text-sky-400 transition-colors flex items-center gap-1">
-                All insights <ChevronRight className="h-3 w-3" />
-              </button>
+              <span className="text-[11px] text-white/15">{insightCardsFull.length} signals</span>
             </motion.div>
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2" style={{ scrollbarWidth: "none" }}>
-              {insightCards.map((card, idx) => (
+              {insightCardsFull.map((card, idx) => (
                 <motion.div key={card.id} {...f(0.05 + idx * 0.04)}
                   whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}
-                  onClick={() => router.push("/command-center")}
-                  /* TODO: open modal in-place */
+                  onClick={() => setActiveCard(card)}
                   className="mn-glass-card snap-start shrink-0 w-[260px] h-[210px] rounded-xl border-l-[3px] border-l-sky-400/40 backdrop-blur-sm p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
                   <span className="mn-glass-label text-[8px] tracking-widest text-white/25 uppercase">{card.label}</span>
-                  {card.value && <span className="text-[28px] font-bold tracking-tight leading-none mt-1 text-sky-400">{card.value}</span>}
+                  {card.mainValue && <span className="text-[28px] font-bold tracking-tight leading-none mt-1 text-sky-400">{card.mainValue}</span>}
                   {card.subtitle && <span className="text-[15px] font-semibold tracking-tight leading-tight mt-1">{card.subtitle}</span>}
                   <p className="text-[11px] text-white/40 leading-snug mt-2 flex-1">{card.copy}</p>
                   <div className="pt-3 border-t border-white/[0.06] mt-auto">
@@ -339,6 +338,12 @@ export function HomeContent() {
       </AnimatePresence>
 
       <PersonProfileSheet person={selectedPerson} open={!!selectedPerson} onClose={() => setSelectedPerson(null)} />
+
+      <AnimatePresence>
+        {activeCard && (
+          <DrillDownModal card={activeCard} onClose={() => setActiveCard(null)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
