@@ -73,14 +73,14 @@ export default function DashboardLayout({
 
   return (
     <div className="mn-root h-screen relative overflow-hidden">
-      {!isNewApp && <GlobalBackground />}
+      <GlobalBackground />
 
       {/* Main flex row — content + chat side by side */}
       <div className="relative z-10 h-full flex">
         {/* Left: full app shell (menu bar + content) */}
         <div className="flex-1 min-w-0 flex flex-col transition-all duration-300 ease-out">
-          {!isNewApp && <MinervaMenuBar />}
-          <main className={`mn-main flex-1 overflow-hidden ${isNewApp ? '' : 'pt-9'}`} onClick={() => { if (chatOpen) setChatOpen(false) }}>
+          <MinervaMenuBar />
+          <main className="mn-main flex-1 overflow-hidden pt-9" onClick={() => { if (chatOpen) setChatOpen(false) }}>
             {children}
           </main>
         </div>

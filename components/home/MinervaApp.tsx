@@ -4,7 +4,6 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
-import { ShaderBackground } from "@/components/shared/ShaderBackground"
 
 /* ── Types ── */
 type View = 'home' | 'briefing' | 'studio-entry' | 'studio' | 'studio-save' | 'settings'
@@ -585,73 +584,21 @@ export function MinervaApp() {
   const { view, transitioning, navigateTo } = useCanvasTransition()
   const router = useRouter()
 
-  // Notch nav items per view
-  const notchItems = (() => {
-    switch (view) {
-      case 'home': return []
-      case 'briefing': return [
-        { label: '← Home', action: () => navigateTo('home') },
-      ]
-      case 'studio-entry':
-      case 'studio':
-      case 'studio-save':
-        return [
-          { label: '← Back', action: () => navigateTo(view === 'studio' ? 'studio-entry' : view === 'studio-save' ? 'studio-entry' : 'briefing') },
-        ]
-      case 'settings':
-        return [{ label: '← Back', action: () => navigateTo('home') }]
-      default: return []
+  // Listen for notch nav events
+  useEffect(() => {
+    const goHome = () => navigateTo('home')
+    const navSection = (e: Event) => {
+      const section = (e as CustomEvent).detail
+      if (section === 'studio') navigateTo('studio-entry')
+      else if (section === 'briefing') navigateTo('briefing')
     }
-  })()
-
-  const viewTitle = (() => {
-    switch (view) {
-      case 'briefing': return 'Briefing'
-      case 'studio-entry': case 'studio': case 'studio-save': return 'Audience Studio'
-      case 'settings': return 'Settings'
-      default: return ''
-    }
-  })()
+    window.addEventListener('minerva-go-home', goHome)
+    window.addEventListener('minerva-nav-section', navSection)
+    return () => { window.removeEventListener('minerva-go-home', goHome); window.removeEventListener('minerva-nav-section', navSection) }
+  }, [navigateTo])
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden relative" style={{ fontFamily: "'Overused Grotesk', ui-sans-serif, system-ui, sans-serif" }}>
-
-      {/* ═══ SHADER BACKGROUND (home only) ═══ */}
-      {view === 'home' && (
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <ShaderBackground />
-        </div>
-      )}
-
-      {/* ═══ SHELL HEADER ═══ */}
-      <div className="shrink-0 flex items-center justify-between px-5 py-2.5 relative z-30">
-        {/* Left: Logo */}
-        <button onClick={() => navigateTo('home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <MinervaLogo size={16} />
-          {view === 'home' && <span className="text-[13px] font-medium tracking-tight text-white">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>}
-        </button>
-
-        {/* Center: Nav items (hidden on home) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1" style={{ opacity: view === 'home' ? 0 : 1, transition: 'opacity 300ms ease', pointerEvents: view === 'home' ? 'none' : 'auto' }}>
-          {notchItems.map(n => (
-            <button key={n.label} onClick={n.action} className="text-[12px] px-3 py-1 rounded-lg transition-colors text-white/40 hover:text-white/70 hover:bg-white/[0.04]">
-              {n.label}
-            </button>
-          ))}
-          {viewTitle && <span className="text-[12px] px-3 py-1 text-white/70 font-medium">{viewTitle}</span>}
-          {view !== 'home' && view !== 'settings' && (
-            <button onClick={() => router.push('/insights')} className="text-[12px] px-3 py-1 rounded-lg transition-colors text-white/25 hover:text-white/50 hover:bg-white/[0.04]">
-              Insights
-            </button>
-          )}
-        </div>
-
-        {/* Right: SM Avatar */}
-        <button onClick={() => navigateTo('settings')}
-          className="h-5 w-5 rounded-full bg-white/90 ring-1 ring-white/10 hover:ring-white/30 transition-all flex items-center justify-center">
-          <span className="text-[8px] font-semibold text-black/60 leading-none">SM</span>
-        </button>
-      </div>
+    <div className="flex-1 flex flex-col overflow-hidden relative" style={{ fontFamily: "'Overused Grotesk', ui-sans-serif, system-ui, sans-serif" }}>
 
       {/* ═══ CANVAS — transitions between views ═══ */}
       <div className="flex-1 flex flex-col min-h-0" style={{

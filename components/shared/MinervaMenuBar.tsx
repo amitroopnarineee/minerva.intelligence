@@ -6,11 +6,11 @@ import { useRouter, usePathname } from "next/navigation"
 
 
 const LEFT_NAV = [
-  { label: "Home", href: "/", section: "briefing" },
-  { label: "Insights", href: "/", section: "insights" },
+  { label: "Home", href: "/", section: "" },
+  { label: "Insights", href: "/insights", section: "" },
 ]
 const RIGHT_NAV = [
-  { label: "Audience", href: "/workspace", section: "" },
+  { label: "Audience", href: "/", section: "studio" },
   { label: "Prospects", href: "/prospecting", section: "" },
 ]
 
@@ -26,9 +26,9 @@ function MinervaLogo({ size = 16 }: { size?: number }) {
 
 const NAV_ITEMS = [
   { type: "link" as const, label: "Home", href: "/", paths: ["/"] },
-  { type: "link" as const, label: "Insights", href: "/", paths: ["/command-center"] },
+  { type: "link" as const, label: "Insights", href: "/insights", paths: ["/insights", "/command-center"] },
+  { type: "link" as const, label: "Audience", href: "/", paths: ["/workspace"] },
   { type: "link" as const, label: "Prospects", href: "/prospecting", paths: ["/people", "/prospecting"] },
-  { type: "link" as const, label: "Audience", href: "/workspace", paths: ["/owned-audience", "/person-search", "/workspace"] },
 ]
 
 export function MinervaMenuBar() {
