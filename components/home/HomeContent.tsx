@@ -11,6 +11,7 @@ import { opportunities } from "@/lib/data/opportunities"
 import { persons } from "@/lib/data/persons"
 import { audiences } from "@/lib/data/audiences"
 import { Sparkline } from "@/components/shared/Sparkline"
+import { FunnelChart } from "@/components/shared/FunnelChart"
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
 
 const modes = [
@@ -40,9 +41,17 @@ function Tr({ d }: { d: { value: number; direction: "up"|"down"|"stable" } }) {
 }
 
 /* ═══ DISCOVER — Morning Brief ═══ */
+const funnelData = [
+  { label: "Reached", value: 48200, displayValue: "48.2K", color: "#38bdf8" },
+  { label: "Engaged", value: 12800, displayValue: "12.8K", color: "#38bdf8" },
+  { label: "Converted", value: 3400, displayValue: "3.4K", color: "#38bdf8" },
+  { label: "Revenue", value: 890, displayValue: "$242K", color: "#38bdf8" },
+]
+
 function DiscoverDisplay() {
   const router = useRouter()
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null)
   return (
     <div className="max-w-[1100px] mx-auto space-y-5 pb-10">
       <motion.div {...f(0.1)}>
@@ -56,8 +65,16 @@ function DiscoverDisplay() {
             <div className="flex items-end justify-between"><p className="text-[20px] tracking-tight text-white leading-none">{m.v}</p><Tr d={m.d} /></div>
           </div>))}
       </motion.div>
+      {/* Funnel */}
+      <motion.div {...f(0.3)} className="rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+        <Dl label="Conversion Funnel · This Week" />
+        <FunnelChart data={funnelData} color="#38bdf8" layers={2} edges="straight" gap={2}
+          showPercentage={false} showValues={true} showLabels={true}
+          className="h-[100px]" style={{ aspectRatio: "unset" }} />
+      </motion.div>
+
       <div className="grid grid-cols-3 gap-4">
-        <motion.div {...f(0.35)} className="col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+        <motion.div {...f(0.4)} className="col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
           <div className="flex items-center justify-between mb-2"><Dl label="Revenue vs Spend · 7d" /><p className="text-[9px] text-white/15">Daily</p></div>
           <VisxAreaChart data={chart7d} xDataKey="date" aspectRatio="3 / 1" margin={{top:8,right:8,bottom:24,left:8}}>
             <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.15} />
@@ -79,7 +96,17 @@ function DiscoverDisplay() {
         <motion.div {...f(0.55)} className="col-span-2"><Dl label="Active Campaigns" />
           <div className="rounded-lg border border-white/[0.06] overflow-hidden"><table className="w-full text-[11px]">
             <thead><tr className="bg-white/[0.015]"><th className="text-left px-3.5 py-2 text-[8px] uppercase tracking-widest text-white/15">Campaign</th><th className="text-left px-3 py-2 text-[8px] uppercase tracking-widest text-white/15">Platform</th><th className="text-right px-3 py-2 text-[8px] uppercase tracking-widest text-white/15">Spend</th><th className="text-right px-3 py-2 text-[8px] uppercase tracking-widest text-white/15">ROAS</th><th className="text-right px-3.5 py-2 text-[8px] uppercase tracking-widest text-white/15">Conv</th></tr></thead>
-            <tbody>{activeCampaigns.map(c=>(<tr key={c.id} className="border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer"><td className="px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-sky-400/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td><td className="px-3 py-2 text-white/20">{c.platform}</td><td className="text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td><td className="text-right px-3 py-2 text-sky-400 tabular-nums">{c.roas.toFixed(1)}x</td><td className="text-right px-3.5 py-2 text-white/30 tabular-nums">{c.conversions}</td></tr>))}</tbody>
+            <tbody>{activeCampaigns.map(c=>{const isExp=expandedCampaign===c.id;return(<>
+                <tr key={c.id} onClick={()=>setExpandedCampaign(isExp?null:c.id)} className="border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer"><td className="px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-sky-400/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td><td className="px-3 py-2 text-white/20">{c.platform}</td><td className="text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td><td className="text-right px-3 py-2 text-sky-400 tabular-nums">{c.roas.toFixed(1)}x</td><td className="text-right px-3.5 py-2 text-white/30 tabular-nums">{c.conversions}</td></tr>
+                {isExp&&<tr key={c.id+"-detail"}><td colSpan={5} className="px-3.5 py-3 bg-white/[0.015]">
+                  <div className="flex items-center gap-6 text-[10px]">
+                    <div><span className="text-white/15">Budget</span><p className="text-white/40 mt-0.5">${(c.budget/1000).toFixed(0)}K</p></div>
+                    <div><span className="text-white/15">Spend</span><p className="text-white/40 mt-0.5">${(c.spend/1000).toFixed(0)}K ({Math.round(c.spend/c.budget*100)}%)</p></div>
+                    <div><span className="text-white/15">Objective</span><p className="text-white/40 mt-0.5 capitalize">{c.objective.replace(/_/g," ")}</p></div>
+                    <div><span className="text-white/15">Trend</span><p className={`mt-0.5 capitalize ${c.trend==="up"?"text-sky-400/60":"text-white/30"}`}>{c.trend} {c.trendPct}%</p></div>
+                  </div>
+                </td></tr>}
+              </>)})}</tbody>
           </table></div>
         </motion.div>
         <motion.div {...f(0.65)}><Dl label="Recommended Actions" />
