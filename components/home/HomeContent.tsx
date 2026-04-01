@@ -16,6 +16,7 @@ import { UserAvatar } from "@/components/shared/UserAvatar"
 
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
 import { ProgressiveBlur } from "@/components/ui/progressive-blur"
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 
 /* ── Data ── */
 const chart7d = kpiHistory.map(k => ({ date: new Date(k.date), revenue: Math.round(k.influencedRevenue / 1000), spend: Math.round(k.paidSpend / 1000) }))
@@ -301,13 +302,10 @@ export function HomeContent() {
             </motion.h1>
           </AnimatePresence>
 
-          {/* Single Enter button */}
-          <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            onClick={() => enterCanvas("briefing")}
-            className="mn-hero-enter flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/30 px-6 py-2.5 text-[14px] text-white/80 hover:text-white transition-all duration-200">
-            Enter
-            <ChevronRight className="h-4 w-4" />
-          </motion.button>
+          {/* Liquid metal Enter button */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <LiquidMetalButton label="Enter" onClick={() => enterCanvas("briefing")} />
+          </motion.div>
         </motion.div>
       ) : (
         /* ═══ CANVAS VIEW ═══ */
