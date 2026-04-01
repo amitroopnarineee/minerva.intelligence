@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
-import "./overrides.css";
 
 export const metadata: Metadata = {
   title: "Minerva — Consumer Intelligence",

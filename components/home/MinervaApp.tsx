@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 
 /* ── Types ── */
-type View = 'home' | 'briefing' | 'studio-entry' | 'studio' | 'studio-save' | 'settings'
+type View = 'home' | 'briefing'
+type ModalState = 'closed' | 'studio'
 
-/* ── Transition wrapper ── */
+/* ── Canvas transition ── */
 function useCanvasTransition() {
   const [view, setView] = useState<View>('home')
   const [transitioning, setTransitioning] = useState(false)
@@ -21,165 +21,81 @@ function useCanvasTransition() {
 
 /* ── Minerva Logo ── */
 function MinervaLogo({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 127 127" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M3.22338 0.10804C8.60738-0.117663 15.2593 0.0802654 20.7514 0.0806169L54.8952 0.0813197L98.5292 0.0802656C105.88 0.0797382 113.232 0.0524922 120.582 0.0874727C121.836 0.0934492 125.577 0.177121 125.799 1.98275C126.284 5.9278 126.094 10.2025 126.095 14.1983L126.101 37.3406L126.097 94.1848C126.097 103.232 126.101 112.277 126.134 121.324C126.145 124.1 125.876 125.495 122.997 126.15C120.091 126.363 116.48 126.301 113.528 126.309L95.7205 126.272L39.5386 126.275L14.7594 126.287C10.8551 126.289 6.28689 126.421 2.40371 125.996C1.57016 125.905 0.645369 124.641 0.2024 123.971C-0.154084 120.034 0.0682788 112.64 0.0709155 108.398L0.075663 79.5376L0.0721467 29.332C0.0739045 21.2202 0.071621 13.1079 0.0739062 4.99634C0.0746093 2.4512 0.326854 0.606731 3.22338 0.10804ZM115.299 86.8225C115.872 82.4559 115.519 77.6787 115.58 73.2545C115.603 71.6122 115.467 69.9391 115.631 68.299L86.6845 68.2786C82.4155 68.2774 74.8969 68.0399 70.8383 68.3419C69.3213 70.2486 77.8047 76.3373 79.362 77.2375C88.2832 82.3946 98.7311 85.0554 108.942 86.0784C110.918 86.2709 113.369 86.7304 115.299 86.8225ZM115.552 29.1267C115.595 23.3099 115.732 16.7932 115.574 11.0142C114.95 11.0457 113.888 11.0675 113.305 11.1659C98.5133 13.6246 86.4254 20.8775 77.7743 33.2507C77.0362 34.3065 74.49 37.6073 75.6475 38.7439C76.2035 38.8536 76.6667 38.5563 77.1953 38.3115C78.7545 37.5048 80.3555 36.8809 81.9676 36.1959C92.9068 31.5467 103.815 30.2841 115.552 29.1267ZM10.6994 97.269C10.7783 101.238 10.8025 105.207 10.772 109.176C10.7707 110.437 10.4705 114.437 11.2038 115.25C24.1319 114.174 36.204 107.408 44.7419 97.7762C46.1632 96.1729 51.7307 89.3763 51.2331 87.3994C50.9826 87.2338 51.0419 87.2298 50.7641 87.202C43.0065 90.7797 35.4715 93.7492 26.9749 95.1164C23.639 95.642 20.2937 96.1061 16.9406 96.5082C15.0705 96.7301 12.4943 96.9458 10.6994 97.269Z" fill="white"/>
-    </svg>
-  )
+  return <svg width={size} height={size} viewBox="0 0 127 127" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.22338 0.10804C8.60738-0.117663 15.2593 0.0802654 20.7514 0.0806169L54.8952 0.0813197L98.5292 0.0802656C105.88 0.0797382 113.232 0.0524922 120.582 0.0874727C121.836 0.0934492 125.577 0.177121 125.799 1.98275C126.284 5.9278 126.094 10.2025 126.095 14.1983L126.101 37.3406L126.097 94.1848C126.097 103.232 126.101 112.277 126.134 121.324C126.145 124.1 125.876 125.495 122.997 126.15C120.091 126.363 116.48 126.301 113.528 126.309L95.7205 126.272L39.5386 126.275L14.7594 126.287C10.8551 126.289 6.28689 126.421 2.40371 125.996C1.57016 125.905 0.645369 124.641 0.2024 123.971C-0.154084 120.034 0.0682788 112.64 0.0709155 108.398L0.075663 79.5376L0.0721467 29.332C0.0739045 21.2202 0.071621 13.1079 0.0739062 4.99634C0.0746093 2.4512 0.326854 0.606731 3.22338 0.10804Z" fill="white"/></svg>
 }
 
 /* ══════════════════════════════════════════════════════════
-   TAGLINES
+   TYPEWRITER + HELPERS
    ══════════════════════════════════════════════════════════ */
-const TAGLINES = [
-  "Clarity beyond scale",
-  "Patterns in infinite data",
-  "Meaning in every profile",
-  "Intelligence in boundless reach",
-]
+const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.', '340%', '2,400', 'Jackson Dark', '1,872']
 
-/* ══════════════════════════════════════════════════════════
-   SCREEN: HOME
-   ══════════════════════════════════════════════════════════ */
-function HomeScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
-  const [tagIndex, setTagIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => setTagIndex(p => (p + 1) % TAGLINES.length), 5000)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
-      {/* Rotating tagline */}
-      <p key={tagIndex} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10"
-        style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>
-        {TAGLINES[tagIndex]}
-      </p>
-
-      {/* CTA */}
-      <LiquidMetalButton label="Enter" onClick={() => navigateTo('briefing')} />
-
-      {/* Credit */}
-      <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide">
-        Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine
-      </p>
-    </div>
-  )
-}
-
-
-/* ══════════════════════════════════════════════════════════
-   BRIEFING: Advanced Typewriter
-   ══════════════════════════════════════════════════════════ */
-
-const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.']
-
-function useAdvancedTypewriter(text: string, active: boolean, speed = 25) {
-  const [segments, setSegments] = useState<{text:string,type:'char'|'number'|'warm'}[]>([])
+function useTypewriter(text: string, active: boolean, speed = 25) {
+  const [segments, setSegments] = useState<{text:string,type:'char'|'num'|'warm'}[]>([])
   const [done, setDone] = useState(false)
-  const [cursorVisible, setCursorVisible] = useState(true)
-
+  const [cursorVis, setCursorVis] = useState(true)
   useEffect(() => {
-    if (!active) { setSegments([]); setDone(false); setCursorVisible(true); return }
-    let cancelled = false
-    setSegments([]); setDone(false); setCursorVisible(true)
-
-    const chunks: {text:string,type:'char'|'number'|'warm'}[] = []
-    let remaining = text
-    while (remaining.length > 0) {
+    if (!active) { setSegments([]); setDone(false); setCursorVis(true); return }
+    let cancelled = false; setSegments([]); setDone(false); setCursorVis(true)
+    const chunks: {text:string,type:'char'|'num'|'warm'}[] = []
+    let r = text
+    while (r.length > 0) {
       let found = false
       for (const nc of NUMBER_CHUNKS) {
-        if (remaining.startsWith(nc)) {
-          const type = nc === '3 actions ready.' ? 'warm' : 'number'
-          chunks.push({ text: nc, type })
-          remaining = remaining.slice(nc.length)
-          found = true
-          break
+        if (r.startsWith(nc)) {
+          chunks.push({ text: nc, type: nc === '3 actions ready.' ? 'warm' : 'num' })
+          r = r.slice(nc.length); found = true; break
         }
       }
-      if (!found) {
-        chunks.push({ text: remaining[0], type: 'char' })
-        remaining = remaining.slice(1)
-      }
+      if (!found) { chunks.push({ text: r[0], type: 'char' }); r = r.slice(1) }
     }
-
-    let idx = 0
-    const built: typeof chunks = []
-
+    let idx = 0; const built: typeof chunks = []
     function tick() {
       if (cancelled) return
-      if (idx >= chunks.length) {
-        setDone(true)
-        setTimeout(() => { if (!cancelled) setCursorVisible(false) }, 200)
-        return
-      }
-      const chunk = chunks[idx]
-      built.push(chunk)
-      setSegments([...built])
-      idx++
-
-      let delay = speed
-      if (chunk.type === 'number' || chunk.type === 'warm') delay = 180
-      else {
-        const ch = chunk.text
-        if (ch === '.') delay = 180
-        else if (ch === ',') delay = 100
-        else if (ch === '—' || ch === ':') delay = 120
-        else if (ch === ' ') delay = 15
-        else delay = speed
-      }
-      setTimeout(tick, delay)
+      if (idx >= chunks.length) { setDone(true); setTimeout(() => { if (!cancelled) setCursorVis(false) }, 200); return }
+      const c = chunks[idx]; built.push(c); setSegments([...built]); idx++
+      let d = speed
+      if (c.type === 'num' || c.type === 'warm') d = 180
+      else { const ch = c.text; d = ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 15 : speed }
+      setTimeout(tick, d)
     }
-    tick()
-    return () => { cancelled = true }
+    tick(); return () => { cancelled = true }
   }, [active, text, speed])
-
-  return { segments, done, cursorVisible }
+  return { segments, done, cursorVis }
 }
 
-/* Simple typewriter for connector text */
-function useSimpleTypewriter(text: string, active: boolean, speed = 20) {
+function useSimpleTyper(text: string, active: boolean, speed = 20) {
   const [displayed, setDisplayed] = useState("")
   const [done, setDone] = useState(false)
   useEffect(() => {
     if (!active) { setDisplayed(""); setDone(false); return }
-    let cancelled = false
-    setDisplayed(""); setDone(false)
-    let i = 0
+    let cancelled = false; setDisplayed(""); setDone(false); let i = 0
     function tick() {
       if (cancelled || i >= text.length) { if (!cancelled) setDone(true); return }
-      const ch = text[i]
-      i++
-      setDisplayed(text.slice(0, i))
-      const delay = ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 12 : speed
-      setTimeout(tick, delay)
+      const ch = text[i]; i++; setDisplayed(text.slice(0, i))
+      setTimeout(tick, ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 12 : speed)
     }
-    tick()
-    return () => { cancelled = true }
+    tick(); return () => { cancelled = true }
   }, [active, text, speed])
   return { displayed, done }
 }
 
-/* Render typed segments with styling */
-function TypedText({ segments, cursorVisible, done }: { segments: {text:string,type:'char'|'number'|'warm'}[]; cursorVisible: boolean; done: boolean }) {
+function TypedText({ segments, cursorVis, done }: { segments: {text:string,type:'char'|'num'|'warm'}[]; cursorVis: boolean; done: boolean }) {
   return (
-    <span style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em' }}>
+    <span>
       {segments.map((s, i) => {
-        if (s.type === 'number') return <span key={i} className="animate-number-pop" style={{ color: '#fff', fontWeight: 500 }}>{s.text}</span>
+        if (s.type === 'num') return <span key={i} className="animate-number-pop" style={{ color: '#fff', fontWeight: 500 }}>{s.text}</span>
         if (s.type === 'warm') return <span key={i} className="animate-number-pop" style={{ color: 'rgba(255,230,180,0.65)' }}>{s.text}</span>
         return <span key={i} style={{ color: 'rgba(255,255,255,0.85)' }}>{s.text}</span>
       })}
-      {cursorVisible && <span className={done ? 'animate-cursor-fade' : 'animate-blink'} style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>}
+      {cursorVis && <span className={done ? 'animate-cursor-fade' : 'animate-blink'} style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>}
     </span>
   )
 }
 
-/* Thinking dots */
-function ThinkingDots({ visible }: { visible: boolean }) {
-  if (!visible) return null
+function Dots({ show }: { show: boolean }) {
+  if (!show) return null
   return (
-    <div className="flex items-center gap-1.5 py-3" style={{ opacity: visible ? 1 : 0, transition: 'opacity 150ms' }}>
+    <div className="flex items-center gap-1.5 py-3">
       <div className="w-1 h-1 rounded-full animate-dot-1" style={{ background: 'rgba(255,255,255,0.3)' }} />
       <div className="w-1 h-1 rounded-full animate-dot-2" style={{ background: 'rgba(255,255,255,0.3)' }} />
       <div className="w-1 h-1 rounded-full animate-dot-3" style={{ background: 'rgba(255,255,255,0.3)' }} />
@@ -187,28 +103,16 @@ function ThinkingDots({ visible }: { visible: boolean }) {
   )
 }
 
-/* Sparkline with unique paths */
-function Sparkline({ path }: { path: string }) {
-  return (
-    <svg width="60" height="20" viewBox="0 0 60 20" fill="none">
-      <path d={path} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  )
+function Sparkline({ d }: { d: string }) {
+  return <svg width="60" height="20" viewBox="0 0 60 20" fill="none"><path d={d} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" fill="none" /></svg>
 }
 
-/* Stagger entrance */
-function Stagger({ children, delay = 0, stagger = 120, active }: { children: React.ReactNode[]; delay?: number; stagger?: number; active: boolean }) {
-  return <>{children.map((child, i) => (
-    <div key={i} style={{
-      opacity: active ? 1 : 0, transform: active ? 'translateY(0)' : 'translateY(14px)',
-      filter: active ? 'blur(0)' : 'blur(4px)',
-      transition: `opacity 400ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms, transform 400ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms, filter 400ms cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}ms`
-    }}>{child}</div>
-  ))}</>
-}
+const CARD = { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '16px 18px' } as const
+const LBL = { fontSize: 9, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }
+const CONN = { fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: '16px 0 12px 0' }
 
 /* ══════════════════════════════════════════════════════════
-   SCREEN: BRIEFING
+   DATA
    ══════════════════════════════════════════════════════════ */
 const METRICS = [
   { label: "REVENUE", value: "$242K", trend: "↗ 7.6%", spark: "M0,15 L8,13 L16,14 L24,10 L32,8 L40,11 L48,6 L56,3 L60,4" },
@@ -223,605 +127,472 @@ const CAMPAIGNS = [
   { name: "New Fan Acquisition", platform: "Meta", spend: "$79K", roas: "2.4x", conv: "156", up: false },
   { name: "Lapsed Buyer Win-Back", platform: "Klaviyo", spend: "$29K", roas: "4.6x", conv: "89", up: true },
 ]
-const ACTIONS = [
-  { title: "Activate Seatmap Retargeting Pool", sub: "900 profiles · paid channel · $99K pipeline" },
-  { title: "Remind 700 at-risk members to renew", sub: "Renewal Risk Members · email · 94% reach" },
-  { title: "Route Marcus Johnson to premium sales", sub: "Ticket Buy: 97 · Premium: 88 · $8.4K revenue" },
-]
-const SIGNALS = [
-  { label: "ATTENTION", delta: "+18%", copy: "Awareness way up — but still mostly top-of-funnel.", cta: "See channel breakdown" },
-  { label: "PREMIUM EXPERIENCE", delta: "+11%", copy: "Premium game-day messaging beating general hype on ticket intent.", cta: "Analyze in Audience Studio →", nav: true },
-  { label: "FAMILY AUDIENCE", delta: "+14%", copy: "Family consideration up 14%. Strongest in Dade + Broward.", cta: "View regional data" },
-  { label: "OWNED CONVERSION", delta: "-4%", copy: "Social engagement surged, but ticketing and lifecycle aren’t keeping up.", cta: "See funnel gaps" },
-  { label: "SPONSOR RESONANCE", delta: "+9%", copy: "Luxury and hospitality narratives driving strongest sponsor value.", cta: "View sponsor data" },
-]
 const FUNNEL = [
   { label: "Reached", value: "48.2K", pct: 100 },
   { label: "Engaged", value: "12.8K", pct: 26.5 },
   { label: "Converted", value: "3.4K", pct: 7.0 },
   { label: "Revenue", value: "$242K", pct: 3.5 },
 ]
+const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning in every profile", "Intelligence in boundless reach"]
+
+/* ══════════════════════════════════════════════════════════
+   HOME SCREEN
+   ══════════════════════════════════════════════════════════ */
+function HomeScreen({ onEnter }: { onEnter: () => void }) {
+  const [ti, setTi] = useState(0)
+  useEffect(() => { const iv = setInterval(() => setTi(p => (p + 1) % TAGLINES.length), 5000); return () => clearInterval(iv) }, [])
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+      <p key={ti} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>{TAGLINES[ti]}</p>
+      <LiquidMetalButton label="Enter" onClick={onEnter} />
+      <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════════════════
+   BRIEFING THREAD — THE PRODUCT
+   ══════════════════════════════════════════════════════════ */
 
 /*
-  Thread timeline:
-  step 0: greeting types
-  step 1: thinking dots → connector "Here’s my top recommendation —" → Recommends card
-  step 2: connector "Key metrics this week:" → Metrics card
-  step 3: connector "Here’s how the funnel looks:" → Funnel
-  step 4: connector "Revenue versus spend, last 7 days:" → Chart
-  step 5: connector "Campaign breakdown:" → Table
-  step 6: connector "Three actions I’d prioritize:" → Action cards
-  step 7: footer
+  Timeline (step counter — each step is one visible item):
+  0: greeting          5: funnel           10: pivot3+segment card
+  1: conn1+recommends  6: conn4+chart      11: (modal pause)
+  2: conn2+metrics     7: conn5+campaigns  12: conn7+composer
+  3: conn3+funnel      8: pivot1           13: conn8+wrapup
+  4: conn4+chart       9: pivot2           14: footer
+  
+  Simplified: use revealCount. Items render when their index <= revealCount.
+  Each item has a "revealDelay" (ms after previous item finishes).
 */
-const CONNECTORS = [
-  "",
-  "Here’s my top recommendation —",
-  "Key metrics this week:",
-  "Here’s how the funnel looks:",
-  "Revenue versus spend, last 7 days:",
-  "Campaign breakdown:",
-  "Three actions I’d prioritize:",
-  "",
-]
-// Delays between steps (ms after previous step completes)
-const STEP_DELAYS = [0, 800, 1000, 1000, 1000, 1500, 1500, 1000]
 
-function BriefingScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
-  const [tab, setTab] = useState<'briefing' | 'signals'>('briefing')
+function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: { navigateTo: (v: View) => void; onOpenStudio: () => void; studioSaved: boolean; studioDone: boolean }) {
+  const [step, setStep] = useState(-1) // -1 = not started, 0+ = items revealed
   const [playing, setPlaying] = useState(true)
-  const [step, setStep] = useState(0)
-  const [showDots, setShowDots] = useState(false)
-  const [connectorText, setConnectorText] = useState("")
-  const [connectorDone, setConnectorDone] = useState(false)
-  const [connectorActive, setConnectorActive] = useState(false)
-  const [showCard, setShowCard] = useState(-1) // which card to show
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const latestSectionRef = useRef<HTMLDivElement>(null)
+  const [sendState, setSendState] = useState<'idle'|'sending'|'sent'>('idle')
+  const advanceRef = useRef<NodeJS.Timeout | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Greeting
-  const greetingText = "Morning, Sarah. Revenue is $242K with ROAS at 4.0x. Family audience surging. 3 actions ready."
-  const { segments: greetingSegs, done: greetingDone, cursorVisible } = useAdvancedTypewriter(greetingText, step >= 0 && tab === 'briefing')
+  // Start on mount
+  useEffect(() => { setStep(0) }, [])
 
-  // Connector typewriter
-  const currentConnector = step >= 1 && step <= 6 ? CONNECTORS[step] : ""
-  const { displayed: connectorDisp, done: connDone } = useSimpleTypewriter(currentConnector, connectorActive, 20)
-
-  // Signals tab
-  const signalsText = "3 positive signals, 1 declining metric, and 1 weekend opportunity. Family audience consideration is the strongest trend — up 14% across Miami-Dade and Broward. Owned conversion is your biggest gap."
-  const { displayed: signalsGreeting, done: signalsDone } = useSimpleTypewriter(signalsText, tab === 'signals')
-
-  // Single timeline driver — greeting done triggers the whole chain
-  const cancelRef = useRef(false)
-
-  // Step 0→1: greeting done → dots → connector
+  // Advance past segment card when modal closes
   useEffect(() => {
-    if (!playing || tab !== 'briefing' || !greetingDone || step !== 0) return
-    cancelRef.current = false
-    const t1 = setTimeout(() => {
-      if (cancelRef.current) return
-      setStep(1)
-      setShowDots(true)
-      setTimeout(() => {
-        if (cancelRef.current) return
-        setShowDots(false)
-        setConnectorActive(true)
-      }, 650)
-    }, 800)
-    return () => { clearTimeout(t1) }
-  }, [playing, tab, greetingDone, step])
-
-  // Track which step's connector we're waiting for
-  const awaitingConnectorForStep = useRef(-1)
-
-  // When connectorActive turns on, mark which step we're waiting for
-  useEffect(() => {
-    if (connectorActive && step >= 1) {
-      awaitingConnectorForStep.current = step
+    if (studioDone && step === 8) {
+      // The segment card had delayAfter=99999, so we need to manually advance
+      setTimeout(() => setStep(9), 500)
     }
-  }, [connectorActive, step])
+  }, [studioDone, step])
 
-  // Connector done → show card → schedule next step
+  // Auto-scroll to bottom as new items appear
   useEffect(() => {
-    if (!playing || !connDone || !connectorActive || step < 1) return
-    // Only proceed if this is the connector we're actually waiting for
-    if (awaitingConnectorForStep.current !== step) return
-    awaitingConnectorForStep.current = -1 // consume it
-
-    const t = setTimeout(() => {
-      setShowCard(step)
-      setConnectorActive(false)
-
-      const nextStep = step + 1
-      if (nextStep > 7) return
-      const delay = STEP_DELAYS[nextStep] || 1000
-
-      setTimeout(() => {
-        if (nextStep <= 6) {
-          setStep(nextStep)
-          setShowDots(true)
-          // Use requestAnimationFrame to ensure connDone resets before connectorActive goes true
-          setTimeout(() => {
-            setShowDots(false)
-            requestAnimationFrame(() => {
-              setConnectorActive(true)
-            })
-          }, 650)
-        } else {
-          setShowCard(7)
-        }
-      }, delay)
-    }, 200)
-
-    return () => clearTimeout(t)
-  }, [playing, connDone, connectorActive, step])
-
-  // Auto-scroll
-  useEffect(() => {
-    if (latestSectionRef.current && playing) {
-      latestSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    if (playing && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
-  }, [showCard, playing])
+  }, [step, playing])
 
-  const isComplete = showCard >= 7
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0 relative">
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-        <div className="max-w-[720px] mx-auto px-6 pt-6 pb-32">
-
-          {/* Header */}
-          <p className="text-[9px] uppercase tracking-[0.08em] mb-6" style={{ color: 'rgba(255,255,255,0.22)' }}>
-            ✦ APR 1 · BRIEFING
-          </p>
-
-          {/* Mode tabs */}
-          <div className="flex items-center gap-1 mb-10">
-            {['Briefing', 'Signals', 'Audiences', 'People'].map(t => {
-              const active = (t === 'Briefing' && tab === 'briefing') || (t === 'Signals' && tab === 'signals')
-              return (
-                <button key={t} onClick={() => {
-                  if (t === 'Briefing') setTab('briefing')
-                  else if (t === 'Signals') setTab('signals')
-                  else navigateTo('studio-entry')
-                }}
-                  className="text-[12px] px-3 py-1.5 rounded-lg transition-all"
-                  style={{ background: active ? 'rgba(255,255,255,0.1)' : 'transparent', color: active ? '#fff' : 'rgba(255,255,255,0.35)', fontWeight: active ? 500 : 400 }}>
-                  {t}
-                </button>
-              )
-            })}
-          </div>
-
-          {tab === 'briefing' ? (
-          <div className="space-y-4">
-            {/* S0: Greeting */}
-            <div><TypedText segments={greetingSegs} cursorVisible={cursorVisible} done={greetingDone} /></div>
-
-            {/* Thinking dots (between greeting and first card) */}
-            {step >= 1 && showCard < 1 && <ThinkingDots visible={showDots} />}
-
-            {/* S1: Connector + Minerva Recommends */}
-            {step >= 1 && (
-              <div ref={showCard >= 1 ? latestSectionRef : undefined}>
-                {connectorActive && step === 1 && (
-                  <p className="text-[14px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: '16px 0 12px 0' }}>
-                    {connectorDisp}{!connDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>}
-                  </p>
-                )}
-                {step === 1 && connDone && showCard < 1 && <ThinkingDots visible={showDots} />}
-                {showCard >= 1 && (
-                  <>
-                    <p className="text-[14px] mb-3" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[1]}</p>
-                    <div className="animate-card-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '16px 18px' }}>
-                      <p className="text-[9px] uppercase tracking-[0.06em] mb-2" style={{ color: 'rgba(255,255,255,0.22)' }}>✦ MINERVA RECOMMENDS</p>
-                      <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                        Scale Family Ticket Bundle budget by 20% and activate Seatmap Retargeting Pool (900 profiles). Combined estimated lift: <span className="text-white font-medium">+$34K</span> revenue this week.
-                      </p>
-                      <div className="flex items-center justify-between mt-3">
-                        <button onClick={() => toast.success("Executing 2 actions…")} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.02)' }}>→ Execute both</button>
-                        <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ Generated 12 min ago · 91% confidence</span>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* S2: Metrics */}
-            {step >= 2 && (
-              <div ref={showCard >= 2 ? latestSectionRef : undefined}>
-                {connectorActive && step === 2 && (
-                  <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>
-                    {connectorDisp}{!connDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>}
-                  </p>
-                )}
-                {showCard >= 2 && (
-                  <>
-                    <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[2]}</p>
-                    <div className="animate-card-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
-                      <Stagger active={showCard >= 2} delay={0} stagger={120}>
-                        {METRICS.map((m, i) => (
-                          <div key={m.label} onClick={() => toast(`Opening ${m.label} detail…`)}
-                            className="flex items-center px-[18px] py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
-                            style={{ borderBottom: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                            <span className="text-[9px] uppercase tracking-[0.06em] w-24" style={{ color: 'rgba(255,255,255,0.22)' }}>{m.label}</span>
-                            <span className="text-[22px] tabular-nums text-white flex-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{m.value}</span>
-                            <span className="text-[11px] w-20 text-right" style={{ color: m.dim ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.35)' }}>{m.trend}</span>
-                            <div className="ml-4"><Sparkline path={m.spark} /></div>
-                          </div>
-                        ))}
-                      </Stagger>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* S3: Funnel */}
-            {step >= 3 && showCard >= 3 && (
-              <div ref={latestSectionRef} className="animate-card-in">
-                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[3]}</p>
-                <div className="flex items-end gap-2">
-                  {FUNNEL.map((f, i) => (
-                    <div key={f.label} className="flex-1 text-center">
-                      <p className="text-[20px] tabular-nums text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{f.value}</p>
-                      <div className="mx-auto rounded-sm overflow-hidden" style={{ height: 4, background: 'rgba(255,255,255,0.04)' }}>
-                        <div style={{ width: `${f.pct}%`, height: '100%', background: 'rgba(255,255,255,0.2)', animation: 'bar-grow 300ms ease both', animationDelay: `${i * 150}ms` }} />
-                      </div>
-                      <p className="text-[9px] uppercase tracking-[0.04em] mt-2" style={{ color: 'rgba(255,255,255,0.22)' }}>{f.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* S4: Revenue chart */}
-            {step >= 4 && showCard >= 4 && (
-              <div ref={latestSectionRef} className="animate-card-in">
-                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[4]}</p>
-                <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 16, height: 120 }}>
-                  <svg viewBox="0 0 300 80" className="w-full h-full">
-                    <polyline points="0,60 50,55 100,48 150,42 200,35 250,28 300,20" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-                    <polyline points="0,70 50,68 100,65 150,62 200,60 250,58 300,55" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
-                    <text x="295" y="18" fill="rgba(255,255,255,0.3)" fontSize="6" textAnchor="end">Revenue</text>
-                    <text x="295" y="53" fill="rgba(255,255,255,0.15)" fontSize="6" textAnchor="end">Spend</text>
-                  </svg>
-                </div>
-              </div>
-            )}
-
-            {/* S5: Campaign table */}
-            {step >= 5 && showCard >= 5 && (
-              <div ref={latestSectionRef} className="animate-card-in">
-                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[5]}</p>
-                <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
-                  <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <span className="text-[9px] uppercase tracking-[0.06em] flex-1" style={{ color: 'rgba(255,255,255,0.22)' }}>Campaign</span>
-                    <span className="text-[9px] uppercase tracking-[0.06em] w-16 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Platform</span>
-                    <span className="text-[9px] uppercase tracking-[0.06em] w-16 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Spend</span>
-                    <span className="text-[9px] uppercase tracking-[0.06em] w-14 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>ROAS</span>
-                    <span className="text-[9px] uppercase tracking-[0.06em] w-14 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Conv</span>
-                  </div>
-                  <Stagger active={showCard >= 5} stagger={120}>
-                    {CAMPAIGNS.map((c, i) => (
-                      <div key={c.name} onClick={() => toast(`Opening ${c.name}…`)}
-                        className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
-                        style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                        <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                          <span style={{ color: c.up ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.2)' }}>{c.up ? '↗' : '↘'}</span> {c.name}
-                        </span>
-                        <span className="w-16 text-right text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{c.platform}</span>
-                        <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
-                        <span className="w-14 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
-                        <span className="w-14 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.conv}</span>
-                      </div>
-                    ))}
-                  </Stagger>
-                </div>
-              </div>
-            )}
-
-            {/* S6: Next Best Actions */}
-            {step >= 6 && showCard >= 6 && (
-              <div ref={latestSectionRef} className="animate-card-in">
-                <p className="text-[14px]" style={{ color: 'rgba(255,255,255,0.45)', margin: '16px 0 12px 0' }}>{CONNECTORS[6]}</p>
-                <Stagger active={showCard >= 6} stagger={200}>
-                  {ACTIONS.map((a, i) => (
-                    <div key={a.title} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 18px', marginBottom: 8 }}
-                      className="flex items-center justify-between">
-                      <div>
-                        <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>→ {a.title}</p>
-                        <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{a.sub}</p>
-                      </div>
-                      <button onClick={() => i === 2 ? navigateTo('studio-entry') : toast.success(`Executing: ${a.title}`)}
-                        className="text-[11px] px-3 py-1 rounded-full shrink-0 ml-4 transition-all hover:bg-white/[0.04]"
-                        style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.02)' }}>
-                        Execute →
-                      </button>
-                    </div>
-                  ))}
-                </Stagger>
-              </div>
-            )}
-
-            {/* S7: Footer */}
-            {showCard >= 7 && (
-              <div ref={latestSectionRef} className="animate-card-in text-center pt-4">
-                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
-                  Last sync: 8:12 AM — Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph · 5 sources connected
-                </p>
-              </div>
-            )}
-
-            {/* Thinking dots for mid-steps */}
-            {step >= 2 && step <= 6 && showCard < step && <ThinkingDots visible={showDots} />}
-          </div>
-          ) : (
-          /* ══ SIGNALS TAB ══ */
-          <div className="space-y-6">
-            <div style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.85)' }}>
-              <span>{signalsGreeting}</span>
-              {!signalsDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>}
-            </div>
-            {signalsDone && (
-              <Stagger active={signalsDone} stagger={150}>
-                {SIGNALS.map(s => (
-                  <div key={s.label} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 18px' }}>
-                    <p className="text-[9px] uppercase tracking-[0.06em] mb-1" style={{ color: 'rgba(255,255,255,0.22)' }}>{s.label}</p>
-                    <p className="text-[28px] tabular-nums text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{s.delta}</p>
-                    <p className="text-[13px] mb-2" style={{ color: 'rgba(255,255,255,0.5)' }}>{s.copy}</p>
-                    <button onClick={() => s.nav ? navigateTo('studio-entry') : toast(s.cta)}
-                      className="text-[11px] transition-colors hover:text-white/50" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                      {s.cta}
-                    </button>
-                  </div>
-                ))}
-              </Stagger>
-            )}
-          </div>
-          )}
-        </div>
-      </div>
-
-      {/* Play/Pause floating pill */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100]">
-        <button onClick={() => { if (isComplete) { setStep(0); setShowCard(-1); setConnectorActive(false); setPlaying(true) } else setPlaying(!playing) }}
-          className="h-8 px-4 rounded-full text-[11px] transition-all"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: isComplete ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)', backdropFilter: 'blur(16px)', fontWeight: 500 }}>
-          {isComplete ? '✓ Complete' : playing ? '⏸ Pause' : '▶ Resume'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-/* ══════════════════════════════════════════════════════════
-   SCREEN: STUDIO ENTRY
-   ══════════════════════════════════════════════════════════ */
-function StudioEntry({ navigateTo }: { navigateTo: (v: View) => void }) {
-  const [showDropdown, setShowDropdown] = useState(false)
-  const presets = [
-    { name: "Premium Homeowners Q2", count: 25 },
-    { name: "Balanced Scale Campaign", count: 126 },
-    { name: "Miami Renters Under 35", count: 89 },
-  ]
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 relative">
-      {/* + Button */}
-      <button onClick={() => navigateTo('studio')}
-        className="w-12 h-12 rounded-full flex items-center justify-center transition-all mb-4 animate-studio-entry-plus"
-        style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)', color: 'rgba(255,255,255,0.3)' }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)' }}>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>
-      </button>
-
-      <p className="text-[14px] mb-6 animate-studio-entry-text" style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 400, animationDelay: '200ms' }}>
-        Start a new audience segment
-      </p>
-
-      <div className="flex items-center gap-2.5 animate-studio-entry-pills" style={{ animationDelay: '400ms' }}>
-        <div className="relative">
-          <button onClick={() => setShowDropdown(!showDropdown)}
-            className="h-9 px-4 rounded-full text-[12px] transition-all"
-            style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.02)' }}>
-            Select existing segment
-          </button>
-          {showDropdown && (
-            <div className="absolute top-11 left-0 w-64 rounded-lg overflow-hidden z-10" style={{ background: 'rgba(13,13,15,0.95)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)' }}>
-              {presets.map(p => (
-                <button key={p.name} onClick={() => navigateTo('studio')}
-                  className="w-full text-left px-4 py-2.5 text-[12px] transition-colors hover:bg-white/[0.04]"
-                  style={{ color: 'rgba(255,255,255,0.6)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  {p.name} <span style={{ color: 'rgba(255,255,255,0.2)' }}>· {p.count} records</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <button onClick={() => navigateTo('studio')}
-          className="h-9 px-4 rounded-full text-[12px] transition-all"
-          style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.02)' }}>
-          Upload CSV
-        </button>
-      </div>
-    </div>
-  )
-}
-
-/* ══════════════════════════════════════════════════════════
-   SCREEN: STUDIO (iframe wrapper)
-   ══════════════════════════════════════════════════════════ */
-function StudioWorkspace({ navigateTo }: { navigateTo: (v: View) => void }) {
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-
-  function handleExport() {
-    iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-tour-click', selector: '.mn-workspace-topbar-save' }, '*')
-    toast.success("Exporting CSV…")
+  function advance(delayMs: number) {
+    if (advanceRef.current) clearTimeout(advanceRef.current)
+    advanceRef.current = setTimeout(() => {
+      if (!playing) return
+      setStep(s => s + 1)
+    }, delayMs)
   }
 
-  return (
-    <div className="flex-1 relative">
-      <iframe ref={iframeRef} src="/workspace.html"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', background: '#000' }}
-        title="Audience Studio" />
+  // Text done callbacks — trigger advance after appropriate delay
+  function onGreetingDone() { if (playing) advance(800) }
+  function onConnDone() { if (playing) advance(200) } // brief pause before card
+  function onCardShown(delayAfter = 1200) { if (playing) advance(delayAfter) }
+  function onPivotDone(delayAfter = 1500) { if (playing) advance(delayAfter) }
 
-      {/* Bottom bar */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        gap: 10, padding: '0 20px', background: 'linear-gradient(transparent, rgba(0,0,0,0.9) 40%)', zIndex: 50,
-      }}>
-        <button onClick={() => navigateTo('studio-save')} style={{
-          height: 36, padding: '0 24px', borderRadius: 100, background: 'rgba(255,255,255,0.88)', color: '#000',
-          fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'Overused Grotesk, sans-serif',
-        }}>Save Segment</button>
-        <button onClick={handleExport} style={{
-          height: 36, padding: '0 20px', borderRadius: 100, background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)',
-          fontSize: 13, fontWeight: 500, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontFamily: 'Overused Grotesk, sans-serif',
-        }}>Export CSV</button>
-      </div>
-    </div>
-  )
-}
+  const isComplete = step >= 14
 
-/* ══════════════════════════════════════════════════════════
-   SCREEN: STUDIO SAVE
-   ══════════════════════════════════════════════════════════ */
-function StudioSave({ navigateTo }: { navigateTo: (v: View) => void }) {
-  const [phase, setPhase] = useState<'anim' | 'list'>('anim')
-  const segments = [
-    { name: "Premium Homeowners $250k+ Q2", scores: "80 – 99", size: "22.3M", email: "82%", saved: "Just now", isNew: true },
-    { name: "Balanced Scale Campaign", scores: "60 – 99", size: "112.7M", email: "74%", saved: "Today", isNew: false },
-    { name: "Miami Renters Under 35", scores: "20 – 50", size: "41.2M", email: "61%", saved: "Yesterday", isNew: false },
-  ]
+  // ── ConnectorCard: types connector text, then reveals card, then calls onDone ──
+  function ConnCard({ text, children, delayAfter = 1200, speed = 20, textStyle }: { text: string; children: React.ReactNode; delayAfter?: number; speed?: number; textStyle?: React.CSSProperties }) {
+    const [cardVisible, setCardVisible] = useState(false)
+    const { displayed, done: typeDone } = useSimpleTyper(text, true, speed)
+    const doneCalledRef = useRef(false)
+    const cardRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const t = setTimeout(() => setPhase('list'), 2000)
-    return () => clearTimeout(t)
-  }, [])
+    useEffect(() => {
+      if (typeDone && !cardVisible) {
+        const t = setTimeout(() => setCardVisible(true), 200)
+        return () => clearTimeout(t)
+      }
+    }, [typeDone, cardVisible])
 
-  if (phase === 'anim') {
+    useEffect(() => {
+      if (cardVisible && !doneCalledRef.current) {
+        doneCalledRef.current = true
+        const t = setTimeout(() => { if (playing) setStep(s => s + 1) }, delayAfter)
+        return () => clearTimeout(t)
+      }
+    }, [cardVisible, delayAfter])
+
+    useEffect(() => {
+      if (cardVisible && cardRef.current && playing) {
+        cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, [cardVisible])
+
     return (
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="animate-save-check text-[32px] mb-4">✦</div>
-        <p className="text-[16px] text-white animate-fade-in-delay-300">Segment saved</p>
-        <p className="text-[12px] mt-2 animate-fade-in-delay-500" style={{ color: 'rgba(255,255,255,0.3)' }}>
-          Premium Homeowners $250k+ Q2 · 25 records
-        </p>
+      <div>
+        {text && <p style={textStyle || CONN}>{displayed}{!typeDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>}</p>}
+        {typeDone && !cardVisible && <Dots show />}
+        {cardVisible && <div ref={cardRef} className="animate-card-in">{children}</div>}
       </div>
     )
   }
 
+  // ── TypeSection: just types text and calls onDone ──
+  function TypeSection({ text, speed = 30, style, onDone, delayAfter = 1500 }: { text: string; speed?: number; style?: React.CSSProperties; onDone?: () => void; delayAfter?: number }) {
+    const { segments, done, cursorVis } = useTypewriter(text, true, speed)
+    const calledRef = useRef(false)
+    useEffect(() => {
+      if (done && !calledRef.current) {
+        calledRef.current = true
+        const t = setTimeout(() => { if (playing) setStep(s => s + 1) }, delayAfter)
+        return () => clearTimeout(t)
+      }
+    }, [done, delayAfter])
+    return (
+      <div style={style || { fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em' }}>
+        <TypedText segments={segments} cursorVis={cursorVis} done={done} />
+      </div>
+    )
+  }
+
+
   return (
-    <div className="flex-1 flex flex-col items-center pt-24 px-6">
-      <div className="w-full max-w-[640px]">
-        <p className="text-[9px] uppercase tracking-[0.06em] mb-4" style={{ color: 'rgba(255,255,255,0.22)' }}>YOUR SEGMENTS</p>
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
+    <div className="absolute inset-0 flex flex-col">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="max-w-[720px] mx-auto px-6 pt-6 pb-40">
+
           {/* Header */}
-          <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            <span className="text-[9px] uppercase tracking-[0.06em] flex-1" style={{ color: 'rgba(255,255,255,0.22)' }}>Segment</span>
-            <span className="text-[9px] uppercase tracking-[0.06em] w-20 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Scores</span>
-            <span className="text-[9px] uppercase tracking-[0.06em] w-20 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Size</span>
-            <span className="text-[9px] uppercase tracking-[0.06em] w-16 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Email</span>
-            <span className="text-[9px] uppercase tracking-[0.06em] w-20 text-right" style={{ color: 'rgba(255,255,255,0.22)' }}>Saved</span>
-          </div>
-          {segments.map((s, i) => (
-            <div key={s.name} onClick={() => navigateTo('studio')}
-              className="flex items-center px-[18px] py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
-              style={{
-                borderBottom: i < segments.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                background: s.isNew ? 'rgba(255,255,255,0.04)' : 'transparent',
-                boxShadow: s.isNew ? 'inset 2px 0 0 rgba(255,255,255,0.3)' : 'none',
-              }}>
-              <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.7)' }}>{s.name}</span>
-              <span className="w-20 text-right text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.scores}</span>
-              <span className="w-20 text-right text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{s.size}</span>
-              <span className="w-16 text-right text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.email}</span>
-              <span className="w-20 text-right text-[11px]" style={{ color: s.isNew ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)' }}>{s.saved}</span>
+          <p style={LBL} className="mb-6">✦ APR 1 · BRIEFING</p>
+
+          {/* S0: Greeting */}
+          {step >= 0 && (
+            <TypeSection text="Morning, Sarah. Revenue is $242K with ROAS at 4.0x. Family audience surging. 3 actions ready." speed={25} delayAfter={800} />
+          )}
+
+          {/* S1: Minerva Recommends */}
+          {step >= 1 && (
+            <ConnCard text="Here's my top recommendation —" delayAfter={1200}>
+              <div style={CARD}>
+                <p style={LBL} className="mb-2">✦ MINERVA RECOMMENDS</p>
+                <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  Scale Family Ticket Bundle budget by 20% and activate Seatmap Retargeting Pool (900 profiles). Combined estimated lift: <span style={{ color: 'rgba(255,255,255,0.88)', fontWeight: 500 }}>+$34K</span> revenue this week.
+                </p>
+                <div className="flex items-center justify-between mt-3">
+                  <button onClick={() => toast.success("Executing 2 actions…")} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.02)', height: 28 }}>→ Execute both</button>
+                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ 12 min ago · 91% confidence</span>
+                </div>
+              </div>
+            </ConnCard>
+          )}
+
+          {/* S2: Metrics */}
+          {step >= 2 && (
+            <ConnCard text="Key metrics this week:" delayAfter={1200}>
+              <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
+                {METRICS.map((m, i) => (
+                  <div key={m.label} onClick={() => toast(`Opening ${m.label} detail…`)}
+                    className="flex items-center px-[18px] py-3 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
+                    style={{ borderBottom: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 120}ms` }}>
+                    <span style={{ ...LBL, width: 96 }}>{m.label}</span>
+                    <span className="text-[22px] tabular-nums text-white flex-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{m.value}</span>
+                    <span className="text-[11px] w-20 text-right" style={{ color: m.dim ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.35)' }}>{m.trend}</span>
+                    <div className="ml-4"><Sparkline d={m.spark} /></div>
+                  </div>
+                ))}
+              </div>
+            </ConnCard>
+          )}
+
+
+          {/* S3: Funnel */}
+          {step >= 3 && (
+            <ConnCard text="Here's the funnel:" delayAfter={1200}>
+              <div className="flex items-end gap-2">
+                {FUNNEL.map((f, i) => (
+                  <div key={f.label} className="flex-1 text-center animate-card-in" style={{ animationDelay: `${i * 150}ms` }}>
+                    <p className="text-[20px] tabular-nums text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{f.value}</p>
+                    <div className="mx-auto rounded-sm overflow-hidden" style={{ height: 4, background: 'rgba(255,255,255,0.04)' }}>
+                      <div style={{ width: `${f.pct}%`, height: '100%', background: 'rgba(255,255,255,0.2)', animation: 'bar-grow 400ms ease both', animationDelay: `${i * 150}ms` }} />
+                    </div>
+                    <p className="text-[9px] uppercase tracking-[0.04em] mt-2" style={{ color: 'rgba(255,255,255,0.22)' }}>{f.label}</p>
+                  </div>
+                ))}
+              </div>
+            </ConnCard>
+          )}
+
+          {/* S4: Chart */}
+          {step >= 4 && (
+            <ConnCard text="Revenue versus spend, last 7 days:" delayAfter={1500}>
+              <div style={{ ...CARD, padding: 16, height: 120 }}>
+                <svg viewBox="0 0 300 80" className="w-full h-full">
+                  <polyline points="0,60 50,55 100,48 150,42 200,35 250,28 300,20" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
+                  <polyline points="0,70 50,68 100,65 150,62 200,60 250,58 300,55" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
+                  <text x="295" y="18" fill="rgba(255,255,255,0.3)" fontSize="6" textAnchor="end">Revenue</text>
+                  <text x="295" y="53" fill="rgba(255,255,255,0.15)" fontSize="6" textAnchor="end">Spend</text>
+                </svg>
+              </div>
+            </ConnCard>
+          )}
+
+          {/* S5: Campaigns */}
+          {step >= 5 && (
+            <ConnCard text="Campaign breakdown:" delayAfter={1500}>
+              <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
+                <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <span style={{ ...LBL, flex: 1 }}>Campaign</span>
+                  <span style={{ ...LBL, width: 64, textAlign: 'right' }}>Platform</span>
+                  <span style={{ ...LBL, width: 64, textAlign: 'right' }}>Spend</span>
+                  <span style={{ ...LBL, width: 56, textAlign: 'right' }}>ROAS</span>
+                  <span style={{ ...LBL, width: 56, textAlign: 'right' }}>Conv</span>
+                </div>
+                {CAMPAIGNS.map((c, i) => (
+                  <div key={c.name} onClick={() => toast(`Opening ${c.name}…`)}
+                    className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
+                    style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
+                    <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.up ? '↗' : '↘'} {c.name}</span>
+                    <span className="w-16 text-right text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{c.platform}</span>
+                    <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
+                    <span className="w-14 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
+                    <span className="w-14 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.conv}</span>
+                  </div>
+                ))}
+              </div>
+            </ConnCard>
+          )}
+
+
+          {/* S6: PIVOT — typed slowly, brighter */}
+          {step >= 6 && (
+            <TypeSection text="Something interesting happened overnight." speed={30} delayAfter={1500}
+              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', marginTop: 24 }} />
+          )}
+
+          {/* S7: Pivot continued */}
+          {step >= 7 && (
+            <TypeSection text="The Dolphins signed quarterback Jackson Dark from the New York Giants. Social media volume spiked 340% in the last 8 hours — mostly Giants fans reacting." speed={30} delayAfter={1000}
+              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)' }} />
+          )}
+
+          {/* S8: Pivot analysis + segment card */}
+          {step >= 8 && (
+            <ConnCard text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
+              <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)' }}>
+                <p style={LBL} className="mb-3">✦ SUGGESTED SEGMENT</p>
+                <p className="text-[16px] text-white mb-1" style={{ fontWeight: 500 }}>Giants-to-Dolphins Crossover</p>
+                <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>2,400 profiles · scores 72–99 · 78% reachable</p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {['Giants fan', 'South FL', '45+', '$250k+ HHI', 'Ticketmaster active'].map(t => (
+                    <span key={t} className="text-[10px] px-2 py-0.5 rounded" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>{t}</span>
+                  ))}
+                </div>
+                <button onClick={onOpenStudio}
+                  className="h-8 px-4 rounded-full text-[12px] transition-all hover:bg-white/[0.08]"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+                  View in Audience Studio →
+                </button>
+                <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ 23 min ago · 87% confidence</p>
+              </div>
+            </ConnCard>
+          )}
+
+
+          {/* S9: Campaign Composer (after modal save) OR skip connector */}
+          {step >= 9 && studioSaved && (
+            <ConnCard text={'Segment saved: Giants-to-Dolphins Crossover — 2,400 profiles. Now let\'s reach them.'} delayAfter={99999}>
+              <div style={{ ...CARD }}>
+                <p style={LBL} className="mb-3">COMPOSE CAMPAIGN</p>
+                <p className="text-[12px] mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>To: Giants-to-Dolphins Crossover (2,400)</p>
+                <p className="text-[12px] mb-4" style={{ color: 'rgba(255,255,255,0.45)' }}>Channel: Email · 78% reachable (1,872)</p>
+                <p className="text-[10px] mb-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Subject:</p>
+                <div className="rounded-lg px-3 py-2 mb-3" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>Your QB just joined the Dolphins — here's your welcome offer</p>
+                </div>
+                <p className="text-[10px] mb-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Message:</p>
+                <div className="rounded-lg px-3 py-3 mb-4" style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    Hi <span style={{ color: 'rgba(255,230,180,0.5)' }}>{'{first_name}'}</span>,<br /><br />
+                    Jackson Dark is officially a Dolphin. As a fellow fan, we want to welcome you with an exclusive offer: 20% off your first Dolphins game experience.<br /><br />
+                    <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>[Claim Your Welcome Offer →]</span><br /><br />
+                    See you at Hard Rock Stadium.<br />
+                    — The Miami Dolphins
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => { setSendState('sending'); setTimeout(() => { setSendState('sent'); toast.success('Sent to 1,872 recipients'); if (playing) setTimeout(() => setStep(s => s + 1), 1500) }, 1200) }}
+                    className="h-9 px-5 rounded-full text-[13px] transition-all"
+                    style={{ background: sendState === 'sent' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.88)', color: sendState === 'sent' ? 'rgba(255,255,255,0.6)' : '#000', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+                    {sendState === 'idle' ? '✉ Send Campaign' : sendState === 'sending' ? 'Sending…' : '✓ Sent to 1,872'}
+                  </button>
+                  <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Preview · Schedule</span>
+                </div>
+              </div>
+            </ConnCard>
+          )}
+
+          {/* S10/S9: Wrap-up + Remaining actions */}
+          {step >= (studioSaved ? 10 : 9) && (
+            <ConnCard text={studioSaved ? "Done. 1,872 Giants fans will receive your welcome offer within the hour. I'll track performance and brief you tomorrow." : "Three actions I'd prioritize:"} delayAfter={1500}>
+              <div className="space-y-2">
+                <p style={LBL} className="mb-2">{studioSaved ? 'TWO MORE ACTIONS' : 'NEXT BEST ACTIONS'}</p>
+                {[
+                  { title: "Remind 700 at-risk members to renew", sub: "Renewal Risk Members · email · 94% reach" },
+                  { title: "Activate Seatmap Retargeting Pool", sub: "900 profiles · paid channel · $99K pipeline" },
+                ].map((a, i) => (
+                  <div key={a.title} className="flex items-center justify-between animate-card-in" style={{ ...CARD, animationDelay: `${i * 200}ms` }}>
+                    <div>
+                      <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>→ {a.title}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{a.sub}</p>
+                    </div>
+                    <button onClick={() => toast.success(`Executing: ${a.title}`)}
+                      className="text-[11px] px-3 py-1 rounded-full shrink-0 ml-4 transition-all hover:bg-white/[0.04]"
+                      style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>Execute →</button>
+                  </div>
+                ))}
+              </div>
+            </ConnCard>
+          )}
+
+
+          {/* Footer */}
+          {step >= (studioSaved ? 11 : 10) && (
+            <div className="animate-card-in text-center pt-6">
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>
+                Last sync: 8:12 AM — Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph · 5 sources connected
+              </p>
             </div>
-          ))}
+          )}
+
+          <div ref={bottomRef} className="h-8" />
         </div>
-        <div className="flex items-center gap-3 mt-6 justify-center">
-          <button onClick={() => navigateTo('studio-entry')} className="h-9 px-5 rounded-full text-[12px] transition-all"
-            style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.02)' }}>New Segment</button>
-          <button onClick={() => navigateTo('briefing')} className="h-9 px-5 rounded-full text-[12px] transition-all"
-            style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.02)' }}>Back to Briefing</button>
-        </div>
+      </div>
+
+      {/* Play/Pause pill */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100]">
+        <button onClick={() => setPlaying(!playing)}
+          className="h-8 px-4 rounded-full text-[11px] transition-all"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: isComplete ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)', backdropFilter: 'blur(16px)', fontWeight: 500 }}>
+          {isComplete ? '✓ Briefing complete' : playing ? '⏸ Pause' : '▶ Resume'}
+        </button>
       </div>
     </div>
   )
 }
 
+
 /* ══════════════════════════════════════════════════════════
-   SCREEN: SETTINGS
+   AUDIENCE STUDIO MODAL
    ══════════════════════════════════════════════════════════ */
-function SettingsScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
+function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () => void; onClose: () => void }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [saveAnim, setSaveAnim] = useState(false)
+
+  useEffect(() => {
+    if (open && iframeRef.current) {
+      const t = setTimeout(() => {
+        iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-init', mode: 'premium' }, '*')
+      }, 1000)
+      return () => clearTimeout(t)
+    }
+  }, [open])
+
+  function handleSave() {
+    setSaveAnim(true)
+    setTimeout(() => { onSave() }, 1500)
+  }
+
+  if (!open && !saveAnim) return null
+
   return (
-    <div className="flex-1 flex flex-col items-center pt-24 px-6">
-      <div className="w-full max-w-[400px] space-y-8">
-        <div>
-          <p className="text-[16px] text-white mb-0.5">Sarah Mitchell</p>
-          <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.35)' }}>CMO, Miami Dolphins</p>
-        </div>
-
-        <div className="space-y-2">
-          <button onClick={() => navigateTo('briefing')} className="w-full text-left text-[13px] py-2 transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>→ Start Briefing</button>
-          <button onClick={() => navigateTo('studio-entry')} className="w-full text-left text-[13px] py-2 transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>→ Open Audience Studio</button>
-        </div>
-
-        <div>
-          <p className="text-[9px] uppercase tracking-[0.06em] mb-3" style={{ color: 'rgba(255,255,255,0.22)' }}>DATA SOURCES</p>
-          <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.35)' }}>Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph</p>
-          <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.2)' }}>Last sync: 8:12 AM · 5 sources connected</p>
-        </div>
-
-        <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>
-          Minerva™ Intelligence · v1.0 · Built by Amit Roopnarine
-        </p>
+    <div className="fixed inset-0 z-[200] flex flex-col" style={{
+      transform: open ? 'translateY(0)' : 'translateY(40px)',
+      opacity: open ? 1 : 0,
+      transition: 'transform 500ms cubic-bezier(0.22,1,0.36,1), opacity 400ms ease',
+      pointerEvents: open ? 'auto' : 'none',
+    }}>
+      {/* Top bar */}
+      <div className="shrink-0 h-12 flex items-center justify-between px-5" style={{ background: '#000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Audience Studio · Giants-to-Dolphins</p>
+        <button onClick={onClose} className="text-[12px] px-3 py-1 rounded-lg transition-colors hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.4)' }}>✕ Close</button>
       </div>
+
+      {/* Iframe */}
+      {saveAnim ? (
+        <div className="flex-1 flex flex-col items-center justify-center bg-black">
+          <div className="animate-save-check text-[32px] mb-4">✦</div>
+          <p className="text-[16px] text-white animate-fade-in-delay-300">Segment saved</p>
+          <p className="text-[12px] mt-2 animate-fade-in-delay-500" style={{ color: 'rgba(255,255,255,0.3)' }}>Giants-to-Dolphins Crossover · 2,400 profiles</p>
+        </div>
+      ) : (
+        <div className="flex-1 relative bg-black">
+          <iframe ref={iframeRef} src="/workspace.html" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
+        </div>
+      )}
+
+      {/* Bottom bar */}
+      {!saveAnim && (
+        <div className="shrink-0 h-14 flex items-center justify-center gap-3 px-5" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.95) 30%)', position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
+          <button onClick={handleSave} style={{ height: 36, padding: '0 24px', borderRadius: 100, background: 'rgba(255,255,255,0.88)', color: '#000', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Save Segment</button>
+          <button onClick={() => { iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-tour-click', selector: '.mn-workspace-topbar-save' }, '*'); toast.success('Exporting CSV…') }}
+            style={{ height: 36, padding: '0 20px', borderRadius: 100, background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', fontSize: 13, border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>Export CSV</button>
+        </div>
+      )}
     </div>
   )
 }
 
+
 /* ══════════════════════════════════════════════════════════
-   MAIN APP SHELL
+   MAIN APP
    ══════════════════════════════════════════════════════════ */
 export function MinervaApp() {
   const { view, transitioning, navigateTo } = useCanvasTransition()
-  const router = useRouter()
+  const [modal, setModal] = useState<ModalState>('closed')
+  const [studioSaved, setStudioSaved] = useState(false)
+  const [studioDone, setStudioDone] = useState(false)
+  const briefingRef = useRef<{ onStudioSaved: () => void; onStudioClosed: () => void } | null>(null)
 
-  // Listen for notch nav events
-  useEffect(() => {
-    const goHome = () => navigateTo('home')
-    const navSection = (e: Event) => {
-      const section = (e as CustomEvent).detail
-      if (section === 'studio') navigateTo('studio-entry')
-      else if (section === 'briefing') navigateTo('briefing')
-    }
-    window.addEventListener('minerva-go-home', goHome)
-    window.addEventListener('minerva-nav-section', navSection)
-    return () => { window.removeEventListener('minerva-go-home', goHome); window.removeEventListener('minerva-nav-section', navSection) }
-  }, [navigateTo])
+  function handleOpenStudio() { setModal('studio') }
+  function handleSaveStudio() {
+    setStudioSaved(true)
+    setTimeout(() => { setModal('closed'); setStudioDone(true) }, 1500)
+  }
+  function handleCloseStudio() { setModal('closed'); setStudioDone(true) }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden relative" style={{ fontFamily: "'Overused Grotesk', ui-sans-serif, system-ui, sans-serif" }}>
-
-      {/* ═══ CANVAS — transitions between views ═══ */}
-      <div className="flex-1 flex flex-col min-h-0" style={{
-        opacity: transitioning ? 0 : 1,
-        filter: transitioning ? 'blur(6px)' : 'blur(0)',
-        transform: transitioning ? 'scale(0.98)' : 'scale(1)',
-        transition: transitioning
-          ? 'opacity 250ms ease-out, filter 250ms ease-out, transform 250ms ease-out'
-          : 'opacity 400ms cubic-bezier(0.22,1,0.36,1), filter 400ms cubic-bezier(0.22,1,0.36,1), transform 400ms cubic-bezier(0.22,1,0.36,1)',
-      }}>
-        {view === 'home' && <HomeScreen navigateTo={navigateTo} />}
-        {view === 'briefing' && <BriefingScreen navigateTo={navigateTo} />}
-        {view === 'studio-entry' && <StudioEntry navigateTo={navigateTo} />}
-        {view === 'studio' && <StudioWorkspace navigateTo={navigateTo} />}
-        {view === 'studio-save' && <StudioSave navigateTo={navigateTo} />}
-        {view === 'settings' && <SettingsScreen navigateTo={navigateTo} />}
+    <div className="h-full flex flex-col relative">
+      {/* Shell header — always visible */}
+      <div className="shrink-0 flex items-center justify-between px-5 py-2.5 relative z-30">
+        <button onClick={() => navigateTo('home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <MinervaLogo size={16} />
+          {view === 'home' && <span className="text-[13px] font-medium tracking-tight text-white">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>}
+        </button>
+        <button onClick={() => toast('Settings')} className="h-5 w-5 rounded-full bg-white/90 hover:ring-white/30 transition-all flex items-center justify-center">
+          <span className="text-[8px] font-semibold text-black/60 leading-none">SM</span>
+        </button>
       </div>
+
+      {/* Canvas — transitions between views */}
+      <div className="flex-1 relative" style={{
+        opacity: transitioning ? 0 : (modal === 'studio' ? 0.3 : 1),
+        filter: transitioning ? 'blur(6px)' : (modal === 'studio' ? 'blur(8px)' : 'blur(0)'),
+        transform: transitioning ? 'scale(0.98)' : 'scale(1)',
+        transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
+      }}>
+        {view === 'home' && <HomeScreen onEnter={() => navigateTo('briefing')} />}
+        {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} />}
+      </div>
+
+      {/* Audience Studio Modal */}
+      <AudienceModal open={modal === 'studio'} onSave={handleSaveStudio} onClose={handleCloseStudio} />
     </div>
   )
 }
