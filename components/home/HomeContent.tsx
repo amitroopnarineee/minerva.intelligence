@@ -17,6 +17,7 @@ import { UserAvatar } from "@/components/shared/UserAvatar"
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
 import { ProgressiveBlur } from "@/components/ui/progressive-blur"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
+import { SpecialText } from "@/components/ui/special-text"
 
 /* ── Data ── */
 const chart7d = kpiHistory.map(k => ({ date: new Date(k.date), revenue: Math.round(k.influencedRevenue / 1000), spend: Math.round(k.paidSpend / 1000) }))
@@ -294,13 +295,11 @@ export function HomeContent() {
         /* ═══ HERO LANDING ═══ */
         <motion.div key="hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }} className="mn-hero flex-1 flex flex-col items-center justify-center px-6">
-          <AnimatePresence mode="wait">
-            <motion.h1 key={sections[activeMode].id} initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-              transition={{ duration: 0.25 }} className="mn-hero-headline text-2xl sm:text-3xl tracking-tight text-white mb-10 text-center">
+          <h1 className="mn-hero-headline text-2xl sm:text-3xl tracking-tight text-white mb-10 text-center">
+            <SpecialText key={sections[activeMode].id} speed={18}>
               {sections[activeMode].headline}
-            </motion.h1>
-          </AnimatePresence>
+            </SpecialText>
+          </h1>
 
           {/* Liquid metal Enter button */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
