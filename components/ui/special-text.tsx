@@ -9,74 +9,90 @@ interface SpecialTextProps {
   className?: string;
 }
 
-const RANDOM_CHARS = "_!X$0-+*#";
+const CHARS = "·•—–~°∙";
 
-function getRandomChar(prevChar?: string): string {
-  let char: string;
-  do {
-    char = RANDOM_CHARS[Math.floor(Math.random() * RANDOM_CHARS.length)];
-  } while (char === prevChar);
-  return char;
+function pick(prev?: string): string {
+  let c: string;
+  do { c = CHARS[Math.floor(Math.random() * CHARS.length)]; } while (c === prev);
+  return c;
 }
 
 export function SpecialText({
   children,
-  speed = 20,
+  speed = 45,
   delay = 0,
   className = "",
 }: SpecialTextProps) {
   const text = children;
-  const [displayText, setDisplayText] = useState<string>(" ".repeat(text.length));
-  const [currentPhase, setCurrentPhase] = useState<"phase1" | "phase2">("phase1");
-  const [animationStep, setAnimationStep] = useState<number>(0);
-  const [hasStarted, setHasStarted] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Reset and restart when text changes
-  useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    setDisplayText(" ".repeat(text.length));
-    setCurrentPhase("phase1");
-    setAnimationStep(0);
-    setHasStarted(false);
-    const t = setTimeout(() => setHasStarted(true), delay * 1000);
-    return () => { clearTimeout(t); if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [text, delay]);
+  const [display, setDisplay] = useState(text);
+  const frameRef = useRef<number | null>(null);
+  const startRef = useRef<number>(0);
 
   useEffect(() => {
-    if (!hasStarted) return;
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
 
-    intervalRef.current = setInterval(() => {
-      setAnimationStep(prev => {
-        const step = prev;
-        if (currentPhase === "phase1") {
-          const maxSteps = text.length * 2;
-          const currentLength = Math.min(step + 1, text.length);
+    // Total duration: fade out old text, then reveal new text
+    const len = text.length;
+    const fadeOutMs = len * speed * 0.6;   // scramble away
+    const fadeInMs = len * speed * 1.2;    // reveal new text char by char
+    const totalMs = fadeOutMs + fadeInMs;
+    let started = false;
+
+    const delayTimeout = setTimeout(() => {
+      started = true;
+      startRef.current = performance.now();
+
+      const animate = (now: number) => {
+        const elapsed = now - startRef.current;
+        const progress = Math.min(elapsed / totalMs, 1);
+
+        if (progress < fadeOutMs / totalMs) {
+          // Phase 1: scramble — progressively replace chars with random symbols
+          const phase1Progress = elapsed / fadeOutMs;
+          const scrambledCount = Math.floor(phase1Progress * len);
           const chars: string[] = [];
-          for (let i = 0; i < currentLength; i++) chars.push(getRandomChar(i > 0 ? chars[i-1] : undefined));
-          for (let i = currentLength; i < text.length; i++) chars.push("\u00A0");
-          setDisplayText(chars.join(""));
-          if (step >= maxSteps - 1) { setCurrentPhase("phase2"); return 0; }
+          for (let i = 0; i < len; i++) {
+            if (i < scrambledCount) {
+              // Random chance to show space vs symbol for organic feel
+              chars.push(Math.random() > 0.3 ? pick() : " ");
+            } else {
+              chars.push(" ");
+            }
+          }
+          setDisplay(chars.join(""));
         } else {
-          const revealedCount = Math.floor(step / 2);
+          // Phase 2: reveal — real characters appear left to right with trailing scramble
+          const phase2Progress = (elapsed - fadeOutMs) / fadeInMs;
+          const revealedCount = Math.floor(phase2Progress * len);
           const chars: string[] = [];
-          for (let i = 0; i < revealedCount && i < text.length; i++) chars.push(text[i]);
-          if (revealedCount < text.length) chars.push(step % 2 === 0 ? "_" : getRandomChar());
-          for (let i = chars.length; i < text.length; i++) chars.push(getRandomChar());
-          setDisplayText(chars.join(""));
-          if (step >= text.length * 2 - 1) { setDisplayText(text); if (intervalRef.current) clearInterval(intervalRef.current); return step; }
+          for (let i = 0; i < len; i++) {
+            if (i < revealedCount) {
+              chars.push(text[i]);
+            } else if (i < revealedCount + 3) {
+              // Small scramble window ahead of reveal cursor
+              chars.push(Math.random() > 0.5 ? pick() : " ");
+            } else {
+              chars.push(" ");
+            }
+          }
+          setDisplay(chars.join(""));
         }
-        return prev + 1;
-      });
-    }, speed);
 
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [currentPhase, hasStarted, text, speed]);
+        if (progress < 1) {
+          frameRef.current = requestAnimationFrame(animate);
+        } else {
+          setDisplay(text);
+        }
+      };
 
-  return (
-    <span className={className}>
-      {displayText}
-    </span>
-  );
+      frameRef.current = requestAnimationFrame(animate);
+    }, delay * 1000);
+
+    return () => {
+      clearTimeout(delayTimeout);
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    };
+  }, [text, speed, delay]);
+
+  return <span className={className}>{display}</span>;
 }
