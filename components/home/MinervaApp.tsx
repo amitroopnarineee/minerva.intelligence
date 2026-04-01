@@ -511,7 +511,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
   useEffect(() => {
     if (open && iframeRef.current) {
       const t = setTimeout(() => {
-        iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-init', mode: 'premium' }, '*')
+        iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-init', mode: 'premium', embedded: true }, '*')
       }, 1000)
       return () => clearTimeout(t)
     }
