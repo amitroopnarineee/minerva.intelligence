@@ -250,8 +250,8 @@ function ActivateDisplay() {
 export function HomeContent() {
   const [activeMode, setActiveMode] = useState(0)
   const [inputValue, setInputValue] = useState("")
-  const [activeDisplay, setActiveDisplay] = useState<string | null>(null)
-  const [displayTitle, setDisplayTitle] = useState("")
+  const [activeDisplay, setActiveDisplay] = useState<string | null>("discover")
+  const [displayTitle, setDisplayTitle] = useState(modes[0].headline)
   const scrollRef = useRef<HTMLDivElement>(null)
   const mode = modes[activeMode]
   const hasDisplay = activeDisplay !== null
@@ -293,7 +293,7 @@ export function HomeContent() {
             </motion.div>
           ) : (
             <motion.div key={activeDisplay} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }} className="px-8 pt-4">
+              transition={{ duration: 0.4 }} className="px-6 pt-4">
               <div className="flex items-center justify-between mb-4 max-w-[1100px] mx-auto">
                 <h2 className="text-[13px] text-white/30">{displayTitle}</h2>
                 <button onClick={reset} className="text-[10px] text-white/15 hover:text-white/40 transition-colors flex items-center gap-1"><X className="h-3 w-3" />New</button>
@@ -305,33 +305,17 @@ export function HomeContent() {
       </div>
 
       <div className="shrink-0 relative z-10 px-6 pb-4 pt-2">
-        <AnimatePresence>
-          {!hasDisplay && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: 0.2 }} className="flex items-center justify-center gap-1 mb-3">
-              {modes.map((m, i) => {
-                const Icon = m.icon; const on = i === activeMode
-                return (
-                  <button key={m.id} onClick={() => handlePill(i)}
-                    className={`relative flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-all duration-200 ${on ? "border-white/25 text-white bg-white/8" : "border-white/8 text-white/30"} hover:text-white/60`}>
-                    <Icon className="h-3 w-3" /><span className="hidden sm:inline">{m.label}</span>
-                    {on && <motion.div layoutId="pill" className="absolute inset-0 rounded-full border border-white/25" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-                  </button>
-                )
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center rounded-full border bg-white/[0.04] border-white/[0.06] hover:border-white/12 focus-within:border-white/18 transition-all duration-200 px-5 py-2.5 gap-3">
-            <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown}
-              placeholder={hasDisplay ? "Ask a follow-up..." : mode.placeholder}
-              className="flex-1 bg-transparent border-0 outline-none text-[14px] text-white placeholder:text-white/20" />
-            <button onClick={handleSend} disabled={!inputValue.trim()}
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${inputValue.trim() ? "bg-white text-black" : "bg-white/6 text-white/15"}`}>
-              <ArrowUp className="h-3.5 w-3.5" />
-            </button>
-          </div>
+        <div className="flex items-center justify-center gap-1">
+          {modes.map((m, i) => {
+            const Icon = m.icon; const on = activeDisplay ? activeDisplay === m.id : i === activeMode
+            return (
+              <button key={m.id} onClick={() => handlePill(i)}
+                className={`relative flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-all duration-200 ${on ? "border-white/25 text-white bg-white/8" : "border-white/8 text-white/30"} hover:text-white/60`}>
+                <Icon className="h-3 w-3" /><span className="hidden sm:inline">{m.label}</span>
+                {on && <motion.div layoutId="pill" className="absolute inset-0 rounded-full border border-white/25" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>

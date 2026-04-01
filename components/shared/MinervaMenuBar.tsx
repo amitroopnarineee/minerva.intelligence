@@ -95,16 +95,18 @@ export function MinervaMenuBar() {
       {/* ═══ STATIC HEADER ═══ */}
       <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 relative z-30">
         <div className="mn-menubar-left flex items-center gap-1">
-          <button onClick={() => setNavVisible(v => !v)} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
+          <button onClick={() => router.push('/')} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
             <MinervaLogo size={16} />
             <span className="mn-menubar-brand text-[13px] font-semibold tracking-tight">Minerva</span>
           </button>
+        </div>
 
+        <div className="mn-menubar-right flex items-center gap-1">
           {NAV_ITEMS.map((item, i) => (
             <div key={item.label} className="relative"
               style={{
                 opacity: navVisible ? 1 : 0,
-                transform: navVisible ? "translateX(0)" : "translateX(-12px)",
+                transform: navVisible ? "translateX(0)" : "translateX(12px)",
                 transition: `opacity 250ms ease ${navVisible ? i * 60 : (NAV_ITEMS.length - 1 - i) * 40}ms, transform 300ms ease ${navVisible ? i * 60 : (NAV_ITEMS.length - 1 - i) * 40}ms`,
                 pointerEvents: navVisible ? "auto" : "none",
               }}>
@@ -114,11 +116,9 @@ export function MinervaMenuBar() {
               </button>
             </div>
           ))}
-        </div>
-
-        <div className="mn-menubar-right flex items-center gap-2.5">
           <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User"
-            className="h-4 w-4 rounded-full object-cover ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer" />
+            onClick={() => setNavVisible(v => !v)}
+            className="h-5 w-5 ml-2 rounded-full object-cover ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer" />
         </div>
       </div>
 
