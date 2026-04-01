@@ -248,6 +248,12 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-detail-stat-cell{background:rgba(255,255,255,0.015);border:1px solid var(--mn-border);border-radius:6px;padding:7px 9px;text-align:center}
 .mn-workspace-detail-stat-cell-value{font-size:14px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
 .mn-workspace-detail-stat-cell-label{font-size:8px;color:var(--mn-t3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-top:1px}
+
+/* ═══ DRAG SELECT ═══ */
+.mn-workspace-table-row-dragging{background:rgba(255,255,255,0.04) !important}
+.mn-workspace-table-row.mn-drag-highlight{box-shadow:inset 2px 0 0 rgba(255,255,255,0.2);background:rgba(255,255,255,0.03) !important}
+body.mn-dragging{cursor:crosshair !important;user-select:none !important}
+body.mn-dragging *{cursor:crosshair !important;user-select:none !important}
 </style>
 </head>
 <body class="mn-workspace-body">
@@ -343,7 +349,42 @@ var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
 (function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});ft.innerHTML=h})();
-function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;usv();ren();
+function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
+// ── Drag-to-select on table rows ──
+var dragSelecting=false,dragStartId=null,dragIds=[];
+function getRowId(el){while(el&&!el.dataset.pid)el=el.parentElement;return el?parseInt(el.dataset.pid):null}
+document.getElementById("tb").addEventListener("pointerdown",function(e){
+  if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey)return;
+  var id=getRowId(e.target);if(id===null)return;
+  dragSelecting=true;dragStartId=id;dragIds=[id];
+  document.body.classList.add("mn-dragging");
+  e.preventDefault();
+});
+document.addEventListener("pointermove",function(e){
+  if(!dragSelecting)return;
+  var id=getRowId(e.target);if(id===null||dragIds[dragIds.length-1]===id)return;
+  if(dragIds.indexOf(id)<0)dragIds.push(id);
+  // Live highlight
+  var rows=document.querySelectorAll(".mn-workspace-table-row");
+  rows.forEach(function(r){var rid=parseInt(r.dataset.pid);
+    if(dragIds.indexOf(rid)>=0)r.classList.add("mn-drag-highlight");
+    else r.classList.remove("mn-drag-highlight");
+  });
+});
+document.addEventListener("pointerup",function(e){
+  if(!dragSelecting)return;
+  dragSelecting=false;document.body.classList.remove("mn-dragging");
+  if(dragIds.length>1){
+    selMulti=dragIds.slice();selR=null;
+    ren();// This updates everything including the detail panel stats
+  }else if(dragIds.length===1){
+    selMulti=[];opf(dragIds[0]);
+  }
+  dragIds=[];
+  document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
+});
+
+usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
 var fbtns=document.getElementById("floatingModes").children;for(var i=0;i<fbtns.length;i++){if(MODES[i].name===name)fbtns[i].classList.add("mn-workspace-slider-mode-on");else fbtns[i].classList.remove("mn-workspace-slider-mode-on")}}
 
@@ -353,6 +394,41 @@ var s=x2s(e.clientX),dLo=Math.abs(s-sLo),dHi=Math.abs(s-sHi);
 if(dLo<=dHi){sLo=Math.min(s,sHi-1)}else{sHi=Math.max(s,sLo+1)}
 curMode="Custom";var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++)btns[i].classList.remove("mn-workspace-slider-mode-on");
 var fbtns=document.getElementById("floatingModes").children;for(var i=0;i<fbtns.length;i++)fbtns[i].classList.remove("mn-workspace-slider-mode-on");
+
+// ── Drag-to-select on table rows ──
+var dragSelecting=false,dragStartId=null,dragIds=[];
+function getRowId(el){while(el&&!el.dataset.pid)el=el.parentElement;return el?parseInt(el.dataset.pid):null}
+document.getElementById("tb").addEventListener("pointerdown",function(e){
+  if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey)return;
+  var id=getRowId(e.target);if(id===null)return;
+  dragSelecting=true;dragStartId=id;dragIds=[id];
+  document.body.classList.add("mn-dragging");
+  e.preventDefault();
+});
+document.addEventListener("pointermove",function(e){
+  if(!dragSelecting)return;
+  var id=getRowId(e.target);if(id===null||dragIds[dragIds.length-1]===id)return;
+  if(dragIds.indexOf(id)<0)dragIds.push(id);
+  // Live highlight
+  var rows=document.querySelectorAll(".mn-workspace-table-row");
+  rows.forEach(function(r){var rid=parseInt(r.dataset.pid);
+    if(dragIds.indexOf(rid)>=0)r.classList.add("mn-drag-highlight");
+    else r.classList.remove("mn-drag-highlight");
+  });
+});
+document.addEventListener("pointerup",function(e){
+  if(!dragSelecting)return;
+  dragSelecting=false;document.body.classList.remove("mn-dragging");
+  if(dragIds.length>1){
+    selMulti=dragIds.slice();selR=null;
+    ren();// This updates everything including the detail panel stats
+  }else if(dragIds.length===1){
+    selMulti=[];opf(dragIds[0]);
+  }
+  dragIds=[];
+  document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
+});
+
 usv();ren()}
 
 function usv(){var lo=(sLo/99)*100,hi=(sHi/99)*100;tlo.style.left=lo+"%";thi.style.left=hi+"%";sfEl.style.left=lo+"%";sfEl.style.width=(hi-lo)+"%";document.getElementById("sv").textContent=sLo+" \u2013 "+sHi;
@@ -385,7 +461,7 @@ h+='<th class="mn-workspace-table-th">Reach<\/th><\/tr><\/thead><tbody>';
 var mx=Math.min(l.length,120);
 for(var i=0;i<mx;i++){var p=l[i],badge=p.score>=75?"mn-workspace-score-badge-high":"";
 var isSel=selR===p.id||selMulti.indexOf(p.id)>=0;
-h+='<tr class="mn-workspace-table-row'+(isSel?" mn-workspace-table-row-selected":"")+'" onclick="rowClick('+p.id+',event)">';
+h+='<tr class="mn-workspace-table-row'+(isSel?" mn-workspace-table-row-selected":"")+'" data-pid="'+p.id+'" onclick="rowClick('+p.id+',event)">';
 h+='<td class="mn-workspace-table-td"><div class="mn-workspace-table-person"><img class="mn-workspace-table-avatar" src="'+p.photo+'" loading="lazy"><div><div class="mn-workspace-table-name">'+p.name+'<\/div><div class="mn-workspace-table-subtitle">'+p.title+' \u00b7 '+p.city+'<\/div><\/div><\/div><\/td>';
 h+='<td class="mn-workspace-table-td"><span class="mn-workspace-score-badge '+badge+'">'+p.score+'<\/span><\/td>';
 h+='<td class="mn-workspace-table-td">'+p.age+'<\/td><td class="mn-workspace-table-td">'+p.income+'<\/td><td class="mn-workspace-table-td">'+(p.owner?"Own":"Rent")+'<\/td>';
@@ -408,7 +484,7 @@ var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),op=(oc/n*100).toFixed(1);
 var allOc=all.filter(function(p){return p.owner}).length,aop=(allOc/tot*100).toFixed(1);
 var a45=l.filter(function(p){return p.age>=45}).length,a45p=Math.round(a45/n*100),allA45=Math.round(all.filter(function(p){return p.age>=45}).length/tot*100);
 var hi250=l.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length,hi250p=Math.round(hi250/n*100),allH=Math.round(all.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length/tot*100);
-var scaledStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN/1e3).toFixed(0)+'K';var nar="<b>"+n.toLocaleString()+"<\/b> records ("+scaledStr+" at full scale), scores "+sLo+"\u2013"+sHi+". ";
+var scaleFactor2=268000000/tot;var scaledN2=Math.round(n*scaleFactor2);var scaledStr=scaledN2>=1e6?(scaledN2/1e6).toFixed(1)+'M':(scaledN2/1e3).toFixed(0)+'K';var nar="<b>"+n.toLocaleString()+"<\/b> records ("+scaledStr+" at full scale), scores "+sLo+"\u2013"+sHi+". ";
 if(avg>65)nar+="High-fit: "+a45p+"% age 45+, "+op+"% homeowners (vs "+aop+"% baseline), "+hi250p+"% earn $250k+. Premium suite and membership viable.";
 else if(avg>35)nar+="Balanced. "+a45p+"% are 45+, homeownership "+op+"%. Multi-channel viable.";
 else nar+="Younger. Homeownership "+op+"%, lower income. Value-tier and digital only.";
@@ -438,7 +514,22 @@ h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-s
 h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-stat-cell-value">'+pct(n,tot)+'<\/div><div class="mn-workspace-detail-stat-cell-label">of File<\/div><\/div>';
 h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-stat-cell-value">'+ec+'<\/div><div class="mn-workspace-detail-stat-cell-label">Email<\/div><\/div>';
 h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-stat-cell-value">'+avg+'<\/div><div class="mn-workspace-detail-stat-cell-label">Avg<\/div><\/div>';
-h+='<\/div><\/div>';
+h+='<\/div>';
+// If multi-selected, show selection stats
+if(selMulti.length>1){
+  var sl=PP.filter(function(p){return selMulti.indexOf(p.id)>=0});
+  var slEc=sl.filter(function(p){return p.email}).length;
+  var slOc=sl.filter(function(p){return p.owner}).length;
+  var slSs=0;sl.forEach(function(p){slSs+=p.score});
+  var slAvg=sl.length?(slSs/sl.length).toFixed(1):"--";
+  h+='<div class="mn-workspace-detail-stats" style="margin-top:5px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:2px">';
+  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+sl.length+'<\/div><div class="mn-workspace-detail-stat-cell-label">Selected<\/div><\/div>';
+  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+Math.round(slOc/sl.length*100)+'%<\/div><div class="mn-workspace-detail-stat-cell-label">Owners<\/div><\/div>';
+  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+slEc+'<\/div><div class="mn-workspace-detail-stat-cell-label">Email<\/div><\/div>';
+  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+slAvg+'<\/div><div class="mn-workspace-detail-stat-cell-label">Avg<\/div><\/div>';
+  h+='<\/div>';
+}
+h+='<\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Insight<\/div><div class="mn-workspace-detail-narrative">'+nar+'<\/div><\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
@@ -565,7 +656,42 @@ if(!m.classList.contains("mn-workspace-topbar-segments-menu-open"))return;
 if(!savedSegs.length){m.innerHTML='<div class="mn-workspace-topbar-segments-empty">No saved segments<\/div>';return}
 var h="";savedSegs.forEach(function(s,i){h+='<button class="mn-workspace-topbar-segments-item" onclick="loadSeg('+i+')">'+s.name+' \u00b7 '+s.count+'<\/button>'});
 m.innerHTML=h}
-function loadSeg(i){var s=savedSegs[i];sLo=s.lo;sHi=s.hi;extraFilters=s.filters;usv();ren();document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open");toast("Loaded: "+s.name)}
+function loadSeg(i){var s=savedSegs[i];sLo=s.lo;sHi=s.hi;extraFilters=s.filters;
+// ── Drag-to-select on table rows ──
+var dragSelecting=false,dragStartId=null,dragIds=[];
+function getRowId(el){while(el&&!el.dataset.pid)el=el.parentElement;return el?parseInt(el.dataset.pid):null}
+document.getElementById("tb").addEventListener("pointerdown",function(e){
+  if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey)return;
+  var id=getRowId(e.target);if(id===null)return;
+  dragSelecting=true;dragStartId=id;dragIds=[id];
+  document.body.classList.add("mn-dragging");
+  e.preventDefault();
+});
+document.addEventListener("pointermove",function(e){
+  if(!dragSelecting)return;
+  var id=getRowId(e.target);if(id===null||dragIds[dragIds.length-1]===id)return;
+  if(dragIds.indexOf(id)<0)dragIds.push(id);
+  // Live highlight
+  var rows=document.querySelectorAll(".mn-workspace-table-row");
+  rows.forEach(function(r){var rid=parseInt(r.dataset.pid);
+    if(dragIds.indexOf(rid)>=0)r.classList.add("mn-drag-highlight");
+    else r.classList.remove("mn-drag-highlight");
+  });
+});
+document.addEventListener("pointerup",function(e){
+  if(!dragSelecting)return;
+  dragSelecting=false;document.body.classList.remove("mn-dragging");
+  if(dragIds.length>1){
+    selMulti=dragIds.slice();selR=null;
+    ren();// This updates everything including the detail panel stats
+  }else if(dragIds.length===1){
+    selMulti=[];opf(dragIds[0]);
+  }
+  dragIds=[];
+  document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
+});
+
+usv();ren();document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open");toast("Loaded: "+s.name)}
 function clearFilters(){extraFilters=null;ren();toast("Filters cleared")}
 function rmFilter(key){if(!extraFilters)return;delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null;ren()}
 
@@ -636,6 +762,41 @@ if(e.key==="Escape"){
 if(document.getElementById("saveModal").classList.contains("mn-workspace-modal-open")){closeSave();return}
 if(document.getElementById("pProf").style.display!=="none"){cpf();return}
 }});
+
+
+// ── Drag-to-select on table rows ──
+var dragSelecting=false,dragStartId=null,dragIds=[];
+function getRowId(el){while(el&&!el.dataset.pid)el=el.parentElement;return el?parseInt(el.dataset.pid):null}
+document.getElementById("tb").addEventListener("pointerdown",function(e){
+  if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey)return;
+  var id=getRowId(e.target);if(id===null)return;
+  dragSelecting=true;dragStartId=id;dragIds=[id];
+  document.body.classList.add("mn-dragging");
+  e.preventDefault();
+});
+document.addEventListener("pointermove",function(e){
+  if(!dragSelecting)return;
+  var id=getRowId(e.target);if(id===null||dragIds[dragIds.length-1]===id)return;
+  if(dragIds.indexOf(id)<0)dragIds.push(id);
+  // Live highlight
+  var rows=document.querySelectorAll(".mn-workspace-table-row");
+  rows.forEach(function(r){var rid=parseInt(r.dataset.pid);
+    if(dragIds.indexOf(rid)>=0)r.classList.add("mn-drag-highlight");
+    else r.classList.remove("mn-drag-highlight");
+  });
+});
+document.addEventListener("pointerup",function(e){
+  if(!dragSelecting)return;
+  dragSelecting=false;document.body.classList.remove("mn-dragging");
+  if(dragIds.length>1){
+    selMulti=dragIds.slice();selR=null;
+    ren();// This updates everything including the detail panel stats
+  }else if(dragIds.length===1){
+    selMulti=[];opf(dragIds[0]);
+  }
+  dragIds=[];
+  document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
+});
 
 usv();ren()
 </script>
