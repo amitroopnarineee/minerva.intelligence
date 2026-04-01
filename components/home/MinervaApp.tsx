@@ -150,6 +150,68 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
   )
 }
 
+
+/* ── ConnCard: types connector, shows card, advances step ── */
+function ConnCard({ text, children, delayAfter = 1200, speed = 20, textStyle, playing, onAdvance }: {
+  text: string; children: React.ReactNode; delayAfter?: number; speed?: number;
+  textStyle?: React.CSSProperties; playing: boolean; onAdvance: () => void
+}) {
+  const [cardVisible, setCardVisible] = useState(false)
+  const { displayed, done: typeDone } = useSimpleTyper(text, true, speed)
+  const doneCalledRef = useRef(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (typeDone && !cardVisible) {
+      const t = setTimeout(() => setCardVisible(true), 200)
+      return () => clearTimeout(t)
+    }
+  }, [typeDone, cardVisible])
+
+  useEffect(() => {
+    if (cardVisible && !doneCalledRef.current) {
+      doneCalledRef.current = true
+      const t = setTimeout(() => { if (playing) onAdvance() }, delayAfter)
+      return () => clearTimeout(t)
+    }
+  }, [cardVisible, delayAfter, playing, onAdvance])
+
+  useEffect(() => {
+    if (cardVisible && cardRef.current && playing) {
+      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [cardVisible, playing])
+
+  return (
+    <div>
+      {text && <p style={textStyle || CONN}>{displayed}{!typeDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>}</p>}
+      {typeDone && !cardVisible && <Dots show />}
+      {cardVisible && <div ref={cardRef} className="animate-card-in">{children}</div>}
+    </div>
+  )
+}
+
+/* ── TypeSection: types text, advances step ── */
+function TypeSection({ text, speed = 30, style, delayAfter = 1500, playing, onAdvance }: {
+  text: string; speed?: number; style?: React.CSSProperties; delayAfter?: number;
+  playing: boolean; onAdvance: () => void
+}) {
+  const { segments, done, cursorVis } = useTypewriter(text, true, speed)
+  const calledRef = useRef(false)
+  useEffect(() => {
+    if (done && !calledRef.current) {
+      calledRef.current = true
+      const t = setTimeout(() => { if (playing) onAdvance() }, delayAfter)
+      return () => clearTimeout(t)
+    }
+  }, [done, delayAfter, playing, onAdvance])
+  return (
+    <div style={style || { fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em' }}>
+      <TypedText segments={segments} cursorVis={cursorVis} done={done} />
+    </div>
+  )
+}
+
 /* ══════════════════════════════════════════════════════════
    BRIEFING THREAD — THE PRODUCT
    ══════════════════════════════════════════════════════════ */
@@ -192,6 +254,8 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
     }
   }, [step, playing])
 
+  const onAdvance = useCallback(() => setStep(s => s + 1), [])
+
   function advance(delayMs: number) {
     if (advanceRef.current) clearTimeout(advanceRef.current)
     advanceRef.current = setTimeout(() => {
@@ -208,62 +272,6 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
   const isComplete = step >= 14
 
-  // ── ConnectorCard: types connector text, then reveals card, then calls onDone ──
-  function ConnCard({ text, children, delayAfter = 1200, speed = 20, textStyle }: { text: string; children: React.ReactNode; delayAfter?: number; speed?: number; textStyle?: React.CSSProperties }) {
-    const [cardVisible, setCardVisible] = useState(false)
-    const { displayed, done: typeDone } = useSimpleTyper(text, true, speed)
-    const doneCalledRef = useRef(false)
-    const cardRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
-      if (typeDone && !cardVisible) {
-        const t = setTimeout(() => setCardVisible(true), 200)
-        return () => clearTimeout(t)
-      }
-    }, [typeDone, cardVisible])
-
-    useEffect(() => {
-      if (cardVisible && !doneCalledRef.current) {
-        doneCalledRef.current = true
-        const t = setTimeout(() => { if (playing) setStep(s => s + 1) }, delayAfter)
-        return () => clearTimeout(t)
-      }
-    }, [cardVisible, delayAfter])
-
-    useEffect(() => {
-      if (cardVisible && cardRef.current && playing) {
-        cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    }, [cardVisible])
-
-    return (
-      <div>
-        {text && <p style={textStyle || CONN}>{displayed}{!typeDone && <span className="animate-blink" style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>}</p>}
-        {typeDone && !cardVisible && <Dots show />}
-        {cardVisible && <div ref={cardRef} className="animate-card-in">{children}</div>}
-      </div>
-    )
-  }
-
-  // ── TypeSection: just types text and calls onDone ──
-  function TypeSection({ text, speed = 30, style, onDone, delayAfter = 1500 }: { text: string; speed?: number; style?: React.CSSProperties; onDone?: () => void; delayAfter?: number }) {
-    const { segments, done, cursorVis } = useTypewriter(text, true, speed)
-    const calledRef = useRef(false)
-    useEffect(() => {
-      if (done && !calledRef.current) {
-        calledRef.current = true
-        const t = setTimeout(() => { if (playing) setStep(s => s + 1) }, delayAfter)
-        return () => clearTimeout(t)
-      }
-    }, [done, delayAfter])
-    return (
-      <div style={style || { fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em' }}>
-        <TypedText segments={segments} cursorVis={cursorVis} done={done} />
-      </div>
-    )
-  }
-
-
   return (
     <div className="absolute inset-0 flex flex-col">
       <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
@@ -274,12 +282,12 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S0: Greeting */}
           {step >= 0 && (
-            <TypeSection text="Morning, Sarah. Revenue is $242K with ROAS at 4.0x. Family audience surging. 3 actions ready." speed={25} delayAfter={800} />
+            <TypeSection playing={playing} onAdvance={onAdvance} text="Morning, Sarah. Revenue is $242K with ROAS at 4.0x. Family audience surging. 3 actions ready." speed={25} delayAfter={800} />
           )}
 
           {/* S1: Minerva Recommends */}
           {step >= 1 && (
-            <ConnCard text="Here's my top recommendation —" delayAfter={1200}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text="Here's my top recommendation —" delayAfter={1200}>
               <div style={CARD}>
                 <p style={LBL} className="mb-2">✦ MINERVA RECOMMENDS</p>
                 <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -295,7 +303,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S2: Metrics */}
           {step >= 2 && (
-            <ConnCard text="Key metrics this week:" delayAfter={1200}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text="Key metrics this week:" delayAfter={1200}>
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 {METRICS.map((m, i) => (
                   <div key={m.label} onClick={() => toast(`Opening ${m.label} detail…`)}
@@ -314,7 +322,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S3: Funnel */}
           {step >= 3 && (
-            <ConnCard text="Here's the funnel:" delayAfter={1200}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text="Here's the funnel:" delayAfter={1200}>
               <div className="flex items-end gap-2">
                 {FUNNEL.map((f, i) => (
                   <div key={f.label} className="flex-1 text-center animate-card-in" style={{ animationDelay: `${i * 150}ms` }}>
@@ -331,7 +339,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S4: Chart */}
           {step >= 4 && (
-            <ConnCard text="Revenue versus spend, last 7 days:" delayAfter={1500}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text="Revenue versus spend, last 7 days:" delayAfter={1500}>
               <div style={{ ...CARD, padding: 16, height: 120 }}>
                 <svg viewBox="0 0 300 80" className="w-full h-full">
                   <polyline points="0,60 50,55 100,48 150,42 200,35 250,28 300,20" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
@@ -345,7 +353,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S5: Campaigns */}
           {step >= 5 && (
-            <ConnCard text="Campaign breakdown:" delayAfter={1500}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text="Campaign breakdown:" delayAfter={1500}>
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <span style={{ ...LBL, flex: 1 }}>Campaign</span>
@@ -372,19 +380,19 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S6: PIVOT — typed slowly, brighter */}
           {step >= 6 && (
-            <TypeSection text="Something interesting happened overnight." speed={30} delayAfter={1500}
+            <TypeSection playing={playing} onAdvance={onAdvance} text="Something interesting happened overnight." speed={30} delayAfter={1500}
               style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', marginTop: 24 }} />
           )}
 
           {/* S7: Pivot continued */}
           {step >= 7 && (
-            <TypeSection text="The Dolphins signed quarterback Jackson Dark from the New York Giants. Social media volume spiked 340% in the last 8 hours — mostly Giants fans reacting." speed={30} delayAfter={1000}
+            <TypeSection playing={playing} onAdvance={onAdvance} text="The Dolphins signed quarterback Jackson Dark from the New York Giants. Social media volume spiked 340% in the last 8 hours — mostly Giants fans reacting." speed={30} delayAfter={1000}
               style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)' }} />
           )}
 
           {/* S8: Pivot analysis + segment card */}
           {step >= 8 && (
-            <ConnCard text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
               <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)' }}>
                 <p style={LBL} className="mb-3">✦ SUGGESTED SEGMENT</p>
                 <p className="text-[16px] text-white mb-1" style={{ fontWeight: 500 }}>Giants-to-Dolphins Crossover</p>
@@ -407,7 +415,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S9: Campaign Composer (after modal save) OR skip connector */}
           {step >= 9 && studioSaved && (
-            <ConnCard text={'Segment saved: Giants-to-Dolphins Crossover — 2,400 profiles. Now let\'s reach them.'} delayAfter={99999}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text={'Segment saved: Giants-to-Dolphins Crossover — 2,400 profiles. Now let\'s reach them.'} delayAfter={99999}>
               <div style={{ ...CARD }}>
                 <p style={LBL} className="mb-3">COMPOSE CAMPAIGN</p>
                 <p className="text-[12px] mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>To: Giants-to-Dolphins Crossover (2,400)</p>
@@ -440,7 +448,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S10/S9: Wrap-up + Remaining actions */}
           {step >= (studioSaved ? 10 : 9) && (
-            <ConnCard text={studioSaved ? "Done. 1,872 Giants fans will receive your welcome offer within the hour. I'll track performance and brief you tomorrow." : "Three actions I'd prioritize:"} delayAfter={1500}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text={studioSaved ? "Done. 1,872 Giants fans will receive your welcome offer within the hour. I'll track performance and brief you tomorrow." : "Three actions I'd prioritize:"} delayAfter={1500}>
               <div className="space-y-2">
                 <p style={LBL} className="mb-2">{studioSaved ? 'TWO MORE ACTIONS' : 'NEXT BEST ACTIONS'}</p>
                 {[
