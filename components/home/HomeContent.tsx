@@ -343,7 +343,7 @@ export function HomeContent() {
       ) : (
         /* ═══ CANVAS VIEW ═══ */
         <motion.div key="canvas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
-          className="mn-canvas flex-1 flex flex-col min-h-0">
+          className="mn-canvas flex-1 flex flex-col min-h-0 relative">
       <div ref={scrollRef} className="mn-canvas-scroll flex-1 overflow-y-auto relative z-10 scroll-smooth" style={{ scrollbarWidth: "none" }}>
         <div className="mn-canvas-inner px-6 pt-4 pb-20 max-w-[1100px] mx-auto space-y-14">
 
@@ -550,9 +550,7 @@ export function HomeContent() {
       </div>
 
       {/* ═══ BOTTOM PROGRESSIVE BLUR ═══ */}
-      <div className="mn-canvas-blur-wrap relative shrink-0 h-0">
-        <ProgressiveBlur position="bottom" backgroundColor="rgba(0,0,0,0.9)" height="120px" blurAmount="6px" className="z-[5]" />
-      </div>
+      <ProgressiveBlur position="bottom" backgroundColor="#000" height="120px" blurAmount="8px" className="mn-canvas-blur z-[5]" />
         </motion.div>
       )}
       </AnimatePresence>
