@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
+import { ShaderBackground } from "@/components/shared/ShaderBackground"
 
 /* ── Types ── */
 type View = 'home' | 'briefing' | 'studio-entry' | 'studio' | 'studio-save' | 'settings'
@@ -51,30 +53,15 @@ function HomeScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-6 relative">
       {/* Rotating tagline */}
-      <div className="relative h-16 flex items-center justify-center mb-12">
+      <div className="relative h-14 flex items-center justify-center mb-12 w-full max-w-[600px]">
         <p key={tagIndex} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in"
-          style={{ fontWeight: 400, letterSpacing: '-0.03em', position: 'absolute' }}>
+          style={{ fontWeight: 400, letterSpacing: '-0.03em', position: 'absolute', whiteSpace: 'nowrap' }}>
           {TAGLINES[tagIndex]}
         </p>
       </div>
 
-      {/* Two CTA buttons */}
-      <div className="flex items-center gap-3">
-        <button onClick={() => navigateTo('briefing')}
-          className="h-[44px] px-7 rounded-full text-[14px] transition-all"
-          style={{ background: 'linear-gradient(180deg, #1a1a1a, #000)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)' }}>
-          Briefing
-        </button>
-        <button onClick={() => navigateTo('studio-entry')}
-          className="h-[44px] px-7 rounded-full text-[14px] transition-all"
-          style={{ background: 'linear-gradient(180deg, #1a1a1a, #000)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)' }}>
-          Audience Studio
-        </button>
-      </div>
+      {/* CTA */}
+      <LiquidMetalButton label="Enter" onClick={() => navigateTo('briefing')} />
 
       {/* Credit */}
       <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide">
@@ -627,7 +614,14 @@ export function MinervaApp() {
   })()
 
   return (
-    <div className="h-screen flex flex-col bg-black overflow-hidden" style={{ fontFamily: "'Overused Grotesk', ui-sans-serif, system-ui, sans-serif" }}>
+    <div className="h-screen flex flex-col overflow-hidden relative" style={{ fontFamily: "'Overused Grotesk', ui-sans-serif, system-ui, sans-serif" }}>
+
+      {/* ═══ SHADER BACKGROUND (home only) ═══ */}
+      {view === 'home' && (
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <ShaderBackground />
+        </div>
+      )}
 
       {/* ═══ SHELL HEADER ═══ */}
       <div className="shrink-0 flex items-center justify-between px-5 py-2.5 relative z-30">
@@ -637,15 +631,15 @@ export function MinervaApp() {
           {view === 'home' && <span className="text-[13px] font-medium tracking-tight text-white">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>}
         </button>
 
-        {/* Center: Nav items */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1">
+        {/* Center: Nav items (hidden on home) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1" style={{ opacity: view === 'home' ? 0 : 1, transition: 'opacity 300ms ease', pointerEvents: view === 'home' ? 'none' : 'auto' }}>
           {notchItems.map(n => (
             <button key={n.label} onClick={n.action} className="text-[12px] px-3 py-1 rounded-lg transition-colors text-white/40 hover:text-white/70 hover:bg-white/[0.04]">
               {n.label}
             </button>
           ))}
           {viewTitle && <span className="text-[12px] px-3 py-1 text-white/70 font-medium">{viewTitle}</span>}
-          {view !== 'settings' && (
+          {view !== 'home' && view !== 'settings' && (
             <button onClick={() => router.push('/insights')} className="text-[12px] px-3 py-1 rounded-lg transition-colors text-white/25 hover:text-white/50 hover:bg-white/[0.04]">
               Insights
             </button>

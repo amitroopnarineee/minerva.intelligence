@@ -7,7 +7,7 @@ import { MinervaChat } from "@/components/shared/MinervaChat"
 import { SelectionToolbar } from "@/components/shared/SelectionToolbar"
 import { DragSelect } from "@/components/shared/DragSelect"
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 export default function DashboardLayout({
   children,
@@ -17,6 +17,8 @@ export default function DashboardLayout({
   const [chatOpen, setChatOpen] = useState(false)
   const [initialMessage, setInitialMessage] = useState<string | null>(null)
   const router = useRouter()
+  const pathname = usePathname()
+  const isNewApp = pathname === '/'
 
   useEffect(() => {
     const toggleHandler = () => setChatOpen((o) => !o)
@@ -71,14 +73,14 @@ export default function DashboardLayout({
 
   return (
     <div className="mn-root h-screen relative overflow-hidden">
-      <GlobalBackground />
+      {!isNewApp && <GlobalBackground />}
 
       {/* Main flex row — content + chat side by side */}
       <div className="relative z-10 h-full flex">
         {/* Left: full app shell (menu bar + content) */}
         <div className="flex-1 min-w-0 flex flex-col transition-all duration-300 ease-out">
-          <MinervaMenuBar />
-          <main className="mn-main flex-1 overflow-hidden pt-9" onClick={() => { if (chatOpen) setChatOpen(false) }}>
+          {!isNewApp && <MinervaMenuBar />}
+          <main className={`mn-main flex-1 overflow-hidden ${isNewApp ? '' : 'pt-9'}`} onClick={() => { if (chatOpen) setChatOpen(false) }}>
             {children}
           </main>
         </div>
