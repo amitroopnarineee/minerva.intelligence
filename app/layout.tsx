@@ -7,6 +7,7 @@ import "./overrides.css";
 export const metadata: Metadata = {
   title: "Minerva — Consumer Intelligence",
   description: "Smart daily homepage for the Miami Dolphins CMO",
+  icons: { icon: "/minerva-logo.svg" },
 };
 
 export default function RootLayout({
