@@ -307,6 +307,12 @@ export function HomeContent() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <LiquidMetalButton label="Enter" onClick={() => enterCanvas("briefing")} />
           </motion.div>
+
+          {/* Footer credit */}
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+            className="mn-hero-credit absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide">
+            Minerva<sup className="text-[7px]">™</sup> Intelligence. By Amit Roopnarine.
+          </motion.p>
         </motion.div>
       ) : (
         /* ═══ CANVAS VIEW ═══ */
