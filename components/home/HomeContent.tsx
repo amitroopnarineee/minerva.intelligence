@@ -2,7 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowUp, Brain, Search, Users, BarChart3, Upload, Zap, TrendingUp, TrendingDown, X, ArrowRight } from "lucide-react"
+import { ArrowUp, Brain, Search, Users, BarChart3, Upload, Zap, TrendingUp, TrendingDown, X, ArrowRight, Minus } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { kpiHistory, currentKpi, previousKpi, kpiDelta } from "@/lib/data/kpis"
+import { insights } from "@/lib/data/insights"
+import { campaigns } from "@/lib/data/campaigns"
+import { opportunities } from "@/lib/data/opportunities"
+import { persons } from "@/lib/data/persons"
+import { Sparkline } from "@/components/shared/Sparkline"
+import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
 
 const modes = [
   { id: "discover", label: "Discover", icon: Brain, headline: "What should I focus on today?", placeholder: "Ask about trends, anomalies, or what needs your attention..." },
@@ -13,130 +21,140 @@ const modes = [
   { id: "activate", label: "Activate", icon: Zap, headline: "Push audiences to your channels.", placeholder: "Activate premium suite prospects on Klaviyo and Meta..." },
 ]
 
-const signals = [
-  { label: "Attention", value: "+18%", desc: "Brand awareness up across Instagram, TikTok, and owned web." },
-  { label: "Premium", value: "+11%", desc: "Premium messaging driving strongest ticket-intent lift." },
-  { label: "Family", value: "+14%", desc: "Family consideration rose in Miami-Dade and Broward." },
-  { label: "Owned", value: "-4%", desc: "Social engagement up but owned capture trails reach." },
-  { label: "Sponsors", value: "+9%", desc: "Luxury narratives creating strongest partner value." },
-]
-const actions = [
-  { title: "Double down on Family Weekend", desc: "Family +14% — launch South Florida geo-targeted variant this week.", tag: "High" },
-  { title: "Fix owned conversion gap", desc: "Attention +18% but owned CTR -4%. Rework short-form CTA flow.", tag: "High" },
-  { title: "Push Premium Suite retargeting", desc: "1,420 prospects ready. Refresh creative and activate on Meta.", tag: "Medium" },
-]
-const campaigns = [
-  { name: "Player Spotlight Series", reach: "142K", ctr: "3.8%", roas: "4.2x", trend: "up" as const },
-  { name: "Family Weekend Promo", reach: "89K", ctr: "5.1%", roas: "6.1x", trend: "up" as const },
-  { name: "Premium Suite Retarget", reach: "34K", ctr: "2.9%", roas: "3.1x", trend: "down" as const },
-  { name: "Season Renewal Email", reach: "12K", ctr: "12.4%", roas: "8.7x", trend: "up" as const },
-]
-const movers = [
-  { name: "Family Package Buyers", val: "+14%", n: "3,100" },
-  { name: "Premium Suite Prospects", val: "+8.1%", n: "1,420" },
-  { name: "Renewal Risk Members", val: "-2.1%", n: "700" },
-]
-const people = [
-  { name: "Carlos Mendez", role: "VP Marketing, Baptist Health", score: 94 },
-  { name: "Rachel Torres", role: "Dir. Partnerships, Live Nation", score: 88 },
-  { name: "David Kim", role: "CFO, Citadel Securities", score: 91 },
-  { name: "Maria Santos", role: "Head of Events, Hard Rock", score: 85 },
-  { name: "James Chen", role: "MD, JP Morgan", score: 92 },
-]
+/* ── Derived data ── */
+const revenueChart = kpiHistory.map(k => ({ date: new Date(k.date), revenue: Math.round(k.influencedRevenue / 1000), spend: Math.round(k.paidSpend / 1000) }))
+const revDelta = kpiDelta(currentKpi.influencedRevenue, previousKpi.influencedRevenue)
+const roasDelta = kpiDelta(currentKpi.roas, previousKpi.roas)
+const convDelta = kpiDelta(currentKpi.ticketConversionRate, previousKpi.ticketConversionRate)
+const matchDelta = kpiDelta(currentKpi.dataMatchRate, previousKpi.dataMatchRate)
+const topInsights = insights.slice(0, 4)
+const topCampaigns = campaigns.filter(c => c.status === "active").slice(0, 4)
+const topOpps = opportunities.filter(o => o.status === "open").slice(0, 3)
+const topPeople = persons.slice(0, 5)
 
-const f = (d: number, dur = 0.4) => ({ initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { delay: d, duration: dur } })
+const f = (d: number) => ({ initial: { opacity: 0, y: 10 } as const, animate: { opacity: 1, y: 0 } as const, transition: { delay: d, duration: 0.4 } })
+
+function Dl({ label }: { label: string }) {
+  return <p className="text-[9px] tracking-widest text-white/15 uppercase mb-2.5">{label}</p>
+}
+
+function TrendBadge({ delta }: { delta: { value: number; direction: "up"|"down"|"stable" } }) {
+  const Icon = delta.direction === "up" ? TrendingUp : delta.direction === "down" ? TrendingDown : Minus
+  return (
+    <span className={`flex items-center gap-0.5 text-[10px] font-medium ${delta.direction === "up" ? "text-sky-400" : delta.direction === "down" ? "text-white/30" : "text-white/20"}`}>
+      <Icon className="h-3 w-3" />{delta.value.toFixed(1)}%
+    </span>
+  )
+}
 
 function DailyBriefing() {
+  const router = useRouter()
   return (
-    <div className="max-w-[1100px] mx-auto space-y-6 pb-10">
+    <div className="max-w-[1100px] mx-auto space-y-5 pb-10">
       {/* ── HEADER ── */}
       <motion.div {...f(0.1)}>
         <p className="text-[10px] tracking-widest text-white/20 uppercase">Monday, March 31 · Morning Brief</p>
-        <p className="text-[16px] text-white/80 mt-2 leading-relaxed">Good morning, Sarah. <span className="text-sky-400 font-medium">5 signals</span> surfaced overnight. Attention is up, but owned conversion needs focus.</p>
+        <p className="text-[16px] text-white/80 mt-2 leading-relaxed max-w-2xl">
+          Good morning, Sarah. <span className="text-sky-400 font-medium">{topInsights.length} insights</span> surfaced overnight.
+          Revenue is <span className="font-medium">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> today with ROAS at <span className="font-medium">{currentKpi.roas.toFixed(1)}x</span>.
+        </p>
       </motion.div>
 
-      {/* ── METRICS STRIP ── */}
-      <motion.div {...f(0.3)} className="grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
+      {/* ── KPI STRIP with real sparklines ── */}
+      <motion.div {...f(0.25)} className="grid grid-cols-4 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
         {[
-          { l: "Total Reach", v: "284K", d: "+12% vs last week" },
-          { l: "Owned CTR", v: "1.8%", d: "-4% — needs attention" },
-          { l: "Best ROAS", v: "6.1x", d: "Family Weekend Promo" },
-          { l: "Active Segments", v: "5", d: "15,303 total profiles" },
+          { l: "Influenced Revenue", v: `$${(currentKpi.influencedRevenue/1000).toFixed(0)}K`, d: revDelta, spark: kpiHistory.map(k => k.influencedRevenue) },
+          { l: "ROAS", v: `${currentKpi.roas.toFixed(1)}x`, d: roasDelta, spark: kpiHistory.map(k => k.roas) },
+          { l: "Ticket Conv. Rate", v: `${(currentKpi.ticketConversionRate*100).toFixed(1)}%`, d: convDelta, spark: kpiHistory.map(k => k.ticketConversionRate) },
+          { l: "Data Match Rate", v: `${(currentKpi.dataMatchRate*100).toFixed(0)}%`, d: matchDelta, spark: kpiHistory.map(k => k.dataMatchRate) },
         ].map((m, i) => (
-          <div key={i} className="bg-white/[0.03] px-5 py-4">
-            <p className="text-[9px] text-white/20 uppercase tracking-wider">{m.l}</p>
-            <p className="text-[22px] font-bold tracking-tight text-white mt-0.5 leading-none">{m.v}</p>
-            <p className="text-[10px] text-white/25 mt-1">{m.d}</p>
+          <div key={i} className="bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p>
+              <Sparkline data={m.spark} width={44} height={14} showArea={false} showDot={false} />
+            </div>
+            <div className="flex items-end justify-between">
+              <p className="text-[20px] font-bold tracking-tight text-white leading-none">{m.v}</p>
+              <TrendBadge delta={m.d} />
+            </div>
           </div>
         ))}
       </motion.div>
 
-      {/* ── SIGNALS + ACTIONS — side by side ── */}
+      {/* ── REVENUE CHART + INSIGHTS — 2:1 split ── */}
       <div className="grid grid-cols-3 gap-4">
-        {/* Signals — 2 cols */}
-        <motion.div {...f(0.5)} className="col-span-2">
-          <p className="text-[9px] tracking-widest text-white/15 uppercase mb-3">Today's Signals</p>
-          <div className="grid grid-cols-5 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
-            {signals.map((s, i) => (
-              <div key={i} className="bg-white/[0.03] px-3 py-3.5 hover:bg-white/[0.05] transition-colors cursor-pointer">
-                <p className="text-[8px] text-white/15 uppercase tracking-wider mb-1.5">{s.label}</p>
-                <p className={`text-[20px] font-bold tracking-tight leading-none ${s.value.startsWith("-") ? "text-white/40" : "text-sky-400"}`}>{s.value}</p>
-                <p className="text-[9px] text-white/20 mt-2 leading-snug">{s.desc}</p>
-              </div>
-            ))}
+        <motion.div {...f(0.4)} className="col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[9px] tracking-widest text-white/15 uppercase">Revenue vs Spend · 7 Day</p>
+            <p className="text-[10px] text-white/20">Daily</p>
+          </div>
+          <div className="h-[160px]">
+            <VisxAreaChart data={revenueChart} xDataKey="date" aspectRatio="unset" margin={{ top: 8, right: 8, bottom: 24, left: 8 }}>
+              <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.15} />
+              <VisxArea dataKey="revenue" fill="#38bdf8" fillOpacity={0.15} stroke="#38bdf8" strokeWidth={1.5} />
+              <VisxArea dataKey="spend" fill="#38bdf8" fillOpacity={0.05} stroke="#38bdf850" strokeWidth={1} />
+              <VisxXAxis numTicks={7} />
+            </VisxAreaChart>
           </div>
         </motion.div>
 
-        {/* Actions — 1 col */}
-        <motion.div {...f(0.7)}>
-          <p className="text-[9px] tracking-widest text-white/15 uppercase mb-3">Priority Actions</p>
+        <motion.div {...f(0.5)}>
+          <Dl label="Insights" />
           <div className="rounded-lg border border-white/[0.06] overflow-hidden">
-            {actions.map((a, i) => (
-              <div key={i} className="bg-white/[0.03] px-4 py-3 border-b border-white/[0.04] last:border-0 hover:bg-white/[0.05] transition-colors cursor-pointer">
+            {topInsights.map((ins, i) => (
+              <div key={ins.id} onClick={() => router.push("/command-center")}
+                className="bg-white/[0.025] px-3.5 py-2.5 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.04] transition-colors cursor-pointer">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[12px] font-medium text-white/80">{a.title}</p>
-                  <span className={`text-[8px] px-1.5 py-0.5 rounded shrink-0 ${a.tag === "High" ? "bg-sky-400/10 text-sky-400" : "bg-white/5 text-white/20"}`}>{a.tag}</span>
+                  <p className="text-[11px] text-white/70 leading-snug">{ins.title}</p>
+                  <span className={`text-[8px] px-1.5 py-0.5 rounded shrink-0 mt-0.5 ${ins.severity === "high" ? "bg-sky-400/10 text-sky-400" : "bg-white/5 text-white/20"}`}>{ins.severity}</span>
                 </div>
-                <p className="text-[10px] text-white/25 mt-1 leading-snug">{a.desc}</p>
+                <p className="text-[9px] text-white/20 mt-1">{ins.confidenceScore ? `${(ins.confidenceScore*100).toFixed(0)}% confidence` : ""}</p>
               </div>
             ))}
           </div>
         </motion.div>
       </div>
 
-      {/* ── CAMPAIGNS + MOVERS — side by side ── */}
+      {/* ── CAMPAIGNS + OPPORTUNITIES — 2:1 split ── */}
       <div className="grid grid-cols-3 gap-4">
-        <motion.div {...f(0.9)} className="col-span-2">
-          <p className="text-[9px] tracking-widest text-white/15 uppercase mb-3">Campaign Performance</p>
+        <motion.div {...f(0.6)} className="col-span-2">
+          <Dl label="Active Campaigns" />
           <div className="rounded-lg border border-white/[0.06] overflow-hidden">
             <table className="w-full text-[11px]">
-              <thead><tr className="bg-white/[0.02]">
-                <th className="text-left px-4 py-2 text-[8px] uppercase tracking-widest text-white/15 font-medium">Campaign</th>
-                <th className="text-right px-3 py-2 text-[8px] uppercase tracking-widest text-white/15 font-medium">Reach</th>
-                <th className="text-right px-3 py-2 text-[8px] uppercase tracking-widest text-white/15 font-medium">CTR</th>
-                <th className="text-right px-4 py-2 text-[8px] uppercase tracking-widest text-white/15 font-medium">ROAS</th>
+              <thead><tr className="bg-white/[0.015]">
+                <th className="text-left px-3.5 py-2 text-[8px] uppercase tracking-widest text-white/12 font-medium">Campaign</th>
+                <th className="text-left px-3 py-2 text-[8px] uppercase tracking-widest text-white/12 font-medium">Channel</th>
+                <th className="text-right px-3 py-2 text-[8px] uppercase tracking-widest text-white/12 font-medium">Spend</th>
+                <th className="text-right px-3 py-2 text-[8px] uppercase tracking-widest text-white/12 font-medium">ROAS</th>
+                <th className="text-right px-3.5 py-2 text-[8px] uppercase tracking-widest text-white/12 font-medium">Conv</th>
               </tr></thead>
-              <tbody>{campaigns.map((c, i) => (
-                <tr key={i} className="border-t border-white/[0.03] hover:bg-white/[0.02] transition-colors cursor-pointer">
-                  <td className="px-4 py-2.5 text-white/60 flex items-center gap-1.5">
-                    {c.trend === "up" ? <TrendingUp className="h-3 w-3 text-sky-400/40" /> : <TrendingDown className="h-3 w-3 text-white/15" />}{c.name}
+              <tbody>{topCampaigns.map((c) => (
+                <tr key={c.id} className="border-t border-white/[0.03] hover:bg-white/[0.02] transition-colors cursor-pointer">
+                  <td className="px-3.5 py-2 text-white/60 flex items-center gap-1.5">
+                    {c.trend === "up" ? <TrendingUp className="h-3 w-3 text-sky-400/40" /> : c.trend === "down" ? <TrendingDown className="h-3 w-3 text-white/15" /> : <Minus className="h-3 w-3 text-white/10" />}
+                    {c.name}
                   </td>
-                  <td className="text-right px-3 py-2.5 text-white/30 tabular-nums">{c.reach}</td>
-                  <td className="text-right px-3 py-2.5 text-white/30 tabular-nums">{c.ctr}</td>
-                  <td className="text-right px-4 py-2.5 font-semibold text-sky-400 tabular-nums">{c.roas}</td>
+                  <td className="px-3 py-2 text-white/25 capitalize">{c.platform}</td>
+                  <td className="text-right px-3 py-2 text-white/30 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
+                  <td className="text-right px-3 py-2 font-semibold text-sky-400 tabular-nums">{c.roas.toFixed(1)}x</td>
+                  <td className="text-right px-3.5 py-2 text-white/40 tabular-nums">{c.conversions}</td>
                 </tr>
               ))}</tbody>
             </table>
           </div>
         </motion.div>
 
-        <motion.div {...f(1.1)}>
-          <p className="text-[9px] tracking-widest text-white/15 uppercase mb-3">Segment Movers</p>
+        <motion.div {...f(0.7)}>
+          <Dl label="Recommended Actions" />
           <div className="rounded-lg border border-white/[0.06] overflow-hidden">
-            {movers.map((m, i) => (
-              <div key={i} className="bg-white/[0.03] px-4 py-3 border-b border-white/[0.04] last:border-0 flex items-center justify-between hover:bg-white/[0.05] transition-colors cursor-pointer">
-                <div><p className="text-[12px] text-white/60">{m.name}</p><p className="text-[9px] text-white/15 mt-0.5">{m.n} profiles</p></div>
-                <span className={`text-[16px] font-bold tabular-nums ${m.val.startsWith("-") ? "text-white/30" : "text-sky-400"}`}>{m.val}</span>
+            {topOpps.map((o, i) => (
+              <div key={o.id} className="bg-white/[0.025] px-3.5 py-3 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.04] transition-colors cursor-pointer">
+                <p className="text-[11px] text-white/70 leading-snug">{o.recommendedAction}</p>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <span className="text-[9px] text-white/15">{o.recommendedChannel}</span>
+                  <span className="text-[9px] text-sky-400/60 font-medium">+{o.expectedLiftPct}% lift</span>
+                  <span className="text-[9px] text-white/20">${(o.expectedRevenue/1000).toFixed(0)}K rev</span>
+                </div>
               </div>
             ))}
           </div>
@@ -144,27 +162,28 @@ function DailyBriefing() {
       </div>
 
       {/* ── PEOPLE ROW ── */}
-      <motion.div {...f(1.3)}>
-        <p className="text-[9px] tracking-widest text-white/15 uppercase mb-3">People to Watch</p>
+      <motion.div {...f(0.85)}>
+        <Dl label="People to Watch" />
         <div className="grid grid-cols-5 gap-px rounded-lg overflow-hidden border border-white/[0.06]">
-          {people.map((p, i) => (
-            <div key={i} className="bg-white/[0.03] px-3 py-3 hover:bg-white/[0.05] transition-colors cursor-pointer">
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="h-6 w-6 rounded-full bg-sky-400/10 flex items-center justify-center text-[9px] font-bold text-sky-400">{p.name.split(" ").map(n => n[0]).join("")}</div>
-                <span className="text-[12px] font-bold tabular-nums text-white/30">{p.score}</span>
+          {topPeople.map((p) => (
+            <div key={p.id} onClick={() => router.push(`/person-search/person/${p.id}`)}
+              className="bg-white/[0.025] px-3 py-3 hover:bg-white/[0.04] transition-colors cursor-pointer">
+              <div className="flex items-center justify-between mb-1">
+                <div className="h-5 w-5 rounded-full bg-sky-400/10 flex items-center justify-center text-[8px] font-bold text-sky-400">{p.firstName[0]}{p.lastName[0]}</div>
+                <span className="text-[10px] font-bold tabular-nums text-white/25">{Math.round(p.scores.ticketBuy * 100)}</span>
               </div>
-              <p className="text-[11px] font-medium text-white/70 leading-tight">{p.name}</p>
-              <p className="text-[9px] text-white/20 mt-0.5">{p.role}</p>
+              <p className="text-[11px] font-medium text-white/60 leading-tight">{p.firstName} {p.lastName}</p>
+              <p className="text-[8.5px] text-white/15 mt-0.5">{p.jobTitle}</p>
             </div>
           ))}
         </div>
       </motion.div>
 
       {/* ── SOURCES ── */}
-      <motion.div {...f(1.5)} className="flex items-center gap-2">
-        <span className="text-[8px] text-white/10 uppercase tracking-widest">Sources</span>
-        {["Ticket Sales API", "Meta Ads", "Google Analytics", "CRM"].map((s, i) => (
-          <span key={i} className="text-[9px] text-white/15 px-2 py-0.5 rounded border border-white/[0.04]">{s}</span>
+      <motion.div {...f(1.0)} className="flex items-center gap-2 pt-1">
+        <span className="text-[8px] text-white/8 uppercase tracking-widest">Sources</span>
+        {["Ticket Sales API", "Meta Ads", "Google Analytics", "Klaviyo", "CRM"].map((s, i) => (
+          <span key={i} className="text-[8px] text-white/12 px-1.5 py-0.5 rounded border border-white/[0.03]">{s}</span>
         ))}
       </motion.div>
     </div>
@@ -204,11 +223,11 @@ export function HomeContent() {
               </AnimatePresence>
             </motion.div>
           ) : (
-            <motion.div key="display" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="px-8 pt-4">
-              <div className="flex items-center justify-between mb-5 max-w-[1100px] mx-auto">
-                <h2 className="text-[13px] font-medium text-white/40">{displayTitle}</h2>
-                <button onClick={reset} className="text-[10px] text-white/20 hover:text-white/40 transition-colors flex items-center gap-1"><X className="h-3 w-3" />New</button>
+            <motion.div key="display" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }} className="px-8 pt-4">
+              <div className="flex items-center justify-between mb-4 max-w-[1100px] mx-auto">
+                <h2 className="text-[13px] font-medium text-white/35">{displayTitle}</h2>
+                <button onClick={reset} className="text-[10px] text-white/15 hover:text-white/40 transition-colors flex items-center gap-1"><X className="h-3 w-3" />New</button>
               </div>
               <DailyBriefing />
             </motion.div>
@@ -216,7 +235,6 @@ export function HomeContent() {
         </AnimatePresence>
       </div>
 
-      {/* ── INPUT BAR ── */}
       <div className="shrink-0 relative z-10 px-6 pb-4 pt-2">
         <AnimatePresence>
           {!hasDisplay && (
