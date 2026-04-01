@@ -15,6 +15,7 @@ import { FunnelChart } from "@/components/shared/FunnelChart"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
+import { ProgressiveBlur } from "@/components/ui/progressive-blur"
 
 /* ── Data ── */
 const chart7d = kpiHistory.map(k => ({ date: new Date(k.date), revenue: Math.round(k.influencedRevenue / 1000), spend: Math.round(k.paidSpend / 1000) }))
@@ -355,6 +356,21 @@ export function HomeContent() {
                 Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with
                 ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging.
               </p>
+
+              {/* Inline tab bar */}
+              <div className="mn-inline-tabs flex items-center gap-1 mt-4">
+                {sections.map((s) => {
+                  const on = activeSection === s.id
+                  return (
+                    <button key={s.id} onClick={() => scrollTo(s.id)}
+                      className={`mn-inline-tab text-[12px] px-3 py-1.5 rounded-lg transition-all ${
+                        on ? "bg-white text-black font-medium shadow-sm" : "text-white/30 hover:text-white/60 hover:bg-white/[0.04]"
+                      }`}>
+                      {s.label}
+                    </button>
+                  )
+                })}
+              </div>
             </motion.div>
 
             {/* KPI Strip */}
@@ -533,24 +549,9 @@ export function HomeContent() {
         </div>
       </div>
 
-      {/* ═══ BOTTOM FADE ═══ */}
-      <div className="mn-canvas-fade pointer-events-none h-24 -mt-24 relative z-[5]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, transparent 100%)' }} />
-
-      {/* ═══ TAB BAR ═══ */}
-      <div className="mn-tabbar-wrap shrink-0 relative z-10 flex justify-center pb-4 pt-2 -mt-4">
-        <div className="mn-tabbar flex items-center gap-1 rounded-xl bg-white/[0.04] border border-white/[0.06] p-1 backdrop-blur-sm">
-          {sections.map((s) => {
-            const on = activeSection === s.id
-            return (
-              <button key={s.id} onClick={() => scrollTo(s.id)}
-                className={`mn-tabbar-tab text-[12px] px-3.5 py-1.5 rounded-lg transition-all ${
-                  on ? "bg-white text-black font-medium shadow-sm" : "text-white/40 hover:text-white/70 hover:bg-white/[0.06]"
-                }`}>
-                {s.label}
-              </button>
-            )
-          })}
-        </div>
+      {/* ═══ BOTTOM PROGRESSIVE BLUR ═══ */}
+      <div className="mn-canvas-blur-wrap relative shrink-0 h-0">
+        <ProgressiveBlur position="bottom" backgroundColor="rgba(0,0,0,0.9)" height="120px" blurAmount="6px" className="z-[5]" />
       </div>
         </motion.div>
       )}
