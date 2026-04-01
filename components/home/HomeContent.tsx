@@ -211,10 +211,97 @@ function ActivateCard() {
    ═══════════════════════════════════════════════════════════ */
 interface ChatMsg { id: string; role: "user" | "assistant"; text?: string; widget?: React.ReactNode }
 
-const mockResponses: Record<string, { text: string; widget?: () => React.ReactNode }> = {
+function DailyBriefing() {
+  return (
+    <div className="space-y-6">
+      {/* Summary header */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4 }}
+        className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-5">
+        <p className="text-[10px] font-semibold tracking-wider text-white/30 uppercase mb-2">March 31, 2026 · Monday Morning Brief</p>
+        <p className="text-[15px] font-medium text-white/90 leading-relaxed">Good morning, Sarah. <span className="text-sky-400">5 signals</span> surfaced overnight. Attention is up strongly, but owned conversion needs immediate focus. Here's what matters:</p>
+      </motion.div>
+
+      {/* Insight cards carousel */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+        <p className="text-[10px] font-semibold tracking-wider text-white/30 uppercase mb-3">Today's Signals</p>
+        <InsightCarousel />
+      </motion.div>
+
+      {/* Priority actions */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 0.4 }}
+        className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-5">
+        <p className="text-[10px] font-semibold tracking-wider text-white/30 uppercase mb-3">Priority Actions</p>
+        <div className="space-y-3">
+          {[
+            { num: "1", title: "Double down on Family Weekend", desc: "Family audience is +14% — launch a South Florida geo-targeted variant this week.", urgency: "High" },
+            { num: "2", title: "Fix the owned conversion gap", desc: "Attention is up +18% but owned CTR dropped -4%. Rework the short-form CTA flow.", urgency: "High" },
+            { num: "3", title: "Push Premium Suite retargeting", desc: "1,420 high-propensity prospects are ready. Refresh creative and activate on Meta.", urgency: "Medium" },
+          ].map((a, i) => (
+            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.4 + i * 0.1 }}
+              className="flex gap-3 items-start py-2 border-b border-white/[0.04] last:border-0">
+              <div className="h-6 w-6 rounded-full bg-sky-400/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-[11px] font-bold text-sky-400">{a.num}</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-[13px] font-medium text-white/90">{a.title}</p>
+                <p className="text-[11px] text-white/40 mt-0.5 leading-snug">{a.desc}</p>
+              </div>
+              <span className={`text-[9px] px-2 py-0.5 rounded-full shrink-0 ${a.urgency === "High" ? "bg-sky-400/10 text-sky-400" : "bg-white/5 text-white/40"}`}>{a.urgency}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Key metrics strip */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.8, duration: 0.4 }}>
+        <p className="text-[10px] font-semibold tracking-wider text-white/30 uppercase mb-3">Key Metrics</p>
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: "Total Reach", value: "284K", delta: "+12%" },
+            { label: "Owned CTR", value: "1.8%", delta: "-4%" },
+            { label: "Best ROAS", value: "6.1x", delta: "Family" },
+            { label: "Active Segments", value: "5", delta: "15.3K profiles" },
+          ].map((m, i) => (
+            <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 2.0 + i * 0.06 }}
+              className="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3 text-center">
+              <p className="text-[9px] text-white/30 uppercase tracking-wider">{m.label}</p>
+              <p className="text-[20px] font-bold tracking-tight text-white mt-1">{m.value}</p>
+              <p className="text-[10px] text-sky-400/70 mt-0.5">{m.delta}</p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Top movers */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.3, duration: 0.4 }}
+        className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-5">
+        <p className="text-[10px] font-semibold tracking-wider text-white/30 uppercase mb-3">Top Movers This Week</p>
+        <div className="space-y-2">
+          {[
+            { name: "Family Package Buyers", value: "+14%", detail: "3,100 profiles · Miami-Dade & Broward" },
+            { name: "Premium Suite Prospects", value: "+8.1%", detail: "1,420 profiles · Income $250K+" },
+            { name: "Renewal Risk Members", value: "-2.1%", detail: "700 profiles · Churn score > 40%" },
+          ].map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 + i * 0.08 }}
+              className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+              <div>
+                <p className="text-[13px] font-medium text-white/80">{s.name}</p>
+                <p className="text-[10px] text-white/30">{s.detail}</p>
+              </div>
+              <span className={`text-[14px] font-bold tabular-nums ${s.value.startsWith("+") ? "text-sky-400" : "text-sky-400/60"}`}>{s.value}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+const mockResponses: Record<string, { text?: string; widget?: () => React.ReactNode }> = {
   discover: {
-    text: "Here's your morning intelligence brief. **5 signals** surfaced overnight — attention is up strongly, but owned conversion needs work. The family audience is your fastest-growing segment.",
-    widget: () => <InsightCarousel />,
+    widget: () => <DailyBriefing />,
   },
   "person-search": {
     text: "Found **5 high-value prospects** in South Florida matching your criteria. Each scored above 85 on purchase propensity. Here are the top matches:",
@@ -245,6 +332,7 @@ export function HomeContent() {
   const [activeMode, setActiveMode] = useState(0)
   const [inputValue, setInputValue] = useState("")
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([])
+  const [chatTitle, setChatTitle] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -257,6 +345,7 @@ export function HomeContent() {
 
   const sendMock = useCallback((userText: string, modeId: string) => {
     const uid = "u-" + Date.now()
+    if (!chatMessages.length) setChatTitle(userText)
     setChatMessages(prev => [...prev, { id: uid, role: "user", text: userText }])
     setIsTyping(true)
 
@@ -295,22 +384,29 @@ export function HomeContent() {
     <div className="mn-home flex flex-col min-h-screen -mt-9">
       <div className={`mn-home-content relative z-10 flex flex-1 flex-col px-6 transition-all duration-700 ${hasChat ? "pt-6" : "items-center justify-center pt-9"}`}>
 
-        {/* ═══ HERO ═══ */}
-        <AnimatePresence>
-          {!hasChat && (
-            <motion.div key="hero" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -40, scale: 0.95 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col items-center text-center w-full max-w-2xl mx-auto">
-              <AnimatePresence mode="wait">
-                <motion.h1 key={mode.id} initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-                  transition={{ duration: 0.3 }} className="text-2xl font-bold tracking-tight sm:text-3xl text-white mb-6">
-                  {mode.headline}
-                </motion.h1>
-              </AnimatePresence>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* ═══ HEADLINE — centered hero or sticky chat title ═══ */}
+        {!hasChat ? (
+          <motion.div key="hero" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center text-center w-full max-w-2xl mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.h1 key={mode.id} initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
+                transition={{ duration: 0.3 }} className="text-2xl font-bold tracking-tight sm:text-3xl text-white mb-6">
+                {mode.headline}
+              </motion.h1>
+            </AnimatePresence>
+          </motion.div>
+        ) : (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
+            className="shrink-0 w-full max-w-3xl mx-auto flex items-center justify-between mb-4">
+            <h2 className="text-[15px] font-semibold tracking-tight text-white/70">{chatTitle}</h2>
+            <button onClick={() => { setChatMessages([]); setChatTitle(""); setActiveMode(0) }}
+              className="flex items-center gap-1.5 text-[11px] text-white/30 hover:text-white/60 transition-colors">
+              <X className="h-3 w-3" /> New
+            </button>
+          </motion.div>
+        )}
 
         {/* ═══ CHAT MESSAGES ═══ */}
         <AnimatePresence>
@@ -350,14 +446,7 @@ export function HomeContent() {
         {/* ═══ INPUT BAR ═══ */}
         <motion.div layout transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className={`w-full max-w-2xl mx-auto ${hasChat ? "shrink-0 pb-4 pt-2" : ""}`}>
-          {hasChat && (
-            <div className="flex justify-center mb-2">
-              <button onClick={() => { setChatMessages([]); setActiveMode(0) }}
-                className="flex items-center gap-1.5 text-[11px] text-white/30 hover:text-white/60 transition-colors">
-                <X className="h-3 w-3" /> New conversation
-              </button>
-            </div>
-          )}
+
           <div className="flex items-center rounded-full border bg-white/[0.06] border-white/[0.10] hover:border-white/20 focus-within:border-white/25 backdrop-blur-sm transition-all duration-200 px-5 py-3 gap-3">
             <input ref={inputRef} value={inputValue} onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown} placeholder={hasChat ? "Ask a follow-up..." : mode.placeholder}
