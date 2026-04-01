@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en" class="mn-workspace-html">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minerva — Audience Scoring</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --mn-bg:#000;
+  --mn-sf:#0d0d0f;
+  --mn-border:rgba(255,255,255,0.06);
+  --mn-border-h:rgba(255,255,255,0.12);
+  --mn-t1:rgba(255,255,255,0.90);
+  --mn-t2:rgba(255,255,255,0.45);
+  --mn-t3:rgba(255,255,255,0.22);
+  --mn-white:#fff;
+  --mn-r:10px;
+  --mn-g:10px;
+  --mn-font:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Helvetica Neue','DM Sans',sans-serif;
+}
+html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;background:var(--mn-bg);color:var(--mn-t1);font-family:var(--mn-font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;margin:0;padding:0}
+::selection{background:rgba(255,255,255,0.15)}
+
+.mn-workspace-shell{position:fixed;inset:var(--mn-g);display:flex;flex-direction:column;gap:var(--mn-g)}
+
+/* ═══ TOPBAR ═══ */
+.mn-workspace-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:40px;background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);flex-shrink:0}
+.mn-workspace-topbar-left{display:flex;align-items:center;gap:10px}
+.mn-workspace-topbar-logo{display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;letter-spacing:-0.02em}
+.mn-workspace-topbar-logo-icon{width:14px;height:14px;opacity:0.4}
+.mn-workspace-topbar-separator{width:1px;height:14px;background:var(--mn-border)}
+.mn-workspace-topbar-context{font-size:11px;color:var(--mn-t3)}
+.mn-workspace-topbar-context-name{color:var(--mn-t2)}
+.mn-workspace-topbar-right{display:flex;align-items:center;gap:5px}
+.mn-workspace-topbar-btn{height:26px;padding:0 10px;border-radius:5px;border:1px solid var(--mn-border);background:0;color:var(--mn-t2);font-size:10px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--mn-font);display:inline-flex;align-items:center;gap:4px}
+.mn-workspace-topbar-btn:hover{border-color:var(--mn-border-h);color:var(--mn-t1)}
+.mn-workspace-topbar-btn-on{border-color:rgba(255,255,255,0.2);color:var(--mn-t1);background:rgba(255,255,255,0.04)}
+.mn-workspace-topbar-save{height:26px;padding:0 12px;border-radius:5px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:var(--mn-white);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--mn-font);display:inline-flex;align-items:center;gap:4px;transition:all .12s}
+.mn-workspace-topbar-save:hover{background:rgba(255,255,255,0.10)}
+.mn-workspace-topbar-segments{position:relative}
+.mn-workspace-topbar-segments-menu{position:absolute;top:32px;right:0;background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:6px;padding:4px;min-width:200px;z-index:50;display:none}
+.mn-workspace-topbar-segments-menu-open{display:block}
+.mn-workspace-topbar-segments-item{display:block;width:100%;text-align:left;padding:6px 10px;border:0;background:0;color:var(--mn-t2);font-size:11px;font-family:var(--mn-font);cursor:pointer;border-radius:4px;transition:all .12s}
+.mn-workspace-topbar-segments-item:hover{background:rgba(255,255,255,0.04);color:var(--mn-t1)}
+.mn-workspace-topbar-segments-empty{padding:8px 10px;color:var(--mn-t3);font-size:10px}
+
+/* ═══ MAIN ═══ */
+.mn-workspace-main{flex:1;display:flex;gap:var(--mn-g);min-height:0;overflow:hidden}
+
+/* ═══ PANEL ═══ */
+.mn-workspace-panel{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);display:flex;flex-direction:column;overflow:hidden;min-width:0;transition:opacity .2s,flex .25s ease}
+.mn-workspace-panel-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--mn-border);flex-shrink:0}
+.mn-workspace-panel-header-title{font-size:10px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em}
+.mn-workspace-panel-header-meta{font-size:10px;color:var(--mn-t3);font-variant-numeric:tabular-nums}
+.mn-workspace-panel-body{flex:1;overflow-y:auto;overflow-x:hidden}
+.mn-workspace-panel-body::-webkit-scrollbar{width:3px}
+.mn-workspace-panel-body::-webkit-scrollbar-track{background:0}
+.mn-workspace-panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.04);border-radius:2px}
+
+/* ═══ SLIDER ═══ */
+.mn-workspace-slider{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);padding:8px 14px;display:flex;align-items:center;gap:16px;flex-shrink:0;height:56px}
+.mn-workspace-slider-left{min-width:80px}
+.mn-workspace-slider-title{font-size:9px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
+.mn-workspace-slider-range-value{font-size:16px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+.mn-workspace-slider-track-area{flex:1;position:relative;height:28px;display:flex;align-items:center}
+.mn-workspace-slider-track{position:absolute;left:0;right:0;height:2px;background:rgba(255,255,255,0.04);border-radius:1px}
+.mn-workspace-slider-fill{position:absolute;height:2px;background:var(--mn-white);border-radius:1px;opacity:0.5;transition:left 25ms,width 25ms}
+.mn-workspace-slider-histogram{position:absolute;left:0;right:0;bottom:2px;height:14px;display:flex;align-items:flex-end;gap:1px;pointer-events:none}
+.mn-workspace-slider-hist-bar{flex:1;border-radius:1px 1px 0 0;background:rgba(255,255,255,0.025);transition:background .12s;min-width:1px}
+.mn-workspace-slider-hist-bar-on{background:rgba(255,255,255,0.12)}
+.mn-workspace-slider-thumb{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--mn-white);cursor:grab;transform:translateX(-50%);z-index:3;transition:box-shadow .1s,transform .06s}
+.mn-workspace-slider-thumb:hover{box-shadow:0 0 0 4px rgba(255,255,255,0.1);transform:translateX(-50%) scale(1.1)}
+.mn-workspace-slider-thumb:active{cursor:grabbing;box-shadow:0 0 0 6px rgba(255,255,255,0.12)}
+.mn-workspace-slider-stats{display:flex;gap:14px}
+.mn-workspace-slider-stat{text-align:center;min-width:44px}
+.mn-workspace-slider-stat-value{font-size:13px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.mn-workspace-slider-stat-label{font-size:8px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+
+/* ═══ TABLE ═══ */
+.mn-workspace-search{padding:7px 14px;border-bottom:1px solid var(--mn-border);position:relative}
+.mn-workspace-search-icon{position:absolute;left:21px;top:50%;transform:translateY(-50%);color:var(--mn-t3);width:11px;height:11px;pointer-events:none}
+.mn-workspace-search-input{width:100%;background:rgba(255,255,255,0.02);border:1px solid transparent;border-radius:5px;padding:5px 7px 5px 26px;color:var(--mn-t1);font-size:11px;font-family:var(--mn-font);outline:0;transition:border-color .15s}
+.mn-workspace-search-input:focus{border-color:rgba(255,255,255,0.12)}
+.mn-workspace-search-input::placeholder{color:var(--mn-t3)}
+.mn-workspace-table{width:100%;border-collapse:collapse}
+.mn-workspace-table-thead{position:sticky;top:0;z-index:1}
+.mn-workspace-table-th{padding:5px 10px;text-align:left;font-size:9px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.05em;background:var(--mn-sf);border-bottom:1px solid var(--mn-border);white-space:nowrap;cursor:pointer;user-select:none;transition:color .12s}
+.mn-workspace-table-th:hover{color:var(--mn-t2)}
+.mn-workspace-table-th-active{color:var(--mn-t1)}
+.mn-workspace-table-th-arrow{font-size:8px;margin-left:2px;opacity:0.4}
+.mn-workspace-table-row{border-bottom:1px solid rgba(255,255,255,0.02);cursor:pointer;transition:background .12s}
+.mn-workspace-table-row:hover{background:rgba(255,255,255,0.02)}
+.mn-workspace-table-row-selected{background:rgba(255,255,255,0.06) !important;box-shadow:inset 2px 0 0 rgba(255,255,255,0.35)}
+.mn-workspace-table-td{padding:5px 10px;font-size:11px;white-space:nowrap;vertical-align:middle;color:var(--mn-t2)}
+.mn-workspace-table-person{display:flex;align-items:center;gap:8px}
+.mn-workspace-table-avatar{width:24px;height:24px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.03);flex-shrink:0}
+.mn-workspace-table-name{font-weight:500;color:var(--mn-t1);font-size:11px}
+.mn-workspace-table-subtitle{font-size:9px;color:var(--mn-t3)}
+.mn-workspace-score-badge{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:17px;border-radius:3px;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;padding:0 3px;background:rgba(255,255,255,0.04);color:var(--mn-t1)}
+.mn-workspace-score-badge-high{background:rgba(255,255,255,0.10);color:var(--mn-white)}
+.mn-workspace-channel-dot{display:inline-block;width:4px;height:4px;border-radius:50%;margin-right:3px}
+.mn-workspace-channel-on{background:var(--mn-white);opacity:0.6}
+.mn-workspace-channel-off{background:rgba(255,255,255,0.06)}
+.mn-workspace-table-overflow{text-align:center;color:var(--mn-t3);padding:8px;font-size:10px}
+.mn-workspace-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--mn-t3);font-size:11px;gap:6px}
+
+/* ═══ DETAIL ═══ */
+.mn-workspace-detail-section{padding:12px 14px;border-bottom:1px solid var(--mn-border)}
+.mn-workspace-detail-section:last-child{border-bottom:0}
+.mn-workspace-detail-label{font-size:9px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.mn-workspace-detail-hero{font-size:26px;font-weight:700;letter-spacing:-0.03em;line-height:1;margin-bottom:2px;transition:opacity .15s}
+.mn-workspace-detail-hero-sub{font-size:11px;color:var(--mn-t3)}
+.mn-workspace-detail-metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.mn-workspace-detail-metric{background:rgba(255,255,255,0.015);border:1px solid var(--mn-border);border-radius:6px;padding:7px 9px}
+.mn-workspace-detail-metric-label{font-size:8px;color:var(--mn-t3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:1px}
+.mn-workspace-detail-metric-value{font-size:14px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;transition:opacity .12s}
+/* Multi-select */
+.mn-workspace-select-bar{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid var(--mn-border);font-size:10px;color:var(--mn-t2);background:rgba(255,255,255,0.02)}
+.mn-workspace-select-bar-count{font-weight:600;color:var(--mn-t1)}
+.mn-workspace-select-bar-actions{margin-left:auto;display:flex;gap:3px}
+.mn-workspace-detail-narrative{font-size:11px;line-height:1.7;color:var(--mn-t2)}
+.mn-workspace-detail-narrative b{color:var(--mn-t1);font-weight:600}
+.mn-workspace-delta-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.mn-workspace-delta-label{width:72px;color:var(--mn-t2);text-align:right;flex-shrink:0;font-size:10px}
+.mn-workspace-delta-track{flex:1;height:3px;background:rgba(255,255,255,0.02);border-radius:2px;overflow:hidden}
+.mn-workspace-delta-fill{height:100%;border-radius:2px;transition:width .3s ease}
+.mn-workspace-delta-fill-pos{background:var(--mn-white);opacity:0.35}
+.mn-workspace-delta-fill-neg{background:var(--mn-white);opacity:0.15}
+.mn-workspace-delta-value{width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:10px;color:var(--mn-t2)}
+.mn-workspace-dist-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.mn-workspace-dist-label{font-size:10px;color:var(--mn-t2);width:56px;flex-shrink:0;text-align:right}
+.mn-workspace-dist-track{flex:1;height:3px;background:rgba(255,255,255,0.02);border-radius:2px;overflow:hidden}
+.mn-workspace-dist-fill{height:100%;border-radius:2px;background:var(--mn-white);opacity:0.25;transition:width .3s ease}
+.mn-workspace-dist-value{font-size:10px;color:var(--mn-t3);width:30px;font-variant-numeric:tabular-nums;text-align:right}
+.mn-workspace-reach-row{display:flex;align-items:center;gap:6px;padding:3px 0}
+.mn-workspace-reach-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;background:var(--mn-white)}
+.mn-workspace-reach-dot-low{opacity:0.15}
+.mn-workspace-reach-dot-mid{opacity:0.35}
+.mn-workspace-reach-dot-high{opacity:0.7}
+.mn-workspace-reach-name{font-size:11px;color:var(--mn-t2);flex:1}
+.mn-workspace-reach-count{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.mn-workspace-reach-pct{font-size:10px;color:var(--mn-t3);width:36px;text-align:right}
+.mn-workspace-spark-grid{display:flex;gap:5px}
+.mn-workspace-spark-card{flex:1;background:rgba(255,255,255,0.012);border:1px solid var(--mn-border);border-radius:6px;padding:6px 6px 3px}
+.mn-workspace-spark-title{font-size:8px;color:var(--mn-t3);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;display:block}
+.mn-workspace-spark-bars{display:flex;align-items:flex-end;gap:1px;height:22px}
+.mn-workspace-spark-bar{flex:1;border-radius:1px 1px 0 0;transition:height .3s ease;min-width:1px}
+.mn-workspace-spark-bar-on{background:rgba(255,255,255,0.3)}
+.mn-workspace-spark-bar-off{background:rgba(255,255,255,0.03)}
+.mn-workspace-spark-axis{font-size:7px;color:var(--mn-t3);text-align:center;margin-top:1px;opacity:0.4}
+.mn-workspace-action-row{display:flex;gap:4px;flex-wrap:wrap}
+.mn-workspace-action-btn{height:24px;padding:0 9px;border-radius:5px;border:1px solid var(--mn-border);background:0;color:var(--mn-t2);font-size:10px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--mn-font);display:inline-flex;align-items:center}
+.mn-workspace-action-btn:hover{border-color:var(--mn-border-h);color:var(--mn-t1)}
+.mn-workspace-action-btn-primary{border-color:rgba(255,255,255,0.18);color:var(--mn-t1);background:rgba(255,255,255,0.04)}
+.mn-workspace-action-btn-primary:hover{background:rgba(255,255,255,0.08)}
+
+/* ═══ INTELLIGENCE CARD ═══ */
+.mn-workspace-intel{padding:14px;display:flex;flex-direction:column;height:100%}
+.mn-workspace-intel-body{flex:1;display:flex;flex-direction:column;justify-content:center}
+.mn-workspace-intel-verdict{font-size:13px;font-weight:600;letter-spacing:-0.01em;line-height:1.5;color:var(--mn-t1);margin-bottom:8px;animation:mn-in .25s ease both}
+.mn-workspace-intel-detail{font-size:11px;line-height:1.7;color:var(--mn-t2);margin-bottom:12px;animation:mn-in .3s ease .05s both}
+.mn-workspace-intel-detail b{color:var(--mn-t1);font-weight:600}
+.mn-workspace-intel-confidence{font-size:9px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:12px}
+.mn-workspace-intel-refresh{height:24px;padding:0 10px;border-radius:5px;border:1px solid var(--mn-border);background:0;color:var(--mn-t2);font-size:10px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--mn-font);display:inline-flex;align-items:center;gap:4px;align-self:flex-start}
+.mn-workspace-intel-refresh:hover{border-color:var(--mn-border-h);color:var(--mn-t1)}
+.mn-workspace-intel-filters{display:flex;flex-wrap:wrap;gap:3px;margin-top:auto;padding-top:10px;border-top:1px solid var(--mn-border)}
+.mn-workspace-intel-filter{height:22px;padding:0 8px;border-radius:11px;border:1px solid var(--mn-border);background:0;color:var(--mn-t3);font-size:9px;cursor:pointer;transition:all .12s;font-family:var(--mn-font);display:inline-flex;align-items:center}
+.mn-workspace-intel-filter:hover{border-color:var(--mn-border-h);color:var(--mn-t1)}
+.mn-workspace-intel-filter-on{border-color:rgba(255,255,255,0.2);color:var(--mn-t1);background:rgba(255,255,255,0.04)}
+
+/* ═══ PROFILE (inline column) ═══ */
+.mn-workspace-profile-hero{padding:12px 14px;border-bottom:1px solid var(--mn-border)}
+.mn-workspace-profile-identity{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.mn-workspace-profile-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.mn-workspace-profile-name{font-size:14px;font-weight:600;letter-spacing:-0.02em}
+.mn-workspace-profile-role{font-size:10px;color:var(--mn-t3)}
+.mn-workspace-profile-score-area{display:flex;align-items:center;gap:10px}
+.mn-workspace-profile-score-number{font-size:28px;font-weight:700;letter-spacing:-0.04em;line-height:1}
+.mn-workspace-profile-score-context{font-size:11px;font-weight:500}
+.mn-workspace-profile-score-desc{font-size:9px;color:var(--mn-t3)}
+.mn-workspace-profile-section{padding:12px 14px;border-bottom:1px solid var(--mn-border)}
+.mn-workspace-profile-section:last-child{border-bottom:0}
+.mn-workspace-profile-field{display:flex;justify-content:space-between;padding:2px 0;font-size:11px}
+.mn-workspace-profile-field-key{color:var(--mn-t3)}
+.mn-workspace-profile-field-value{color:var(--mn-t1);font-weight:500}
+.mn-workspace-profile-insight{font-size:11px;line-height:1.7;color:var(--mn-t2);background:rgba(255,255,255,0.02);border:1px solid var(--mn-border);border-radius:6px;padding:9px 11px}
+.mn-workspace-tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:500;background:rgba(255,255,255,0.03);border:1px solid var(--mn-border);color:var(--mn-t2);margin:1px}
+.mn-workspace-tag-wrap{display:flex;flex-wrap:wrap;gap:2px}
+.mn-workspace-profile-label{font-size:9px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+
+/* ═══ MODAL ═══ */
+.mn-workspace-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
+.mn-workspace-modal-open{opacity:1;pointer-events:auto}
+.mn-workspace-modal-box{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);padding:18px;width:300px;max-width:90vw;transform:translateY(8px);transition:transform .2s cubic-bezier(0.22,1,0.36,1)}
+.mn-workspace-modal-open .mn-workspace-modal-box{transform:translateY(0)}
+.mn-workspace-modal-title{font-size:13px;font-weight:600;margin-bottom:10px}
+.mn-workspace-modal-input{width:100%;background:rgba(255,255,255,0.02);border:1px solid var(--mn-border);border-radius:5px;padding:7px 9px;color:var(--mn-t1);font-size:11px;font-family:var(--mn-font);outline:0;margin-bottom:12px}
+.mn-workspace-modal-input:focus{border-color:rgba(255,255,255,0.12)}
+.mn-workspace-modal-footer{display:flex;gap:5px;justify-content:flex-end}
+
+/* ═══ TOAST ═══ */
+.mn-workspace-toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--mn-sf);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px 14px;font-size:11px;color:var(--mn-t1);font-weight:500;z-index:300;opacity:0;pointer-events:none;transition:all .25s cubic-bezier(0.22,1,0.36,1)}
+.mn-workspace-toast-show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Modes */
+.mn-workspace-slider-modes{display:flex;gap:3px;margin-right:4px}
+.mn-workspace-slider-mode{height:20px;padding:0 7px;border-radius:10px;border:1px solid var(--mn-border);background:0;color:var(--mn-t3);font-size:9px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--mn-font);display:inline-flex;align-items:center}
+.mn-workspace-slider-mode:hover{border-color:var(--mn-border-h);color:var(--mn-t2)}
+.mn-workspace-slider-mode-on{border-color:rgba(255,255,255,0.18);color:var(--mn-t1);background:rgba(255,255,255,0.04)}
+.mn-workspace-slider-mode-desc{color:var(--mn-t3);font-weight:400;margin-left:2px}
+/* Geo */
+.mn-workspace-geo-row{display:flex;align-items:center;gap:5px;padding:2px 0;font-size:10px}
+.mn-workspace-geo-name{color:var(--mn-t2);flex:1}
+.mn-workspace-geo-ct{color:var(--mn-t1);font-weight:600;font-variant-numeric:tabular-nums;min-width:24px;text-align:right}
+.mn-workspace-geo-bar{width:40px;height:3px;background:rgba(255,255,255,0.02);border-radius:2px;overflow:hidden}
+.mn-workspace-geo-fill{height:100%;background:var(--mn-white);opacity:0.2;border-radius:2px;transition:width .3s ease}
+
+/* Chart */
+.mn-workspace-chart-wrap{position:relative;height:90px;margin:4px 0}
+/* News */
+.mn-workspace-news-item{padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+.mn-workspace-news-item:last-child{border-bottom:0}
+.mn-workspace-news-title{font-size:10px;color:var(--mn-t1);font-weight:500;line-height:1.4}
+.mn-workspace-news-meta{font-size:8px;color:var(--mn-t3);margin-top:1px}
+.mn-workspace-profile-close{margin-left:auto;height:20px;padding:0 6px;font-size:9px}
+/* Entrance */
+@keyframes mn-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.mn-workspace-in{opacity:0;animation:mn-in .3s ease forwards}
+</style>
+</head>
+<body class="mn-workspace-body">
+<div class="mn-workspace-shell" id="app">
+  <div class="mn-workspace-topbar mn-workspace-in" style="animation-delay:0s">
+    <div class="mn-workspace-topbar-left">
+      <div class="mn-workspace-topbar-logo"><svg class="mn-workspace-topbar-logo-icon" viewBox="0 0 223 223" fill="currentColor"><path d="M87.84 150.07C92.88 142.7 98.2 133.53 104.08 122.05C105.4 119.36 106.59 117.07 107.66 115.16C98.69 124.76 81.55 151.08 63.49 145.82C39.12 138.73 85.48 108.13 28.98 136.22C28.26 136.58 27.54 136.83 26.82 137.02C32.77 143.14 38.5 149.47 44.26 155.66C47.9 159.58 51.48 163.94 55.55 167.4C61.66 172.6 69.13 168.97 74.63 164.76C79.87 160.75 84.13 155.49 87.84 150.07Z"/><path d="M47.86 122.86C54.41 123.73 61.14 123.03 67.59 121.82C76.37 120.18 86.61 117.45 98.89 113.49C101.73 112.52 104.19 111.75 106.3 111.15C93.17 111.59 62.43 118.09 53.38 101.6C41.16 79.36 95.58 90.49 35.77 70.41C35.01 70.15 34.33 69.82 33.69 69.45C33.57 77.98 33.13 86.52 32.82 94.96C32.63 100.3 32.08 105.91 32.51 111.24C33.15 119.24 41 121.95 47.86 122.86Z"/><path d="M109.84 98.57C110.8 101.41 111.58 103.87 112.18 105.98C111.73 92.85 105.24 62.12 121.73 53.06C143.97 40.84 132.83 95.26 152.92 35.45C153.17 34.69 153.5 34.01 153.87 33.37C145.34 33.25 136.81 32.81 128.36 32.5C123.03 32.31 117.41 31.76 112.08 32.19C104.08 32.83 101.37 40.68 100.46 47.55C99.59 54.09 100.29 60.82 101.5 67.27C103.15 76.05 105.87 86.29 109.84 98.57Z"/><path d="M73.25 87.52C80.62 92.57 89.79 97.88 101.27 103.76C103.96 105.09 106.25 106.28 108.17 107.34C98.57 98.37 72.24 81.23 77.5 63.17C84.59 38.81 115.19 85.16 87.1 28.67C86.74 27.94 86.49 27.22 86.3 26.5C80.18 32.45 73.85 38.19 67.66 43.94C63.75 47.58 59.39 51.16 55.92 55.23C50.72 61.34 54.35 68.81 58.56 74.31C62.57 79.55 67.83 83.81 73.25 87.52Z"/><path d="M113.8 124.43C112.84 121.59 112.07 119.13 111.46 117.02C111.91 130.15 118.4 160.89 101.91 169.94C79.67 182.16 90.81 127.74 70.73 187.55C70.47 188.31 70.14 188.99 69.77 189.63C78.3 189.75 86.83 190.19 95.28 190.5C100.61 190.69 106.23 191.24 111.56 190.81C119.56 190.17 122.27 182.32 123.18 175.46C124.05 168.91 123.35 162.18 122.14 155.73C120.49 146.95 117.77 136.71 113.8 124.43Z"/><path d="M150.39 135.48C143.02 130.43 133.85 125.12 122.36 119.24C119.68 117.91 117.39 116.72 115.47 115.66C125.06 124.63 151.4 141.77 146.14 159.83C139.05 184.2 108.45 137.85 136.54 194.34C136.9 195.06 137.15 195.78 137.34 196.5C143.45 190.55 149.79 184.81 155.98 179.06C159.89 175.42 164.25 171.84 167.72 167.77C172.92 161.66 169.29 154.19 165.08 148.69C161.06 143.45 155.81 139.19 150.39 135.48Z"/><path d="M168.09 55.6C161.98 50.4 154.51 54.03 149.01 58.24C143.77 62.26 139.51 67.51 135.8 72.93C130.76 80.3 125.44 89.47 119.56 100.96C118.24 103.64 117.05 105.92 115.98 107.84C124.95 98.24 142.09 71.93 160.15 77.18C184.51 84.27 138.16 114.87 194.65 86.78C195.38 86.42 196.1 86.17 196.82 85.98C190.87 79.87 185.13 73.53 179.38 67.34C175.74 63.43 172.16 59.07 168.09 55.6Z"/><path d="M175.77 100.14C169.23 99.27 162.5 99.97 156.05 101.18C147.27 102.83 137.03 105.55 124.75 109.52C121.91 110.48 119.45 111.25 117.34 111.86C130.47 111.41 161.21 104.92 170.26 121.41C182.48 143.65 128.06 132.51 187.87 152.59C188.63 152.85 189.31 153.18 189.95 153.55C190.07 145.02 190.51 136.49 190.82 128.04C191.01 122.71 191.56 117.09 191.13 111.76C190.49 103.76 182.64 101.05 175.77 100.14Z"/></svg><span>Minerva</span></div>
+      <div class="mn-workspace-topbar-separator"></div>
+      <div class="mn-workspace-topbar-context"><span class="mn-workspace-topbar-context-name">Miami Dolphins</span> \u00b7 Campaign Fit Scoring</div>
+    </div>
+    <div class="mn-workspace-topbar-right">
+      <div class="mn-workspace-topbar-segments"><button class="mn-workspace-topbar-btn" id="segBtn" onclick="togSegs()">Saved <span id="segCt"></span></button><div class="mn-workspace-topbar-segments-menu" id="segMenu"></div></div>
+      <button class="mn-workspace-topbar-save" onclick="openSave()">Save Segment</button>
+    </div>
+  </div>
+  <div class="mn-workspace-main" id="mainArea">
+    <!-- DETAIL FIRST -->
+    <div class="mn-workspace-panel mn-workspace-in" id="pDet" style="flex:0 0 320px;animation-delay:.05s">
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">Segment</span><span class="mn-workspace-panel-header-meta" id="dr"></span></div>
+      <div class="mn-workspace-panel-body" id="db"></div>
+    </div>
+    <!-- TABLE SECOND -->
+    <div class="mn-workspace-panel mn-workspace-in" id="pTbl" style="flex:1;animation-delay:.1s">
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">People</span><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
+      <div class="mn-workspace-search"><svg class="mn-workspace-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="mn-workspace-search-input" type="text" placeholder="Search..." id="si" oninput="ren()"></div>
+      <div class="mn-workspace-panel-body" id="tb"></div>
+    </div>
+    <!-- PROFILE INLINE (hidden until row click) -->
+    <div class="mn-workspace-panel" id="pProf" style="flex:0 0 300px;display:none">
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">Profile</span><button class="mn-workspace-topbar-btn mn-workspace-profile-close" onclick="cpf()">\u2715 Close</button></div>
+      <div class="mn-workspace-panel-body" id="profBody"></div>
+    </div>
+    <!-- INTELLIGENCE CARD (always visible) -->
+    <div class="mn-workspace-panel" id="pIntel" style="flex:0 0 240px">
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">Verdict</span></div>
+      <div class="mn-workspace-panel-body" id="intelBody"></div>
+    </div>
+  </div>
+  <div class="mn-workspace-slider mn-workspace-in" style="animation-delay:.15s">
+    <div class="mn-workspace-slider-left"><div class="mn-workspace-slider-title">Score Range</div><div class="mn-workspace-slider-range-value" id="sv">0 – 99</div></div>
+    <div class="mn-workspace-slider-modes" id="modes"></div>
+    <div class="mn-workspace-slider-track-area" id="sc" onclick="trackClick(event)">
+      <div class="mn-workspace-slider-track"></div>
+      <div class="mn-workspace-slider-histogram" id="shist"></div>
+      <div class="mn-workspace-slider-fill" id="sf"></div>
+      <div class="mn-workspace-slider-thumb" id="tlo" data-t="lo"></div>
+      <div class="mn-workspace-slider-thumb" id="thi" data-t="hi"></div>
+    </div>
+    <div class="mn-workspace-slider-stats">
+      <div class="mn-workspace-slider-stat"><div class="mn-workspace-slider-stat-value" id="stA"></div><div class="mn-workspace-slider-stat-label">Audience</div></div>
+      <div class="mn-workspace-slider-stat"><div class="mn-workspace-slider-stat-value" id="stP"></div><div class="mn-workspace-slider-stat-label">%</div></div>
+      <div class="mn-workspace-slider-stat"><div class="mn-workspace-slider-stat-value" id="stE"></div><div class="mn-workspace-slider-stat-label">Email</div></div>
+      <div class="mn-workspace-slider-stat"><div class="mn-workspace-slider-stat-value" id="stS"></div><div class="mn-workspace-slider-stat-label">Avg</div></div>
+    </div>
+  </div>
+</div>
+<div class="mn-workspace-modal" id="saveModal"><div class="mn-workspace-modal-box"><div class="mn-workspace-modal-title">Save Segment</div><input class="mn-workspace-modal-input" id="segName" placeholder="e.g. Premium 75+"><div class="mn-workspace-modal-footer"><button class="mn-workspace-topbar-btn" onclick="closeSave()">Cancel</button><button class="mn-workspace-topbar-save" onclick="doSave()">Save</button></div></div></div>
+<div class="mn-workspace-toast" id="toast"></div>
+
+<script>
+var R=(function(s){return function(){var t=(s+=0x6d2b79f5);t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}})(42);
+function pk(a){return a[Math.floor(R()*a.length)]}
+function cl(v,a,b){return Math.max(a,Math.min(b,v))}
+var FM="James,Marcus,David,Robert,Carlos,Michael,Kevin,Andre,Thomas,Brandon,Derek,Ryan,Chris,Alejandro,Daniel".split(",");
+var FF="Ashley,Sofia,Jasmine,Elena,Maria,Jessica,Nicole,Vanessa,Christina,Samantha,Gabriella,Michelle,Diana,Rachel,Sarah".split(",");
+var LN="Martinez,Johnson,Chen,Thompson,Williams,Garcia,Rivera,Reyes,Patel,Kim,Brooks,Campbell,Ramirez,Foster,Mitchell,Sullivan,Hernandez,Wong,Blackwell,Okonkwo".split(",");
+var CT="Miami FL,Fort Lauderdale FL,Coral Gables FL,Aventura FL,Miami Beach FL,Pembroke Pines FL,Doral FL,Hialeah FL,Boca Raton FL,West Palm Beach FL,Hollywood FL,Weston FL".split(",").map(function(s){var p=s.split(" ");return[p.slice(0,-1).join(" "),p[p.length-1]]});
+var TT="Marketing Manager,Managing Director,CEO,Content Strategist,Architect,Sr VP Ops,Physician,Developer,Financial Advisor,Director,Sales Manager,Engineer,Business Owner,Account Exec,Attorney,Professor".split(",");
+var CO="Carnival Corp,JPM Financial,Baptist Health,Gensler,Vice Media,FIU,Royal Caribbean,Citadel,AutoNation,Ryder System,Lennar Corp,Spirit Airlines".split(",");
+var IB=["<$50k","$50-100k","$100-250k","$250-500k","$500k+"];
+var WB=["<$100k","$100-250k","$250-500k","$500k-1M","$1M+"];
+var SG="Premium Suite,Renewal Risk,Family Ticket,Lapsed High-Value,Game Day Upsell,Season Holder,Corporate Suite,Digital-First".split(",");
+var PM=[],PF=[];for(var i=0;i<15;i++){PM.push("https://randomuser.me/api/portraits/men/"+(20+i*3)+".jpg");PF.push("https://randomuser.me/api/portraits/women/"+(20+i*3)+".jpg")}
+var PP=[];
+for(var i=0;i<300;i++){var sc=Math.floor(R()*100),t=sc/99,isF=R()>.52+t*.06,fn=isF?pk(FF):pk(FM),ln=pk(LN),ct=pk(CT),ph=isF?pk(PF):pk(PM);
+var ag=Math.floor((isF?24:26)+R()*15+t*25),ii=cl(Math.floor(t*4.5+(R()-.5)*2),0,4),wi=cl(Math.floor(t*4.5+(R()-.5)*2),0,4);
+var sg=[];var ns=1+Math.floor(R()*2);for(var j=0;j<ns;j++){var z=pk(SG);if(sg.indexOf(z)<0)sg.push(z)}
+PP.push({id:i,name:fn+" "+ln,score:sc,age:ag,gender:isF?"F":"M",city:ct[0],state:ct[1],title:pk(TT),company:pk(CO),income:IB[ii],wealth:WB[wi],owner:R()<.35+t*.40,edu:R()<.3+t*.3?"Graduate":"Bachelor's",email:R()<.60+t*.35,phone:R()<.40+t*.45,addr:R()<.50+t*.40,photo:ph,segs:sg})}
+PP.sort(function(a,b){return b.score-a.score});
+var histBins=[];for(var i=0;i<50;i++)histBins.push(0);PP.forEach(function(p){histBins[Math.min(Math.floor(p.score/2),49)]++});var histMax=Math.max.apply(null,histBins);
+(function(){var c=document.getElementById("shist"),h="";for(var i=0;i<50;i++)h+='<div class="mn-workspace-slider-hist-bar" style="height:'+(histBins[i]/histMax*100)+'%"><\/div>';c.innerHTML=h})();
+
+var sLo=0,sHi=99,selR=null,selMulti=[],sTerm="",sortKey="score",sortDir=-1,extraFilters=null;
+var savedSegs=[];
+var scEl=document.getElementById("sc"),tlo=document.getElementById("tlo"),thi=document.getElementById("thi"),sfEl=document.getElementById("sf"),drag=null;
+var distChart=null,tblTimer=null;
+
+// Mode presets
+var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,desc:"Top 20%"},{name:"Balanced",lo:60,hi:99,desc:"Top 40%"},{name:"Scale",lo:35,hi:99,desc:"Top 65%"}];
+var curMode="All";
+(function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
+function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;usv();ren();
+var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}}
+
+// Track click to jump nearest thumb
+function trackClick(e){if(e.target.classList.contains("mn-workspace-slider-thumb"))return;
+var s=x2s(e.clientX),dLo=Math.abs(s-sLo),dHi=Math.abs(s-sHi);
+if(dLo<=dHi){sLo=Math.min(s,sHi-1)}else{sHi=Math.max(s,sLo+1)}
+curMode="Custom";var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++)btns[i].classList.remove("mn-workspace-slider-mode-on");
+usv();ren()}
+
+function usv(){var lo=(sLo/99)*100,hi=(sHi/99)*100;tlo.style.left=lo+"%";thi.style.left=hi+"%";sfEl.style.left=lo+"%";sfEl.style.width=(hi-lo)+"%";document.getElementById("sv").textContent=sLo+" \u2013 "+sHi;
+var bars=document.getElementById("shist").children;for(var i=0;i<bars.length;i++){var bLo=i*2,bHi=i*2+1;if(bHi>=sLo&&bLo<=sHi)bars[i].classList.add("mn-workspace-slider-hist-bar-on");else bars[i].classList.remove("mn-workspace-slider-hist-bar-on")}}
+function x2s(cx){var r=scEl.getBoundingClientRect();return cl(Math.round(((cx-r.left)/r.width)*99),0,99)}
+function onPD(e){e.preventDefault();drag=e.target.dataset.t;document.addEventListener("pointermove",onPM);document.addEventListener("pointerup",onPU)}
+function onPM(e){if(!drag)return;var s=x2s(e.clientX);if(drag==="lo")sLo=Math.min(s,sHi-1);else sHi=Math.max(s,sLo+1);
+if(curMode!=="Custom"){curMode="Custom";var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++)btns[i].classList.remove("mn-workspace-slider-mode-on")}
+usv();rdet();if(tblTimer)clearTimeout(tblTimer);tblTimer=setTimeout(rtbl,40)}
+function onPU(){drag=null;document.removeEventListener("pointermove",onPM);document.removeEventListener("pointerup",onPU)}
+tlo.addEventListener("pointerdown",onPD);thi.addEventListener("pointerdown",onPD);
+
+function gf(){var l=PP.filter(function(p){return p.score>=sLo&&p.score<=sHi});
+if(sTerm){var q=sTerm.toLowerCase();l=l.filter(function(p){return p.name.toLowerCase().indexOf(q)>=0||p.title.toLowerCase().indexOf(q)>=0||p.city.toLowerCase().indexOf(q)>=0})}
+if(extraFilters){if(extraFilters.ownerOnly)l=l.filter(function(p){return p.owner});if(extraFilters.incomeMin)l=l.filter(function(p){return IB.indexOf(p.income)>=extraFilters.incomeMin});if(extraFilters.emailOnly)l=l.filter(function(p){return p.email});if(extraFilters.city)l=l.filter(function(p){return p.city.toLowerCase().indexOf(extraFilters.city.toLowerCase())>=0})}
+l.sort(function(a,b){var va=a[sortKey],vb=b[sortKey];if(typeof va==="string")return va.localeCompare(vb)*sortDir;if(typeof va==="boolean")return((va?1:0)-(vb?1:0))*sortDir;return(va-vb)*sortDir});return l}
+function pct(n,d){return d?((n/d)*100).toFixed(1)+"%":"0%"}
+function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("mn-workspace-toast-show");setTimeout(function(){t.classList.remove("mn-workspace-toast-show")},2200)}
+
+function rtbl(){sTerm=document.getElementById("si").value;var l=gf(),n=l.length;
+document.getElementById("tc").textContent=n+(extraFilters?" \u00b7 filtered":"");var bd=document.getElementById("tb");
+if(!n){bd.innerHTML='<div class="mn-workspace-empty">No records match<\/div>';return}
+var cols=[["name","Person"],["score","Score"],["age","Age"],["income","Income"],["owner","Home"]];
+var h="";
+// Multi-select bar
+if(selMulti.length>1){h+='<div class="mn-workspace-select-bar"><span class="mn-workspace-select-bar-count">'+selMulti.length+' selected<\/span><div class="mn-workspace-select-bar-actions"><button class="mn-workspace-action-btn" onclick="exportSelected()">Export Selected<\/button><button class="mn-workspace-action-btn" onclick="toast(\'Added '+selMulti.length+' to campaign\')">Add to Campaign<\/button><button class="mn-workspace-action-btn" onclick="selMulti=[];ren()">Clear<\/button><\/div><\/div>'}
+h+='<table class="mn-workspace-table"><thead class="mn-workspace-table-thead"><tr>';
+cols.forEach(function(c){var act=sortKey===c[0];h+='<th class="mn-workspace-table-th'+(act?" mn-workspace-table-th-active":"")+'" onclick="doSort(\''+c[0]+'\')">'+c[1]+(act?'<span class="mn-workspace-table-th-arrow">'+(sortDir>0?"\u25B2":"\u25BC")+'<\/span>':'')+'<\/th>'});
+h+='<th class="mn-workspace-table-th">Reach<\/th><\/tr><\/thead><tbody>';
+var mx=Math.min(l.length,120);
+for(var i=0;i<mx;i++){var p=l[i],badge=p.score>=75?"mn-workspace-score-badge-high":"";
+var isSel=selR===p.id||selMulti.indexOf(p.id)>=0;
+h+='<tr class="mn-workspace-table-row'+(isSel?" mn-workspace-table-row-selected":"")+'" onclick="rowClick('+p.id+',event)">';
+h+='<td class="mn-workspace-table-td"><div class="mn-workspace-table-person"><img class="mn-workspace-table-avatar" src="'+p.photo+'" loading="lazy"><div><div class="mn-workspace-table-name">'+p.name+'<\/div><div class="mn-workspace-table-subtitle">'+p.title+' \u00b7 '+p.city+'<\/div><\/div><\/div><\/td>';
+h+='<td class="mn-workspace-table-td"><span class="mn-workspace-score-badge '+badge+'">'+p.score+'<\/span><\/td>';
+h+='<td class="mn-workspace-table-td">'+p.age+'<\/td><td class="mn-workspace-table-td">'+p.income+'<\/td><td class="mn-workspace-table-td">'+(p.owner?"Own":"Rent")+'<\/td>';
+h+='<td class="mn-workspace-table-td"><span class="mn-workspace-channel-dot '+(p.email?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><span class="mn-workspace-channel-dot '+(p.phone?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><span class="mn-workspace-channel-dot '+(p.addr?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><\/td><\/tr>'}
+if(l.length>mx)h+='<tr><td colspan="6" class="mn-workspace-table-overflow">+'+(l.length-mx)+' more<\/td><\/tr>';
+h+='<\/tbody><\/table>';bd.innerHTML=h}
+function rowClick(id,e){if(e.shiftKey||e.metaKey||e.ctrlKey){var idx=selMulti.indexOf(id);if(idx>=0)selMulti.splice(idx,1);else selMulti.push(id);selR=null;rtbl();return}selMulti=[];opf(id)}
+function exportSelected(){if(selMulti.length<1)return;var sel=PP.filter(function(p){return selMulti.indexOf(p.id)>=0});
+var rows=["Name,Score,Age,Gender,City,State,Income,Wealth,Homeowner,Email,Phone,Address"];
+sel.forEach(function(p){rows.push([p.name,p.score,p.age,p.gender==="F"?"Female":"Male",p.city,p.state,p.income,p.wealth,p.owner?"Yes":"No",p.email?"Yes":"No",p.phone?"Yes":"No",p.addr?"Yes":"No"].join(","))});
+var blob=new Blob([rows.join("\n")],{type:"text/csv"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="minerva-selected-"+sel.length+".csv";a.click();toast("Exported "+sel.length+" selected")}
+function doSort(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="score"?-1:1}ren()}
+
+function rdet(){var all=PP,l=gf(),n=l.length,tot=all.length;
+document.getElementById("dr").textContent=sLo+"\u2013"+sHi;
+if(!n){document.getElementById("db").innerHTML='<div class="mn-workspace-empty">Move the slider<\/div>';upSt(0,0,0,"--");return}
+var ec=0,pc=0,ac=0,ss=0,sa=0,oc=0;
+l.forEach(function(p){if(p.email)ec++;if(p.phone)pc++;if(p.addr)ac++;ss+=p.score;sa+=p.age;if(p.owner)oc++});
+var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),op=(oc/n*100).toFixed(1);
+var allOc=all.filter(function(p){return p.owner}).length,aop=(allOc/tot*100).toFixed(1);
+var a45=l.filter(function(p){return p.age>=45}).length,a45p=Math.round(a45/n*100),allA45=Math.round(all.filter(function(p){return p.age>=45}).length/tot*100);
+var hi250=l.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length,hi250p=Math.round(hi250/n*100),allH=Math.round(all.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length/tot*100);
+var scaledStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN/1e3).toFixed(0)+'K';var nar="<b>"+n.toLocaleString()+"<\/b> records ("+scaledStr+" at full scale), scores "+sLo+"\u2013"+sHi+". ";
+if(avg>65)nar+="High-fit: "+a45p+"% age 45+, "+op+"% homeowners (vs "+aop+"% baseline), "+hi250p+"% earn $250k+. Premium suite and membership viable.";
+else if(avg>35)nar+="Balanced. "+a45p+"% are 45+, homeownership "+op+"%. Multi-channel viable.";
+else nar+="Younger. Homeownership "+op+"%, lower income. Value-tier and digital only.";
+var deltas=[{l:"Homeowners",s:parseFloat(op),b:parseFloat(aop)},{l:"Age 45+",s:a45p,b:allA45},{l:"$250k+",s:hi250p,b:allH},{l:"Email",s:parseFloat((ec/n*100).toFixed(1)),b:parseFloat((all.filter(function(p){return p.email}).length/tot*100).toFixed(1))},{l:"Renters",s:parseFloat(((n-oc)/n*100).toFixed(1)),b:parseFloat(((tot-allOc)/tot*100).toFixed(1))}];
+deltas.forEach(function(d){d.d=+(d.s-d.b).toFixed(1)});deltas.sort(function(a,b){return Math.abs(b.d)-Math.abs(a.d)});
+var spkO=[],spkI=[],spkE=[];
+for(var bin=0;bin<10;bin++){var lo=bin*10,hi=lo+9,bp=PP.filter(function(p){return p.score>=lo&&p.score<=hi}),bn=bp.length||1;
+spkO.push(bp.filter(function(p){return p.owner}).length/bn);spkI.push(bp.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length/bn);spkE.push(bp.filter(function(p){return p.email}).length/bn)}
+function spkH(data,label){var mx=Math.max.apply(null,data)||.01;var h='<div class="mn-workspace-spark-card"><span class="mn-workspace-spark-title">'+label+'<\/span><div class="mn-workspace-spark-bars">';
+for(var i=0;i<data.length;i++){var inR=(i*10+9>=sLo&&i*10<=sHi);h+='<div class="mn-workspace-spark-bar '+(inR?"mn-workspace-spark-bar-on":"mn-workspace-spark-bar-off")+'" style="height:'+Math.round(data[i]/mx*100)+'%"><\/div>'}
+return h+'<\/div><\/div>'}
+var agb={"18-29":0,"30-39":0,"40-49":0,"50-59":0,"60+":0};
+l.forEach(function(p){var a=p.age;if(a<30)agb["18-29"]++;else if(a<40)agb["30-39"]++;else if(a<50)agb["40-49"]++;else if(a<60)agb["50-59"]++;else agb["60+"]++});
+
+var h='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Summary<\/div>';
+h+='<div class="mn-workspace-detail-hero">'+n.toLocaleString()+'<\/div>';
+var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);
+h+='<div class="mn-workspace-detail-hero-sub">scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 ~'+(scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN/1e3).toFixed(0)+'K')+' at scale<\/div>';
+h+='<div class="mn-workspace-detail-metric-grid" style="margin-top:8px">';
+h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Score<\/div><div class="mn-workspace-detail-metric-value">'+avg+'<\/div><\/div>';
+h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Age<\/div><div class="mn-workspace-detail-metric-value">'+aag+'<\/div><\/div>';
+h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Homeowners<\/div><div class="mn-workspace-detail-metric-value">'+op+'%<\/div><\/div>';
+h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">$250k+<\/div><div class="mn-workspace-detail-metric-value">'+hi250p+'%<\/div><\/div>';
+h+='<\/div><\/div>';
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Insight<\/div><div class="mn-workspace-detail-narrative">'+nar+'<\/div><\/div>';
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
+deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
+h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?"mn-workspace-delta-fill-pos":"mn-workspace-delta-fill-neg")+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value">'+(pos?"+":"")+d.d+'<\/div><\/div>'});
+h+='<\/div>';
+
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Age<\/div>';
+Object.keys(agb).forEach(function(k){h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">'+k+'<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(agb[k]/n*100).toFixed(1)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(agb[k]/n*100).toFixed(0)+'%<\/div><\/div>'});
+h+='<\/div>';
+// Gender
+var gM=l.filter(function(p){return p.gender==="M"}).length;
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Gender<\/div>';
+h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">Male<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(gM/n*100).toFixed(0)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(gM/n*100).toFixed(0)+'%<\/div><\/div>';
+h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">Female<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+((n-gM)/n*100).toFixed(0)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+((n-gM)/n*100).toFixed(0)+'%<\/div><\/div>';
+h+='<\/div>';
+// Income + Wealth (merged as Affluence)
+var inb={};IB.forEach(function(k){inb[k]=0});l.forEach(function(p){inb[p.income]++});
+var wlb={};WB.forEach(function(k){wlb[k]=0});l.forEach(function(p){wlb[p.wealth]++});
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Income<\/div>';
+IB.forEach(function(k){h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">'+k+'<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(inb[k]/n*100).toFixed(1)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(inb[k]/n*100).toFixed(0)+'%<\/div><\/div>'});
+h+='<div class="mn-workspace-detail-label" style="margin-top:8px">Wealth<\/div>';
+WB.forEach(function(k){h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">'+k+'<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(wlb[k]/n*100).toFixed(1)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(wlb[k]/n*100).toFixed(0)+'%<\/div><\/div>'});
+h+='<\/div>';
+// Geo breakdown
+var cityMap={};l.forEach(function(p){cityMap[p.city]=(cityMap[p.city]||0)+1});
+var cityArr=Object.keys(cityMap).map(function(k){return{name:k,ct:cityMap[k]}}).sort(function(a,b){return b.ct-a.ct}).slice(0,6);
+var cityMax=cityArr.length?cityArr[0].ct:1;
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Top Cities<\/div>';
+cityArr.forEach(function(c){h+='<div class="mn-workspace-geo-row"><div class="mn-workspace-geo-name">'+c.name+'<\/div><div class="mn-workspace-geo-ct">'+c.ct+'<\/div><div class="mn-workspace-geo-bar"><div class="mn-workspace-geo-fill" style="width:'+(c.ct/cityMax*100)+'%"><\/div><\/div><\/div>'});
+h+='<\/div>';
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Reachability<\/div>';
+[[ec,"Email"],[pc,"Phone"],[ac,"Mail"]].forEach(function(r){var rate=r[0]/n;var cls=rate>.75?"mn-workspace-reach-dot-high":rate>.55?"mn-workspace-reach-dot-mid":"mn-workspace-reach-dot-low";
+h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls+'"><\/div><div class="mn-workspace-reach-name">'+r[1]+'<\/div><div class="mn-workspace-reach-count">'+r[0].toLocaleString()+'<\/div><div class="mn-workspace-reach-pct">'+pct(r[0],n)+'<\/div><\/div>'});
+h+='<\/div>';
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Context<\/div>';
+if(avg>60){
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Premium suite renewals due May 15 \u2014 '+Math.round(n*0.18)+' members in this segment at risk<\/div><div class="mn-workspace-news-meta">High urgency: this cohort has 3.2x conversion on renewal campaigns<\/div><\/div>';
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Avg HHI $'+Math.round(200+parseFloat(avg)*3)+'k in this range \u2014 premium pricing viable<\/div><div class="mn-workspace-news-meta">Compare to $185k baseline across full file<\/div><\/div>';
+}else if(avg>35){
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Brickell/Wynwood entertainment spend up 23% QoQ in 18-34 demo<\/div><div class="mn-workspace-news-meta">Emerging high-value fan segment overlapping this range<\/div><\/div>';
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Mid-tier ticket bundles converting at 6.8% \u2014 strong for this score band<\/div><div class="mn-workspace-news-meta">Multi-game packs outperforming single-game by 2.1x<\/div><\/div>';
+}else{
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Secondary market Section 400 prices down 12% \u2014 value-tier opportunity<\/div><div class="mn-workspace-news-meta">This segment responds to price-driven offers<\/div><\/div>';
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Digital engagement up 34% among younger demos \u2014 app-first acquisition<\/div><div class="mn-workspace-news-meta">Push notification campaigns showing 4.5x open rate<\/div><\/div>';
+}
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">2026-27 season: Hard Rock Stadium capacity at 64,767 \u2014 '+Math.round(n/647)+'% addressable via this segment<\/div><div class="mn-workspace-news-meta">Seasonality peak: Sept\u2013Nov<\/div><\/div>';
+h+='<\/div>';
+if(extraFilters){h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Active Filters<\/div><div class="mn-workspace-action-row">';
+if(extraFilters.ownerOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'ownerOnly\')">Homeowners \u2715<\/button>';
+if(extraFilters.incomeMin)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'incomeMin\')">$250k+ \u2715<\/button>';
+if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'emailOnly\')">Email only \u2715<\/button>';
+if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' \u2715<\/button>';
+h+='<button class="mn-workspace-action-btn" onclick="clearFilters()">Clear all<\/button>';
+h+='<\/div><\/div>'}
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Actions<\/div><div class="mn-workspace-action-row">';
+h+='<button class="mn-workspace-action-btn mn-workspace-action-btn-primary" onclick="openSave()">Save<\/button>';
+h+='<button class="mn-workspace-action-btn" onclick="doExport()">Export CSV<\/button>';
+h+='<\/div><\/div>';
+document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);buildChart(l)}
+
+var distChart=null;
+function buildChart(list){
+if(distChart){try{distChart.destroy()}catch(e){}distChart=null}
+var cv=document.getElementById("distCanvas");if(!cv||typeof Chart==="undefined")return;
+var bins=Array(20).fill(0);list.forEach(function(p){bins[Math.min(Math.floor(p.score/5),19)]++});
+var labels=[];for(var i=0;i<20;i++)labels.push(i*5);
+var colors=bins.map(function(_,i){var mid=i*5+2.5;return(mid>=sLo&&mid<=sHi)?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.04)'});
+distChart=new Chart(cv,{type:'bar',data:{labels:labels,datasets:[{data:bins,backgroundColor:colors,borderRadius:2,barPercentage:0.85,categoryPercentage:0.92}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:200},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(12,12,14,0.95)',titleColor:'rgba(255,255,255,0.4)',bodyColor:'#fff',titleFont:{size:8},bodyFont:{size:10,weight:'bold'},padding:5,cornerRadius:3,displayColors:false,callbacks:{title:function(t){return'Score '+t[0].label+'\u2013'+(parseInt(t[0].label)+4)},label:function(t){return t.raw+' people'}}}},scales:{x:{display:true,grid:{display:false},ticks:{color:'rgba(255,255,255,0.12)',font:{size:7},maxTicksLimit:5},border:{display:false}},y:{display:false}}}})}
+
+// Animated stat counters
+var prevSt={a:0,p:"0%",e:0,s:"0"};
+function upSt(n,tot,ec,avg){
+  animNum("stA",prevSt.a,n);prevSt.a=n;
+  document.getElementById("stP").textContent=tot?pct(n,tot):"--";
+  animNum("stE",prevSt.e,ec);prevSt.e=ec;
+  document.getElementById("stS").textContent=avg}
+function animNum(id,from,to){
+  if(!to&&to!==0){document.getElementById(id).textContent="--";return}
+  if(from===to){document.getElementById(id).textContent=to.toLocaleString();return}
+  var el=document.getElementById(id),start=performance.now(),dur=180;
+  function tick(now){var t=Math.min((now-start)/dur,1);t=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  var v=Math.round(from+(to-from)*t);el.textContent=v.toLocaleString();if(t<1)requestAnimationFrame(tick)}
+  requestAnimationFrame(tick)}
+
+// ── Profile (inline column) ──
+function opf(id){selR=id;var p;PP.forEach(function(x){if(x.id===id)p=x});if(!p)return;
+document.getElementById("pProf").style.display="flex";
+var reasons=[];
+if(p.owner)reasons.push("homeowner");if(IB.indexOf(p.income)>=3)reasons.push(p.income+" income");if(p.age>=45)reasons.push("age "+p.age+" (45+ bracket)");if(p.email&&p.phone)reasons.push("reachable via email + phone");else if(p.email)reasons.push("email reachable");
+var weaknesses=[];if(!p.owner)weaknesses.push("renter");if(IB.indexOf(p.income)<2)weaknesses.push("lower income band");if(p.age<35)weaknesses.push("younger demo (under 35)");if(!p.email&&!p.phone)weaknesses.push("limited channel reach");
+var ft=p.name+" scores "+p.score+"/99. ";
+if(p.score>=75)ft+="Key fit drivers: "+reasons.slice(0,3).join(", ")+". "+(weaknesses.length?"Watch: "+weaknesses[0]+".":"Strong across all dimensions.");
+else if(p.score>=45)ft+="Positive signals: "+(reasons.length?reasons.slice(0,2).join(", "):"moderate demographic alignment")+". "+(weaknesses.length?"Gaps: "+weaknesses.slice(0,2).join(", ")+".":"");
+else ft+="Lower propensity. "+(weaknesses.length?"Driven by: "+weaknesses.slice(0,2).join(", ")+".":"")+" Consider for value-tier or long-term nurture.";
+var h='<div class="mn-workspace-profile-hero"><div class="mn-workspace-profile-identity"><img class="mn-workspace-profile-avatar" src="'+p.photo+'"><div><div class="mn-workspace-profile-name">'+p.name+'<\/div><div class="mn-workspace-profile-role">'+p.title+' at '+p.company+'<\/div><\/div><\/div>';
+h+='<div class="mn-workspace-profile-score-area"><div class="mn-workspace-profile-score-number">'+p.score+'<\/div><div><div class="mn-workspace-profile-score-context">Propensity Score<\/div><div class="mn-workspace-profile-score-desc">Dolphins campaign fit<\/div><\/div><\/div><\/div>';
+h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Details<\/div>';
+[["Age",p.age],["Gender",p.gender==="F"?"Female":"Male"],["Location",p.city+", "+p.state],["Income",p.income],["Wealth",p.wealth],["Homeowner",p.owner?"Yes":"No"],["Education",p.edu]].forEach(function(r){h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">'+r[0]+'<\/span><span class="mn-workspace-profile-field-value">'+r[1]+'<\/span><\/div>'});
+h+='<\/div>';
+h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Channels<\/div>';
+[["Email",p.email],["Phone",p.phone],["Address",p.addr]].forEach(function(r){var cls=r[1]?"mn-workspace-reach-dot-high":"mn-workspace-reach-dot-low";h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls+'"><\/div><div class="mn-workspace-reach-name">'+r[0]+'<\/div><div class="mn-workspace-reach-count">'+(r[1]?"Yes":"\u2014")+'<\/div><\/div>'});
+h+='<\/div>';
+h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Segments<\/div><div class="mn-workspace-tag-wrap">';
+p.segs.forEach(function(s){h+='<span class="mn-workspace-tag">'+s+'<\/span>'});h+='<\/div><\/div>';
+h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Insight<\/div><div class="mn-workspace-profile-insight">'+ft+'<\/div><\/div>';
+h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Actions<\/div><div class="mn-workspace-action-row">';
+h+='<button class="mn-workspace-action-btn mn-workspace-action-btn-primary" onclick="toast(\'Added to campaign\')">Add to Campaign<\/button>';
+h+='<button class="mn-workspace-action-btn" onclick="toast(\'Outreach drafted\')">Draft Outreach<\/button>';
+h+='<\/div><\/div>';
+document.getElementById("profBody").innerHTML=h;rtbl()}
+function cpf(){selR=null;document.getElementById("pProf").style.display="none";rtbl()}
+
+// ── Save / Export / Segments ──
+function openSave(){document.getElementById("saveModal").classList.add("mn-workspace-modal-open");document.getElementById("segName").value="Scores "+sLo+"\u2013"+sHi;document.getElementById("segName").focus()}
+function closeSave(){document.getElementById("saveModal").classList.remove("mn-workspace-modal-open")}
+function doSave(){var name=document.getElementById("segName").value.trim();if(!name)return;savedSegs.push({name:name,lo:sLo,hi:sHi,count:gf().length,filters:extraFilters?JSON.parse(JSON.stringify(extraFilters)):null});closeSave();toast("Saved: "+name);upSegs()}
+function doExport(){var l=gf(),rows=["Name,Score,Age,Gender,City,State,Income,Wealth,Homeowner,Email,Phone,Address"];
+l.forEach(function(p){rows.push([p.name,p.score,p.age,p.gender==="F"?"Female":"Male",p.city,p.state,p.income,p.wealth,p.owner?"Yes":"No",p.email?"Yes":"No",p.phone?"Yes":"No",p.addr?"Yes":"No"].join(","))});
+var blob=new Blob([rows.join("\n")],{type:"text/csv"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="minerva-"+sLo+"-"+sHi+".csv";a.click();toast("Exported "+l.length+" records")}
+function upSegs(){document.getElementById("segCt").textContent=savedSegs.length?"("+savedSegs.length+")":""}
+function togSegs(){var m=document.getElementById("segMenu");m.classList.toggle("mn-workspace-topbar-segments-menu-open");
+if(!m.classList.contains("mn-workspace-topbar-segments-menu-open"))return;
+if(!savedSegs.length){m.innerHTML='<div class="mn-workspace-topbar-segments-empty">No saved segments<\/div>';return}
+var h="";savedSegs.forEach(function(s,i){h+='<button class="mn-workspace-topbar-segments-item" onclick="loadSeg('+i+')">'+s.name+' \u00b7 '+s.count+'<\/button>'});
+m.innerHTML=h}
+function loadSeg(i){var s=savedSegs[i];sLo=s.lo;sHi=s.hi;extraFilters=s.filters;usv();ren();document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open");toast("Loaded: "+s.name)}
+function clearFilters(){extraFilters=null;ren();toast("Filters cleared")}
+function rmFilter(key){if(!extraFilters)return;delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null;ren()}
+
+// ── Intelligence Card ──
+function genInsight(){
+var l=gf(),n=l.length;
+if(!n){document.getElementById("intelBody").innerHTML='<div class="mn-workspace-intel"><div class="mn-workspace-intel-body"><div class="mn-workspace-intel-verdict">Select a score range to see intelligence.<\/div><\/div><\/div>';return}
+var tot=PP.length,ec=0,pc=0,oc=0,ss=0,sa=0;
+l.forEach(function(p){if(p.email)ec++;if(p.phone)pc++;if(p.owner)oc++;ss+=p.score;sa+=p.age});
+var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),oP=Math.round(oc/n*100),eP=Math.round(ec/n*100);
+var hi2=l.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length;
+var hi2P=Math.round(hi2/n*100);
+var aOp=Math.round(PP.filter(function(p){return p.owner}).length/tot*100);
+var topCity="";var cm={};l.forEach(function(p){cm[p.city]=(cm[p.city]||0)+1});
+var best=0;Object.keys(cm).forEach(function(k){if(cm[k]>best){best=cm[k];topCity=k}});
+
+// Generate verdict
+var fCount=extraFilters?Object.keys(extraFilters).length:0;
+var fLabel=fCount?fCount+" filter"+(fCount>1?"s":"")+" active. ":"";
+var verdict,detail,confidence;
+if(avg>=70){
+verdict="High-value. Ready to activate.";
+detail=fLabel+"Scores "+sLo+"\u2013"+sHi+" represent your strongest prospects: "+oP+"% homeowners (+"+(oP-aOp)+" pts vs baseline), "+hi2P+"% earning $250k+, avg age "+aag+". "+eP+"% are email-reachable. Concentrated in "+topCity+". This audience is ready for premium suite offers, membership upsells, and direct outreach.";
+confidence="High confidence \u2014 strong signal density"
+}else if(avg>=50){
+verdict="Mid-tier. Viable with the right offer.";
+detail=fLabel+"This range ("+sLo+"\u2013"+sHi+") has moderate propensity: "+oP+"% homeowners, "+hi2P+"% high-income, avg age "+aag+". Email reach at "+eP+"%. Not as concentrated as 70+ scores, but the volume ("+(Math.round(n*268000000/tot/1e6*10)/10)+"M at scale) makes it viable for mid-tier ticket bundles and multi-game packs.";
+confidence="Moderate confidence \u2014 broader demographic mix"
+}else if(avg>=30){
+verdict="Broad. Awareness only.";
+detail=fLabel+"Scores "+sLo+"\u2013"+sHi+" are mixed: "+oP+"% homeowners (baseline is "+aOp+"%), "+hi2P+"% high-income, avg age "+aag+". The demographic spread is wide. This segment works for digital awareness campaigns and value-tier offers, but premium products will underperform here.";
+confidence="Lower confidence \u2014 diluted signal"
+}else{
+verdict="Weak. Not recommended.";
+detail=fLabel+"Scores "+sLo+"\u2013"+sHi+" index below baseline on most dimensions: only "+oP+"% homeowners, "+hi2P+"% high-income. Avg age "+aag+" skews young. Channel reach is limited ("+eP+"% email). If you must target this group, use digital-only with value pricing. Consider raising the score floor.";
+confidence="Low confidence \u2014 weak propensity signals"
+}
+
+// Active filter chips
+var filterHTML='<div class="mn-workspace-intel-filters">';
+filterHTML+='<button class="mn-workspace-intel-filter'+(extraFilters&&extraFilters.ownerOnly?" mn-workspace-intel-filter-on":"")+'" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button>';
+filterHTML+='<button class="mn-workspace-intel-filter'+(extraFilters&&extraFilters.incomeMin?" mn-workspace-intel-filter-on":"")+'" onclick="togFilt(\'incomeMin\')">$250k+<\/button>';
+filterHTML+='<button class="mn-workspace-intel-filter'+(extraFilters&&extraFilters.emailOnly?" mn-workspace-intel-filter-on":"")+'" onclick="togFilt(\'emailOnly\')">Email only<\/button>';
+filterHTML+='<\/div>';
+
+var h='<div class="mn-workspace-intel"><div class="mn-workspace-intel-body">';
+h+='<div class="mn-workspace-intel-confidence">'+confidence+'<\/div>';
+h+='<div class="mn-workspace-intel-verdict">'+verdict+'<\/div>';
+h+='<div class="mn-workspace-intel-detail">'+detail+'<\/div>';
+h+='<button class="mn-workspace-intel-refresh" onclick="genInsight()">Reanalyze<\/button>';
+h+='<\/div>'+filterHTML+'<\/div>';
+document.getElementById("intelBody").innerHTML=h}
+
+function togFilt(key){
+if(!extraFilters)extraFilters={};
+if(extraFilters[key]){delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null}
+else{if(key==="ownerOnly")extraFilters.ownerOnly=true;if(key==="incomeMin")extraFilters.incomeMin=3;if(key==="emailOnly")extraFilters.emailOnly=true}
+ren()}
+
+// Close segments menu when clicking outside
+document.addEventListener("click",function(e){if(!e.target.closest(".mn-workspace-topbar-segments"))document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open")});
+
+function ren(){rtbl();rdet();genInsight()}
+
+// Keyboard
+document.addEventListener("keydown",function(e){
+if(e.key==="Escape"){
+if(document.getElementById("saveModal").classList.contains("mn-workspace-modal-open")){closeSave();return}
+if(document.getElementById("pProf").style.display!=="none"){cpf();return}
+}});
+
+usv();ren()
+</script>
+</body>
+</html>
