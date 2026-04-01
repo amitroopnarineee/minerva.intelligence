@@ -411,7 +411,7 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
               {dd.chartData && (
                 <div>
                   <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">7-Day Trend</h3>
-                  <div className="rounded-lg border border-border/20 overflow-hidden p-3">
+                  <div className="rounded-lg border border-border/20 overflow-hidden p-3" style={{ background: 'rgba(0,0,0,0.5)' }}>
                     <VisxAreaChart data={dd.chartData} xDataKey="date" aspectRatio="3 / 1" margin={{ top: 12, right: 12, bottom: 28, left: 12 }}>
                       <VisxGrid horizontal numTicksRows={4} strokeDasharray="3,3" strokeOpacity={0.3} />
                       <VisxArea dataKey="primary" fill="#f5f5f5" fillOpacity={0.25} stroke="#f5f5f5" strokeWidth={2} fadeEdges />

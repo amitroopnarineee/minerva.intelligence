@@ -406,7 +406,7 @@ export function HomeContent() {
                 { l:"Conv Rate",n:currentKpi.ticketConversionRate*100,dec:1,pre:"",suf:"%",d:convD,s:kpiHistory.map(k=>k.ticketConversionRate) },
                 { l:"Match Rate",n:currentKpi.dataMatchRate*100,dec:0,pre:"",suf:"%",d:matchD,s:kpiHistory.map(k=>k.dataMatchRate) },
               ].map((m,i)=>(
-                <div key={i} onClick={() => setActiveCard(kpiToCard(m.l, m.n, `${m.pre}${m.n.toFixed(m.dec)}${m.suf}`, m.d, m.s))} className="mn-kpi-cell bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
+                <div key={i} onClick={() => setActiveCard(kpiToCard(m.l, m.n, `${m.pre}${m.n.toFixed(m.dec)}${m.suf}`, m.d, m.s))} className="mn-kpi-cell bg-black/60 px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
                   <div className="flex items-center justify-between mb-1"><p className="mn-kpi-label text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
                   <div className="mn-kpi-row flex items-end justify-between"><p className="mn-kpi-value text-[20px] tracking-tight text-white leading-none"><CountUp end={m.n} decimals={m.dec} prefix={m.pre} suffix={m.suf} /></p><Tr d={m.d} /></div>
                 </div>))}
@@ -414,20 +414,36 @@ export function HomeContent() {
 
             {/* Funnel + Chart row */}
             <div className="mn-briefing-charts grid grid-cols-3 gap-4">
-              <motion.div {...f(0.2)} className="mn-funnel-card rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
+              <motion.div {...f(0.2)} className="mn-funnel-card rounded-lg border border-white/[0.06] p-4" style={{ background: 'rgba(0,0,0,0.6)' }}>
                 <Lbl>Conversion Funnel</Lbl>
                 <FunnelChart data={funnelData} color="#f5f5f5" layers={2} edges="straight" gap={2}
                   showPercentage={false} showValues={true} showLabels={true}
                   className="h-[100px]" style={{ aspectRatio: "unset" }} />
               </motion.div>
-              <motion.div {...f(0.25)} className="mn-revenue-card col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.025] p-4">
-                <Lbl>Revenue vs Spend · 7d</Lbl>
-                <VisxAreaChart data={chart7d} xDataKey="date" aspectRatio="3 / 1" margin={{top:8,right:8,bottom:24,left:8}}>
-                  <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.15} />
-                  <VisxArea dataKey="revenue" fill="rgba(245,245,245,0.08)" stroke="rgba(245,245,245,0.5)" strokeWidth={1.5} />
-                  <VisxArea dataKey="spend" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.2)" strokeWidth={1} />
-                  <VisxXAxis numTicks={5} />
-                </VisxAreaChart>
+              <motion.div {...f(0.25)} className="mn-revenue-card col-span-2 rounded-lg border border-white/[0.06] p-4" style={{ background: 'rgba(0,0,0,0.6)' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <Lbl>Revenue vs Spend · 7d</Lbl>
+                  <div className="flex items-center gap-4 text-[9px] text-white/25">
+                    <span className="flex items-center gap-1"><span className="inline-block w-3 h-[1.5px] bg-white/50" /> Revenue</span>
+                    <span className="flex items-center gap-1"><span className="inline-block w-3 h-[1.5px] bg-white/20" /> Spend</span>
+                  </div>
+                </div>
+                {/* Y-axis labels */}
+                <div className="relative">
+                  <div className="absolute left-0 top-0 bottom-6 w-8 flex flex-col justify-between text-[8px] text-white/20 tabular-nums z-10">
+                    <span>${Math.round(Math.max(...chart7d.map(d=>d.revenue)))}K</span>
+                    <span>${Math.round((Math.max(...chart7d.map(d=>d.revenue)) + Math.min(...chart7d.map(d=>d.spend))) / 2)}K</span>
+                    <span>${Math.round(Math.min(...chart7d.map(d=>d.spend)))}K</span>
+                  </div>
+                  <div className="ml-8">
+                    <VisxAreaChart data={chart7d} xDataKey="date" aspectRatio="3 / 1" margin={{top:8,right:8,bottom:24,left:4}}>
+                      <VisxGrid horizontal numTicksRows={3} strokeDasharray="2,4" strokeOpacity={0.1} />
+                      <VisxArea dataKey="revenue" fill="rgba(245,245,245,0.06)" stroke="rgba(245,245,245,0.5)" strokeWidth={1.5} />
+                      <VisxArea dataKey="spend" fill="rgba(245,245,245,0.02)" stroke="rgba(245,245,245,0.15)" strokeWidth={1} />
+                      <VisxXAxis numTicks={5} />
+                    </VisxAreaChart>
+                  </div>
+                </div>
               </motion.div>
             </div>
 
