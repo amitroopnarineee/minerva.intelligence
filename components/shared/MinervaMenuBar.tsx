@@ -47,6 +47,9 @@ export function MinervaMenuBar() {
   const router = useRouter()
   const pathname = usePathname()
 
+  // Hide nav on route change
+  useEffect(() => { setNavVisible(false) }, [pathname])
+
   const go = useCallback((s: NotchState) => {
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null }
     stateRef.current = s; setNotchState(s)

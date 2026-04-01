@@ -556,3 +556,138 @@ svg.text-\[\#0A66C2\] {
   font-weight: 500 !important;
   border-bottom: none !important;
 }
+
+/* ══════════════════════════════════════════════════════════
+   DESIGN SYSTEM ENFORCEMENT
+   5 colors · max 500 weight · 10px spacing · 1px borders
+   ══════════════════════════════════════════════════════════
+
+   PALETTE:
+   1. #ffffff (white — primary text, active elements)
+   2. #38bdf8 (sky-400 — accent, links, positive values)
+   3. rgba(255,255,255,0.06) (glass-bg — cards, inputs, surfaces)
+   4. rgba(255,255,255,0.08) (glass-border — all borders)
+   5. #000000 (black — deepest bg, overlays)
+*/
+
+/* ── No font-weight above 500 ── */
+h1, h2, h3, h4, h5, h6,
+.font-bold, .font-semibold, .font-extrabold, .font-black {
+  font-weight: 500 !important;
+}
+.font-medium { font-weight: 450 !important; }
+
+/* ── No box-shadows ── */
+*, *::before, *::after {
+  box-shadow: none !important;
+  --tw-shadow: none !important;
+  --tw-ring-shadow: none !important;
+}
+
+/* ── SVG strokes 1px ── */
+svg line, svg path[stroke] {
+  stroke-width: 1;
+}
+
+/* ── Consistent glass surfaces ── */
+.mn-glass-card,
+.mn-glass-elevated,
+[class*="bg-white\/\[0\.0"],
+[class*="bg-card"] {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* ── Consistent table rows ── */
+td, th {
+  padding: 10px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+th {
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: rgba(255,255,255,0.2) !important;
+}
+td {
+  color: rgba(255,255,255,0.5) !important;
+}
+tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+tr:last-child {
+  border-bottom: none !important;
+}
+
+/* ── Consistent badges/pills ── */
+.badge, [class*="badge"],
+[class*="rounded-full"][class*="px-"][class*="py-"],
+[class*="rounded"][class*="text-\[8px\]"],
+[class*="rounded"][class*="text-\[9px\]"],
+[class*="rounded"][class*="text-\[10px\]"] {
+  font-size: 9px !important;
+  padding: 2px 8px !important;
+  font-weight: 500 !important;
+  border-radius: 4px !important;
+  line-height: 1.5 !important;
+}
+
+/* ── Nav: hidden by default, hide on navigation ── */
+.mn-menubar-left > div[class="relative"] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-12px) !important;
+}
+.mn-menubar-left > div[class="relative"][style*="opacity: 1"],
+.mn-menubar-left > div[class="relative"][style*="opacity:1"] {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateX(0) !important;
+}
+
+/* ── Modals & overlays — consistent glass ── */
+.mn-cc-modal-content,
+[class*="modal"],
+[role="dialog"] {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  box-shadow: none !important;
+}
+
+/* ── Accent color lock — only sky-400 ── */
+.text-emerald-400, .text-emerald-500,
+.text-green-400, .text-green-500 {
+  color: #38bdf8 !important;
+}
+.text-red-400, .text-red-500,
+.text-amber-400, .text-amber-500 {
+  color: rgba(255,255,255,0.35) !important;
+}
+.bg-emerald-500\/10, .bg-emerald-400\/10,
+.bg-green-500\/10, .bg-green-400\/10,
+.bg-sky-500\/10, .bg-sky-400\/10 {
+  background: rgba(56,189,248,0.08) !important;
+}
+.bg-red-500\/10, .bg-red-400\/10,
+.bg-amber-500\/10, .bg-amber-400\/10 {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+/* ── Charts: consistent 1px strokes ── */
+svg polyline, svg .mn-sparkline polyline {
+  stroke-width: 1 !important;
+}
+
+/* ── Remove text-shadow ── */
+* {
+  text-shadow: none !important;
+}
+.drop-shadow-lg, .drop-shadow-2xl, .drop-shadow-md {
+  filter: none !important;
+}
