@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 
 /* ── Types ── */
-type View = 'home' | 'briefing'
+type View = 'home' | 'briefing' | 'calendar'
 type ModalState = 'closed' | 'studio'
 
 /* ── Canvas transition ── */
@@ -472,10 +472,15 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* Footer */}
           {step >= (studioSaved ? 11 : 10) && (
-            <div className="animate-card-in text-center pt-6">
+            <div className="animate-card-in text-center pt-6 space-y-6">
               <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>
                 Last sync: 8:12 AM — Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph · 5 sources connected
               </p>
+              <button onClick={() => navigateTo('calendar')}
+                className="h-11 px-8 rounded-full text-[14px] transition-all hover:bg-white/[0.08] mx-auto block"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
+                View Calendar
+              </button>
             </div>
           )}
 
@@ -558,6 +563,116 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
 }
 
 
+
+/* ══════════════════════════════════════════════════════════
+   CALENDAR SCREEN — Past Daily Briefings
+   ══════════════════════════════════════════════════════════ */
+const PAST_BRIEFINGS: Record<number, { headline: string; revenue: string; roas: string; actions: number; signal?: string }> = {
+  1: { headline: "Jackson Dark signing drives 340% social spike", revenue: "$242K", roas: "4.0x", actions: 3, signal: "Giants-to-Dolphins segment identified" },
+  31: { headline: "Family audience surging after spring break push", revenue: "$238K", roas: "3.9x", actions: 2 },
+  30: { headline: "Premium Suite renewals ahead of target", revenue: "$231K", roas: "4.1x", actions: 4, signal: "Lapsed buyer win-back window closing" },
+  29: { headline: "Match rate declining — identity graph needs refresh", revenue: "$225K", roas: "3.7x", actions: 2 },
+  28: { headline: "Seatmap retargeting pool hit 900 profiles", revenue: "$219K", roas: "3.8x", actions: 3, signal: "New high-propensity cluster in Broward" },
+  27: { headline: "Email open rates up 12% after subject line test", revenue: "$214K", roas: "3.6x", actions: 1 },
+  26: { headline: "Weekend game day — conversion spike expected", revenue: "$208K", roas: "3.5x", actions: 2 },
+  25: { headline: "Sponsor resonance data: luxury narrative winning", revenue: "$202K", roas: "3.4x", actions: 3, signal: "Premium hospitality segment growing 8%" },
+}
+
+function CalendarScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
+  const [selectedDay, setSelectedDay] = useState<number | null>(null)
+  const today = 1 // April 1
+  const daysInMonth = 30
+  const firstDayOffset = 2 // April 2026 starts on Wednesday (0=Sun)
+
+  const days: (number | null)[] = []
+  for (let i = 0; i < firstDayOffset; i++) days.push(null)
+  for (let i = 1; i <= daysInMonth; i++) days.push(i)
+  while (days.length % 7 !== 0) days.push(null)
+
+  const briefing = selectedDay ? PAST_BRIEFINGS[selectedDay] : null
+
+  return (
+    <div className="absolute inset-0 flex flex-col">
+      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="max-w-[600px] mx-auto px-6 pt-6 pb-32">
+          <div className="flex items-center justify-between mb-8">
+            <button onClick={() => navigateTo('briefing')} className="text-[12px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.4)' }}>← Back to briefing</button>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.22)' }}>✦ APRIL 2026 · BRIEFING CALENDAR</p>
+          </div>
+
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-1 mb-8">
+            {['S','M','T','W','T','F','S'].map((d, i) => (
+              <div key={i} className="text-center text-[9px] uppercase py-2" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>{d}</div>
+            ))}
+            {days.map((day, i) => {
+              if (day === null) return <div key={i} />
+              const hasBriefing = !!PAST_BRIEFINGS[day]
+              const isToday = day === today
+              const isSelected = day === selectedDay
+              const isFuture = day > today
+              return (
+                <button key={i} onClick={() => hasBriefing ? setSelectedDay(day) : null}
+                  className="aspect-square rounded-lg flex flex-col items-center justify-center transition-all relative"
+                  style={{
+                    background: isSelected ? 'rgba(255,255,255,0.1)' : isToday ? 'rgba(255,255,255,0.04)' : 'transparent',
+                    border: isToday ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
+                    color: isFuture ? 'rgba(255,255,255,0.1)' : hasBriefing ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.2)',
+                    cursor: hasBriefing ? 'pointer' : 'default',
+                  }}>
+                  <span className="text-[13px] tabular-nums" style={{ fontWeight: isToday ? 600 : 400 }}>{day}</span>
+                  {hasBriefing && <div className="w-1 h-1 rounded-full mt-0.5" style={{ background: isToday ? '#fff' : 'rgba(255,255,255,0.25)' }} />}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Selected briefing preview */}
+          {briefing ? (
+            <div className="animate-card-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 22px' }}>
+              <div className="flex items-center justify-between mb-4">
+                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>
+                  ✦ {selectedDay === today ? 'TODAY' : `APRIL ${selectedDay}`} · BRIEFING
+                </p>
+                {selectedDay === today && (
+                  <button onClick={() => navigateTo('briefing')} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
+                    View full briefing →
+                  </button>
+                )}
+              </div>
+              <p className="text-[16px] text-white mb-4" style={{ fontWeight: 500, lineHeight: 1.5 }}>{briefing.headline}</p>
+              <div className="flex gap-6 mb-4">
+                <div>
+                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>Revenue</p>
+                  <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.revenue}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>ROAS</p>
+                  <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.roas}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>Actions</p>
+                  <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.actions}</p>
+                </div>
+              </div>
+              {briefing.signal && (
+                <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>⚡ {briefing.signal}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.25)' }}>Select a day to view its briefing</p>
+              <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.12)' }}>Days with briefings have a dot indicator</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ══════════════════════════════════════════════════════════
    MAIN APP
    ══════════════════════════════════════════════════════════ */
@@ -597,6 +712,7 @@ export function MinervaApp() {
       }}>
         {view === 'home' && <HomeScreen onEnter={() => navigateTo('briefing')} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} />}
+        {view === 'calendar' && <CalendarScreen navigateTo={navigateTo} />}
       </div>
 
       {/* Audience Studio Modal */}
