@@ -226,7 +226,7 @@ export function HomeContent() {
                 placeholder={sections[activeMode].placeholder}
                 className="mn-hero-input flex-1 bg-transparent border-0 outline-none text-[14px] text-white placeholder:text-white/20" />
               <button onClick={() => { if (inputValue.trim()) enterCanvas(sections[activeMode].id) }}
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${inputValue.trim() ? "bg-white text-black" : "bg-white/6 text-white/15"}`}>
+                className={`mn-hero-send flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${inputValue.trim() ? "bg-white text-black" : "bg-white/6 text-white/15"}`}>
                 <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -259,7 +259,7 @@ export function HomeContent() {
             <motion.div {...f(0.05)}>
               <p className="mn-briefing-date text-[10px] tracking-widest text-white/20 uppercase">Tuesday, April 1 · Morning Briefing</p>
               <p className="mn-briefing-copy text-[15px] text-white/70 mt-2 leading-relaxed max-w-2xl">
-                Good morning, Sarah. <span className="text-sky-400">5 insights</span> surfaced overnight.
+                Good morning, Sarah. <span className="mn-briefing-highlight text-sky-400">5 insights</span> surfaced overnight.
                 Revenue is <span className="text-white/90">${(currentKpi.influencedRevenue/1000).toFixed(0)}K</span> with
                 ROAS at <span className="text-white/90">{currentKpi.roas.toFixed(1)}x</span>. Family audience is surging.
               </p>
@@ -274,8 +274,8 @@ export function HomeContent() {
                 { l:"Match Rate",n:currentKpi.dataMatchRate*100,dec:0,pre:"",suf:"%",d:matchD,s:kpiHistory.map(k=>k.dataMatchRate) },
               ].map((m,i)=>(
                 <div key={i} className="mn-kpi-cell bg-white/[0.025] px-4 py-3.5 hover:bg-white/[0.04] transition-colors cursor-pointer">
-                  <div className="flex items-center justify-between mb-1"><p className="text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
-                  <div className="flex items-end justify-between"><p className="text-[20px] tracking-tight text-white leading-none"><CountUp end={m.n} decimals={m.dec} prefix={m.pre} suffix={m.suf} /></p><Tr d={m.d} /></div>
+                  <div className="flex items-center justify-between mb-1"><p className="mn-kpi-label text-[8px] text-white/15 uppercase tracking-widest">{m.l}</p><Sparkline data={m.s} width={44} height={14} showArea={false} showDot={false} /></div>
+                  <div className="mn-kpi-row flex items-end justify-between"><p className="mn-kpi-value text-[20px] tracking-tight text-white leading-none"><CountUp end={m.n} decimals={m.dec} prefix={m.pre} suffix={m.suf} /></p><Tr d={m.d} /></div>
                 </div>))}
             </motion.div>
 
@@ -301,20 +301,20 @@ export function HomeContent() {
             {/* Top campaigns */}
             <motion.div {...f(0.3)} className="mn-campaign-table-wrap rounded-lg border border-white/[0.06] overflow-hidden">
               <table className="mn-campaign-table w-full text-[11.5px]">
-                <thead><tr className="bg-white/[0.02]">
-                  <th className="text-left px-3.5 py-2 text-white/15 text-[8px] uppercase tracking-widest">Campaign</th>
+                <thead><tr className="mn-campaign-thead bg-white/[0.02]">
+                  <th className="mn-campaign-th text-left px-3.5 py-2 text-white/15 text-[8px] uppercase tracking-widest">Campaign</th>
                   <th className="text-left px-3 py-2 text-white/15 text-[8px] uppercase tracking-widest">Platform</th>
                   <th className="text-right px-3 py-2 text-white/15 text-[8px] uppercase tracking-widest">Spend</th>
                   <th className="text-right px-3 py-2 text-white/15 text-[8px] uppercase tracking-widest">ROAS</th>
                   <th className="text-right px-3.5 py-2 text-white/15 text-[8px] uppercase tracking-widest">Conv</th>
                 </tr></thead>
                 <tbody>{topCampaigns.map(c=>(
-                  <tr key={c.id} onClick={() => setActiveCard(campaignToCard(c))} className="border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
-                    <td className="px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-sky-400/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
-                    <td className="px-3 py-2 text-white/20">{c.platform}</td>
-                    <td className="text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
-                    <td className="text-right px-3 py-2 text-sky-400 tabular-nums">{c.roas.toFixed(1)}x</td>
-                    <td className="text-right px-3.5 py-2 text-white/30 tabular-nums">{c.conversions}</td>
+                  <tr key={c.id} onClick={() => setActiveCard(campaignToCard(c))} className="mn-campaign-row border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
+                    <td className="mn-campaign-name px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-sky-400/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
+                    <td className="mn-campaign-platform px-3 py-2 text-white/20">{c.platform}</td>
+                    <td className="mn-campaign-spend text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
+                    <td className="mn-campaign-roas text-right px-3 py-2 text-sky-400 tabular-nums">{c.roas.toFixed(1)}x</td>
+                    <td className="mn-campaign-conv text-right px-3.5 py-2 text-white/30 tabular-nums">{c.conversions}</td>
                   </tr>))}</tbody>
               </table>
             </motion.div>
@@ -325,9 +325,9 @@ export function HomeContent() {
             <motion.div {...f(0)} className="mn-insights-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>What needs your attention</Lbl>
-                <p className="text-[15px] text-white/70">5 signals surfaced overnight. Click any card to explore.</p>
+                <p className="mn-insights-desc text-[15px] text-white/70">5 signals surfaced overnight. Click any card to explore.</p>
               </div>
-              <span className="text-[11px] text-white/15">{insightCardsFull.length} signals</span>
+              <span className="mn-insights-count text-[11px] text-white/15">{insightCardsFull.length} signals</span>
             </motion.div>
             <div className="mn-insights-scroll flex gap-4 overflow-x-auto pb-2 -mx-2 px-2" style={{ scrollbarWidth: "none" }}>
               {insightCardsFull.map((card, idx) => (
@@ -335,12 +335,12 @@ export function HomeContent() {
                   whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveCard(card)}
                   className="mn-insight-card mn-glass-card snap-start shrink-0 w-[260px] h-[210px] rounded-xl border-l-[3px] border-l-sky-400/40 backdrop-blur-sm p-5 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
-                  <span className="mn-glass-label text-[8px] tracking-widest text-white/25 uppercase">{card.label}</span>
-                  {card.mainValue && <span className="text-[28px] font-bold tracking-tight leading-none mt-1 text-sky-400">{card.mainValue}</span>}
-                  {card.subtitle && <span className="text-[15px] font-semibold tracking-tight leading-tight mt-1">{card.subtitle}</span>}
-                  <p className="text-[11px] text-white/40 leading-snug mt-2 flex-1">{card.copy}</p>
-                  <div className="pt-3 border-t border-white/[0.06] mt-auto">
-                    <span className="text-[11px] font-medium text-sky-400/60">{card.cta}</span>
+                  <span className="mn-insight-label mn-glass-label text-[8px] tracking-widest text-white/25 uppercase">{card.label}</span>
+                  {card.mainValue && <span className="mn-insight-value text-[28px] font-bold tracking-tight leading-none mt-1 text-sky-400">{card.mainValue}</span>}
+                  {card.subtitle && <span className="mn-insight-subtitle text-[15px] font-semibold tracking-tight leading-tight mt-1">{card.subtitle}</span>}
+                  <p className="mn-insight-copy text-[11px] text-white/40 leading-snug mt-2 flex-1">{card.copy}</p>
+                  <div className="mn-insight-footer pt-3 border-t border-white/[0.06] mt-auto">
+                    <span className="mn-insight-cta text-[11px] font-medium text-sky-400/60">{card.cta}</span>
                   </div>
                 </motion.div>
               ))}
@@ -352,9 +352,9 @@ export function HomeContent() {
             <motion.div {...f(0)} className="mn-audiences-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>Your segments</Lbl>
-                <p className="text-[15px] text-white/70"><span className="text-sky-400">{audiences.length} audience segments</span> across lifecycle, predictive, and behavioral types.</p>
+                <p className="mn-audiences-desc text-[15px] text-white/70"><span className="mn-audiences-highlight text-sky-400">{audiences.length} audience segments</span> across lifecycle, predictive, and behavioral types.</p>
               </div>
-              <button onClick={() => router.push("/person-search")} className="text-[11px] text-sky-400/60 hover:text-sky-400 transition-colors flex items-center gap-1">
+              <button onClick={() => router.push("/person-search")} className="mn-audiences-link text-[11px] text-sky-400/60 hover:text-sky-400 transition-colors flex items-center gap-1">
                 Manage <ChevronRight className="h-3 w-3" />
               </button>
             </motion.div>
@@ -366,7 +366,7 @@ export function HomeContent() {
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-[8px] mn-audience-type tracking-widest uppercase font-medium ${typeColors[a.type]?.split(" ")[1] ?? "text-white/20"}`}>{a.type}</span>
                     {a.isActivationReady && (
-                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-sky-400/10 text-sky-400 font-medium flex items-center gap-1">
+                      <span className="mn-audience-badge text-[9px] px-2 py-0.5 rounded-full bg-sky-400/10 text-sky-400 font-medium flex items-center gap-1">
                         <Zap className="h-2.5 w-2.5" /> Ready
                       </span>
                     )}
@@ -382,7 +382,7 @@ export function HomeContent() {
                     )}
                   </div>
                   {a.isActivationReady && (
-                    <button className="mt-3 text-[10px] text-sky-400/60 group-hover:text-sky-400 transition-colors flex items-center gap-1">
+                    <button className="mn-audience-cta mt-3 text-[10px] text-sky-400/60 group-hover:text-sky-400 transition-colors flex items-center gap-1">
                       Activate <ChevronRight className="h-3 w-3" />
                     </button>
                   )}
@@ -396,9 +396,9 @@ export function HomeContent() {
             <motion.div {...f(0)} className="mn-people-header flex items-center justify-between mb-4">
               <div>
                 <Lbl>Top profiles to act on</Lbl>
-                <p className="text-[15px] text-white/70">Highest-propensity people across your segments.</p>
+                <p className="mn-people-desc text-[15px] text-white/70">Highest-propensity people across your segments.</p>
               </div>
-              <button onClick={() => router.push("/people")} className="text-[11px] text-sky-400/60 hover:text-sky-400 transition-colors flex items-center gap-1">
+              <button onClick={() => router.push("/people")} className="mn-people-link text-[11px] text-sky-400/60 hover:text-sky-400 transition-colors flex items-center gap-1">
                 All people <ChevronRight className="h-3 w-3" />
               </button>
             </motion.div>
@@ -419,13 +419,13 @@ export function HomeContent() {
                       <div className="flex items-center gap-2.5">
                         <UserAvatar name={`${p.firstName} ${p.lastName}`} size={28} />
                         <div>
-                          <p className="text-[12px] font-medium text-white/80">{p.firstName} {p.lastName}</p>
-                          <p className="text-[10px] text-white/25">{p.city}, {p.state}</p>
+                          <p className="mn-person-name text-[12px] font-medium text-white/80">{p.firstName} {p.lastName}</p>
+                          <p className="mn-person-location text-[10px] text-white/25">{p.city}, {p.state}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-3 py-2.5">
-                      <span className={`text-[10px] ${statusColors[p.fanStatus] ?? "text-white/30"}`}>
+                      <span className={`mn-person-status text-[10px] ${statusColors[p.fanStatus] ?? "text-white/30"}`}>
                         {p.fanStatus.replace(/_/g, " ")}
                       </span>
                     </td>
@@ -441,14 +441,17 @@ export function HomeContent() {
         </div>
       </div>
 
+      {/* ═══ BOTTOM FADE ═══ */}
+      <div className="mn-canvas-fade pointer-events-none h-24 -mt-24 relative z-[5]" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, transparent 100%)' }} />
+
       {/* ═══ TAB BAR ═══ */}
-      <div className="mn-tabbar-wrap shrink-0 relative z-10 flex justify-center pb-4 pt-2">
+      <div className="mn-tabbar-wrap shrink-0 relative z-10 flex justify-center pb-4 pt-2 -mt-4">
         <div className="mn-tabbar flex items-center gap-1 rounded-xl bg-white/[0.04] border border-white/[0.06] p-1 backdrop-blur-sm">
           {sections.map((s) => {
             const on = activeSection === s.id
             return (
               <button key={s.id} onClick={() => scrollTo(s.id)}
-                className={`text-[12px] px-3.5 py-1.5 rounded-lg transition-all ${
+                className={`mn-tabbar-tab text-[12px] px-3.5 py-1.5 rounded-lg transition-all ${
                   on ? "bg-white text-black font-medium shadow-sm" : "text-white/40 hover:text-white/70 hover:bg-white/[0.06]"
                 }`}>
                 {s.label}
