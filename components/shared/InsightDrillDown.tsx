@@ -5,6 +5,7 @@ import { X } from "lucide-react"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { persons } from "@/lib/data/persons"
+import { SevenSegmentDisplay } from "@/components/ui/seven-segment"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, ChartTooltip as VisxTooltip } from "@/components/ui/area-chart"
 
@@ -336,9 +337,17 @@ function DrillDownModal({ card, onClose, onOpenSpectrum, onNav, onPersonClick }:
 
             {/* Hero value or subtitle */}
             {card.mainValue ? (
-              <div>
-                <span className={`text-[72px] font-bold tracking-tighter leading-none ${card.valueColor}`}>{card.mainValue}</span>
-                <span className="text-[48px] ml-1">{card.mainValue.startsWith("+") ? "↑" : card.mainValue.startsWith("-") ? "↓" : ""}</span>
+              <div className="flex items-end gap-2">
+                <SevenSegmentDisplay
+                  value={card.mainValue.replace(/[^0-9.]/g, "")}
+                  suffix={card.mainValue.replace(/[0-9.,+\-\s]/g, "") || undefined}
+                  height={56}
+                  onColor="#38bdf8"
+                  offColor="rgba(56,189,248,0.05)"
+                />
+                {(card.mainValue.startsWith("+") || card.mainValue.startsWith("-")) && (
+                  <span className="text-[32px] text-sky-400/40 leading-none mb-1">{card.mainValue.startsWith("+") ? "↑" : "↓"}</span>
+                )}
               </div>
             ) : card.subtitle ? (
               <div>
