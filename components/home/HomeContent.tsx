@@ -13,7 +13,7 @@ import { Sparkline } from "@/components/shared/Sparkline"
 import { CountUp } from "@/components/shared/CountUp"
 import { FunnelChart } from "@/components/shared/FunnelChart"
 import { UserAvatar } from "@/components/shared/UserAvatar"
-import { PersonProfileSheet } from "@/components/shared/PersonProfileSheet"
+
 import { AreaChart as VisxAreaChart, Area as VisxArea, Grid as VisxGrid, XAxis as VisxXAxis } from "@/components/ui/area-chart"
 
 /* ── Data ── */
@@ -67,10 +67,102 @@ const typeColors: Record<string, string> = {
   sales: "bg-emerald-500/10 text-emerald-400", retargeting: "bg-purple-500/10 text-purple-400",
 }
 
+/* ── Data → InsightCard converters ── */
+function makeTrendLocal(base: number, delta: number): { date: Date; primary: number; secondary?: number }[] {
+  return Array.from({ length: 7 }, (_, i) => ({ date: new Date(Date.now() - (6 - i) * 86400000), primary: Math.round(base * (1 + (i/6) * delta) * (1 + Math.sin(i*2.1)*0.06)) }))
+}
+
+function audienceToCard(a: typeof audiences[0]): InsightCard {
+  return {
+    id: `aud-${a.id}`, label: a.type.toUpperCase(), mainValue: a.estimatedSize.toLocaleString(), valueColor: "text-sky-400",
+    copy: a.description, meaning: `${a.name} — ${a.channelRecommendation} recommended. ${a.isActivationReady ? "Ready to activate." : "Not yet activation-ready."}`,
+    cta: a.isActivationReady ? "Activate segment" : "View segment", color: "border-l-sky-400/40", category: "Audience",
+    relatedAudienceIds: [a.id],
+    drillDown: {
+      title: a.name, summary: a.description,
+      meaning: `This ${a.type} segment has ${a.estimatedSize.toLocaleString()} members. ${a.memberDelta && a.memberDelta > 0 ? `Growing by +${a.memberDelta} recently.` : "Stable size."}`,
+      metrics: [
+        { label: "Size", value: a.estimatedSize.toLocaleString(), context: "Total profiles in segment." },
+        { label: "Channel", value: a.channelRecommendation, context: "Recommended activation channel." },
+        { label: "Email Reach", value: `${Math.round((a.emailReachRate ?? 0) * 100)}%`, context: "Email deliverability rate." },
+        { label: "Propensity", value: `${Math.round((a.avgPropensityScore ?? 0) * 100)}`, context: "Average propensity score." },
+      ],
+      evidence: `${a.name} is a ${a.type} segment in the ${a.businessUnit} business unit.`,
+      highlight: a.memberDelta && a.memberDelta > 0 ? `Segment grew by +${a.memberDelta} members recently.` : `Segment has ${a.estimatedSize.toLocaleString()} stable members.`,
+      analysis: `This audience is ${a.isActivationReady ? "activation-ready" : "not yet ready"} via ${a.channelRecommendation}.`,
+      immediateActions: [a.isActivationReady ? `Activate via ${a.channelRecommendation}` : "Complete audience setup", "Review member profiles", "Compare with similar segments"],
+      followUpActions: ["Build lookalike audience", "Set up automated refresh", "Create campaign brief"],
+      sources: ["Minerva Audience Engine", "CRM Data", "Ticketmaster"],
+      table: { headers: ["Metric", "Value"], rows: [["Size", a.estimatedSize.toLocaleString()], ["Type", a.type], ["Channel", a.channelRecommendation], ["Email Reach", `${Math.round((a.emailReachRate ?? 0)*100)}%`], ["Phone Reach", `${Math.round((a.phoneReachRate ?? 0)*100)}%`]] },
+      actions: ["Activate", "Export", "Compare", "Edit"],
+      chartData: makeTrendLocal(a.estimatedSize, (a.memberDelta ?? 0) / a.estimatedSize),
+      chartLabels: { primary: "Segment Size" },
+    },
+  }
+}
+
+function campaignToCard(c: typeof allCampaigns[0]): InsightCard {
+  return {
+    id: `camp-${c.id}`, label: "CAMPAIGN", mainValue: `${c.roas.toFixed(1)}x`, valueColor: "text-sky-400",
+    subtitle: c.name, copy: `${c.objective} campaign on ${c.platform}. Spend: ${(c.spend/1000).toFixed(0)}K of ${(c.budget/1000).toFixed(0)}K budget.`,
+    meaning: `ROAS ${c.roas.toFixed(1)}x with ${c.conversions} conversions.`,
+    cta: "View campaign detail", color: "border-l-sky-400/40", category: "Campaign",
+    relatedAudienceIds: [],
+    drillDown: {
+      title: c.name, summary: `${c.objective} campaign running on ${c.platform}. Currently ${c.status}.`,
+      meaning: `This campaign has a ${c.roas.toFixed(1)}x return on ad spend with ${c.conversions} conversions to date.`,
+      metrics: [
+        { label: "ROAS", value: `${c.roas.toFixed(1)}x`, context: "Return on ad spend." },
+        { label: "Conversions", value: String(c.conversions), context: "Total conversions to date." },
+        { label: "Spend", value: `${(c.spend/1000).toFixed(0)}K`, context: `Of ${(c.budget/1000).toFixed(0)}K budget.` },
+        { label: "Trend", value: c.trend === "up" ? `+${c.trendPct}%` : c.trend === "down" ? `-${c.trendPct}%` : "Stable", context: "Recent performance trend." },
+      ],
+      evidence: `Campaign is ${c.status} on ${c.platform} targeting ${c.objective}.`,
+      highlight: `${c.roas.toFixed(1)}x ROAS on ${(c.spend/1000).toFixed(0)}K spend — ${c.conversions} conversions.`,
+      analysis: `${c.name} is ${c.trend === "up" ? "trending upward" : c.trend === "down" ? "declining" : "stable"}. Budget utilization is ${Math.round(c.spend/c.budget*100)}%.`,
+      immediateActions: [c.trend === "up" ? "Increase budget allocation" : "Review targeting", "Export performance report", "Compare with other campaigns"],
+      followUpActions: ["Build lookalike from converters", "Test creative variants", "Plan next flight"],
+      sources: ["Meta Ads Manager", "Klaviyo", "Minerva Campaign Table"],
+      table: { headers: ["Metric", "Value"], rows: [["Platform", c.platform], ["Objective", c.objective], ["Budget", `${(c.budget/1000).toFixed(0)}K`], ["Spend", `${(c.spend/1000).toFixed(0)}K`], ["ROAS", `${c.roas.toFixed(1)}x`], ["Conversions", String(c.conversions)]] },
+      actions: ["Adjust budget", "Pause campaign", "Export report", "Create variant"],
+      chartData: makeTrendLocal(c.spend / 7000, c.trend === "up" ? 0.15 : -0.08),
+      chartLabels: { primary: "Daily Spend" },
+    },
+  }
+}
+
+function personToCard(p: Person): InsightCard {
+  return {
+    id: `person-${p.id}`, label: p.fanStatus.replace(/_/g, " ").toUpperCase(), mainValue: `${Math.round(p.scores.ticketBuy * 100)}`, valueColor: "text-sky-400",
+    subtitle: `${p.firstName} ${p.lastName}`, copy: `${p.jobTitle} at ${p.company}. ${p.city}, ${p.state}.`,
+    meaning: `Ticket Buy: ${Math.round(p.scores.ticketBuy*100)} · Premium: ${Math.round(p.scores.premium*100)} · Churn: ${Math.round(p.scores.churn*100)}`,
+    cta: "View full profile", color: "border-l-sky-400/40", category: "Audience",
+    relatedAudienceIds: p.audiences,
+    drillDown: {
+      title: `${p.firstName} ${p.lastName}`, summary: `${p.jobTitle} at ${p.company}. Located in ${p.city}, ${p.state}. ${p.household.incomeBand} income band.`,
+      meaning: `${p.fanStatus.replace(/_/g, " ")} with ${Math.round(p.identityConfidence*100)}% identity confidence and ${Math.round(p.profileCompleteness*100)}% profile completeness.`,
+      metrics: [
+        { label: "Ticket Buy", value: String(Math.round(p.scores.ticketBuy*100)), context: "Propensity to purchase tickets." },
+        { label: "Premium", value: String(Math.round(p.scores.premium*100)), context: "Propensity for premium upgrade." },
+        { label: "Renewal", value: String(Math.round(p.scores.renewal*100)), context: "Likelihood to renew." },
+        { label: "Churn Risk", value: String(Math.round(p.scores.churn*100)), context: p.scores.churn > 0.5 ? "High risk — needs attention." : "Low risk." },
+      ],
+      evidence: `${p.firstName} is a ${p.fanStatus.replace(/_/g, " ")} in the ${p.lifecycleStage} stage. ${p.tickets.length} ticket purchases on record.`,
+      highlight: p.tickets.length > 0 ? `Total ticket revenue: ${p.tickets.reduce((s,t)=>s+t.revenue,0).toLocaleString()}` : "No ticket purchases yet — acquisition opportunity.",
+      analysis: `Household: ${p.household.incomeBand} income, ${p.household.netWorthBand} net worth. ${p.household.hasChildren ? "Has children." : ""} ${p.household.distanceToStadium.toFixed(1)} mi from stadium.`,
+      immediateActions: ["Send personalized outreach", "Add to priority segment", "Schedule follow-up"],
+      followUpActions: ["Build similar audience", "Track engagement over time", "Review ticket history"],
+      sources: ["Minerva Profile Engine", "CRM", "Ticketmaster"],
+      table: { headers: ["Detail", "Value"], rows: [["Age", String(p.age)], ["Location", `${p.city}, ${p.state}`], ["Income", p.household.incomeBand], ["Net Worth", p.household.netWorthBand], ["Distance", `${p.household.distanceToStadium.toFixed(1)} mi`], ["Tickets", String(p.tickets.length)]] },
+      actions: ["Contact with AI", "Add to segment", "View ticket history", "Export profile"],
+    },
+  }
+}
+
 /* ═══ MAIN COMPONENT ═══ */
 export function HomeContent() {
   const router = useRouter()
-  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
+
   const [activeSection, setActiveSection] = useState("briefing")
   const [showCanvas, setShowCanvas] = useState(false)
   const [activeCard, setActiveCard] = useState<InsightCard | null>(null)
@@ -81,6 +173,13 @@ export function HomeContent() {
     setActiveSection(sectionId)
     setShowCanvas(true)
     setTimeout(() => sectionRefs.current[sectionId]?.scrollIntoView({ behavior: "smooth", block: "start" }), 100)
+  }, [])
+
+  // Listen for logo "go home" event
+  useEffect(() => {
+    const goHome = () => { setShowCanvas(false); setActiveCard(null) }
+    window.addEventListener('minerva-go-home', goHome)
+    return () => window.removeEventListener('minerva-go-home', goHome)
   }, [])
 
   // IntersectionObserver for scroll-anchor pills
@@ -186,7 +285,7 @@ export function HomeContent() {
                   <th className="text-right px-3.5 py-2 text-white/15 text-[8px] uppercase tracking-widest">Conv</th>
                 </tr></thead>
                 <tbody>{topCampaigns.map(c=>(
-                  <tr key={c.id} className="border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
+                  <tr key={c.id} onClick={() => setActiveCard(campaignToCard(c))} className="border-t border-white/[0.03] hover:bg-white/[0.02] cursor-pointer">
                     <td className="px-3.5 py-2 text-white/50 flex items-center gap-1.5">{c.trend==="up"?<TrendingUp className="h-3 w-3 text-sky-400/40"/>:<TrendingDown className="h-3 w-3 text-white/15"/>}{c.name}</td>
                     <td className="px-3 py-2 text-white/20">{c.platform}</td>
                     <td className="text-right px-3 py-2 text-white/25 tabular-nums">${(c.spend/1000).toFixed(0)}K</td>
@@ -238,6 +337,7 @@ export function HomeContent() {
             <div className="grid grid-cols-3 gap-4">
               {audiences.map((a, idx) => (
                 <motion.div key={a.id} {...f(0.03 + idx * 0.04)}
+                  onClick={() => setActiveCard(audienceToCard(a))}
                   className="mn-glass-card rounded-xl p-5 cursor-pointer hover:bg-white/[0.04] transition-colors group">
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-[8px] tracking-widest uppercase font-medium ${typeColors[a.type]?.split(" ")[1] ?? "text-white/20"}`}>{a.type}</span>
@@ -289,7 +389,7 @@ export function HomeContent() {
                   <th className="text-right px-3.5 py-2.5 text-white/15 text-[8px] uppercase tracking-widest">Income</th>
                 </tr></thead>
                 <tbody>{topPeople.map(p=>(
-                  <tr key={p.id} onClick={() => setSelectedPerson(p)}
+                  <tr key={p.id} onClick={() => setActiveCard(personToCard(p))}
                     className="border-t border-white/[0.03] hover:bg-white/[0.03] cursor-pointer transition-colors">
                     <td className="px-3.5 py-2.5">
                       <div className="flex items-center gap-2.5">
@@ -337,7 +437,7 @@ export function HomeContent() {
       )}
       </AnimatePresence>
 
-      <PersonProfileSheet person={selectedPerson} open={!!selectedPerson} onClose={() => setSelectedPerson(null)} />
+
 
       <AnimatePresence>
         {activeCard && (

@@ -95,7 +95,7 @@ export function MinervaMenuBar() {
       {/* ═══ STATIC HEADER ═══ */}
       <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 relative z-30">
         <div className="mn-menubar-left flex items-center gap-1">
-          <button onClick={() => router.push('/')} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
+          <button onClick={() => { router.push('/'); window.dispatchEvent(new Event('minerva-go-home')) }} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
             <MinervaLogo size={16} />
             <span className="mn-menubar-brand text-[13px] font-semibold tracking-tight">Minerva</span>
           </button>
