@@ -50,14 +50,12 @@ function HomeScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
   }, [])
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 relative">
+    <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
       {/* Rotating tagline */}
-      <div className="relative h-14 flex items-center justify-center mb-12 w-full max-w-[600px]">
-        <p key={tagIndex} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in"
-          style={{ fontWeight: 400, letterSpacing: '-0.03em', position: 'absolute', whiteSpace: 'nowrap' }}>
-          {TAGLINES[tagIndex]}
-        </p>
-      </div>
+      <p key={tagIndex} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10"
+        style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>
+        {TAGLINES[tagIndex]}
+      </p>
 
       {/* CTA */}
       <LiquidMetalButton label="Enter" onClick={() => navigateTo('briefing')} />
