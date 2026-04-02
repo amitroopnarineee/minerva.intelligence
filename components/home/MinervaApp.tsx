@@ -630,11 +630,11 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name
       pointerEvents: open ? 'auto' : 'none',
     }}>
 
-      {/* Close pill */}
+      {/* Close pill — matches avatar size and style */}
       <button onClick={onClose}
-        className="fixed top-3 right-16 z-[260] text-[11px] px-4 py-1.5 rounded-full transition-all hover:bg-white/[0.08]"
-        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(12px)', opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
-        Close
+        className="fixed top-2.5 z-[260] rounded-full bg-white/90 ring-1 ring-white/10 hover:ring-white/30 transition-all flex items-center justify-center"
+        style={{ right: 68, width: 25, height: 25, opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
+        <span className="text-[9px] font-semibold text-black/60 leading-none">✕</span>
       </button>
 
       {phase === 'select' ? (
