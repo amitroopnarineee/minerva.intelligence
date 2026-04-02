@@ -211,7 +211,7 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
   return (
     <div className="absolute inset-0">
       {/* 3D Gallery background */}
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-50">
         <GalleryErrorBoundary>
           <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} visibleCount={10} className="h-full w-full" />
         </GalleryErrorBoundary>

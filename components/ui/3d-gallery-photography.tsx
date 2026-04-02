@@ -174,10 +174,7 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 			return new Promise<THREE.Texture | null>(resolve => {
 				loader.load(img.src, tex => resolve(tex), undefined, () => resolve(null));
 			});
-		})).then(results => {
-			console.log('[Gallery] textures loaded:', results.length, 'valid:', results.filter(Boolean).length);
-			setTextures(results);
-		});
+		})).then(results => setTextures(results));
 		return () => { videoRefs.current.forEach(v => { v.pause(); v.src = ''; }); };
 	}, [normalizedImages]);
 	const materials = useMemo(() => Array.from({ length: visibleCount }, () => createClothMaterial()), [visibleCount]);
@@ -300,8 +297,8 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 }
 
 export default function InfiniteGallery({ images, className = 'h-96 w-full', style,
-	fadeSettings = { fadeIn: { start: 0.05, end: 0.25 }, fadeOut: { start: 0.4, end: 0.43 } },
-	blurSettings = { blurIn: { start: 0.0, end: 0.1 }, blurOut: { start: 0.4, end: 0.43 }, maxBlur: 8.0 },
+	fadeSettings = { fadeIn: { start: 0.02, end: 0.12 }, fadeOut: { start: 0.75, end: 0.95 } },
+	blurSettings = { blurIn: { start: 0.0, end: 0.08 }, blurOut: { start: 0.8, end: 0.95 }, maxBlur: 4.0 },
 }: InfiniteGalleryProps) {
 	const [webglOk, setWebglOk] = useState(true);
 	useEffect(() => {
