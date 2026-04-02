@@ -235,7 +235,7 @@ function HomeScreen({ onEnter, onAutopilot }: { onEnter: () => void; onAutopilot
       </div>
       <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide z-10">
         Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine
-        {onAutopilot && <><span className="mx-2">·</span><button onClick={onAutopilot} className="text-white/25 hover:text-white/50 transition-colors">▶ Autopilot</button></>}
+        {onAutopilot && <><span className="mn-hide-mobile mx-2">·</span><button onClick={onAutopilot} className="mn-hide-mobile text-white/25 hover:text-white/50 transition-colors">▶ Autopilot</button></>}
       </p>
     </div>
   )
@@ -745,7 +745,7 @@ const DASH_TABS = [
   { id: "people", label: "People", icon: "◔", title: "Explore your customer profiles." },
   { id: "audiences", label: "Audiences", icon: "◫", title: "Build intelligent audience segments." },
   { id: "enrich", label: "Enrich", icon: "↧", title: "Enrich profiles with new data." },
-  { id: "activate", label: "Activate", icon: "✦", title: "Activate audiences across channels." },
+  { id: "activate", label: "Activate", icon: "✦", title: "Activate audiences across channels.", hidden: true },
 ]
 
 function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) => void; onOpenStudio: () => void }) {
@@ -755,16 +755,17 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
   const [launchingOut, setLaunchingOut] = useState(false)
   const [titleIdx, setTitleIdx] = useState(0)
 
-  // Auto-cycle titles
+  // Auto-cycle titles (only visible tabs)
+  const visibleTabs = DASH_TABS.filter(t => !t.hidden)
   useEffect(() => {
     if (launching) return
-    const iv = setInterval(() => setTitleIdx(p => (p + 1) % DASH_TABS.length), 4000)
+    const iv = setInterval(() => setTitleIdx(p => (p + 1) % visibleTabs.length), 4000)
     return () => clearInterval(iv)
-  }, [launching])
+  }, [launching, visibleTabs.length])
 
   // Sync activeTab with titleIdx
   useEffect(() => {
-    if (!launching) setActiveTab(DASH_TABS[titleIdx].id)
+    if (!launching) setActiveTab(visibleTabs[titleIdx]?.id || 'discover')
   }, [titleIdx, launching])
 
   const handleSubmit = () => {
@@ -793,7 +794,7 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
       <div className="h-12 shrink-0" />
       <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
         <h1 key={launching ? 'launch' : titleIdx} className={`text-[28px] text-white text-center mb-8 ${launching ? 'mn-shimmer-text' : ''}`} style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, mixBlendMode: launching ? 'normal' : 'exclusion', opacity: launchingOut ? 0 : undefined, transform: launchingOut ? 'translateY(-8px)' : undefined, transition: launchingOut ? 'opacity 0.4s ease, transform 0.4s ease' : undefined, animation: !launchingOut ? 'mn-stagger-in 0.35s ease forwards' : 'none' }}>
-          {launching ? 'Launching Audience Studio...' : DASH_TABS[titleIdx]?.title}
+          {launching ? 'Launching Audience Studio...' : visibleTabs[titleIdx]?.title}
         </h1>
 
         {/* Chat input — fade out when launching */}
@@ -809,9 +810,9 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
         </div>
 
         {/* Tab pills — fade out when launching */}
-        <div className="flex items-center gap-2"
+        <div className="mn-hide-mobile flex items-center gap-2"
           style={{ opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s', pointerEvents: launching ? 'none' : 'auto' }}>
-          {DASH_TABS.map(t => (
+          {DASH_TABS.filter(t => !t.hidden).map(t => (
             <button key={t.id} onClick={() => {
               setActiveTab(t.id)
               setTitleIdx(DASH_TABS.findIndex(tab => tab.id === t.id))

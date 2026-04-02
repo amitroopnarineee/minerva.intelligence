@@ -104,7 +104,7 @@ export function MinervaMenuBar() {
         </div>
         <div className="mn-menubar-right flex items-center gap-1" style={{ pointerEvents: 'auto' }}>
           <div aria-label="User" className="ml-2 rounded-full bg-white/90 ring-1 ring-white/10 flex items-center justify-center" style={{ width: 25, height: 25 }}>
-            <span className="text-[9px] font-semibold text-black/60 leading-none">SM</span>
+            <span className="text-[9px] font-semibold text-black/60 leading-none">JX</span>
           </div>
         </div>
       </div>
@@ -140,13 +140,13 @@ export function MinervaMenuBar() {
           <div aria-label="User"
             onClick={() => setNavVisible(v => !v)}
             className="ml-2 rounded-full bg-white/90 ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer flex items-center justify-center" style={{ width: 25, height: 25 }}>
-            <span className="text-[9px] font-semibold text-black/60 leading-none">SM</span>
+            <span className="text-[9px] font-semibold text-black/60 leading-none">JX</span>
           </div>
         </div>
       </div>
 
       {/* ═══ DYNAMIC NOTCH ═══ */}
-      <div className={`fixed inset-0 z-[249] ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+      <div className={`mn-hide-mobile fixed inset-0 z-[249] ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
         onClick={handleBackdrop}
         style={{ background: isOpen ? "rgb(0 0 0 / 84%)" : "rgba(0,0,0,0)", backdropFilter: isOpen ? "blur(2px)" : "none", transition: "background 500ms, backdrop-filter 500ms" }} />
 

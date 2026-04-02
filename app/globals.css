@@ -223,3 +223,17 @@
   -webkit-text-fill-color: transparent;
   animation: mn-stagger-in 0.35s ease forwards, mn-shimmer 2s linear infinite !important;
 }
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  /* Hide elements marked for mobile */
+  .mn-hide-mobile { display: none !important; }
+
+  /* Hide avatar and right nav */
+  .mn-menubar-right { display: none !important; }
+
+  /* Center Minerva logo */
+  .mn-menubar-static { justify-content: center !important; }
+  .mn-menubar-left { margin-right: 0 !important; }
+  .mn-menubar-left .mn-menubar-logo { margin-right: 0 !important; }
+}
