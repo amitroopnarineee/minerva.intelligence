@@ -954,44 +954,51 @@ function WorkspaceActionModal({ type, onConfirm, onCancel }: { type: 'save-segme
   }
 
   return (
-    <div className="fixed inset-0 z-[280] flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }} onClick={onCancel}>
-      <div onClick={e => e.stopPropagation()} className="w-[420px] max-w-[calc(100vw-32px)]" style={{ background: 'rgba(14,14,16,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px 28px 24px', opacity: 0, animation: 'mn-stagger-in 0.4s ease forwards' }}>
+    <div className="fixed inset-0 z-[280] flex flex-col" style={{ background: 'rgba(6,6,8,0.95)', backdropFilter: 'blur(20px)' }}>
+      {/* Full-screen modal container */}
+      <div className="flex-1 flex flex-col m-4 sm:m-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', opacity: 0, animation: 'mn-stagger-in 0.4s ease forwards' }}>
         {done ? (
-          <div className="text-center py-6" style={{ opacity: 0, animation: 'mn-stagger-in 0.3s ease forwards' }}>
-            <div className="text-[28px] mb-3">✦</div>
-            <p className="text-[15px] text-white" style={{ fontWeight: 500 }}>{type === 'save-segment' ? 'Segment Saved' : 'Campaign Launched'}</p>
-            <p className="text-[12px] mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>{name}</p>
+          <div className="flex-1 flex flex-col items-center justify-center" style={{ opacity: 0, animation: 'mn-stagger-in 0.3s ease forwards' }}>
+            <div className="text-[40px] mb-4">✦</div>
+            <p className="text-[22px] text-white" style={{ fontWeight: 500 }}>{type === 'save-segment' ? 'Segment Saved' : 'Campaign Launched'}</p>
+            <p className="text-[13px] mt-3" style={{ color: 'rgba(255,255,255,0.3)' }}>{name}</p>
           </div>
         ) : (
           <>
-            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 16 }}>
-              ✦ {type === 'save-segment' ? 'SAVE SEGMENT' : 'LAUNCH CAMPAIGN'}
-            </p>
-            <label className="block mb-4">
-              <span className="text-[11px] block mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>Name</span>
+            {/* Header */}
+            <div className="px-6 sm:px-10 pt-6 sm:pt-8">
+              <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>
+                ✦ {type === 'save-segment' ? 'SAVE SEGMENT' : 'LAUNCH CAMPAIGN'}
+              </p>
+            </div>
+
+            {/* Large centered input */}
+            <div className="flex-1 flex flex-col justify-center px-6 sm:px-10">
               <input value={name} onChange={e => setName(e.target.value)} autoFocus
-                className="w-full bg-transparent outline-none text-[15px] text-white px-3 py-2.5 rounded-lg"
-                style={{ border: '1px solid rgba(255,255,255,0.1)', fontWeight: 500 }} />
-            </label>
-            {type === 'save-segment' && (
-              <div className="flex gap-4 mb-5">
-                <div>
-                  <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Profiles</span>
-                  <span className="text-[16px] text-white tabular-nums" style={{ fontWeight: 600 }}>2,400</span>
+                className="w-full bg-transparent outline-none text-white text-center"
+                style={{ fontSize: 35, fontWeight: 500, height: 'auto', border: 'none', letterSpacing: '-0.02em' }} />
+              {type === 'save-segment' && (
+                <div className="flex items-center justify-center gap-8 mt-8">
+                  <div className="text-center">
+                    <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Profiles</span>
+                    <span className="text-[18px] text-white tabular-nums" style={{ fontWeight: 600 }}>2,400</span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Score Range</span>
+                    <span className="text-[18px] text-white tabular-nums" style={{ fontWeight: 600 }}>72–99</span>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Reachable</span>
+                    <span className="text-[18px] text-white tabular-nums" style={{ fontWeight: 600 }}>78%</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Score Range</span>
-                  <span className="text-[16px] text-white tabular-nums" style={{ fontWeight: 600 }}>72–99</span>
-                </div>
-                <div>
-                  <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Reachable</span>
-                  <span className="text-[16px] text-white tabular-nums" style={{ fontWeight: 600 }}>78%</span>
-                </div>
-              </div>
-            )}
-            <div className="flex gap-3">
-              <button onClick={onCancel} className="flex-1 text-[12px] py-2.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>Cancel</button>
-              <button onClick={handleConfirm} disabled={saving} className="flex-1 text-[12px] py-2.5 rounded-lg transition-all hover:bg-white/[0.95]" style={{ background: saving ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
+              )}
+            </div>
+
+            {/* Full-width bottom buttons */}
+            <div className="flex gap-3 px-6 sm:px-10 pb-6 sm:pb-8">
+              <button onClick={onCancel} className="flex-1 text-[13px] py-3.5 rounded-xl transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>Cancel</button>
+              <button onClick={handleConfirm} disabled={saving} className="flex-1 text-[13px] py-3.5 rounded-xl transition-all hover:bg-white/[0.95]" style={{ background: saving ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
                 {saving ? '...' : type === 'save-segment' ? 'Save Segment' : 'Launch'}
               </button>
             </div>
