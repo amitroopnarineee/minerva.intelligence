@@ -753,6 +753,19 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
   const [activeTab, setActiveTab] = useState("discover")
   const [launching, setLaunching] = useState(false)
   const [launchingOut, setLaunchingOut] = useState(false)
+  const [titleIdx, setTitleIdx] = useState(0)
+
+  // Auto-cycle titles
+  useEffect(() => {
+    if (launching) return
+    const iv = setInterval(() => setTitleIdx(p => (p + 1) % DASH_TABS.length), 4000)
+    return () => clearInterval(iv)
+  }, [launching])
+
+  // Sync activeTab with titleIdx
+  useEffect(() => {
+    if (!launching) setActiveTab(DASH_TABS[titleIdx].id)
+  }, [titleIdx, launching])
 
   const handleSubmit = () => {
     const q = query.toLowerCase().trim()
@@ -769,7 +782,7 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
   }
 
   // Reset launching state when we return to dashboard
-  useEffect(() => { setLaunching(false); setLaunchingOut(false); setActiveTab('discover') }, [])
+  useEffect(() => { setLaunching(false); setLaunchingOut(false); setActiveTab('discover'); setTitleIdx(0) }, [])
 
   return (
     <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
@@ -779,8 +792,8 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
       </div>
       <div className="h-12 shrink-0" />
       <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
-        <h1 key={launching ? 'launch' : activeTab} className={`text-[28px] text-white text-center mb-8 ${launching ? 'mn-shimmer-text' : ''}`} style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: launchingOut ? 0 : undefined, transform: launchingOut ? 'translateY(-8px)' : undefined, transition: launchingOut ? 'opacity 0.4s ease, transform 0.4s ease' : undefined, animation: !launchingOut ? (launching ? 'mn-stagger-in 0.35s ease forwards' : 'mn-stagger-in 0.35s ease forwards') : 'none' }}>
-          {launching ? 'Launching Audience Studio...' : DASH_TABS.find(t => t.id === activeTab)?.title}
+        <h1 key={launching ? 'launch' : titleIdx} className={`text-[28px] text-white text-center mb-8 ${launching ? 'mn-shimmer-text' : ''}`} style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: launchingOut ? 0 : undefined, transform: launchingOut ? 'translateY(-8px)' : undefined, transition: launchingOut ? 'opacity 0.4s ease, transform 0.4s ease' : undefined, animation: !launchingOut ? 'mn-stagger-in 0.35s ease forwards' : 'none' }}>
+          {launching ? 'Launching Audience Studio...' : DASH_TABS[titleIdx]?.title}
         </h1>
 
         {/* Chat input — fade out when launching */}
@@ -801,11 +814,12 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
           {DASH_TABS.map(t => (
             <button key={t.id} onClick={() => {
               setActiveTab(t.id)
+              setTitleIdx(DASH_TABS.findIndex(tab => tab.id === t.id))
               if (t.id === 'audiences') { handleAudienceClick(); return }
             }}
               className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
               style={{
-                background: activeTab === t.id ? 'rgba(255,255,255,0.08)' : 'transparent',
+                background: 'transparent',
                 border: `1px solid ${activeTab === t.id ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
                 color: activeTab === t.id ? '#fff' : 'rgba(255,255,255,0.35)',
                 fontWeight: activeTab === t.id ? 500 : 400,
@@ -815,6 +829,11 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="shrink-0 pb-6 text-center">
+        <p className="text-[11px] text-white/15 tracking-wide">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
       </div>
     </div>
   )
