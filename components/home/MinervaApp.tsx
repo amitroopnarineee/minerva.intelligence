@@ -278,9 +278,9 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
   // Advance past segment card when modal closes
   useEffect(() => {
-    if (studioDone && step === 8) {
+    if (studioDone && step === 9) {
       // The segment card had delayAfter=99999, so we need to manually advance
-      setTimeout(() => setStep(9), 500)
+      setTimeout(() => setStep(10), 500)
     }
   }, [studioDone, step])
 
