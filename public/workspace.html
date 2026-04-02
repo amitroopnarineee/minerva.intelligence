@@ -369,7 +369,8 @@ var ag=Math.floor((isF?24:26)+R()*15+t*25),ii=cl(Math.floor(t*4.5+(R()-.5)*2),0,
 var sg=[];var ns=1+Math.floor(R()*2);for(var j=0;j<ns;j++){var z=pk(SG);if(sg.indexOf(z)<0)sg.push(z)}
 PP.push({id:i,name:fn+" "+ln,score:sc,age:ag,gender:isF?"F":"M",city:ct[0],state:ct[1],title:pk(TT),company:pk(CO),income:IB[ii],wealth:WB[wi],owner:R()<.35+t*.40,edu:R()<.3+t*.3?"Graduate":"Bachelor's",email:R()<.60+t*.35,phone:R()<.40+t*.45,addr:R()<.50+t*.40,photo:ph,segs:sg})}
 PP.sort(function(a,b){return b.score-a.score});
-var histBins=[];for(var i=0;i<50;i++)histBins.push(0);PP.forEach(function(p){histBins[Math.min(Math.floor(p.score/2),49)]++});var histMax=Math.max.apply(null,histBins);
+if(new URLSearchParams(location.search).get('empty')){PP=[];}
+var histBins=[];for(var i=0;i<50;i++)histBins.push(0);PP.forEach(function(p){histBins[Math.min(Math.floor(p.score/2),49)]++});var histMax=Math.max.apply(null,histBins)||1;
 (function(){var c=document.getElementById("shist"),h="";for(var i=0;i<50;i++)h+='<div class="mn-workspace-slider-hist-bar" style="height:'+(histBins[i]/histMax*100)+'%"><\/div>';c.innerHTML=h})();
 
 var sLo=0,sHi=99,selR=null,selMulti=[],sTerm="",sortKey="score",sortDir=-1,extraFilters=null;
@@ -658,6 +659,15 @@ if(!extraFilters)extraFilters={};
 if(extraFilters[key]){delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null}
 else{if(key==="ownerOnly")extraFilters.ownerOnly=true;if(key==="incomeMin")extraFilters.incomeMin=3;if(key==="emailOnly")extraFilters.emailOnly=true}
 ren();syncFiltBtns()}
+
+// Empty state overlay
+if(PP.length===0){
+  var eo=document.createElement('div');
+  eo.id='emptyOverlay';
+  eo.style.cssText='position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,12,0.97)';
+  eo.innerHTML='<div style="width:320px;text-align:center"><div style="width:64px;height:64px;border-radius:16px;border:2px dashed rgba(255,255,255,0.1);margin:0 auto 20px;display:flex;align-items:center;justify-content:center"><span style="font-size:24px;color:rgba(255,255,255,0.15)">\u2191</span></div><p style="font-size:18px;color:white;font-weight:500;margin-bottom:8px">No profiles loaded</p><p style="font-size:13px;color:rgba(255,255,255,0.3);line-height:1.5;margin-bottom:24px">Upload a CSV or select an existing segment to start scoring and building audiences.</p><button onclick="document.getElementById(\'emptyOverlay\').style.display=\'none\'" style="font-size:12px;padding:8px 20px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);cursor:pointer">Dismiss</button></div>';
+  document.body.appendChild(eo);
+}
 function syncFiltBtns(){var m={"fpOwn":"ownerOnly","fpInc":"incomeMin","fpEm":"emailOnly"};var anyOn=false;Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el){if(extraFilters&&extraFilters[m[id]]){el.classList.add("on");anyOn=true}else el.classList.remove("on")}});var fb=document.getElementById("ftFiltBtn");if(fb){if(anyOn)fb.classList.add("mn-workspace-slider-mode-on");else fb.classList.remove("mn-workspace-slider-mode-on")}}
 function togFilterPop(){var p=document.getElementById("ftFiltPop");p.classList.toggle("open");syncFiltBtns()}
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-filter-wrap")){var p=document.getElementById("ftFiltPop");if(p)p.classList.remove("open")}if(!e.target.closest(".mn-toolbar-overflow-wrap")){var o=document.getElementById("ftOverflow");if(o)o.classList.remove("open")}})

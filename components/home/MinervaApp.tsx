@@ -595,11 +595,13 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
 function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name: string) => void; onClose: () => void }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
   const [actionModal, setActionModal] = useState<'save-segment' | 'launch-campaign' | null>(null)
   const [phase, setPhase] = useState<'select' | 'workspace'>('select')
+  const [emptyMode, setEmptyMode] = useState(false)
 
   // Reset phase when modal opens
-  useEffect(() => { if (open) setPhase('select') }, [open])
+  useEffect(() => { if (open) { setPhase('select'); setEmptyMode(false) } }, [open])
 
   // Listen for postMessage from workspace iframe (Save Segment button)
   useEffect(() => {
@@ -648,22 +650,37 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name
               <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Minerva</span>
             </div>
             <h2 className="text-[26px] text-white text-center mb-10" style={{ fontWeight: 500, letterSpacing: '-0.02em' }}>Select Segment</h2>
+            {/* Hidden file input */}
+            <input ref={fileRef} type="file" accept="*" className="hidden" onChange={() => { setPhase('workspace') }} />
+
             <div className="flex items-center justify-center gap-4">
+              {/* Existing audience */}
               <button onClick={() => setPhase('workspace')}
                 className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
-                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.25s forwards' }}>
+                style={{ width: 200, height: 180, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.2s forwards' }}>
                 <div className="w-12 h-12 rounded-full mb-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
                   <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Audience 1</span>
-                <span className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>268M profiles</span>
+                <span className="text-[13px] text-white" style={{ fontWeight: 500 }}>Audience 1</span>
+                <span className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>268M profiles</span>
               </button>
-              <button onClick={() => setPhase('workspace')}
+
+              {/* Upload */}
+              <button onClick={() => fileRef.current?.click()}
                 className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
-                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.025)', border: '1px dashed rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.35s forwards' }}>
+                style={{ width: 200, height: 180, background: 'rgba(255,255,255,0.025)', border: '1px dashed rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.3s forwards' }}>
                 <span className="text-[20px] mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}>↑</span>
-                <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Upload</span>
-                <span className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>CSV or segment file</span>
+                <span className="text-[13px] text-white" style={{ fontWeight: 500 }}>Upload</span>
+                <span className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Any file format</span>
+              </button>
+
+              {/* New / Empty segment */}
+              <button onClick={() => { setEmptyMode(true); setPhase('workspace') }}
+                className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
+                style={{ width: 200, height: 180, background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.06)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.4s forwards' }}>
+                <span className="text-[20px] mb-3" style={{ color: 'rgba(255,255,255,0.15)' }}>+</span>
+                <span className="text-[13px] text-white" style={{ fontWeight: 500 }}>New Segment</span>
+                <span className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Start from scratch</span>
               </button>
             </div>
             <p className="text-center mt-10 text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>Miami Dolphins · Consumer Intelligence · April 2, 2026</p>
@@ -672,7 +689,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name
       ) : (
         /* ═══ WORKSPACE ═══ */
         <div className="flex-1 relative bg-black" style={{ opacity: 0, animation: 'mn-stagger-in 0.4s ease forwards' }}>
-          <iframe ref={iframeRef} src="/workspace.html" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
+          <iframe ref={iframeRef} src={emptyMode ? '/workspace.html?empty=1' : '/workspace.html'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
         </div>
       )}
 
