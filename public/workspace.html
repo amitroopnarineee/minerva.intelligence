@@ -286,6 +286,7 @@ body.embedded #pIntel{display:none!important}
 
 body.embedded .mn-workspace-slider{margin-top:0}
 body.embedded .mn-workspace-floating-toolbar{display:none!important}
+body.mn-empty .mn-workspace-floating-toolbar{display:none!important}
 body.embedded .mn-workspace-main{padding:8px 8px 0}
 body.embedded #pDet{flex:0 0 280px}
 body.embedded #pTbl{flex:1}
@@ -416,7 +417,7 @@ function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.c
 
 function rtbl(){sTerm=document.getElementById("si").value;var l=gf(),n=l.length;
 document.getElementById("tc").textContent=n+(extraFilters?" \u00b7 filtered":"");var bd=document.getElementById("tb");
-if(!n){bd.innerHTML='<div class="mn-workspace-empty">No records match<\/div>';return}
+if(!n){bd.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:400px;text-align:center"><div style="width:56px;height:56px;border-radius:14px;border:2px dashed rgba(255,255,255,0.08);margin:0 auto 16px;display:flex;align-items:center;justify-content:center"><span style="font-size:20px;color:rgba(255,255,255,0.12)">↑</span></div><p style="font-size:16px;color:white;font-weight:500;margin:0 0 6px">No profiles loaded</p><p style="font-size:12px;color:rgba(255,255,255,0.3);margin:0;line-height:1.5">Upload a CSV or select a segment<br>to start building audiences.</p></div>';return}
 var cols=[["name","Person"],["score","Score"],["age","Age"],["income","Income"],["owner","Home"]];
 var h="";
 // Multi-select bar
@@ -443,7 +444,7 @@ function doSort(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==="score"
 
 function rdet(){var all=PP,l=gf(),n=l.length,tot=all.length;
 document.getElementById("dr").textContent=sLo+"\u2013"+sHi;
-if(!n){document.getElementById("db").innerHTML='<div class="mn-workspace-empty">Move the slider<\/div>';upSt(0,0,0,"--");return}
+if(!n){document.getElementById("db").innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:300px"><span style="font-size:72px;font-weight:600;color:rgba(255,255,255,0.06);letter-spacing:-0.04em;font-variant-numeric:tabular-nums">0</span></div>';upSt(0,0,0,"--");return}
 var ec=0,pc=0,ac=0,ss=0,sa=0,oc=0;
 l.forEach(function(p){if(p.email)ec++;if(p.phone)pc++;if(p.addr)ac++;ss+=p.score;sa+=p.age;if(p.owner)oc++});
 var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),op=(oc/n*100).toFixed(1);
@@ -660,14 +661,8 @@ if(extraFilters[key]){delete extraFilters[key];if(!Object.keys(extraFilters).len
 else{if(key==="ownerOnly")extraFilters.ownerOnly=true;if(key==="incomeMin")extraFilters.incomeMin=3;if(key==="emailOnly")extraFilters.emailOnly=true}
 ren();syncFiltBtns()}
 
-// Empty state overlay
-if(PP.length===0){
-  var eo=document.createElement('div');
-  eo.id='emptyOverlay';
-  eo.style.cssText='position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,10,12,0.97)';
-  eo.innerHTML='<div style="width:320px;text-align:center"><div style="width:64px;height:64px;border-radius:16px;border:2px dashed rgba(255,255,255,0.1);margin:0 auto 20px;display:flex;align-items:center;justify-content:center"><span style="font-size:24px;color:rgba(255,255,255,0.15)">\u2191</span></div><p style="font-size:18px;color:white;font-weight:500;margin-bottom:8px">No profiles loaded</p><p style="font-size:13px;color:rgba(255,255,255,0.3);line-height:1.5;margin-bottom:24px">Upload a CSV or select an existing segment to start scoring and building audiences.</p><button onclick="document.getElementById(\'emptyOverlay\').style.display=\'none\'" style="font-size:12px;padding:8px 20px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);cursor:pointer">Dismiss</button></div>';
-  document.body.appendChild(eo);
-}
+// Empty state: hide toolbar
+if(PP.length===0){document.body.classList.add('mn-empty')}
 function syncFiltBtns(){var m={"fpOwn":"ownerOnly","fpInc":"incomeMin","fpEm":"emailOnly"};var anyOn=false;Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el){if(extraFilters&&extraFilters[m[id]]){el.classList.add("on");anyOn=true}else el.classList.remove("on")}});var fb=document.getElementById("ftFiltBtn");if(fb){if(anyOn)fb.classList.add("mn-workspace-slider-mode-on");else fb.classList.remove("mn-workspace-slider-mode-on")}}
 function togFilterPop(){var p=document.getElementById("ftFiltPop");p.classList.toggle("open");syncFiltBtns()}
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-filter-wrap")){var p=document.getElementById("ftFiltPop");if(p)p.classList.remove("open")}if(!e.target.closest(".mn-toolbar-overflow-wrap")){var o=document.getElementById("ftOverflow");if(o)o.classList.remove("open")}})
