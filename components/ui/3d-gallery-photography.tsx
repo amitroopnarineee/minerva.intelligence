@@ -139,48 +139,16 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 	const [autoPlay, setAutoPlay] = useState(true);
 	const lastInteraction = useRef(Date.now());
 	const normalizedImages = useMemo(() => images.map((img) => typeof img === 'string' ? { src: img, alt: '' } : img), [images]);
-	const texturesRef = useRef<(THREE.Texture | null)[]>([]);
-	const [texturesReady, setTexturesReady] = useState(false);
-	const loadedRef = useRef(false);
+	const [textures, setTextures] = useState<(THREE.Texture | null)[]>([]);
 	useEffect(() => {
-		if (loadedRef.current) return;
-		loadedRef.current = true;
 		const loader = new THREE.TextureLoader();
-		const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
-		Promise.all(normalizedImages.map(img => {
-			if (isVideo(img.src)) {
-				return new Promise<THREE.Texture | null>(resolve => {
-					try {
-						const video = document.createElement('video');
-						video.src = img.src;
-						video.crossOrigin = 'anonymous';
-						video.loop = true;
-						video.muted = true;
-						video.playsInline = true;
-						video.autoplay = true;
-						let resolved = false;
-						const done = (tex: THREE.Texture | null) => { if (!resolved) { resolved = true; resolve(tex); } };
-						video.addEventListener('canplay', () => {
-							video.play().catch(() => {});
-							const tex = new THREE.VideoTexture(video);
-							tex.minFilter = THREE.LinearFilter;
-							tex.magFilter = THREE.LinearFilter;
-							done(tex);
-						}, { once: true });
-						video.addEventListener('error', () => done(null), { once: true });
-						setTimeout(() => done(null), 5000);
-						video.load();
-					} catch { resolve(null); }
-				});
-			}
-			return new Promise<THREE.Texture | null>(resolve => {
+		loader.crossOrigin = 'anonymous';
+		Promise.all(normalizedImages.map(img =>
+			new Promise<THREE.Texture | null>(resolve => {
 				loader.load(img.src, tex => resolve(tex), undefined, () => resolve(null));
-			});
-		})).then(results => {
-			texturesRef.current = results;
-			setTexturesReady(true);
-		});
-	}, []);
+			})
+		)).then(setTextures);
+	}, [normalizedImages]);
 	const materials = useMemo(() => Array.from({ length: visibleCount }, () => createClothMaterial()), [visibleCount]);
 
 	const spatialPositions = useMemo(() => {
@@ -283,8 +251,7 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 		});
 	});
 
-	const textures = texturesRef.current;
-	if (normalizedImages.length === 0 || !texturesReady || textures.length === 0) return null;
+	if (normalizedImages.length === 0 || textures.length === 0) return null;
 	return (
 		<>
 			{planesData.current.map((plane, i) => {
@@ -308,9 +275,6 @@ export default function InfiniteGallery({ images, className = 'h-96 w-full', sty
 	fadeSettings = DEFAULT_FADE,
 	blurSettings = DEFAULT_BLUR,
 }: InfiniteGalleryProps) {
-	const stableImages = useRef(images);
-	const stableFade = useRef(fadeSettings);
-	const stableBlur = useRef(blurSettings);
 	const [webglOk, setWebglOk] = useState(true);
 	useEffect(() => {
 		try { const c = document.createElement('canvas'); if (!c.getContext('webgl') && !c.getContext('experimental-webgl')) setWebglOk(false); }
@@ -320,7 +284,7 @@ export default function InfiniteGallery({ images, className = 'h-96 w-full', sty
 	return (
 		<div className={className} style={style}>
 			<Canvas camera={{ position: [0, 0, 0], fov: 55 }} gl={{ antialias: true, alpha: true }}>
-				<GalleryScene images={stableImages.current} fadeSettings={stableFade.current} blurSettings={stableBlur.current} />
+				<GalleryScene images={images} fadeSettings={fadeSettings} blurSettings={blurSettings} />
 			</Canvas>
 		</div>
 	);
