@@ -33,9 +33,6 @@ function useTypewriter(text: string, active: boolean, speed = 25) {
   const [segments, setSegments] = useState<{text:string,type:'char'|'num'|'warm'}[]>([])
   const [done, setDone] = useState(false)
   const [cursorVis, setCursorVis] = useState(true)
-  const chunksRef = useRef<{text:string,type:'char'|'num'|'warm'}[]>([])
-  const idxRef = useRef(0)
-  const nextTickRef = useRef(0)
 
   useEffect(() => {
     if (!active) { setSegments([]); setDone(false); setCursorVis(true); return }
@@ -54,31 +51,31 @@ function useTypewriter(text: string, active: boolean, speed = 25) {
       }
       if (!found) { chunks.push({ text: r[0], type: 'char' }); r = r.slice(1) }
     }
-    chunksRef.current = chunks
-    idxRef.current = 0
-    nextTickRef.current = Date.now()
 
-    const built: typeof chunks = []
-    const iv = setInterval(() => {
-      if (Date.now() < nextTickRef.current) return
-      if (idxRef.current >= chunksRef.current.length) {
-        clearInterval(iv)
-        setDone(true)
-        setTimeout(() => setCursorVis(false), 200)
-        return
-      }
-      const c = chunksRef.current[idxRef.current]
-      built.push(c)
-      setSegments([...built])
-      idxRef.current++
+    // Pre-compute timeline: when each chunk should appear (ms from start)
+    const timeline: number[] = []
+    let t = 0
+    for (const ch of chunks) {
+      timeline.push(t)
+      if (ch.type === 'num' || ch.type === 'warm') t += 180
+      else { const c = ch.text; t += c === '.' ? 180 : c === ',' ? 100 : c === '\u2014' || c === ':' ? 120 : c === ' ' ? 15 : speed }
+    }
 
-      let d = speed
-      if (c.type === 'num' || c.type === 'warm') d = 180
-      else { const ch = c.text; d = ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 15 : speed }
-      nextTickRef.current = Date.now() + d
-    }, 10)
+    let cancelled = false
+    let lastCount = 0
+    const start = performance.now()
 
-    return () => clearInterval(iv)
+    function frame(now: number) {
+      if (cancelled) return
+      const elapsed = now - start
+      let count = 0
+      for (let i = 0; i < timeline.length; i++) { if (timeline[i] <= elapsed) count = i + 1; else break }
+      if (count !== lastCount) { lastCount = count; setSegments(chunks.slice(0, count)) }
+      if (count >= chunks.length) { setDone(true); setTimeout(() => { if (!cancelled) setCursorVis(false) }, 200); return }
+      requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+    return () => { cancelled = true }
   }, [active, text, speed])
   return { segments, done, cursorVis }
 }
@@ -86,26 +83,35 @@ function useTypewriter(text: string, active: boolean, speed = 25) {
 function useSimpleTyper(text: string, active: boolean, speed = 20) {
   const [displayed, setDisplayed] = useState("")
   const [done, setDone] = useState(false)
-  const idxRef = useRef(0)
-  const nextTickRef = useRef(0)
 
   useEffect(() => {
     if (!active) { setDisplayed(""); setDone(false); return }
     setDisplayed(""); setDone(false)
-    idxRef.current = 0
-    nextTickRef.current = Date.now()
 
-    const iv = setInterval(() => {
-      if (Date.now() < nextTickRef.current) return
-      if (idxRef.current >= text.length) { clearInterval(iv); setDone(true); return }
-      const ch = text[idxRef.current]
-      idxRef.current++
-      setDisplayed(text.slice(0, idxRef.current))
-      const d = ch === '.' ? 180 : ch === ',' ? 100 : ch === '—' || ch === ':' ? 120 : ch === ' ' ? 12 : speed
-      nextTickRef.current = Date.now() + d
-    }, 10)
+    // Pre-compute timeline
+    const timeline: number[] = []
+    let t = 0
+    for (let i = 0; i < text.length; i++) {
+      timeline.push(t)
+      const ch = text[i]
+      t += ch === '.' ? 180 : ch === ',' ? 100 : ch === '\u2014' || ch === ':' ? 120 : ch === ' ' ? 12 : speed
+    }
 
-    return () => clearInterval(iv)
+    let cancelled = false
+    let lastCount = 0
+    const start = performance.now()
+
+    function frame(now: number) {
+      if (cancelled) return
+      const elapsed = now - start
+      let count = 0
+      for (let i = 0; i < timeline.length; i++) { if (timeline[i] <= elapsed) count = i + 1; else break }
+      if (count !== lastCount) { lastCount = count; setDisplayed(text.slice(0, count)) }
+      if (count >= text.length) { setDone(true); return }
+      requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+    return () => { cancelled = true }
   }, [active, text, speed])
   return { displayed, done }
 }
@@ -278,12 +284,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
     }
   }, [studioDone, step])
 
-  // Auto-scroll to bottom as new items appear
-  useEffect(() => {
-    if (playing && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
-    }
-  }, [step, playing])
+  // Auto-scroll handled by individual ConnCard components
 
   const onAdvance = useCallback(() => setStep(s => s + 1), [])
 
