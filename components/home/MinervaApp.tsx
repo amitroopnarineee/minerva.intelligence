@@ -279,7 +279,6 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
   const [step, setStep] = useState(-1) // -1 = not started, 0+ = items revealed
   const [playing, setPlaying] = useState(true)
   const [sendState, setSendState] = useState<'idle'|'sending'|'sent'>('idle')
-  const advanceRef = useRef<NodeJS.Timeout | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -294,31 +293,20 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
     }
   }, [studioDone, step])
 
-  // Auto-scroll: keep latest typing in view
+  // Auto-scroll: keep latest typing in view — runs during typing via MutationObserver
   useEffect(() => {
-    const sc = document.querySelector('[style*="scrollbar-width"]') as HTMLElement
-    if (sc && playing) {
-      requestAnimationFrame(() => { sc.scrollTop = sc.scrollHeight - sc.clientHeight })
-    }
-  }, [step])
+    const sc = scrollRef.current
+    if (!sc || !playing) return
+    const ob = new MutationObserver(() => {
+      sc.scrollTop = sc.scrollHeight - sc.clientHeight
+    })
+    ob.observe(sc, { childList: true, subtree: true, characterData: true })
+    return () => ob.disconnect()
+  }, [playing])
 
   const onAdvance = useCallback(() => setStep(s => s + 1), [])
 
-  function advance(delayMs: number) {
-    if (advanceRef.current) clearTimeout(advanceRef.current)
-    advanceRef.current = setTimeout(() => {
-      if (!playing) return
-      setStep(s => s + 1)
-    }, delayMs)
-  }
-
-  // Text done callbacks — trigger advance after appropriate delay
-  function onGreetingDone() { if (playing) advance(800) }
-  function onConnDone() { if (playing) advance(200) } // brief pause before card
-  function onCardShown(delayAfter = 1200) { if (playing) advance(delayAfter) }
-  function onPivotDone(delayAfter = 1500) { if (playing) advance(delayAfter) }
-
-  const isComplete = step >= 15
+  const isComplete = step >= (studioSaved ? 12 : 11)
 
   return (
     <div className="absolute inset-0 flex flex-col">
@@ -405,7 +393,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <span style={{ ...LBL, flex: 1 }}>Campaign</span>
-                  <span style={{ ...LBL, width: 64, textAlign: 'right' }}>Platform</span>
+
                   <span style={{ ...LBL, width: 64, textAlign: 'right' }}>Spend</span>
                   <span style={{ ...LBL, width: 56, textAlign: 'right' }}>ROAS</span>
                   <span style={{ ...LBL, width: 56, textAlign: 'right' }}>Conv</span>
@@ -415,7 +403,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                     className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
                     style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
                     <span className="flex-1 text-[12px] flex items-center" style={{ color: 'rgba(255,255,255,0.5)' }}><PlatformIcon name={c.platform} />{c.up ? '↗' : '↘'} {c.name}</span>
-                    <span className="w-16 text-right text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{c.platform}</span>
+
                     <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
                     <span className="w-14 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
                     <span className="w-14 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.conv}</span>
@@ -565,13 +553,6 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
           <div ref={bottomRef} className="h-8" />
         </div>
       </div>
-
-      {/* Floating action CTA — appears when user input needed */}
-      {step === 9 && !studioSaved && !studioDone && (
-        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-[100] animate-card-in">
-          <LiquidMetalButton label="View in Audience Studio" onClick={onOpenStudio} />
-        </div>
-      )}
 
       {/* Play/Pause pill OR AI input when paused */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2">
@@ -823,7 +804,7 @@ function MinervaInlineChat({ onResume }: { onResume: () => void }) {
   }
 
   return (
-    <div className="animate-card-in w-[420px]" style={{ background: 'rgba(10,10,12,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, backdropFilter: 'blur(20px)', padding: '10px 12px' }}>
+    <div className="animate-card-in w-[420px] max-w-[calc(100vw-32px)]" style={{ background: 'rgba(10,10,12,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, backdropFilter: 'blur(20px)', padding: '10px 12px' }}>
       {/* Response bubble */}
       {response && (
         <div className="mb-2 px-3 py-2 rounded-lg text-[12px]" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>
@@ -854,7 +835,6 @@ export function MinervaApp() {
   const [detail, setDetail] = useState<DetailData>(null)
   const [studioSaved, setStudioSaved] = useState(false)
   const [studioDone, setStudioDone] = useState(false)
-  const briefingRef = useRef<{ onStudioSaved: () => void; onStudioClosed: () => void } | null>(null)
 
   function handleOpenStudio() { setModal('studio') }
   function handleSaveStudio() {
