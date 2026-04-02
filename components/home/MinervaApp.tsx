@@ -833,13 +833,14 @@ export function MinervaApp() {
 
   // Listen for notch navigation events
   useEffect(() => {
-    const handleGoHome = () => navigateTo('home')
+    const handleGoHome = () => { setModal('closed'); navigateTo('home') }
     const handleNavSection = (e: Event) => {
       const section = (e as CustomEvent).detail
+      if (section === 'studio') { handleOpenStudio(); return }
+      setModal('closed')
       if (section === 'home') navigateTo('home')
       else if (section === 'briefing') navigateTo('briefing')
       else if (section === 'calendar') navigateTo('calendar')
-      else if (section === 'studio') handleOpenStudio()
     }
     window.addEventListener('minerva-go-home', handleGoHome)
     window.addEventListener('minerva-nav-section', handleNavSection)
