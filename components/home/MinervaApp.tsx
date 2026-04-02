@@ -11,7 +11,7 @@ import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, Line, LineChart, 
 import { ChartContainer, ChartTooltip, type ChartConfig } from '@/components/ui/line-charts-6'
 
 /* ── Types ── */
-type View = 'home' | 'dashboard' | 'briefing'
+type View = 'home' | 'dashboard' | 'briefing' | 'segments'
 type ModalState = 'closed' | 'studio'
 
 /* ── Canvas transition ── */
@@ -593,9 +593,9 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
   )
 }
 
-function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () => void; onClose: () => void }) {
+function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name: string) => void; onClose: () => void }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [saveAnim, setSaveAnim] = useState(false)
+  const [actionModal, setActionModal] = useState<'save-segment' | 'launch-campaign' | null>(null)
 
   useEffect(() => {
     if (open && iframeRef.current) {
@@ -606,12 +606,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
     }
   }, [open])
 
-  function handleSave() {
-    setSaveAnim(true)
-    setTimeout(() => { onSave() }, 1500)
-  }
-
-  if (!open && !saveAnim) return null
+  if (!open) return null
 
   return (
     <div className="fixed inset-0 z-[200] flex flex-col" style={{
@@ -630,16 +625,31 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
 
 
       {/* Iframe */}
-      {saveAnim ? (
-        <div className="flex-1 flex flex-col items-center justify-center bg-black">
-          <div className="animate-save-check text-[32px] mb-4">✦</div>
-          <p className="text-[16px] text-white animate-fade-in-delay-300">Segment saved</p>
-          <p className="text-[12px] mt-2 animate-fade-in-delay-500" style={{ color: 'rgba(255,255,255,0.3)' }}>Draft Momentum · 2,400 profiles</p>
-        </div>
-      ) : (
-        <div className="flex-1 relative bg-black">
-          <iframe ref={iframeRef} src="/workspace.html" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
-        </div>
+      <div className="flex-1 relative bg-black">
+        <iframe ref={iframeRef} src="/workspace.html" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
+      </div>
+
+      {/* Floating action bar at bottom */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[260] flex items-center gap-3" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.4s forwards' }}>
+        <button onClick={() => setActionModal('save-segment')}
+          className="text-[12px] px-5 py-2.5 rounded-full transition-all hover:bg-white/[0.95]"
+          style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+          Save Segment
+        </button>
+        <button onClick={() => setActionModal('launch-campaign')}
+          className="text-[12px] px-5 py-2.5 rounded-full transition-all hover:bg-white/[0.08]"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(12px)', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+          Launch Campaign
+        </button>
+      </div>
+
+      {/* Action modal overlay */}
+      {actionModal && (
+        <WorkspaceActionModal
+          type={actionModal}
+          onCancel={() => setActionModal(null)}
+          onConfirm={(name) => { setActionModal(null); onSave(name) }}
+        />
       )}
 
 
@@ -831,6 +841,130 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
             </button>
           ))}
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════════════════
+   SAVED SEGMENTS
+   ══════════════════════════════════════════════════════════ */
+
+type SavedSegment = { id: string; name: string; count: string; scoreRange: string; tags: string[]; created: string }
+
+const INITIAL_SEGMENTS: SavedSegment[] = [
+  { id: 's1', name: 'Season Ticket Renewals', count: '4,200', scoreRange: '80–99', tags: ['58% Male', 'Avg $92K Income', '71% Homeowner'], created: 'Mar 28' },
+  { id: 's2', name: 'Lapsed Premium Buyers', count: '1,800', scoreRange: '60–79', tags: ['45% Female', '$110K+ Income', 'South FL'], created: 'Mar 25' },
+  { id: 's3', name: 'New Fan Acquisition', count: '12,400', scoreRange: '40–59', tags: ['62% 18–34', 'Mobile-First', 'High Engagement'], created: 'Mar 20' },
+]
+
+function SegmentsScreen({ segments, navigateTo }: { segments: SavedSegment[]; navigateTo: (v: View) => void }) {
+  return (
+    <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
+      <div className="h-14 shrink-0" />
+      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="max-w-[820px] mx-auto px-6 pt-4 pb-20">
+          <div className="flex items-center justify-between mb-8" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease forwards' }}>
+            <div>
+              <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 6 }}>✦ AUDIENCE SEGMENTS</p>
+              <h1 className="text-[24px] text-white" style={{ fontWeight: 500, letterSpacing: '-0.02em' }}>Saved Segments</h1>
+            </div>
+            <button onClick={() => navigateTo('dashboard')} className="text-[11px] px-4 py-1.5 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
+              ← Dashboard
+            </button>
+          </div>
+
+          {/* Segments table */}
+          <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden', opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.1s forwards' }}>
+            {/* Header */}
+            <div className="grid px-5 py-3" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+              {['Segment', 'Profiles', 'Score Range', 'Created'].map(h => (
+                <span key={h} style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>{h}</span>
+              ))}
+            </div>
+            {/* Rows */}
+            {segments.map((seg, i) => (
+              <div key={seg.id} className="grid items-center px-5 py-4 cursor-pointer transition-colors hover:bg-white/[0.02]"
+                style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr', borderBottom: i < segments.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', opacity: 0, animation: `mn-stagger-in 0.4s ease ${0.15 + i * 0.06}s forwards` }}>
+                <div>
+                  <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>{seg.name}</p>
+                  <div className="flex gap-2 mt-1">
+                    {seg.tags.map(t => (
+                      <span key={t} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <span className="text-[13px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{seg.count}</span>
+                <span className="text-[13px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{seg.scoreRange}</span>
+                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{seg.created}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════════════════
+   WORKSPACE ACTION MODAL
+   ══════════════════════════════════════════════════════════ */
+
+function WorkspaceActionModal({ type, onConfirm, onCancel }: { type: 'save-segment' | 'launch-campaign'; onConfirm: (name: string) => void; onCancel: () => void }) {
+  const [name, setName] = useState(type === 'save-segment' ? 'Premium High-Intent Fans' : 'Draft Momentum Push')
+  const [saving, setSaving] = useState(false)
+  const [done, setDone] = useState(false)
+
+  function handleConfirm() {
+    setSaving(true)
+    setTimeout(() => { setDone(true) }, 800)
+    setTimeout(() => { onConfirm(name) }, 1800)
+  }
+
+  return (
+    <div className="fixed inset-0 z-[280] flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }} onClick={onCancel}>
+      <div onClick={e => e.stopPropagation()} className="w-[420px] max-w-[calc(100vw-32px)]" style={{ background: 'rgba(14,14,16,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px 28px 24px', opacity: 0, animation: 'mn-stagger-in 0.4s ease forwards' }}>
+        {done ? (
+          <div className="text-center py-6" style={{ opacity: 0, animation: 'mn-stagger-in 0.3s ease forwards' }}>
+            <div className="text-[28px] mb-3">✦</div>
+            <p className="text-[15px] text-white" style={{ fontWeight: 500 }}>{type === 'save-segment' ? 'Segment Saved' : 'Campaign Launched'}</p>
+            <p className="text-[12px] mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>{name}</p>
+          </div>
+        ) : (
+          <>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 16 }}>
+              ✦ {type === 'save-segment' ? 'SAVE SEGMENT' : 'LAUNCH CAMPAIGN'}
+            </p>
+            <label className="block mb-4">
+              <span className="text-[11px] block mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>Name</span>
+              <input value={name} onChange={e => setName(e.target.value)} autoFocus
+                className="w-full bg-transparent outline-none text-[15px] text-white px-3 py-2.5 rounded-lg"
+                style={{ border: '1px solid rgba(255,255,255,0.1)', fontWeight: 500 }} />
+            </label>
+            {type === 'save-segment' && (
+              <div className="flex gap-4 mb-5">
+                <div>
+                  <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Profiles</span>
+                  <span className="text-[16px] text-white tabular-nums" style={{ fontWeight: 600 }}>2,400</span>
+                </div>
+                <div>
+                  <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Score Range</span>
+                  <span className="text-[16px] text-white tabular-nums" style={{ fontWeight: 600 }}>72–99</span>
+                </div>
+                <div>
+                  <span className="text-[10px] block mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Reachable</span>
+                  <span className="text-[16px] text-white tabular-nums" style={{ fontWeight: 600 }}>78%</span>
+                </div>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button onClick={onCancel} className="flex-1 text-[12px] py-2.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>Cancel</button>
+              <button onClick={handleConfirm} disabled={saving} className="flex-1 text-[12px] py-2.5 rounded-lg transition-all hover:bg-white/[0.95]" style={{ background: saving ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
+                {saving ? '...' : type === 'save-segment' ? 'Save Segment' : 'Launch'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
@@ -1112,6 +1246,7 @@ export function MinervaApp() {
   const [detail, setDetail] = useState<DetailData>(null)
   const [studioSaved, setStudioSaved] = useState(false)
   const [studioDone, setStudioDone] = useState(false)
+  const [savedSegments, setSavedSegments] = useState<SavedSegment[]>(INITIAL_SEGMENTS)
 
   // Listen for notch navigation events
   useEffect(() => {
@@ -1134,9 +1269,13 @@ export function MinervaApp() {
   }, [navigateTo])
 
   function handleOpenStudio() { setModal('studio') }
-  function handleSaveStudio() {
+  function handleSaveStudio(name: string) {
     setStudioSaved(true)
-    setTimeout(() => { setModal('closed'); setStudioDone(true) }, 1500)
+    const newSeg: SavedSegment = { id: `s${Date.now()}`, name, count: '2,400', scoreRange: '72–99', tags: ['78% Reachable', 'South FL', 'Premium'], created: 'Apr 2' }
+    setSavedSegments(prev => [newSeg, ...prev])
+    setModal('closed')
+    setStudioDone(true)
+    navigateTo('segments')
   }
   function handleCloseStudio() { setModal('closed'); setStudioDone(true) }
 
@@ -1154,6 +1293,7 @@ export function MinervaApp() {
         {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} />}
         {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
+        {view === 'segments' && <SegmentsScreen segments={savedSegments} navigateTo={navigateTo} />}
       </div>
 
       {/* Detail Modal */}
