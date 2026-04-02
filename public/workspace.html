@@ -60,7 +60,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
 
 /* ═══ SLIDER ═══ */
-.mn-workspace-slider{display:none}
+.mn-workspace-slider{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);padding:6px 14px;display:flex;align-items:center;gap:16px;flex-shrink:0;height:44px}
 .mn-workspace-slider-left{min-width:80px}
 .mn-workspace-slider-title{font-size:9px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
 .mn-workspace-slider-range-value{font-size:16px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
@@ -245,7 +245,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 @keyframes mn-panel-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 #pDet{animation-delay:.05s}
 #pTbl{animation-delay:.1s}
-#pIntel{animation-delay:.15s}
+#pIntel{display:none}
 #pProf{animation:none;opacity:1;transition:opacity .25s ease,transform .25s ease,flex .25s ease}
 #pProf.mn-prof-hidden{opacity:0;transform:translateX(20px);flex:0 0 0px!important;overflow:hidden;padding:0;border:0}
 .mn-workspace-profile-close-float{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;padding:8px 10px 4px;background:var(--mn-sf)}
@@ -378,7 +378,7 @@ var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,
 var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
-(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-sep"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';h+='<button class="mn-toolbar-action" onclick="doExport()">Export CSV<\/button>';ft.innerHTML=h})();
+(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<button class="mn-workspace-slider-mode" id="ftFiltOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button>';h+='<button class="mn-workspace-slider-mode" id="ftFiltInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button>';h+='<button class="mn-workspace-slider-mode" id="ftFiltEm" onclick="togFilt(\'emailOnly\')">Email only<\/button>';h+='<div class="mn-toolbar-sep"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';h+='<button class="mn-toolbar-action" onclick="doExport()">Export CSV<\/button>';ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
@@ -623,7 +623,7 @@ function rmFilter(key){if(!extraFilters)return;delete extraFilters[key];if(!Obje
 // ── Intelligence Card ──
 function genInsight(){
 var l=gf(),n=l.length;
-if(!n){document.getElementById("intelBody").innerHTML='<div class="mn-workspace-intel"><div class="mn-workspace-intel-body"><div class="mn-workspace-intel-verdict">Select a score range to see intelligence.<\/div><\/div><\/div>';return}
+if(!n){return}
 var tot=PP.length,ec=0,pc=0,oc=0,ss=0,sa=0;
 l.forEach(function(p){if(p.email)ec++;if(p.phone)pc++;if(p.owner)oc++;ss+=p.score;sa+=p.age});
 var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),oP=Math.round(oc/n*100),eP=Math.round(ec/n*100);
@@ -662,19 +662,20 @@ filterHTML+='<button class="mn-workspace-intel-filter'+(extraFilters&&extraFilte
 filterHTML+='<button class="mn-workspace-intel-filter'+(extraFilters&&extraFilters.emailOnly?" mn-workspace-intel-filter-on":"")+'" onclick="togFilt(\'emailOnly\')">Email only<\/button>';
 filterHTML+='<\/div>';
 
-var h='<div class="mn-workspace-intel"><div class="mn-workspace-intel-body">';
-h+='<div class="mn-workspace-intel-confidence">'+confidence+'<\/div>';
-h+='<div class="mn-workspace-intel-verdict">'+verdict+'<\/div>';
-h+='<div class="mn-workspace-intel-detail">'+detail+'<\/div>';
-h+='<button class="mn-workspace-intel-refresh" onclick="genInsight()">Reanalyze<\/button>';
-h+='<\/div>'+filterHTML+'<\/div>';
-document.getElementById("intelBody").innerHTML=h}
+var h='<div class="mn-workspace-detail-section" style="margin-top:8px;border-top:1px solid var(--mn-border);padding-top:14px"><div class="mn-workspace-detail-label">Intelligence<\/div>';
+h+='<div class="mn-workspace-intel-confidence" style="margin-top:8px">'+confidence+'<\/div>';
+h+='<div class="mn-workspace-intel-verdict" style="font-size:14px;margin-bottom:6px">'+verdict+'<\/div>';
+h+='<div style="font-size:11px;line-height:1.7;color:var(--mn-t2)">'+detail+'<\/div>';
+h+='<button class="mn-workspace-intel-refresh" style="margin-top:8px" onclick="genInsight()">Reanalyze<\/button>';
+h+='<\/div>';
+var db=document.getElementById("db");if(db){var old=db.querySelector('.mn-workspace-detail-section:last-child');if(old&&old.querySelector('.mn-workspace-intel-confidence'))old.remove();db.insertAdjacentHTML("beforeend",h)}}
 
 function togFilt(key){
 if(!extraFilters)extraFilters={};
 if(extraFilters[key]){delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null}
 else{if(key==="ownerOnly")extraFilters.ownerOnly=true;if(key==="incomeMin")extraFilters.incomeMin=3;if(key==="emailOnly")extraFilters.emailOnly=true}
-ren()}
+ren();syncFiltBtns()}
+function syncFiltBtns(){var m={"ftFiltOwn":"ownerOnly","ftFiltInc":"incomeMin","ftFiltEm":"emailOnly"};Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el){if(extraFilters&&extraFilters[m[id]])el.classList.add("mn-workspace-slider-mode-on");else el.classList.remove("mn-workspace-slider-mode-on")}})}
 
 // Close segments menu when clicking outside
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-workspace-topbar-segments"))document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open")});
