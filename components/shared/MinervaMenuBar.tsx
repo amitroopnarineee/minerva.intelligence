@@ -11,7 +11,7 @@ const LEFT_NAV = [
 ]
 const RIGHT_NAV = [
   { label: "Audience", href: "/", section: "studio" },
-  { label: "Dashboard", href: "/dashboard", section: "" },
+  { label: "Dashboard", href: "/", section: "dashboard" },
 ]
 
 type NotchState = "hidden" | "peek" | "open"
@@ -28,7 +28,7 @@ const NAV_ITEMS = [
   { type: "link" as const, label: "Home", href: "/", paths: ["/"] },
   { type: "link" as const, label: "Briefing", href: "/", paths: [] },
   { type: "link" as const, label: "Audience", href: "/", paths: [] },
-  { type: "link" as const, label: "Dashboard", href: "/dashboard", paths: ["/dashboard"] },
+  { type: "link" as const, label: "Dashboard", href: "/", paths: [] },
 ]
 
 export function MinervaMenuBar() {

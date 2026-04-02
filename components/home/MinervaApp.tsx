@@ -11,7 +11,7 @@ import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, Line, LineChart, 
 import { ChartContainer, ChartTooltip, type ChartConfig } from '@/components/ui/line-charts-6'
 
 /* ── Types ── */
-type View = 'home' | 'briefing'
+type View = 'home' | 'dashboard' | 'briefing'
 type ModalState = 'closed' | 'studio'
 
 /* ── Canvas transition ── */
@@ -571,15 +571,15 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
               {/* Navigation CTAs */}
               <div className="flex items-center justify-center gap-4 mt-10 mb-6">
-                <button onClick={onOpenStudio}
+                <button onClick={() => toast.success('Exporting briefing...')}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.04]"
                   style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
-                  Explore Audience →
+                  Export
                 </button>
-                <button onClick={() => navigateTo('home')}
+                <button onClick={() => navigateTo('dashboard')}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.95]"
                   style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
-                  ← Back to Home
+                  Return to Dashboard →
                 </button>
               </div>
 
@@ -620,6 +620,13 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
       transition: 'transform 500ms cubic-bezier(0.22,1,0.36,1), opacity 400ms ease',
       pointerEvents: open ? 'auto' : 'none',
     }}>
+
+      {/* Close pill — top right, next to avatar area */}
+      <button onClick={onClose}
+        className="fixed top-3 right-16 z-[260] text-[11px] px-4 py-1.5 rounded-full transition-all hover:bg-white/[0.08]"
+        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(12px)', opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
+        Close
+      </button>
 
 
       {/* Iframe */}
@@ -761,6 +768,73 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
 /* ══ DETAIL MODAL (full-screen 2-col with rich right panel) ══ */
 type ModalSize = 'sm' | 'md' | 'lg'
 type DetailData = { title: string; subtitle?: string; size?: ModalSize; heroValue?: string; content: React.ReactNode } | null
+
+/* ══════════════════════════════════════════════════════════
+   DASHBOARD SCREEN
+   ══════════════════════════════════════════════════════════ */
+
+const DASH_TABS = [
+  { id: "discover", label: "Discover", icon: "◎" },
+  { id: "people", label: "People", icon: "◔" },
+  { id: "audiences", label: "Audiences", icon: "◫" },
+  { id: "enrich", label: "Enrich", icon: "↧" },
+  { id: "activate", label: "Activate", icon: "✦" },
+]
+
+function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) => void; onOpenStudio: () => void }) {
+  const [query, setQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("audiences")
+
+  const handleSubmit = () => {
+    const q = query.toLowerCase().trim()
+    if (q.includes('briefing') || q.includes('brief') || q.includes('today')) {
+      navigateTo('briefing')
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
+      <div className="h-12 shrink-0" />
+      <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
+        <h1 className="text-[28px] text-white text-center mb-8 mn-stagger-1" style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: 0, animation: 'mn-stagger-in 0.5s ease forwards' }}>
+          Build intelligent audience segments.
+        </h1>
+
+        {/* Chat input */}
+        <div className="w-full max-w-[560px] flex items-center gap-2 px-4 h-12 rounded-full mb-6 mn-stagger-2"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.1s forwards' }}>
+          <input value={query} onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+            placeholder={`Try "give me today's briefing"`}
+            className="flex-1 bg-transparent outline-none text-[14px] text-white placeholder:text-white/25" />
+          <button onClick={handleSubmit}
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: query ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.08)', color: query ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 14, transition: 'all 0.15s' }}>↑</button>
+        </div>
+
+        {/* Tab pills */}
+        <div className="flex items-center gap-2 mn-stagger-3" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.2s forwards' }}>
+          {DASH_TABS.map(t => (
+            <button key={t.id} onClick={() => {
+              setActiveTab(t.id)
+              if (t.id === 'audiences') onOpenStudio()
+            }}
+              className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all"
+              style={{
+                background: activeTab === t.id ? 'rgba(255,255,255,0.08)' : 'transparent',
+                border: `1px solid ${activeTab === t.id ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
+                color: activeTab === t.id ? '#fff' : 'rgba(255,255,255,0.35)',
+                fontWeight: activeTab === t.id ? 500 : 400,
+              }}>
+              <span style={{ fontSize: 11 }}>{t.icon}</span>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void }) {
   const [rightTab, setRightTab] = useState<'detail'|'people'>('detail')
@@ -1048,6 +1122,7 @@ export function MinervaApp() {
       setModal('closed')
       if (section === 'home') navigateTo('home')
       else if (section === 'briefing') navigateTo('briefing')
+      else if (section === 'dashboard') navigateTo('dashboard')
       
     }
     window.addEventListener('minerva-go-home', handleGoHome)
@@ -1076,7 +1151,8 @@ export function MinervaApp() {
         transform: transitioning ? 'scale(0.98)' : 'scale(1)',
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
-        {view === 'home' && <HomeScreen onEnter={() => window.location.href = '/dashboard'} />}
+        {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} />}
+        {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
       </div>
 

@@ -203,3 +203,9 @@
 .shimmer-link:hover {
   text-decoration-color: rgba(255,255,255,0.5);
 }
+
+/* Stagger animation for view transitions */
+@keyframes mn-stagger-in {
+  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
