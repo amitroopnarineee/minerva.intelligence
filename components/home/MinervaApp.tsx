@@ -311,7 +311,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
               {/* KPI Strip */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
                 {METRICS.map(m => (
-                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: m.value + " " + m.trend, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: "rgba(255,255,255,0.35)" }}>{m.trend}</span></div><div className="mb-4"><Sparkline d={m.spark} /></div></div> })}
+                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: m.trend, heroValue: m.value, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: "rgba(255,255,255,0.35)" }}>{m.trend}</span></div><div className="mb-4"><Sparkline d={m.spark} /></div></div> })}
                     className="cursor-pointer transition-colors hover:bg-white/[0.04] animate-card-in"
                     style={{ ...CARD, padding: '12px 14px', textAlign: 'center' as const }}>
                     <p style={{ fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{m.value}</p>
@@ -329,7 +329,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                   <span style={{ ...LBL, width: 48, textAlign: 'right' }}>ROAS</span>
                 </div>
                 {CAMPAIGNS.map((c, i) => (
-                  <div key={c.name} onClick={() => onDetail({ title: c.name, subtitle: c.platform, size: "sm", content: <div className="space-y-3"><div className="flex gap-6">{[["ROAS",c.roas],["Conv",c.conv],["Spend",c.spend]].map(([l,v]) => <div key={l}><p style={{...LBL}}>{l}</p><p className="text-[24px] text-white tabular-nums" style={{fontWeight:600}}>{v}</p></div>)}</div></div> })}
+                  <div key={c.name} onClick={() => onDetail({ title: c.name, subtitle: c.platform, heroValue: c.roas + ' ROAS', size: "sm", content: <div className="space-y-3"><div className="flex gap-6">{[["ROAS",c.roas],["Conv",c.conv],["Spend",c.spend]].map(([l,v]) => <div key={l}><p style={{...LBL}}>{l}</p><p className="text-[24px] text-white tabular-nums" style={{fontWeight:600}}>{v}</p></div>)}</div></div> })}
                     className="flex items-center px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
                     style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
                     <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}><PlatformIcon name={c.platform} />{c.up ? '\u2197' : '\u2198'} {c.name}</span>
@@ -592,31 +592,65 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
 }
 
 
-/* ══ DETAIL MODAL ══ */
+/* ══ DETAIL MODAL (2-col with Detail/People tabs) ══ */
 type ModalSize = 'sm' | 'md' | 'lg'
-type DetailData = { title: string; subtitle?: string; size?: ModalSize; content: React.ReactNode } | null
+type DetailData = { title: string; subtitle?: string; size?: ModalSize; heroValue?: string; content: React.ReactNode } | null
 
 function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void }) {
+  const [tab, setTab] = useState<'detail'|'people'>('detail')
   if (!data) return null
   return (
     <div className="fixed inset-0 z-[150] flex animate-card-in" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }} />
       <div className="relative flex w-full h-full" onClick={e => e.stopPropagation()}>
-        {/* Left column — content */}
+        {/* Left column — hero + title */}
         <div className="w-[420px] shrink-0 h-full flex flex-col" style={{ background: 'rgba(13,13,15,0.98)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="shrink-0 px-6 pt-6 pb-4">
-            <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}>✦ DETAIL</p>
-            <p className="text-[22px] text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{data.title}</p>
+            <p className="text-[10px] uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.2)' }}>✦ INSIGHT</p>
+            {data.heroValue && (
+              <p className="text-[56px] text-white mb-2" style={{ fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1 }}>{data.heroValue}</p>
+            )}
+            <p className="text-[18px] text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>{data.title}</p>
             {data.subtitle && <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{data.subtitle}</p>}
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-6" style={{ scrollbarWidth: 'none' }}>
             {data.content}
           </div>
         </div>
-        {/* Right column — expanded area */}
-        <div className="flex-1 flex flex-col items-center justify-center relative">
-          <button onClick={onClose} className="absolute top-4 right-4 text-[11px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>✕ Close</button>
-          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>Select a visualization or ask Minerva for deeper analysis</p>
+        {/* Right column — tabs */}
+        <div className="flex-1 flex flex-col relative" style={{ background: 'rgba(8,8,10,0.5)' }}>
+          <div className="shrink-0 flex items-center justify-between px-5 pt-4 pb-3">
+            <div className="flex gap-1">
+              {(['detail','people'] as const).map(t => (
+                <button key={t} onClick={() => setTab(t)}
+                  className="text-[11px] px-3.5 py-1 rounded-full transition-all capitalize"
+                  style={{ background: tab === t ? 'rgba(255,255,255,0.08)' : 'transparent', color: tab === t ? '#fff' : 'rgba(255,255,255,0.3)', fontWeight: tab === t ? 500 : 400 }}>
+                  {t}
+                </button>
+              ))}
+            </div>
+            <button onClick={onClose} className="text-[11px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>✕ Close</button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 pb-6" style={{ scrollbarWidth: 'none' }}>
+            {tab === 'detail' ? (
+              <div className="space-y-4">
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>7-day trend and deeper analysis will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {Array.from({length: 8}, (_, i) => (
+                  <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-white/[0.02]">
+                    <div className="w-7 h-7 rounded-full bg-white/[0.06]" />
+                    <div className="flex-1">
+                      <p className="text-[12px] text-white/70">Person {i+1}</p>
+                      <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)' }}>South Florida · Score {95-i*3}</p>
+                    </div>
+                    <span className="text-[11px] tabular-nums text-white/50">{95-i*3}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
