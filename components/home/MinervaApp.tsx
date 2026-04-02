@@ -598,21 +598,25 @@ type DetailData = { title: string; subtitle?: string; size?: ModalSize; content:
 
 function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void }) {
   if (!data) return null
-  const w = data.size === 'lg' ? 'max-w-[900px]' : data.size === 'md' ? 'max-w-[640px]' : 'max-w-[400px]'
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} />
-      <div className={`relative ${w} w-full mx-4 animate-card-in`} onClick={e => e.stopPropagation()}
-        style={{ background: 'rgba(13,13,15,0.98)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-        <div className="shrink-0 flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div>
-            <p className="text-[14px] text-white" style={{ fontWeight: 500 }}>{data.title}</p>
-            {data.subtitle && <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{data.subtitle}</p>}
+    <div className="fixed inset-0 z-[150] flex animate-card-in" onClick={onClose}>
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }} />
+      <div className="relative flex w-full h-full" onClick={e => e.stopPropagation()}>
+        {/* Left column — content */}
+        <div className="w-[420px] shrink-0 h-full flex flex-col" style={{ background: 'rgba(13,13,15,0.98)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="shrink-0 px-6 pt-6 pb-4">
+            <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}>✦ DETAIL</p>
+            <p className="text-[22px] text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{data.title}</p>
+            {data.subtitle && <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{data.subtitle}</p>}
           </div>
-          <button onClick={onClose} className="text-[12px] px-3 py-1 rounded-lg transition-colors hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.4)' }}>\u2715</button>
+          <div className="flex-1 overflow-y-auto px-6 pb-6" style={{ scrollbarWidth: 'none' }}>
+            {data.content}
+          </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4" style={{ scrollbarWidth: 'none' }}>
-          {data.content}
+        {/* Right column — expanded area */}
+        <div className="flex-1 flex flex-col items-center justify-center relative">
+          <button onClick={onClose} className="absolute top-4 right-4 text-[11px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>✕ Close</button>
+          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>Select a visualization or ask Minerva for deeper analysis</p>
         </div>
       </div>
     </div>
