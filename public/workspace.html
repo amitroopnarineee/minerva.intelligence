@@ -230,12 +230,20 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-in{opacity:0;animation:mn-in .3s ease forwards}
 
 /* ═══ FLOATING TOOLBAR ═══ */
-.mn-workspace-floating-toolbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:3px;padding:4px;background:rgba(13,13,15,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:14px;z-index:20;animation:mn-float-in .4s cubic-bezier(0.22,1,0.36,1) both}
+.mn-workspace-floating-toolbar{position:sticky;bottom:0;display:flex;align-items:center;gap:3px;padding:6px 8px;background:rgba(13,13,15,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.06);z-index:20;flex-shrink:0}
 .mn-workspace-floating-toolbar .mn-toolbar-sep{width:1px;height:20px;background:rgba(255,255,255,0.08);margin:0 4px;flex-shrink:0}
 .mn-workspace-floating-toolbar .mn-toolbar-action{height:28px;padding:0 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:10px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s;white-space:nowrap}
 .mn-workspace-floating-toolbar .mn-toolbar-action:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85)}
 .mn-workspace-floating-toolbar .mn-toolbar-action-primary{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.08)}
-.mn-workspace-floating-toolbar .mn-toolbar-sel{font-size:10px;color:rgba(255,255,255,0.3);padding:0 6px;white-space:nowrap}
+.mn-workspace-floating-toolbar .mn-toolbar-action-icon{height:28px;width:28px;padding:0;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.mn-workspace-floating-toolbar .mn-toolbar-action-icon:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85)}
+.mn-workspace-floating-toolbar .mn-toolbar-sel{font-size:10px;color:rgba(255,255,255,0.3);padding:0 6px;white-space:nowrap;display:flex;align-items:center;gap:3px}
+.mn-toolbar-filter-wrap{position:relative}
+.mn-toolbar-filter-pop{display:none;position:absolute;bottom:36px;left:0;background:rgba(13,13,15,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px;min-width:140px;z-index:30;backdrop-filter:blur(16px)}
+.mn-toolbar-filter-pop.open{display:flex;flex-direction:column;gap:2px}
+.mn-toolbar-filter-pop button{height:28px;padding:0 10px;border-radius:6px;border:0;background:0;color:rgba(255,255,255,0.45);font-size:11px;font-family:var(--mn-font);cursor:pointer;text-align:left;transition:all .1s}
+.mn-toolbar-filter-pop button:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
+.mn-toolbar-filter-pop button.on{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.08)}
 @keyframes mn-float-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .mn-workspace-floating-toolbar .mn-workspace-slider-mode{border-radius:10px;height:28px;padding:0 12px;font-size:10px}
 .mn-workspace-floating-toolbar .mn-workspace-slider-mode-desc{display:none}
@@ -310,6 +318,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
       <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">People</span><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
       <div class="mn-workspace-search"><svg class="mn-workspace-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="mn-workspace-search-input" type="text" placeholder="Search..." id="si" oninput="ren()"></div>
       <div class="mn-workspace-panel-body" id="tb"></div>
+      <div class="mn-workspace-floating-toolbar" id="floatingModes"></div>
     </div>
     <!-- PROFILE INLINE (hidden until row click) -->
     <div class="mn-workspace-panel" id="pProf" style="flex:0 0 300px;display:none">
@@ -340,8 +349,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
     </div>
   </div>
   <!-- FLOATING TOOLBAR -->
-  <div class="mn-workspace-floating-toolbar" id="floatingModes"></div>
-</div>
+  </div>
 <div class="mn-workspace-modal" id="saveModal"><div class="mn-workspace-modal-box"><div class="mn-workspace-modal-title">Save Segment</div><input class="mn-workspace-modal-input" id="segName" placeholder="e.g. Premium 75+"><div class="mn-workspace-modal-footer"><button class="mn-workspace-topbar-btn" onclick="closeSave()">Cancel</button><button class="mn-workspace-topbar-save" onclick="doSave()">Save</button></div></div></div>
 <div class="mn-workspace-toast" id="toast"></div>
 
@@ -378,7 +386,7 @@ var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,
 var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
-(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<button class="mn-workspace-slider-mode" id="ftFiltOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button>';h+='<button class="mn-workspace-slider-mode" id="ftFiltInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button>';h+='<button class="mn-workspace-slider-mode" id="ftFiltEm" onclick="togFilt(\'emailOnly\')">Email only<\/button>';h+='<div class="mn-toolbar-sep"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';h+='<button class="mn-toolbar-action" onclick="doExport()">Export CSV<\/button>';ft.innerHTML=h})();
+(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg> Filter<\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div class="mn-toolbar-sep"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';h+='<button class="mn-toolbar-action-icon" onclick="doExport()" title="Export CSV"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><\/svg><\/button>';ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
@@ -675,7 +683,9 @@ if(!extraFilters)extraFilters={};
 if(extraFilters[key]){delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null}
 else{if(key==="ownerOnly")extraFilters.ownerOnly=true;if(key==="incomeMin")extraFilters.incomeMin=3;if(key==="emailOnly")extraFilters.emailOnly=true}
 ren();syncFiltBtns()}
-function syncFiltBtns(){var m={"ftFiltOwn":"ownerOnly","ftFiltInc":"incomeMin","ftFiltEm":"emailOnly"};Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el){if(extraFilters&&extraFilters[m[id]])el.classList.add("mn-workspace-slider-mode-on");else el.classList.remove("mn-workspace-slider-mode-on")}})}
+function syncFiltBtns(){var m={"fpOwn":"ownerOnly","fpInc":"incomeMin","fpEm":"emailOnly"};var anyOn=false;Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el){if(extraFilters&&extraFilters[m[id]]){el.classList.add("on");anyOn=true}else el.classList.remove("on")}});var fb=document.getElementById("ftFiltBtn");if(fb){if(anyOn)fb.classList.add("mn-workspace-slider-mode-on");else fb.classList.remove("mn-workspace-slider-mode-on")}}
+function togFilterPop(){var p=document.getElementById("ftFiltPop");p.classList.toggle("open");syncFiltBtns()}
+document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-filter-wrap")){var p=document.getElementById("ftFiltPop");if(p)p.classList.remove("open")}})
 
 // Close segments menu when clicking outside
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-workspace-topbar-segments"))document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open")});
