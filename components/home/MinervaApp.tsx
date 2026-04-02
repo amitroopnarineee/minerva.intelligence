@@ -7,8 +7,7 @@ import React from 'react'
 import dynamic from 'next/dynamic'
 const InfiniteGallery = dynamic(() => import('@/components/ui/3d-gallery-photography'), { ssr: false })
 
-import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, Line, LineChart, YAxis } from 'recharts'
-import { ChartContainer, ChartTooltip, type ChartConfig } from '@/components/ui/line-charts-6'
+import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 
 /* ── Types ── */
 type View = 'home' | 'dashboard' | 'briefing' | 'segments'
@@ -153,8 +152,9 @@ function Dots({ show }: { show: boolean }) {
 
 
 function PlatformIcon({ name }: { name: string }) {
-  const colors: Record<string,string> = { Meta: '#0668E1', Klaviyo: '#28B446' }
-  return <span className="inline-flex items-center justify-center w-4 h-4 rounded-[3px] mr-1.5 text-[7px] font-bold shrink-0" style={{ background: colors[name] || '#555', color: '#fff' }}>{name[0]}</span>
+  if (name === 'Meta') return <svg width="12" height="12" viewBox="0 0 24 24" fill="rgba(255,255,255,0.35)" className="inline-block mr-1.5 -mt-px"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/></svg>
+  if (name === 'Klaviyo') return <svg width="12" height="12" viewBox="0 0 24 24" fill="rgba(255,255,255,0.35)" className="inline-block mr-1.5 -mt-px"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+  return <span className="inline-block w-3 h-3 rounded-sm mr-1.5" style={{ background: 'rgba(255,255,255,0.15)' }} />
 }
 
 const CARD = { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '16px 18px' } as const
@@ -187,40 +187,6 @@ const METRICS = [
   ]},
 ]
 
-// Daily data for the big chart (18 days)
-const DAILY_DATA = [
-  { date: '2026-03-16', revenue: 180, roas: 2.8, conv: 2.8, match: 78 },
-  { date: '2026-03-17', revenue: 195, roas: 3.0, conv: 3.1, match: 76 },
-  { date: '2026-03-18', revenue: 188, roas: 2.9, conv: 2.6, match: 75 },
-  { date: '2026-03-19', revenue: 210, roas: 3.2, conv: 3.3, match: 73 },
-  { date: '2026-03-20', revenue: 225, roas: 3.4, conv: 3.5, match: 74 },
-  { date: '2026-03-21', revenue: 198, roas: 3.1, conv: 2.9, match: 72 },
-  { date: '2026-03-22', revenue: 215, roas: 3.3, conv: 3.2, match: 70 },
-  { date: '2026-03-23', revenue: 230, roas: 3.5, conv: 3.4, match: 69 },
-  { date: '2026-03-24', revenue: 208, roas: 3.2, conv: 3.0, match: 68 },
-  { date: '2026-03-25', revenue: 220, roas: 3.4, conv: 3.3, match: 70 },
-  { date: '2026-03-26', revenue: 235, roas: 3.6, conv: 3.5, match: 67 },
-  { date: '2026-03-27', revenue: 240, roas: 3.7, conv: 3.6, match: 66 },
-  { date: '2026-03-28', revenue: 228, roas: 3.5, conv: 3.4, match: 65 },
-  { date: '2026-03-29', revenue: 218, roas: 3.3, conv: 3.2, match: 64 },
-  { date: '2026-03-30', revenue: 232, roas: 3.6, conv: 3.5, match: 63 },
-  { date: '2026-03-31', revenue: 238, roas: 3.8, conv: 3.7, match: 62 },
-  { date: '2026-04-01', revenue: 242, roas: 4.0, conv: 3.9, match: 62 },
-]
-
-const METRIC_KEYS: Record<string, { dataKey: string; color: string; format: (v: number) => string }> = {
-  Revenue: { dataKey: 'revenue', color: 'var(--color-teal-500, #14b8a6)', format: (v) => `$${v}K` },
-  ROAS: { dataKey: 'roas', color: 'var(--color-violet-500, #8b5cf6)', format: (v) => `${v.toFixed(1)}x` },
-  'Conv Rate': { dataKey: 'conv', color: 'var(--color-lime-500, #84cc16)', format: (v) => `${v.toFixed(1)}%` },
-  'Match Rate': { dataKey: 'match', color: 'var(--color-sky-500, #0ea5e9)', format: (v) => `${v}%` },
-}
-
-const briefingChartConfig = {
-  revenue: { label: 'Revenue', color: 'var(--color-teal-500, #14b8a6)' },
-  roas: { label: 'ROAS', color: 'var(--color-violet-500, #8b5cf6)' },
-  conv: { label: 'Conv Rate', color: 'var(--color-lime-500, #84cc16)' },
-  match: { label: 'Match Rate', color: 'var(--color-sky-500, #0ea5e9)' },
-} satisfies ChartConfig
 const CAMPAIGNS = [
   { name: "Season Ticket Renewals", platform: "Klaviyo", spend: "$142K", roas: "5.2x", conv: "312", up: true },
   { name: "Premium Suites Spring", platform: "Meta", spend: "$89K", roas: "3.8x", conv: "87", up: true },
@@ -343,7 +309,6 @@ function TypeSection({ text, speed = 30, style, delayAfter = 1500, playing, onAd
 function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onDetail }: { navigateTo: (v: View) => void; onOpenStudio: () => void; studioSaved: boolean; studioDone: boolean; onDetail: (d: DetailData) => void }) {
   const [phase, setPhase] = useState(0) // 0=typing, 1=kpis, 2=signal, 3=complete
   const [typeDone, setTypeDone] = useState(false)
-  const [selectedMetric, setSelectedMetric] = useState('Revenue')
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Auto-advance phases
@@ -372,9 +337,9 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
               {/* KPI Strip */}
               <div className="mn-kpi-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
                 {METRICS.map(m => (
-                  <div key={m.label} onClick={() => setSelectedMetric(m.label)}
+                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: `${m.pct} vs last period`, heroValue: m.value, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: m.up ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)' }}>{m.pct}</span></div><p className="text-[12px] mb-4" style={{ color: 'rgba(255,255,255,0.3)' }}>from {m.prev}</p></div> })}
                     className="mn-kpi-card cursor-pointer transition-all hover:border-white/[0.12] animate-card-in"
-                    style={{ background: selectedMetric === m.label ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.025)', border: selectedMetric === m.label ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 0, overflow: 'hidden' }}>
+                    style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 0, overflow: 'hidden' }}>
                     {/* Header: label + trend badge */}
                     <div className="mn-kpi-header flex items-center justify-between px-4 pt-3 pb-0">
                       <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{m.label}</span>
@@ -422,72 +387,6 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* ═══ BIG LINE CHART ═══ */}
-              <div style={{ ...CARD, padding: 0, overflow: 'hidden', marginBottom: 12 }}>
-                <ChartContainer
-                  config={briefingChartConfig}
-                  className="h-[280px] w-full overflow-visible [&_.recharts-cartesian-axis-tick_text]:fill-white/30 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-white/10"
-                  style={{ background: 'transparent' }}
-                >
-                  <LineChart
-                    data={DAILY_DATA}
-                    margin={{ top: 20, right: 20, left: 5, bottom: 20 }}
-                    style={{ overflow: 'visible' }}
-                  >
-                    <defs>
-                      <pattern id="mnDotGrid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                        <circle cx="10" cy="10" r="0.8" fill="rgba(255,255,255,0.06)" />
-                      </pattern>
-                      <filter id="mnLineShadow" x="-100%" y="-100%" width="300%" height="300%">
-                        <feDropShadow dx="4" dy="6" stdDeviation="25" floodColor={`${METRIC_KEYS[selectedMetric]?.color}40`} />
-                      </filter>
-                    </defs>
-                    <XAxis
-                      dataKey="date"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.25)' }}
-                      tickMargin={10}
-                      tickFormatter={(value) => {
-                        const d = new Date(value)
-                        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                      }}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.25)' }}
-                      tickMargin={8}
-                      tickCount={5}
-                      tickFormatter={(value) => METRIC_KEYS[selectedMetric]?.format(value) ?? String(value)}
-                    />
-                    <ChartTooltip
-                      content={({ active, payload }: any) => {
-                        if (!active || !payload?.length) return null
-                        const mk = METRIC_KEYS[selectedMetric]
-                        return (
-                          <div style={{ background: 'rgba(0,0,0,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 10px', minWidth: 100 }}>
-                            <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: 0, marginBottom: 2 }}>{selectedMetric}</p>
-                            <p style={{ fontSize: 14, color: '#fff', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>{mk?.format(payload[0].value)}</p>
-                          </div>
-                        )
-                      }}
-                      cursor={{ strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.1)' }}
-                    />
-                    <rect x="55" y="-20" width="100%" height="100%" fill="url(#mnDotGrid)" style={{ pointerEvents: 'none' }} />
-                    <Line
-                      type="monotone"
-                      dataKey={METRIC_KEYS[selectedMetric]?.dataKey}
-                      stroke={METRIC_KEYS[selectedMetric]?.color}
-                      strokeWidth={2}
-                      filter="url(#mnLineShadow)"
-                      dot={false}
-                      activeDot={{ r: 5, fill: METRIC_KEYS[selectedMetric]?.color, stroke: 'rgba(0,0,0,0.5)', strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ChartContainer>
               </div>
 
               {/* Campaign Table */}
