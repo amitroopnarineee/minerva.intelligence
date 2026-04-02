@@ -188,12 +188,12 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
 const GALLERY_IMAGES = [
   { src: 'https://images.unsplash.com/photo-1638378943379-f9c64b6612e4?w=600&auto=format&fit=crop&q=60', alt: 'Football helmet' },
   { src: 'https://images.unsplash.com/photo-1747561502595-871265f5503b?w=600&auto=format&fit=crop&q=60', alt: 'Football jersey' },
-  { src: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&auto=format&fit=crop&q=60', alt: 'Data' },
-  { src: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&auto=format&fit=crop&q=60', alt: 'Athletics' },
-  { src: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&auto=format&fit=crop&q=60', alt: 'Marketing' },
-  { src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=60', alt: 'Miami beach' },
-  { src: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=600&auto=format&fit=crop&q=60', alt: 'Analytics' },
-  { src: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&auto=format&fit=crop&q=60', alt: 'Football' },
+  { src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 1' },
+  { src: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 2' },
+  { src: 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 3' },
+  { src: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 4' },
+  { src: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&auto=format&fit=crop&q=60', alt: 'Abstract' },
+  { src: 'https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=600&auto=format&fit=crop&q=60', alt: 'Sky' },
 ]
 
 /* ══════════════════════════════════════════════════════════
