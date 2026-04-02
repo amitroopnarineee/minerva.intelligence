@@ -596,15 +596,29 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name: string) => void; onClose: () => void }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [actionModal, setActionModal] = useState<'save-segment' | 'launch-campaign' | null>(null)
+  const [phase, setPhase] = useState<'select' | 'workspace'>('select')
+
+  // Reset phase when modal opens
+  useEffect(() => { if (open) setPhase('select') }, [open])
+
+  // Listen for postMessage from workspace iframe (Save Segment button)
+  useEffect(() => {
+    function handleMsg(e: MessageEvent) {
+      if (e.data?.type === 'minerva-save-segment') setActionModal('save-segment')
+      if (e.data?.type === 'minerva-launch-campaign') setActionModal('launch-campaign')
+    }
+    window.addEventListener('message', handleMsg)
+    return () => window.removeEventListener('message', handleMsg)
+  }, [])
 
   useEffect(() => {
-    if (open && iframeRef.current) {
+    if (open && phase === 'workspace' && iframeRef.current) {
       const t = setTimeout(() => {
         iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-init', mode: 'premium', embedded: true }, '*')
       }, 1000)
       return () => clearTimeout(t)
     }
-  }, [open])
+  }, [open, phase])
 
   if (!open) return null
 
@@ -616,32 +630,51 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name
       pointerEvents: open ? 'auto' : 'none',
     }}>
 
-      {/* Close pill — top right, next to avatar area */}
+      {/* Close pill */}
       <button onClick={onClose}
         className="fixed top-3 right-16 z-[260] text-[11px] px-4 py-1.5 rounded-full transition-all hover:bg-white/[0.08]"
         style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(12px)', opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
         Close
       </button>
 
-
-      {/* Iframe */}
-      <div className="flex-1 relative bg-black">
-        <iframe ref={iframeRef} src="/workspace.html" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
-      </div>
-
-      {/* Floating action bar at bottom */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[260] flex items-center gap-3" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.4s forwards' }}>
-        <button onClick={() => setActionModal('save-segment')}
-          className="text-[12px] px-5 py-2.5 rounded-full transition-all hover:bg-white/[0.95]"
-          style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
-          Save Segment
-        </button>
-        <button onClick={() => setActionModal('launch-campaign')}
-          className="text-[12px] px-5 py-2.5 rounded-full transition-all hover:bg-white/[0.08]"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(12px)', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
-          Launch Campaign
-        </button>
-      </div>
+      {phase === 'select' ? (
+        /* ═══ SEGMENT SELECTOR ═══ */
+        <div className="flex-1 flex flex-col items-center justify-center bg-black">
+          <div className="w-full max-w-[720px] mx-auto px-6" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.15s forwards' }}>
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <div className="w-5 h-5 rounded bg-white flex items-center justify-center">
+                <svg width={12} height={12} viewBox="0 0 127 127" fill="none"><path d="M3.22 0.11C8.61-0.12 15.26 0.08 20.75 0.08L54.9 0.08 98.53 0.08C105.88 0.08 113.23 0.05 120.58 0.09 121.84 0.09 125.58 0.18 125.8 1.98 126.28 5.93 126.09 10.2 126.1 14.2L126.1 37.34 126.1 94.18C126.1 103.23 126.1 112.28 126.13 121.32 126.15 124.1 125.88 125.5 123 126.15 120.09 126.36 116.48 126.3 113.53 126.31L95.72 126.27 39.54 126.28 14.76 126.29C10.86 126.29 6.29 126.42 2.4 126 1.57 125.91 0.65 124.64 0.2 123.97-0.15 120.03 0.07 112.64 0.07 108.4L0.08 79.54 0.07 29.33C0.07 21.22 0.07 13.11 0.07 5 0.07 2.45 0.33 0.61 3.22 0.11Z" fill="black"/></svg>
+              </div>
+              <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Minerva</span>
+            </div>
+            <h2 className="text-[26px] text-white text-center mb-10" style={{ fontWeight: 500, letterSpacing: '-0.02em' }}>Select Segment</h2>
+            <div className="flex items-center justify-center gap-4">
+              <button onClick={() => setPhase('workspace')}
+                className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
+                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.25s forwards' }}>
+                <div className="w-12 h-12 rounded-full mb-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Audience 1</span>
+                <span className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>268M profiles</span>
+              </button>
+              <button onClick={() => setPhase('workspace')}
+                className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
+                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.025)', border: '1px dashed rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.35s forwards' }}>
+                <span className="text-[20px] mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}>↑</span>
+                <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Upload</span>
+                <span className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>CSV or segment file</span>
+              </button>
+            </div>
+            <p className="text-center mt-10 text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>Miami Dolphins · Consumer Intelligence · April 2, 2026</p>
+          </div>
+        </div>
+      ) : (
+        /* ═══ WORKSPACE ═══ */
+        <div className="flex-1 relative bg-black" style={{ opacity: 0, animation: 'mn-stagger-in 0.4s ease forwards' }}>
+          <iframe ref={iframeRef} src="/workspace.html" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
+        </div>
+      )}
 
       {/* Action modal overlay */}
       {actionModal && (
@@ -651,7 +684,6 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name
           onConfirm={(name) => { setActionModal(null); onSave(name) }}
         />
       )}
-
 
     </div>
   )
