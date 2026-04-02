@@ -195,14 +195,14 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
    HOME SCREEN
    ══════════════════════════════════════════════════════════ */
 const GALLERY_IMAGES = [
-  { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins' },
-  { src: '/gallery/player-10.jpg', alt: 'Player' },
-  { src: '/gallery/hudson-house.jpg', alt: 'Hudson House' },
-  { src: '/gallery/team-huddle.jpg', alt: 'Team' },
-  { src: '/gallery/forest-villa.jpg', alt: 'Forest Villa' },
-  { src: '/gallery/wander-coast.jpg', alt: 'Coast' },
-  { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins 2' },
-  { src: '/gallery/player-10.jpg', alt: 'Player 2' },
+  { src: 'https://picsum.photos/seed/dolphins1/800/500', alt: 'A' },
+  { src: 'https://picsum.photos/seed/dolphins2/800/500', alt: 'B' },
+  { src: 'https://picsum.photos/seed/miami1/800/500', alt: 'C' },
+  { src: 'https://picsum.photos/seed/miami2/800/500', alt: 'D' },
+  { src: 'https://picsum.photos/seed/stadium1/800/500', alt: 'E' },
+  { src: 'https://picsum.photos/seed/ocean1/800/500', alt: 'F' },
+  { src: 'https://picsum.photos/seed/finsup1/800/500', alt: 'G' },
+  { src: 'https://picsum.photos/seed/finsup2/800/500', alt: 'H' },
 ]
 
 function HomeScreen({ onEnter }: { onEnter: () => void }) {
@@ -212,7 +212,9 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
     <div className="absolute inset-0">
       {/* 3D Gallery background */}
       <div className="absolute inset-0 opacity-50">
-          <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} className="h-full w-full" />
+        <GalleryErrorBoundary>
+          <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} visibleCount={10} className="h-full w-full" />
+        </GalleryErrorBoundary>
       </div>
       {/* Content overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10 pointer-events-none">
