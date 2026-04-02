@@ -189,10 +189,10 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
    ══════════════════════════════════════════════════════════ */
 const GALLERY_IMAGES = [
   { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=600&auto=format&fit=crop&q=60', alt: 'Stadium' },
-  { src: 'https://images.unsplash.com/photo-1461896836934-bd45ba24e9e7?w=600&auto=format&fit=crop&q=60', alt: 'Miami skyline' },
+  { src: 'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=600&auto=format&fit=crop&q=60', alt: 'Miami skyline' },
   { src: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&auto=format&fit=crop&q=60', alt: 'Data' },
   { src: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&auto=format&fit=crop&q=60', alt: 'Athletics' },
-  { src: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&auto=format&fit=crop&q=60', alt: 'Marketing' },
+  { src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=60', alt: 'Dashboard' },
   { src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=60', alt: 'Miami beach' },
   { src: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=600&auto=format&fit=crop&q=60', alt: 'Analytics' },
   { src: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&auto=format&fit=crop&q=60', alt: 'Football' },
