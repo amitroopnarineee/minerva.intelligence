@@ -87,7 +87,7 @@ export function MinervaMenuBar() {
   return (
     <>
       {/* ═══ STATIC HEADER ═══ */}
-      <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 fixed top-0 left-0 right-0 z-30" style={{ background: 'transparent', mixBlendMode: 'difference' }}>
+      <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 fixed top-0 left-0 right-0 z-[250]" style={{ background: 'transparent', mixBlendMode: 'difference' }}>
         <div className="mn-menubar-left flex items-center gap-1" style={{ opacity: isVisible ? 0 : 1, transition: 'opacity 300ms ease', pointerEvents: isVisible ? 'none' : 'auto' }}>
           <button onClick={() => { router.push('/'); window.dispatchEvent(new Event('minerva-go-home')) }} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
             <MinervaLogo size={16} />
@@ -119,14 +119,14 @@ export function MinervaMenuBar() {
       </div>
 
       {/* ═══ DYNAMIC NOTCH ═══ */}
-      <div className={`fixed inset-0 z-[99] ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+      <div className={`fixed inset-0 z-[249] ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
         onClick={handleBackdrop}
         style={{ background: isOpen ? "rgb(0 0 0 / 84%)" : "rgba(0,0,0,0)", backdropFilter: isOpen ? "blur(2px)" : "none", transition: "background 500ms, backdrop-filter 500ms" }} />
 
-      <div className="fixed top-0 left-0 right-0 h-[10px] bg-[#0a0a0a] z-[150]"
+      <div className="fixed top-0 left-0 right-0 h-[10px] bg-[#0a0a0a] z-[260]"
         style={{ transform: isVisible ? "translateY(0)" : "translateY(-100%)", transition: "transform 600ms cubic-bezier(.32,.72,0,1)" }} />
 
-      <div className="fixed top-0 left-1/2 z-[200] flex flex-col items-center" style={{ transform: "translateX(-50%)" }}>
+      <div className="fixed top-0 left-1/2 z-[260] flex flex-col items-center" style={{ transform: "translateX(-50%)" }}>
         <div ref={notchRef} onClick={handleNotchClick}
           className="relative flex items-center justify-center cursor-pointer select-none"
           style={{

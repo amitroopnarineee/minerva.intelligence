@@ -607,8 +607,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
       transition: 'transform 500ms cubic-bezier(0.22,1,0.36,1), opacity 400ms ease',
       pointerEvents: open ? 'auto' : 'none',
     }}>
-      {/* Close button */}
-      <button onClick={onClose} className="fixed top-3 right-4 z-[210] text-[11px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>✕ Close</button>
+
 
       {/* Iframe */}
       {saveAnim ? (
