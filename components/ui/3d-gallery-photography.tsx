@@ -139,9 +139,12 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 	const [autoPlay, setAutoPlay] = useState(true);
 	const lastInteraction = useRef(Date.now());
 	const normalizedImages = useMemo(() => images.map((img) => typeof img === 'string' ? { src: img, alt: '' } : img), [images]);
-	const [textures, setTextures] = useState<(THREE.Texture | null)[]>([]);
-	const videoRefs = useRef<HTMLVideoElement[]>([]);
+	const texturesRef = useRef<(THREE.Texture | null)[]>([]);
+	const [texturesReady, setTexturesReady] = useState(false);
+	const loadedRef = useRef(false);
 	useEffect(() => {
+		if (loadedRef.current) return;
+		loadedRef.current = true;
 		const loader = new THREE.TextureLoader();
 		const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
 		Promise.all(normalizedImages.map(img => {
@@ -162,7 +165,6 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 							const tex = new THREE.VideoTexture(video);
 							tex.minFilter = THREE.LinearFilter;
 							tex.magFilter = THREE.LinearFilter;
-							videoRefs.current.push(video);
 							done(tex);
 						}, { once: true });
 						video.addEventListener('error', () => done(null), { once: true });
@@ -174,9 +176,11 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 			return new Promise<THREE.Texture | null>(resolve => {
 				loader.load(img.src, tex => resolve(tex), undefined, () => resolve(null));
 			});
-		})).then(results => setTextures(results));
-		return () => { videoRefs.current.forEach(v => { v.pause(); v.src = ''; }); };
-	}, [normalizedImages]);
+		})).then(results => {
+			texturesRef.current = results;
+			setTexturesReady(true);
+		});
+	}, []);
 	const materials = useMemo(() => Array.from({ length: visibleCount }, () => createClothMaterial()), [visibleCount]);
 
 	const spatialPositions = useMemo(() => {
@@ -279,7 +283,8 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 		});
 	});
 
-	if (normalizedImages.length === 0 || textures.length === 0) return null;
+	const textures = texturesRef.current;
+	if (normalizedImages.length === 0 || !texturesReady || textures.length === 0) return null;
 	return (
 		<>
 			{planesData.current.map((plane, i) => {
