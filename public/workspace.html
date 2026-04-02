@@ -371,8 +371,6 @@ var curMode="All";
 // Floating toolbar
 (function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
-});
-
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
 var fbtns=document.getElementById("floatingModes").children;for(var i=0;i<fbtns.length;i++){if(MODES[i].name===name)fbtns[i].classList.add("mn-workspace-slider-mode-on");else fbtns[i].classList.remove("mn-workspace-slider-mode-on")}}
@@ -383,9 +381,6 @@ var s=x2s(e.clientX),dLo=Math.abs(s-sLo),dHi=Math.abs(s-sHi);
 if(dLo<=dHi){sLo=Math.min(s,sHi-1)}else{sHi=Math.max(s,sLo+1)}
 curMode="Custom";var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++)btns[i].classList.remove("mn-workspace-slider-mode-on");
 var fbtns=document.getElementById("floatingModes").children;for(var i=0;i<fbtns.length;i++)fbtns[i].classList.remove("mn-workspace-slider-mode-on");
-
-});
-
 usv();ren()}
 
 function usv(){var lo=(sLo/99)*100,hi=(sHi/99)*100;tlo.style.left=lo+"%";thi.style.left=hi+"%";sfEl.style.left=lo+"%";sfEl.style.width=(hi-lo)+"%";document.getElementById("sv").textContent=sLo+" \u2013 "+sHi;
@@ -614,8 +609,6 @@ if(!savedSegs.length){m.innerHTML='<div class="mn-workspace-topbar-segments-empt
 var h="";savedSegs.forEach(function(s,i){h+='<button class="mn-workspace-topbar-segments-item" onclick="loadSeg('+i+')">'+s.name+' \u00b7 '+s.count+'<\/button>'});
 m.innerHTML=h}
 function loadSeg(i){var s=savedSegs[i];sLo=s.lo;sHi=s.hi;extraFilters=s.filters;
-});
-
 usv();ren();document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open");toast("Loaded: "+s.name)}
 function clearFilters(){extraFilters=null;ren();toast("Filters cleared")}
 function rmFilter(key){if(!extraFilters)return;delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null;ren()}
