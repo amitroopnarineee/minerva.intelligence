@@ -302,7 +302,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
   function onCardShown(delayAfter = 1200) { if (playing) advance(delayAfter) }
   function onPivotDone(delayAfter = 1500) { if (playing) advance(delayAfter) }
 
-  const isComplete = step >= 14
+  const isComplete = step >= 15
 
   return (
     <div className="absolute inset-0 flex flex-col">
@@ -410,20 +410,48 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
           )}
 
 
-          {/* S6: PIVOT — typed slowly, brighter */}
+          {/* S6: Social Pulse */}
           {step >= 6 && (
+            <ConnCard playing={playing} onAdvance={onAdvance} text="Here's what fans are saying:" delayAfter={1800}>
+              <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
+                <div className="px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <p style={LBL}>SOCIAL PULSE · #FINSUP</p>
+                </div>
+                {[
+                  { handle: "@MiamiDolphins", time: "2h", text: "Ready to get to it. Sullivan and Hafley continue offering fans reason to believe." },
+                  { handle: "@ThePhinsider", time: "4h", text: "Achane extension is a priority. Splash Zone 4/1." },
+                  { handle: "@ClutchPoints", time: "6h", text: "4 players Dolphins must avoid picking in the 2026 NFL Draft." },
+                  { handle: "@SportsIllustrated", time: "8h", text: "When the Dolphins signed Malik Willis, they understood they were taking a gamble." },
+                  { handle: "@DolphinsTalk", time: "12h", text: "Laying the Foundation — Miami has embraced a foundational reset under the new regime." },
+                ].map((t, i) => (
+                  <div key={i} className="px-[18px] py-2.5 transition-colors hover:bg-white/[0.02] animate-card-in cursor-pointer"
+                    onClick={() => onDetail({ title: t.handle, subtitle: t.time + " ago", size: "sm" as ModalSize, content: <div><p className="text-[13px]" style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{t.text}</p><p className="text-[11px] mt-3" style={{ color: "rgba(255,255,255,0.2)" }}>via X (Twitter) · #FinsUp #MiamiDolphins</p></div> })}
+                    style={{ borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>{t.handle}</span>
+                      <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.15)' }}>{t.time}</span>
+                    </div>
+                    <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{t.text}</p>
+                  </div>
+                ))}
+              </div>
+            </ConnCard>
+          )}
+
+          {/* S7: PIVOT — typed slowly, brighter */}
+          {step >= 7 && (
             <TypeSection playing={playing} onAdvance={onAdvance} text="Something interesting happened overnight." speed={30} delayAfter={1500}
               style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', marginTop: 24 }} />
           )}
 
           {/* S7: Pivot continued */}
-          {step >= 7 && (
+          {step >= 8 && (
             <TypeSection playing={playing} onAdvance={onAdvance} text="The Dolphins signed quarterback Jackson Dark from the New York Giants. Social media volume spiked 340% in the last 8 hours — mostly Giants fans reacting." speed={30} delayAfter={1000}
               style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)' }} />
           )}
 
           {/* S8: Pivot analysis + segment card */}
-          {step >= 8 && (
+          {step >= 9 && (
             <ConnCard playing={playing} onAdvance={onAdvance} text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
               <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)' }}>
                 <p style={LBL} className="mb-3">✦ SUGGESTED SEGMENT</p>
@@ -446,7 +474,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
 
           {/* S9: Campaign Composer (after modal save) OR skip connector */}
-          {step >= 9 && studioSaved && (
+          {step >= 10 && studioSaved && (
             <ConnCard playing={playing} onAdvance={onAdvance} text={'Segment saved: Giants-to-Dolphins Crossover — 2,400 profiles. Now let\'s reach them.'} delayAfter={99999}>
               <div style={{ ...CARD }}>
                 <p style={LBL} className="mb-3">COMPOSE CAMPAIGN</p>
@@ -481,7 +509,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
           )}
 
           {/* S10/S9: Wrap-up + Remaining actions */}
-          {step >= (studioSaved ? 10 : 9) && (
+          {step >= (studioSaved ? 11 : 10) && (
             <ConnCard playing={playing} onAdvance={onAdvance} text={studioSaved ? "Done. 1,872 Giants fans will receive your welcome offer within the hour. I'll track performance and brief you tomorrow." : "Three actions I'd prioritize:"} delayAfter={1500}>
               <div className="space-y-2">
                 <p style={LBL} className="mb-2">{studioSaved ? 'TWO MORE ACTIONS' : 'NEXT BEST ACTIONS'}</p>
@@ -505,7 +533,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
 
           {/* Footer */}
-          {step >= (studioSaved ? 11 : 10) && (
+          {step >= (studioSaved ? 12 : 11) && (
             <div className="animate-card-in text-center pt-6 space-y-6">
               <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>
                 Last sync: 8:12 AM — Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph · 5 sources connected
