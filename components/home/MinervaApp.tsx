@@ -833,11 +833,11 @@ type DetailData = { title: string; subtitle?: string; size?: ModalSize; heroValu
    ══════════════════════════════════════════════════════════ */
 
 const DASH_TABS = [
-  { id: "discover", label: "Discover", icon: "◎" },
-  { id: "people", label: "People", icon: "◔" },
-  { id: "audiences", label: "Audiences", icon: "◫" },
-  { id: "enrich", label: "Enrich", icon: "↧" },
-  { id: "activate", label: "Activate", icon: "✦" },
+  { id: "discover", label: "Discover", icon: "◎", title: "Discover patterns in your audience." },
+  { id: "people", label: "People", icon: "◔", title: "Explore your customer profiles." },
+  { id: "audiences", label: "Audiences", icon: "◫", title: "Build intelligent audience segments." },
+  { id: "enrich", label: "Enrich", icon: "↧", title: "Enrich profiles with new data." },
+  { id: "activate", label: "Activate", icon: "✦", title: "Activate audiences across channels." },
 ]
 
 function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) => void; onOpenStudio: () => void }) {
@@ -855,8 +855,8 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
     <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
       <div className="h-12 shrink-0" />
       <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
-        <h1 className="text-[28px] text-white text-center mb-8 mn-stagger-1" style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: 0, animation: 'mn-stagger-in 0.5s ease forwards' }}>
-          Build intelligent audience segments.
+        <h1 key={activeTab} className="text-[28px] text-white text-center mb-8" style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: 0, animation: 'mn-stagger-in 0.35s ease forwards' }}>
+          {DASH_TABS.find(t => t.id === activeTab)?.title}
         </h1>
 
         {/* Chat input */}
@@ -878,7 +878,7 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
               setActiveTab(t.id)
               if (t.id === 'audiences') onOpenStudio()
             }}
-              className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all"
+              className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
               style={{
                 background: activeTab === t.id ? 'rgba(255,255,255,0.08)' : 'transparent',
                 border: `1px solid ${activeTab === t.id ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
