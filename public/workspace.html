@@ -499,7 +499,7 @@ if(selMulti.length>1){
   h+='<\/div>';
 }
 h+='<\/div>';
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Insight<\/div><div class="mn-workspace-detail-narrative">'+nar+'<\/div><\/div>';
+h+='<div class="mn-workspace-detail-section" id="insightSection"><div class="mn-workspace-detail-label">Insight<\/div><div class="mn-workspace-detail-narrative">'+nar+'<\/div><\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
@@ -670,13 +670,13 @@ filterHTML+='<button class="mn-workspace-intel-filter'+(extraFilters&&extraFilte
 filterHTML+='<button class="mn-workspace-intel-filter'+(extraFilters&&extraFilters.emailOnly?" mn-workspace-intel-filter-on":"")+'" onclick="togFilt(\'emailOnly\')">Email only<\/button>';
 filterHTML+='<\/div>';
 
-var h='<div class="mn-workspace-detail-section" style="margin-top:8px;border-top:1px solid var(--mn-border);padding-top:14px"><div class="mn-workspace-detail-label">Intelligence<\/div>';
+var h='<div class="mn-workspace-detail-section" id="intelSection"><div class="mn-workspace-detail-label">Intelligence<\/div>';
 h+='<div class="mn-workspace-intel-confidence" style="margin-top:8px">'+confidence+'<\/div>';
 h+='<div class="mn-workspace-intel-verdict" style="font-size:14px;margin-bottom:6px">'+verdict+'<\/div>';
 h+='<div style="font-size:11px;line-height:1.7;color:var(--mn-t2)">'+detail+'<\/div>';
 h+='<button class="mn-workspace-intel-refresh" style="margin-top:8px" onclick="genInsight()">Reanalyze<\/button>';
 h+='<\/div>';
-var db=document.getElementById("db");if(db){var old=db.querySelector('.mn-workspace-detail-section:last-child');if(old&&old.querySelector('.mn-workspace-intel-confidence'))old.remove();db.insertAdjacentHTML("beforeend",h)}}
+var db=document.getElementById("db");if(db){var old=document.getElementById("intelSection");if(old)old.remove();var anchor=document.getElementById("insightSection");if(anchor)anchor.insertAdjacentHTML("beforebegin",h);else db.insertAdjacentHTML("afterbegin",h)}}
 
 function togFilt(key){
 if(!extraFilters)extraFilters={};
