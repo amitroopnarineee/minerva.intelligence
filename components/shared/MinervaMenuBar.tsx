@@ -92,7 +92,24 @@ export function MinervaMenuBar() {
   const isPeek = notchState === "peek"
   const isVisible = notchState !== "hidden"
 
-  if (workspaceHidden) return null
+  if (workspaceHidden) {
+    // Show only static header (logo + avatar), no notch
+    return (
+      <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 fixed top-0 left-0 right-0 z-[250]" style={{ background: 'transparent', pointerEvents: 'none' }}>
+        <div className="mn-menubar-left flex items-center gap-1" style={{ pointerEvents: 'auto' }}>
+          <button onClick={() => { router.push('/'); window.dispatchEvent(new Event('minerva-go-home')) }} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
+            <MinervaLogo size={16} />
+            <span className="mn-menubar-brand text-[18px] font-medium tracking-tight">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>
+          </button>
+        </div>
+        <div className="mn-menubar-right flex items-center gap-1" style={{ pointerEvents: 'auto' }}>
+          <div aria-label="User" className="ml-2 rounded-full bg-white/90 ring-1 ring-white/10 flex items-center justify-center" style={{ width: 25, height: 25 }}>
+            <span className="text-[9px] font-semibold text-black/60 leading-none">SM</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
