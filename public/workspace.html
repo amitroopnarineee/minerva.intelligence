@@ -686,7 +686,7 @@ var lines=txt.split("\n");
 lines.forEach(function(line){
 var l=line.trim();
 if(l.startsWith("CONFIDENCE:"))conf=l.replace("CONFIDENCE:","").trim();
-else if(l.startsWith("VERDICT:"))verd=l.replace("VERDICT:","").trim();
+else if(l.startsWith("VERDICT:"))verd=l.replace("VERDICT:","").replace(/\*\*/g,"").trim();
 else if(l.startsWith("ANALYSIS:"))anal=l.replace("ANALYSIS:","").trim();
 else if(anal&&l)anal+=" "+l;
 });
