@@ -87,15 +87,15 @@ export function MinervaMenuBar() {
   return (
     <>
       {/* ═══ STATIC HEADER ═══ */}
-      <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 fixed top-0 left-0 right-0 z-[250]" style={{ background: 'transparent', mixBlendMode: 'difference' }}>
-        <div className="mn-menubar-left flex items-center gap-1" style={{ opacity: isVisible ? 0 : 1, transition: 'opacity 300ms ease', pointerEvents: isVisible ? 'none' : 'auto' }}>
+      <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 fixed top-0 left-0 right-0 z-[250]" style={{ background: 'linear-gradient(rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 70%, transparent 100%)', pointerEvents: 'auto' }}>
+        <div className="mn-menubar-left flex items-center gap-1">
           <button onClick={() => { router.push('/'); window.dispatchEvent(new Event('minerva-go-home')) }} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
             <MinervaLogo size={16} />
             <span className="mn-menubar-brand text-[13px] font-semibold tracking-tight">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>
           </button>
         </div>
 
-        <div className="mn-menubar-right flex items-center gap-1" style={{ opacity: isVisible ? 0 : 1, transition: 'opacity 300ms ease', pointerEvents: isVisible ? 'none' : 'auto' }}>
+        <div className="mn-menubar-right flex items-center gap-1">
           {NAV_ITEMS.map((item, i) => (
             <div key={item.label} className="relative"
               style={{
