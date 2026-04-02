@@ -566,13 +566,24 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
         </div>
       </div>
 
-      {/* Play/Pause pill */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100]">
-        <button onClick={() => setPlaying(!playing)}
-          className="h-8 px-4 rounded-full text-[11px] transition-all"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: isComplete ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)', backdropFilter: 'blur(16px)', fontWeight: 500 }}>
-          {isComplete ? '✓ Briefing complete' : playing ? '⏸ Pause' : '▶ Resume'}
-        </button>
+      {/* Floating action CTA — appears when user input needed */}
+      {step === 9 && !studioSaved && !studioDone && (
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-[100] animate-card-in">
+          <LiquidMetalButton label="View in Audience Studio" onClick={onOpenStudio} />
+        </div>
+      )}
+
+      {/* Play/Pause pill OR AI input when paused */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2">
+        {!playing && !isComplete ? (
+          <MinervaInlineChat onResume={() => setPlaying(true)} />
+        ) : (
+          <button onClick={() => setPlaying(!playing)}
+            className="h-8 px-4 rounded-full text-[11px] transition-all"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: isComplete ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)', backdropFilter: 'blur(16px)', fontWeight: 500 }}>
+            {isComplete ? '✓ Briefing complete' : '⏸ Pause'}
+          </button>
+        )}
       </div>
     </div>
   )
@@ -785,74 +796,52 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
   )
 }
 
-/* ══ MINERVA CHAT ══ */
-function MinervaChat() {
-  const [open, setOpen] = useState(false)
-  const [msgs, setMsgs] = useState<{role:'user'|'assistant',text:string}[]>([])
+/* ══ MINERVA INLINE CHAT (replaces pause button when paused) ══ */
+function MinervaInlineChat({ onResume }: { onResume: () => void }) {
+  const [response, setResponse] = useState("")
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const msgs = useRef<{role:string,content:string}[]>([])
 
   async function send() {
     if (!input.trim() || loading) return
     const userMsg = input.trim()
     setInput("")
-    const newMsgs = [...msgs, { role: 'user' as const, text: userMsg }]
-    setMsgs(newMsgs)
+    msgs.current.push({ role: 'user', content: userMsg })
     setLoading(true)
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMsgs.map(m => ({ role: m.role, content: m.text })) }),
+        body: JSON.stringify({ messages: msgs.current }),
       })
       const data = await res.json()
-      setMsgs([...newMsgs, { role: 'assistant', text: data.text }])
-    } catch { setMsgs([...newMsgs, { role: 'assistant', text: "Connection error. Please try again." }]) }
+      msgs.current.push({ role: 'assistant', content: data.text })
+      setResponse(data.text)
+    } catch { setResponse("Connection error.") }
     setLoading(false)
-    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }), 100)
   }
 
   return (
-    <>
-      {/* Floating button */}
-      <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-[100] w-10 h-10 rounded-full flex items-center justify-center transition-all"
-        style={{ background: open ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <MinervaLogo size={14} />
-      </button>
-
-      {/* Chat panel */}
-      {open && (
-        <div className="fixed bottom-20 right-6 z-[100] w-[360px] animate-card-in" style={{ background: 'rgba(10,10,12,0.98)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, maxHeight: '50vh', display: 'flex', flexDirection: 'column', backdropFilter: 'blur(20px)' }}>
-          <div className="shrink-0 flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center gap-2"><MinervaLogo size={12} /><span className="text-[12px] text-white" style={{ fontWeight: 500 }}>Ask Minerva</span></div>
-            <button onClick={() => setOpen(false)} className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>✕</button>
-          </div>
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ scrollbarWidth: 'none', minHeight: 120 }}>
-            {msgs.length === 0 && <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.2)' }}>Ask about today's briefing, campaigns, audience segments, or any metric.</p>}
-            {msgs.map((m, i) => (
-              <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
-                <div className="inline-block text-[12px] px-3 py-2 rounded-lg max-w-[85%]" style={{
-                  background: m.role === 'user' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
-                  color: m.role === 'user' ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.55)',
-                  textAlign: 'left', lineHeight: 1.5,
-                  border: m.role === 'assistant' ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                }}>{m.text}</div>
-              </div>
-            ))}
-            {loading && <div className="flex gap-1.5 py-1"><div className="w-1 h-1 rounded-full animate-dot-1" style={{ background: 'rgba(255,255,255,0.3)' }} /><div className="w-1 h-1 rounded-full animate-dot-2" style={{ background: 'rgba(255,255,255,0.3)' }} /><div className="w-1 h-1 rounded-full animate-dot-3" style={{ background: 'rgba(255,255,255,0.3)' }} /></div>}
-          </div>
-          <div className="shrink-0 px-3 py-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex gap-2">
-              <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
-                placeholder="Ask anything..." className="flex-1 text-[12px] px-3 py-2 rounded-lg bg-transparent outline-none"
-                style={{ border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)' }} />
-              <button onClick={send} className="text-[11px] px-3 rounded-lg transition-all hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>→</button>
-            </div>
-          </div>
+    <div className="animate-card-in w-[420px]" style={{ background: 'rgba(10,10,12,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, backdropFilter: 'blur(20px)', padding: '10px 12px' }}>
+      {/* Response bubble */}
+      {response && (
+        <div className="mb-2 px-3 py-2 rounded-lg text-[12px]" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>
+          {response}
         </div>
       )}
-    </>
+      {loading && <div className="flex gap-1.5 py-2 px-1"><div className="w-1 h-1 rounded-full animate-dot-1" style={{ background: 'rgba(255,255,255,0.3)' }} /><div className="w-1 h-1 rounded-full animate-dot-2" style={{ background: 'rgba(255,255,255,0.3)' }} /><div className="w-1 h-1 rounded-full animate-dot-3" style={{ background: 'rgba(255,255,255,0.3)' }} /></div>}
+      {/* Input row */}
+      <div className="flex gap-2 items-center">
+        <MinervaLogo size={12} />
+        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
+          placeholder="Ask Minerva anything..." autoFocus
+          className="flex-1 text-[12px] px-3 py-2 rounded-lg bg-transparent outline-none"
+          style={{ border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)' }} />
+        <button onClick={send} className="text-[11px] px-2.5 py-1.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>→</button>
+        <button onClick={onResume} className="text-[11px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)', fontWeight: 500 }}>▶ Resume</button>
+      </div>
+    </div>
   )
 }
 
