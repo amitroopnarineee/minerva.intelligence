@@ -7,6 +7,8 @@ import React from 'react'
 import dynamic from 'next/dynamic'
 const InfiniteGallery = dynamic(() => import('@/components/ui/3d-gallery-photography'), { ssr: false })
 
+import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+
 /* ── Types ── */
 type View = 'home' | 'briefing'
 type ModalState = 'closed' | 'studio'
@@ -148,9 +150,6 @@ function Dots({ show }: { show: boolean }) {
   )
 }
 
-function Sparkline({ d }: { d: string }) {
-  return <svg width="60" height="20" viewBox="0 0 60 20" fill="none"><path d={d} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" fill="none" /></svg>
-}
 
 function PlatformIcon({ name }: { name: string }) {
   const colors: Record<string,string> = { Meta: '#0668E1', Klaviyo: '#28B446' }
@@ -165,10 +164,26 @@ const CONN = { fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, m
    DATA
    ══════════════════════════════════════════════════════════ */
 const METRICS = [
-  { label: "Revenue", value: "$242K", prev: "$225K", pct: "+7.6%", up: true, spark: "M0,40 C15,38 25,35 30,28 S45,32 50,22 S65,18 70,14 S80,20 90,8 L100,12" },
-  { label: "ROAS", value: "4.0x", prev: "3.7x", pct: "+8.3%", up: true, spark: "M0,42 C12,40 20,36 30,34 S42,30 50,26 S60,22 70,20 S82,16 90,10 L100,8" },
-  { label: "Conv Rate", value: "3.9%", prev: "3.6%", pct: "+8.3%", up: true, spark: "M0,30 C10,34 20,28 30,36 S40,20 50,32 S60,16 70,24 S80,12 90,18 L100,10" },
-  { label: "Match Rate", value: "62%", prev: "70.1%", pct: "-11.6%", up: false, spark: "M0,10 C12,12 20,14 30,18 S42,16 50,24 S60,28 70,26 S82,32 90,36 L100,38" },
+  { label: "Revenue", value: "$242K", prev: "$225K", pct: "+7.6%", up: true, data: [
+    { m: "May", v: 180 }, { m: "Jun", v: 195 }, { m: "Jul", v: 188 }, { m: "Aug", v: 210 },
+    { m: "Sep", v: 205 }, { m: "Oct", v: 198 }, { m: "Nov", v: 215 }, { m: "Dec", v: 220 },
+    { m: "Jan", v: 208 }, { m: "Feb", v: 225 }, { m: "Mar", v: 230 }, { m: "Apr", v: 242 },
+  ]},
+  { label: "ROAS", value: "4.0x", prev: "3.7x", pct: "+8.3%", up: true, data: [
+    { m: "May", v: 2.8 }, { m: "Jun", v: 3.0 }, { m: "Jul", v: 2.9 }, { m: "Aug", v: 3.2 },
+    { m: "Sep", v: 3.1 }, { m: "Oct", v: 3.3 }, { m: "Nov", v: 3.4 }, { m: "Dec", v: 3.5 },
+    { m: "Jan", v: 3.3 }, { m: "Feb", v: 3.7 }, { m: "Mar", v: 3.8 }, { m: "Apr", v: 4.0 },
+  ]},
+  { label: "Conv Rate", value: "3.9%", prev: "3.6%", pct: "+8.3%", up: true, data: [
+    { m: "May", v: 2.8 }, { m: "Jun", v: 3.1 }, { m: "Jul", v: 2.6 }, { m: "Aug", v: 3.3 },
+    { m: "Sep", v: 2.9 }, { m: "Oct", v: 3.5 }, { m: "Nov", v: 3.0 }, { m: "Dec", v: 3.2 },
+    { m: "Jan", v: 3.4 }, { m: "Feb", v: 3.6 }, { m: "Mar", v: 3.5 }, { m: "Apr", v: 3.9 },
+  ]},
+  { label: "Match Rate", value: "62%", prev: "70.1%", pct: "-11.6%", up: false, data: [
+    { m: "May", v: 78 }, { m: "Jun", v: 76 }, { m: "Jul", v: 75 }, { m: "Aug", v: 73 },
+    { m: "Sep", v: 74 }, { m: "Oct", v: 72 }, { m: "Nov", v: 70 }, { m: "Dec", v: 69 },
+    { m: "Jan", v: 68 }, { m: "Feb", v: 70 }, { m: "Mar", v: 65 }, { m: "Apr", v: 62 },
+  ]},
 ]
 const CAMPAIGNS = [
   { name: "Season Ticket Renewals", platform: "Klaviyo", spend: "$142K", roas: "5.2x", conv: "312", up: true },
@@ -339,18 +354,40 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                       <p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2 }}>{m.value}</p>
                       <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.2)' }}>from {m.prev}</p>
                     </div>
-                    {/* Sparkline chart */}
-                    <div className="mn-kpi-chart" style={{ padding: '0 0 0 0', height: 40 }}>
-                      <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="w-full h-full" style={{ display: 'block' }}>
-                        <defs>
-                          <linearGradient id={`grad-${m.label}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={m.up ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)'} />
-                            <stop offset="100%" stopColor="rgba(0,0,0,0)" />
-                          </linearGradient>
-                        </defs>
-                        <path d={`${m.spark} L100,50 L0,50 Z`} fill={`url(#grad-${m.label})`} />
-                        <path d={m.spark} fill="none" stroke={m.up ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.5)'} strokeWidth="1.5" />
-                      </svg>
+                    {/* Recharts area sparkline */}
+                    <div className="mn-kpi-chart" style={{ padding: 0, height: 48 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={m.data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                          <defs>
+                            <linearGradient id={`kpi-grad-${m.label}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={m.up ? 'rgb(74,222,128)' : 'rgb(248,113,113)'} stopOpacity={0.2} />
+                              <stop offset="100%" stopColor={m.up ? 'rgb(74,222,128)' : 'rgb(248,113,113)'} stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <XAxis dataKey="m" hide />
+                          <Tooltip
+                            content={({ active, payload }) => {
+                              if (!active || !payload?.length) return null
+                              return (
+                                <div style={{ background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 8px' }}>
+                                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', margin: 0 }}>{payload[0].payload.m}</p>
+                                  <p style={{ fontSize: 12, color: '#fff', fontWeight: 600, margin: 0, fontVariantNumeric: 'tabular-nums' }}>{payload[0].value}</p>
+                                </div>
+                              )
+                            }}
+                            cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="v"
+                            stroke={m.up ? 'rgba(74,222,128,0.6)' : 'rgba(248,113,113,0.6)'}
+                            strokeWidth={1.5}
+                            fill={`url(#kpi-grad-${m.label})`}
+                            dot={false}
+                            activeDot={{ r: 3, fill: m.up ? 'rgb(74,222,128)' : 'rgb(248,113,113)', stroke: 'none' }}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
                 ))}
