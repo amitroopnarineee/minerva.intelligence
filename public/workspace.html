@@ -371,38 +371,6 @@ var curMode="All";
 // Floating toolbar
 (function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
-// ── Drag-to-select on table rows ──
-var dragSelecting=false,dragStartId=null,dragIds=[];
-function getRowId(el){while(el&&!el.dataset.pid)el=el.parentElement;return el?parseInt(el.dataset.pid):null}
-document.getElementById("tb").addEventListener("pointerdown",function(e){
-  if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey)return;
-  var id=getRowId(e.target);if(id===null)return;
-  dragSelecting=true;dragStartId=id;dragIds=[id];
-  document.body.classList.add("mn-dragging");
-  e.preventDefault();
-});
-document.addEventListener("pointermove",function(e){
-  if(!dragSelecting)return;
-  var id=getRowId(e.target);if(id===null||dragIds[dragIds.length-1]===id)return;
-  if(dragIds.indexOf(id)<0)dragIds.push(id);
-  // Live highlight
-  var rows=document.querySelectorAll(".mn-workspace-table-row");
-  rows.forEach(function(r){var rid=parseInt(r.dataset.pid);
-    if(dragIds.indexOf(rid)>=0)r.classList.add("mn-drag-highlight");
-    else r.classList.remove("mn-drag-highlight");
-  });
-});
-document.addEventListener("pointerup",function(e){
-  if(!dragSelecting)return;
-  dragSelecting=false;document.body.classList.remove("mn-dragging");
-  if(dragIds.length>1){
-    selMulti=dragIds.slice();selR=null;
-    ren();// This updates everything including the detail panel stats
-  }else if(dragIds.length===1){
-    selMulti=[];opf(dragIds[0]);
-  }
-  dragIds=[];
-  document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
 });
 
 usv();ren();
@@ -416,38 +384,6 @@ if(dLo<=dHi){sLo=Math.min(s,sHi-1)}else{sHi=Math.max(s,sLo+1)}
 curMode="Custom";var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++)btns[i].classList.remove("mn-workspace-slider-mode-on");
 var fbtns=document.getElementById("floatingModes").children;for(var i=0;i<fbtns.length;i++)fbtns[i].classList.remove("mn-workspace-slider-mode-on");
 
-// ── Drag-to-select on table rows ──
-var dragSelecting=false,dragStartId=null,dragIds=[];
-function getRowId(el){while(el&&!el.dataset.pid)el=el.parentElement;return el?parseInt(el.dataset.pid):null}
-document.getElementById("tb").addEventListener("pointerdown",function(e){
-  if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey)return;
-  var id=getRowId(e.target);if(id===null)return;
-  dragSelecting=true;dragStartId=id;dragIds=[id];
-  document.body.classList.add("mn-dragging");
-  e.preventDefault();
-});
-document.addEventListener("pointermove",function(e){
-  if(!dragSelecting)return;
-  var id=getRowId(e.target);if(id===null||dragIds[dragIds.length-1]===id)return;
-  if(dragIds.indexOf(id)<0)dragIds.push(id);
-  // Live highlight
-  var rows=document.querySelectorAll(".mn-workspace-table-row");
-  rows.forEach(function(r){var rid=parseInt(r.dataset.pid);
-    if(dragIds.indexOf(rid)>=0)r.classList.add("mn-drag-highlight");
-    else r.classList.remove("mn-drag-highlight");
-  });
-});
-document.addEventListener("pointerup",function(e){
-  if(!dragSelecting)return;
-  dragSelecting=false;document.body.classList.remove("mn-dragging");
-  if(dragIds.length>1){
-    selMulti=dragIds.slice();selR=null;
-    ren();// This updates everything including the detail panel stats
-  }else if(dragIds.length===1){
-    selMulti=[];opf(dragIds[0]);
-  }
-  dragIds=[];
-  document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
 });
 
 usv();ren()}
@@ -678,38 +614,6 @@ if(!savedSegs.length){m.innerHTML='<div class="mn-workspace-topbar-segments-empt
 var h="";savedSegs.forEach(function(s,i){h+='<button class="mn-workspace-topbar-segments-item" onclick="loadSeg('+i+')">'+s.name+' \u00b7 '+s.count+'<\/button>'});
 m.innerHTML=h}
 function loadSeg(i){var s=savedSegs[i];sLo=s.lo;sHi=s.hi;extraFilters=s.filters;
-// ── Drag-to-select on table rows ──
-var dragSelecting=false,dragStartId=null,dragIds=[];
-function getRowId(el){while(el&&!el.dataset.pid)el=el.parentElement;return el?parseInt(el.dataset.pid):null}
-document.getElementById("tb").addEventListener("pointerdown",function(e){
-  if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey)return;
-  var id=getRowId(e.target);if(id===null)return;
-  dragSelecting=true;dragStartId=id;dragIds=[id];
-  document.body.classList.add("mn-dragging");
-  e.preventDefault();
-});
-document.addEventListener("pointermove",function(e){
-  if(!dragSelecting)return;
-  var id=getRowId(e.target);if(id===null||dragIds[dragIds.length-1]===id)return;
-  if(dragIds.indexOf(id)<0)dragIds.push(id);
-  // Live highlight
-  var rows=document.querySelectorAll(".mn-workspace-table-row");
-  rows.forEach(function(r){var rid=parseInt(r.dataset.pid);
-    if(dragIds.indexOf(rid)>=0)r.classList.add("mn-drag-highlight");
-    else r.classList.remove("mn-drag-highlight");
-  });
-});
-document.addEventListener("pointerup",function(e){
-  if(!dragSelecting)return;
-  dragSelecting=false;document.body.classList.remove("mn-dragging");
-  if(dragIds.length>1){
-    selMulti=dragIds.slice();selR=null;
-    ren();// This updates everything including the detail panel stats
-  }else if(dragIds.length===1){
-    selMulti=[];opf(dragIds[0]);
-  }
-  dragIds=[];
-  document.querySelectorAll(".mn-drag-highlight").forEach(function(r){r.classList.remove("mn-drag-highlight")});
 });
 
 usv();ren();document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open");toast("Loaded: "+s.name)}
@@ -826,6 +730,9 @@ window.addEventListener('message', function(e) {
   if (e.data.type === 'minerva-tour-click') {
     var el = document.querySelector(e.data.selector);
     if (el) el.click();
+  }
+  if (e.data.type === 'minerva-export') {
+    doExport();
   }
   if (e.data.type === 'minerva-init') {
     if (e.data.mode) setMode(e.data.mode.charAt(0).toUpperCase() + e.data.mode.slice(1));

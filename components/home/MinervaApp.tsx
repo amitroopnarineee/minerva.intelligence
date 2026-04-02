@@ -292,67 +292,139 @@ function TypeSection({ text, speed = 30, style, delayAfter = 1500, playing, onAd
    BRIEFING THREAD — THE PRODUCT
    ══════════════════════════════════════════════════════════ */
 
-/*
-  Timeline (step counter — each step is one visible item):
-  0: greeting          5: funnel           10: pivot3+segment card
-  1: conn1+recommends  6: conn4+chart      11: (modal pause)
-  2: conn2+metrics     7: conn5+campaigns  12: conn7+composer
-  3: conn3+funnel      8: pivot1           13: conn8+wrapup
-  4: conn4+chart       9: pivot2           14: footer
-  
-  Simplified: use revealCount. Items render when their index <= revealCount.
-  Each item has a "revealDelay" (ms after previous item finishes).
-*/
-
 function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onDetail }: { navigateTo: (v: View) => void; onOpenStudio: () => void; studioSaved: boolean; studioDone: boolean; onDetail: (d: DetailData) => void }) {
-  const [step, setStep] = useState(-1) // -1 = not started, 0+ = items revealed
+  const [step, setStep] = useState(-1)
   const [playing, setPlaying] = useState(true)
-  const [sendState, setSendState] = useState<'idle'|'sending'|'sent'>('idle')
+  const [launchState, setLaunchState] = useState<'idle'|'launching'|'launched'>('idle')
   const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Start on mount
   useEffect(() => { setStep(0) }, [])
 
-  // Advance past segment card when modal closes
+  // Advance past segment card when studio modal closes
   useEffect(() => {
-    if (studioDone && step === 9) {
-      // The segment card had delayAfter=99999, so we need to manually advance
-      setTimeout(() => setStep(10), 500)
+    if (studioDone && step === 3) {
+      setTimeout(() => setStep(studioSaved ? 4 : 5), 500)
     }
-  }, [studioDone, step])
+  }, [studioDone, step, studioSaved])
 
-  // Auto-scroll: keep latest typing in view — runs during typing via MutationObserver
+  // Auto-scroll
   useEffect(() => {
     const sc = scrollRef.current
     if (!sc || !playing) return
-    const ob = new MutationObserver(() => {
-      sc.scrollTop = sc.scrollHeight - sc.clientHeight
-    })
+    const ob = new MutationObserver(() => { sc.scrollTop = sc.scrollHeight - sc.clientHeight })
     ob.observe(sc, { childList: true, subtree: true, characterData: true })
     return () => ob.disconnect()
   }, [playing])
 
   const onAdvance = useCallback(() => setStep(s => s + 1), [])
-
-  const isComplete = step >= (studioSaved ? 12 : 11)
+  const isComplete = step >= 12
 
   return (
     <div className="absolute inset-0 flex flex-col">
       <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
         <div className="max-w-[720px] mx-auto px-6 pt-6 pb-40">
-
-          {/* Header */}
           <p style={LBL} className="mb-6">✦ APR 1 · BRIEFING</p>
 
           {/* S0: Greeting */}
           {step >= 0 && (
-            <TypeSection playing={playing} onAdvance={onAdvance} text="Morning, Sarah. Revenue is $242K with ROAS at 4.0x. Family audience surging. 3 actions ready." speed={25} delayAfter={800} />
+            <TypeSection playing={playing} onAdvance={onAdvance} text="Morning, Sarah. Revenue is $242K with ROAS at 4.0x. 3 actions ready." speed={25} delayAfter={800} />
           )}
 
-          {/* S1: Minerva Recommends */}
+          {/* S1: Pivot — typed slowly, brighter */}
           {step >= 1 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="Tuesday, April 1 · 8:14 AM · Miami, FL · 78°F Partly Cloudy — Covering the last 24 hours." delayAfter={1200}>
+            <TypeSection playing={playing} onAdvance={onAdvance} text="Something interesting happened overnight." speed={30} delayAfter={1500}
+              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', marginTop: 24 }} />
+          )}
+
+          {/* S2: Pivot continued */}
+          {step >= 2 && (
+            <TypeSection playing={playing} onAdvance={onAdvance} text="The Dolphins signed quarterback Jackson Dark from the New York Giants. Social media volume spiked 340% in the last 8 hours — mostly Giants fans reacting." speed={30} delayAfter={1000}
+              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)' }} />
+          )}
+
+          {/* S3: Segment card — pauses for Audience Studio */}
+          {step >= 3 && (
+            <ConnCard playing={playing} onAdvance={onAdvance} text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
+              <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)' }}>
+                <p style={LBL} className="mb-3">✦ SUGGESTED SEGMENT</p>
+                <p className="text-[16px] text-white mb-1" style={{ fontWeight: 500 }}>Giants-to-Dolphins Crossover</p>
+                <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>2,400 profiles · scores 72–99 · 78% reachable</p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {['Giants fan', 'South FL', '45+', '$250k+ HHI', 'Ticketmaster active'].map(t => (
+                    <span key={t} className="text-[10px] px-2 py-0.5 rounded" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>{t}</span>
+                  ))}
+                </div>
+                <button onClick={onOpenStudio}
+                  className="h-8 px-4 rounded-full text-[12px] transition-all hover:bg-white/[0.08]"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
+                  View in Audience Studio →
+                </button>
+                <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ 23 min ago · 87% confidence</p>
+              </div>
+            </ConnCard>
+          )}
+
+          {/* S4: Campaign Activation Card (only after studio save) */}
+          {step >= 4 && studioSaved && (
+            <ConnCard playing={playing} onAdvance={() => {}} text="Segment saved: Giants-to-Dolphins Crossover — 2,400 profiles. Here's the campaign I've prepared." delayAfter={99999}>
+              <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 22px', overflow: 'hidden' }}>
+                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 16 }}>CAMPAIGN READY TO LAUNCH</p>
+                <p style={{ fontSize: 18, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em', marginBottom: 20 }}>Giants-to-Dolphins Welcome</p>
+                {/* Three big stat boxes */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
+                  {[{ value: '1,872', label: 'RECIPIENTS' }, { value: '89%', label: 'EST. OPEN RATE' }, { value: '$34K', label: 'EST. REVENUE LIFT' }].map(stat => (
+                    <div key={stat.label} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
+                      <p style={{ fontSize: 22, fontWeight: 600, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>{stat.value}</p>
+                      <p style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginTop: 4 }}>{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* Channel mix */}
+                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 8 }}>CHANNEL MIX</p>
+                <div style={{ marginBottom: 20 }}>
+                  {[{ name: 'Email', pct: 78 }, { name: 'Retargeting', pct: 12 }, { name: 'Direct Mail', pct: 10 }].map(ch => (
+                    <div key={ch.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 11 }}>
+                      <span style={{ width: 72, color: 'rgba(255,255,255,0.35)', textAlign: 'right' }}>{ch.name}</span>
+                      <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.04)', borderRadius: 2, overflow: 'hidden' }}>
+                        <div style={{ width: `${ch.pct}%`, height: '100%', background: 'rgba(255,255,255,0.25)', borderRadius: 2, animation: 'bar-grow 400ms ease both' }} />
+                      </div>
+                      <span style={{ width: 32, textAlign: 'right', fontSize: 10, color: 'rgba(255,255,255,0.22)', fontVariantNumeric: 'tabular-nums' }}>{ch.pct}%</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Creative preview */}
+                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 8 }}>CREATIVE PREVIEW</p>
+                <div style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '16px 18px', marginBottom: 16 }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginBottom: 6 }}>Your QB just joined the Dolphins.</p>
+                  <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Welcome to the family.</p>
+                  <div style={{ display: 'inline-block', padding: '8px 20px', borderRadius: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>20% OFF YOUR FIRST GAME →</div>
+                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', marginTop: 12 }}>Hard Rock Stadium · Miami Gardens, FL</p>
+                </div>
+                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginBottom: 16 }}>⏱ Optimized for Tuesday 9:14 AM EST · Best open rate window for this segment</p>
+                {/* CTA */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {launchState === 'launched' ? (
+                    <div style={{ height: 44, padding: '0 28px', borderRadius: 100, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 500 }}>✓ Launched · 1,872 recipients</div>
+                  ) : launchState === 'launching' ? (
+                    <div className="animate-pulse" style={{ height: 44, padding: '0 28px', borderRadius: 100, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: 500 }}>Launching…</div>
+                  ) : (
+                    <button onClick={() => { setLaunchState('launching'); toast.success('Campaign launched — tracking begins'); setTimeout(() => { setLaunchState('launched'); if (playing) setTimeout(() => setStep(s => s + 1), 1500) }, 1200) }}
+                      style={{ height: 44, padding: '0 28px', borderRadius: 100, background: 'rgba(255,255,255,0.88)', color: '#000', fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: "'Overused Grotesk', ui-sans-serif, system-ui, sans-serif", transition: 'all 0.15s ease' }}
+                      onMouseEnter={e => (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.95)'}
+                      onMouseLeave={e => (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.88)'}>
+                      Launch Campaign
+                    </button>
+                  )}
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Preview · Edit · Schedule</span>
+                </div>
+              </div>
+            </ConnCard>
+          )}
+
+          {/* S5: Connector + Minerva Recommends */}
+          {step >= 5 && (
+            <ConnCard playing={playing} onAdvance={onAdvance} text={studioSaved ? "Now let me walk you through the rest of your morning intelligence." : "Here's your morning intelligence."} delayAfter={1200}>
               <div style={CARD}>
                 <p style={LBL} className="mb-2">✦ MINERVA RECOMMENDS</p>
                 <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -366,8 +438,8 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             </ConnCard>
           )}
 
-          {/* S2: Metrics */}
-          {step >= 2 && (
+          {/* S6: Metrics */}
+          {step >= 6 && (
             <ConnCard playing={playing} onAdvance={onAdvance} text="Key metrics this week:" delayAfter={1200}>
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 {METRICS.map((m, i) => (
@@ -384,9 +456,8 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             </ConnCard>
           )}
 
-
-          {/* S3: Funnel */}
-          {step >= 3 && (
+          {/* S7: Funnel */}
+          {step >= 7 && (
             <ConnCard playing={playing} onAdvance={onAdvance} text="Here's the funnel:" delayAfter={1200}>
               <div className="flex items-end gap-2">
                 {FUNNEL.map((f, i) => (
@@ -402,8 +473,8 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             </ConnCard>
           )}
 
-          {/* S4: Chart */}
-          {step >= 4 && (
+          {/* S8: Chart */}
+          {step >= 8 && (
             <ConnCard playing={playing} onAdvance={onAdvance} text="Revenue versus spend, last 7 days:" delayAfter={1500}>
               <div style={{ ...CARD, padding: 16, height: 120 }}>
                 <svg viewBox="0 0 300 80" className="w-full h-full">
@@ -416,13 +487,12 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             </ConnCard>
           )}
 
-          {/* S5: Campaigns */}
-          {step >= 5 && (
+          {/* S9: Campaigns */}
+          {step >= 9 && (
             <ConnCard playing={playing} onAdvance={onAdvance} text="Campaign breakdown:" delayAfter={1500}>
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <span style={{ ...LBL, flex: 1 }}>Campaign</span>
-
                   <span style={{ ...LBL, width: 64, textAlign: 'right' }}>Spend</span>
                   <span style={{ ...LBL, width: 56, textAlign: 'right' }}>ROAS</span>
                   <span style={{ ...LBL, width: 56, textAlign: 'right' }}>Conv</span>
@@ -432,7 +502,6 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                     className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
                     style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
                     <span className="flex-1 text-[12px] flex items-center" style={{ color: 'rgba(255,255,255,0.5)' }}><PlatformIcon name={c.platform} />{c.up ? '↗' : '↘'} {c.name}</span>
-
                     <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
                     <span className="w-14 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
                     <span className="w-14 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.conv}</span>
@@ -442,9 +511,8 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             </ConnCard>
           )}
 
-
-          {/* S6: Social Pulse */}
-          {step >= 6 && (
+          {/* S10: Social Pulse */}
+          {step >= 10 && (
             <ConnCard playing={playing} onAdvance={onAdvance} text="Here's what fans are saying:" delayAfter={1800}>
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 <div className="px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
@@ -471,79 +539,9 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             </ConnCard>
           )}
 
-          {/* S7: PIVOT — typed slowly, brighter */}
-          {step >= 7 && (
-            <TypeSection playing={playing} onAdvance={onAdvance} text="Something interesting happened overnight." speed={30} delayAfter={1500}
-              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', marginTop: 24 }} />
-          )}
-
-          {/* S7: Pivot continued */}
-          {step >= 8 && (
-            <TypeSection playing={playing} onAdvance={onAdvance} text="The Dolphins signed quarterback Jackson Dark from the New York Giants. Social media volume spiked 340% in the last 8 hours — mostly Giants fans reacting." speed={30} delayAfter={1000}
-              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)' }} />
-          )}
-
-          {/* S8: Pivot analysis + segment card */}
-          {step >= 9 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
-              <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)' }}>
-                <p style={LBL} className="mb-3">✦ SUGGESTED SEGMENT</p>
-                <p className="text-[16px] text-white mb-1" style={{ fontWeight: 500 }}>Giants-to-Dolphins Crossover</p>
-                <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>2,400 profiles · scores 72–99 · 78% reachable</p>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {['Giants fan', 'South FL', '45+', '$250k+ HHI', 'Ticketmaster active'].map(t => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>{t}</span>
-                  ))}
-                </div>
-                <button onClick={onOpenStudio}
-                  className="h-8 px-4 rounded-full text-[12px] transition-all hover:bg-white/[0.08]"
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-                  View in Audience Studio →
-                </button>
-                <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ 23 min ago · 87% confidence</p>
-              </div>
-            </ConnCard>
-          )}
-
-
-          {/* S9: Campaign Composer (after modal save) OR skip connector */}
-          {step >= 10 && studioSaved && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text={'Segment saved: Giants-to-Dolphins Crossover — 2,400 profiles. Now let\'s reach them.'} delayAfter={99999}>
-              <div style={{ ...CARD }}>
-                <p style={LBL} className="mb-3">COMPOSE CAMPAIGN</p>
-                <p className="text-[12px] mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>To: Giants-to-Dolphins Crossover (2,400)</p>
-                <p className="text-[12px] mb-4" style={{ color: 'rgba(255,255,255,0.45)' }}>Channel: Email · 78% reachable (1,872)</p>
-                <p className="text-[10px] mb-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Subject:</p>
-                <div className="rounded-lg px-3 py-2 mb-3" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>Your QB just joined the Dolphins — here's your welcome offer</p>
-                </div>
-                <p className="text-[10px] mb-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Message:</p>
-                <div className="rounded-lg px-3 py-3 mb-4" style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                    Hi <span style={{ color: 'rgba(255,230,180,0.5)' }}>{'{first_name}'}</span>,<br /><br />
-                    Jackson Dark is officially a Dolphin. As a fellow fan, we want to welcome you with an exclusive offer: 20% off your first Dolphins game experience.<br /><br />
-                    <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>[Claim Your Welcome Offer →]</span><br /><br />
-                    See you at Hard Rock Stadium.<br />
-                    — The Miami Dolphins
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  {sendState === 'sent' ? (
-                    <div className="h-11 px-6 rounded-full flex items-center text-[13px]" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>✓ Sent to 1,872</div>
-                  ) : sendState === 'sending' ? (
-                    <div className="h-11 px-6 rounded-full flex items-center text-[13px] animate-pulse" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>Sending…</div>
-                  ) : (
-                    <LiquidMetalButton label="✉ Send Campaign" onClick={() => { setSendState('sending'); setTimeout(() => { setSendState('sent'); if (playing) setTimeout(() => setStep(s => s + 1), 1500) }, 1200) }} />
-                  )}
-                  <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Preview · Schedule</span>
-                </div>
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S10/S9: Wrap-up + Remaining actions */}
-          {step >= (studioSaved ? 11 : 10) && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text={studioSaved ? "Done. 1,872 Giants fans will receive your welcome offer within the hour. I'll track performance and brief you tomorrow." : "Three actions I'd prioritize:"} delayAfter={1500}>
+          {/* S11: Remaining actions */}
+          {step >= 11 && (
+            <ConnCard playing={playing} onAdvance={onAdvance} text={studioSaved ? "Two more actions I'd prioritize:" : "Three actions I'd prioritize:"} delayAfter={1500}>
               <div className="space-y-2">
                 <p style={LBL} className="mb-2">{studioSaved ? 'TWO MORE ACTIONS' : 'NEXT BEST ACTIONS'}</p>
                 {[
@@ -564,9 +562,8 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             </ConnCard>
           )}
 
-
-          {/* Footer */}
-          {step >= (studioSaved ? 12 : 11) && (
+          {/* S12: Footer */}
+          {step >= 12 && (
             <div className="animate-card-in text-center pt-6 space-y-6">
               <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>
                 Last sync: 8:12 AM — Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph · 5 sources connected
@@ -583,7 +580,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
         </div>
       </div>
 
-      {/* Play/Pause pill OR AI input when paused */}
+      {/* Play/Pause pill */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2">
         {!playing && !isComplete ? (
           <MinervaInlineChat onResume={() => setPlaying(true)} />
@@ -598,6 +595,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
     </div>
   )
 }
+
 
 
 /* ══════════════════════════════════════════════════════════
@@ -653,7 +651,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
       {!saveAnim && (
         <div className="shrink-0 h-14 flex items-center justify-center gap-3 px-5" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.95) 30%)', position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
           <button onClick={handleSave} style={{ height: 36, padding: '0 24px', borderRadius: 100, background: 'rgba(255,255,255,0.88)', color: '#000', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Save Segment</button>
-          <button onClick={() => { iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-tour-click', selector: '.mn-workspace-topbar-save' }, '*'); toast.success('Exporting CSV…') }}
+          <button onClick={() => { iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-export' }, '*'); toast.success('Exporting CSV…') }}
             style={{ height: 36, padding: '0 20px', borderRadius: 100, background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', fontSize: 13, border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>Export CSV</button>
         </div>
       )}
