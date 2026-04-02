@@ -217,9 +217,9 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
         </GalleryErrorBoundary>
       </div>
       {/* Content overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10">
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10 pointer-events-none">
         <p key={ti} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10 mix-blend-exclusion" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>{TAGLINES[ti]}</p>
-        <LiquidMetalButton label="Enter" onClick={onEnter} />
+        <div className="pointer-events-auto"><LiquidMetalButton label="Enter" onClick={onEnter} /></div>
       </div>
       <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide z-10">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
     </div>
