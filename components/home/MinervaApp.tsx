@@ -6,6 +6,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 import React from 'react'
 import dynamic from 'next/dynamic'
 const InfiniteGallery = dynamic(() => import('@/components/ui/3d-gallery-photography'), { ssr: false })
+const ShaderLines = dynamic(() => import('@/components/ui/shader-lines').then(m => ({ default: m.ShaderAnimation })), { ssr: false })
 
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 
@@ -772,6 +773,10 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
 
   return (
     <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
+      {/* Shader background */}
+      <div className="absolute inset-0 opacity-[0.15] pointer-events-none">
+        <ShaderLines />
+      </div>
       <div className="h-12 shrink-0" />
       <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
         <h1 key={launching ? 'launch' : activeTab} className={`text-[28px] text-white text-center mb-8 ${launching ? 'mn-shimmer-text' : ''}`} style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: launchingOut ? 0 : undefined, transform: launchingOut ? 'translateY(-8px)' : undefined, transition: launchingOut ? 'opacity 0.4s ease, transform 0.4s ease' : undefined, animation: !launchingOut ? (launching ? 'mn-stagger-in 0.35s ease forwards' : 'mn-stagger-in 0.35s ease forwards') : 'none' }}>
