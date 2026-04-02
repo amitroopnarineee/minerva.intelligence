@@ -204,14 +204,14 @@ const FUNNEL = [
 const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning in every profile", "Intelligence in boundless reach"]
 
 const GALLERY_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1638378943379-f9c64b6612e4?w=600&auto=format&fit=crop&q=60', alt: 'Football helmet' },
-  { src: 'https://images.unsplash.com/photo-1747561502595-871265f5503b?w=600&auto=format&fit=crop&q=60', alt: 'Football jersey' },
-  { src: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=60', alt: 'Editorial 1' },
-  { src: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&auto=format&fit=crop&q=60', alt: 'Editorial 2' },
-  { src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=60', alt: 'Editorial 3' },
-  { src: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 4' },
-  { src: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&auto=format&fit=crop&q=60', alt: 'Abstract' },
-  { src: 'https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=600&auto=format&fit=crop&q=60', alt: 'Sky' },
+  { src: 'https://images.unsplash.com/photo-1622281587418-f2f4fc06ae7a?w=600&auto=format&fit=crop&q=60', alt: 'Woman with coca cola' },
+  { src: 'https://images.unsplash.com/photo-1571513722275-4b41940f54b8?w=600&auto=format&fit=crop&q=60', alt: 'Woman white blazer' },
+  { src: 'https://images.unsplash.com/photo-1613353948535-0f50344f69f7?w=600&auto=format&fit=crop&q=60', alt: 'Woman red cap sunglasses' },
+  { src: 'https://images.unsplash.com/photo-1617690032703-f991ed0e0ee6?w=600&auto=format&fit=crop&q=60', alt: 'Woman pink green dress' },
+  { src: 'https://images.unsplash.com/photo-1691405659129-b5a385080e60?w=600&auto=format&fit=crop&q=60', alt: 'Man blue wall' },
+  { src: 'https://images.unsplash.com/photo-1696456254433-a03ae02443a6?w=600&auto=format&fit=crop&q=60', alt: 'Man wooden chair' },
+  { src: 'https://images.unsplash.com/photo-1608355023471-c13d29ac8fbf?w=600&auto=format&fit=crop&q=60', alt: 'Man adidas shirt' },
+  { src: 'https://images.unsplash.com/photo-1684598273999-cdc06960df25?w=600&auto=format&fit=crop&q=60', alt: 'Woman black stool' },
 ]
 
 /* ══════════════════════════════════════════════════════════
