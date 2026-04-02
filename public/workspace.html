@@ -476,11 +476,13 @@ var h='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-
 var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);var heroStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN>=1e3?(scaledN/1e3).toFixed(0)+'K':scaledN.toString());
 h+='<div class="mn-workspace-detail-hero">'+heroStr+'<\/div>';
 h+='<div class="mn-workspace-detail-hero-sub">scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 '+n.toLocaleString()+' records<\/div>';
-h+='<div class="mn-workspace-detail-metric-grid" style="margin-top:8px">';
+h+='<div class="mn-workspace-detail-metric-grid" style="margin-top:8px;grid-template-columns:1fr 1fr 1fr">';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Score<\/div><div class="mn-workspace-detail-metric-value">'+avg+'<\/div><\/div>';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Age<\/div><div class="mn-workspace-detail-metric-value">'+aag+'<\/div><\/div>';
+h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Age 45+<\/div><div class="mn-workspace-detail-metric-value">'+a45p+'%<\/div><\/div>';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Homeowners<\/div><div class="mn-workspace-detail-metric-value">'+op+'%<\/div><\/div>';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">$250k+<\/div><div class="mn-workspace-detail-metric-value">'+hi250p+'%<\/div><\/div>';
+h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Email<\/div><div class="mn-workspace-detail-metric-value">'+Math.round(ec/n*100)+'%<\/div><\/div>';
 h+='<\/div>';
 // If multi-selected, show selection stats
 if(selMulti.length>1){
