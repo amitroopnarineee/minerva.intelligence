@@ -195,14 +195,14 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
    HOME SCREEN
    ══════════════════════════════════════════════════════════ */
 const GALLERY_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800&h=500&fit=crop&q=80', alt: 'Miami skyline' },
-  { src: 'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=800&h=500&fit=crop&q=80', alt: 'Stadium lights' },
-  { src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&q=80', alt: 'Dashboard data' },
-  { src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=500&fit=crop&q=80', alt: 'Miami beach' },
-  { src: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=500&fit=crop&q=80', alt: 'Technology' },
-  { src: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=800&h=500&fit=crop&q=80', alt: 'Sports crowd' },
-  { src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=500&fit=crop&q=80', alt: 'Architecture' },
-  { src: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=500&fit=crop&q=80', alt: 'Office tech' },
+  { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins' },
+  { src: '/gallery/player-10.jpg', alt: 'Player' },
+  { src: '/gallery/hudson-house.jpg', alt: 'Hudson House' },
+  { src: '/gallery/team-huddle.jpg', alt: 'Team' },
+  { src: '/gallery/forest-villa.jpg', alt: 'Forest Villa' },
+  { src: '/gallery/wander-coast.jpg', alt: 'Coast' },
+  { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins 2' },
+  { src: '/gallery/player-10.jpg', alt: 'Player 2' },
 ]
 
 function HomeScreen({ onEnter }: { onEnter: () => void }) {
@@ -212,9 +212,7 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
     <div className="absolute inset-0">
       {/* 3D Gallery background */}
       <div className="absolute inset-0 opacity-50">
-        <GalleryErrorBoundary>
-          <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} visibleCount={10} className="h-full w-full" />
-        </GalleryErrorBoundary>
+          <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} className="h-full w-full" />
       </div>
       {/* Content overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10 pointer-events-none">
