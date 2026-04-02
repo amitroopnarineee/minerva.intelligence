@@ -850,7 +850,8 @@ const DASH_TABS = [
 
 function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) => void; onOpenStudio: () => void }) {
   const [query, setQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("audiences")
+  const [activeTab, setActiveTab] = useState("discover")
+  const [launching, setLaunching] = useState(false)
 
   const handleSubmit = () => {
     const q = query.toLowerCase().trim()
@@ -859,17 +860,26 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
     }
   }
 
+  const handleAudienceClick = () => {
+    setActiveTab('audiences')
+    setLaunching(true)
+    setTimeout(() => onOpenStudio(), 1600)
+  }
+
+  // Reset launching state when we return to dashboard
+  useEffect(() => { setLaunching(false); setActiveTab('discover') }, [])
+
   return (
     <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
       <div className="h-12 shrink-0" />
       <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
-        <h1 key={activeTab} className="text-[28px] text-white text-center mb-8" style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: 0, animation: 'mn-stagger-in 0.35s ease forwards' }}>
-          {DASH_TABS.find(t => t.id === activeTab)?.title}
+        <h1 key={launching ? 'launch' : activeTab} className="text-[28px] text-white text-center mb-8" style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: 0, animation: 'mn-stagger-in 0.35s ease forwards' }}>
+          {launching ? 'Launching Audience Studio...' : DASH_TABS.find(t => t.id === activeTab)?.title}
         </h1>
 
-        {/* Chat input */}
-        <div className="w-full max-w-[560px] flex items-center gap-2 px-4 h-12 rounded-full mb-6 mn-stagger-2"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.1s forwards' }}>
+        {/* Chat input — fade out when launching */}
+        <div className="w-full max-w-[560px] flex items-center gap-2 px-4 h-12 rounded-full mb-6"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.4s ease, transform 0.4s ease', pointerEvents: launching ? 'none' : 'auto' }}>
           <input value={query} onChange={e => setQuery(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSubmit()}
             placeholder={`Try "give me today's briefing"`}
@@ -879,12 +889,13 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
             style={{ background: query ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.08)', color: query ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 14, transition: 'all 0.15s' }}>↑</button>
         </div>
 
-        {/* Tab pills */}
-        <div className="flex items-center gap-2 mn-stagger-3" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.2s forwards' }}>
+        {/* Tab pills — fade out when launching */}
+        <div className="flex items-center gap-2"
+          style={{ opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s', pointerEvents: launching ? 'none' : 'auto' }}>
           {DASH_TABS.map(t => (
             <button key={t.id} onClick={() => {
               setActiveTab(t.id)
-              if (t.id === 'audiences') onOpenStudio()
+              if (t.id === 'audiences') { handleAudienceClick(); return }
             }}
               className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
               style={{
