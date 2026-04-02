@@ -192,7 +192,7 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
   const [ti, setTi] = useState(0)
   useEffect(() => { const iv = setInterval(() => setTi(p => (p + 1) % TAGLINES.length), 5000); return () => clearInterval(iv) }, [])
   return (
-    <div className="absolute inset-0">
+    <div className="mn-modal-backdrop absolute inset-0">
       {/* Background */}
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.03) 0%, transparent 70%)' }} />
       {/* Content overlay */}
@@ -626,32 +626,32 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
   ]
 
   return (
-    <div className="fixed inset-0 z-[150] animate-card-in" onClick={onClose}>
+    <div className="mn-modal-overlay fixed inset-0 z-[150] animate-card-in" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} />
-      <div className="absolute inset-4 top-12 rounded-2xl overflow-hidden flex" onClick={e => e.stopPropagation()}
+      <div className="mn-modal-container absolute inset-4 top-12 rounded-2xl overflow-hidden flex" onClick={e => e.stopPropagation()}
         style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
-        <button onClick={onClose} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.35)' }}>✕</button>
+        <button onClick={onClose} className="mn-modal-close absolute top-4 right-4 z-10 w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.35)' }}>✕</button>
 
         {/* ═══ LEFT: Intelligence Surface ═══ */}
-        <div className="w-1/2 border-r border-white/[0.06] p-10 flex flex-col gap-6 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
+        <div className="mn-modal-left w-1/2 border-r border-white/[0.06] p-10 flex flex-col gap-6 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight leading-tight text-white">{data.title}</h2>
-            {data.subtitle && <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{data.subtitle}</p>}
+            <h2 className="mn-modal-title text-[22px] font-semibold tracking-tight leading-tight text-white">{data.title}</h2>
+            {data.subtitle && <p className="mn-modal-subtitle text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{data.subtitle}</p>}
           </div>
 
           {data.heroValue && (
             <div>
-              <p className="text-[56px] text-white" style={{ fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1 }}>{data.heroValue}</p>
-              <p className="text-[10px] uppercase tracking-widest mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>{data.title}</p>
+              <p className="mn-modal-hero text-[56px] text-white" style={{ fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1 }}>{data.heroValue}</p>
+              <p className="mn-modal-hero-label text-[10px] uppercase tracking-widest mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>{data.title}</p>
             </div>
           )}
 
-          <div className="rounded-xl px-5 py-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="mn-modal-headline rounded-xl px-5 py-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             {data.content}
           </div>
 
-          <div className="mt-auto pt-4">
+          <div className="mn-modal-actions mt-auto pt-4">
             <div className="flex items-center gap-2">
               {['Scale +20%', 'Add to campaign', 'Export segment'].map((a, i) => (
                 <button key={a} onClick={() => toast.success(a, { description: 'Queued' })}
@@ -665,8 +665,8 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
         </div>
 
         {/* ═══ RIGHT: Detail / People ═══ */}
-        <div className="w-1/2 overflow-hidden flex flex-col">
-          <div className="shrink-0 flex items-center gap-1 px-10 pt-6 pb-0">
+        <div className="mn-modal-right w-1/2 overflow-hidden flex flex-col">
+          <div className="mn-modal-tabs shrink-0 flex items-center gap-1 px-10 pt-6 pb-0">
             {(['detail', 'people'] as const).map(t => (
               <button key={t} onClick={() => setRightTab(t)}
                 className="text-[12px] px-3 py-1.5 rounded-lg transition-all capitalize"
@@ -676,11 +676,11 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
             ))}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-10 pr-12" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
+          <div className="mn-modal-tab-content flex-1 overflow-y-auto p-10 pr-12" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
             {rightTab === 'detail' ? (
-              <div className="space-y-8">
+              <div className="mn-modal-detail-sections space-y-8">
                 {/* Projected Outcome */}
-                <div className="space-y-2.5">
+                <div className="mn-modal-projected space-y-2.5">
                   <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Projected Outcome</h3>
                   <div className="rounded-lg px-4 py-3" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
                     <p className="text-[9px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>If you act now</p>
@@ -693,9 +693,9 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
                 </div>
 
                 {/* Confidence */}
-                <div className="flex items-center gap-3">
+                <div className="mn-modal-confidence flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-24 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div className="mn-modal-confidence-bar w-24 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
                       <div className="h-full rounded-full" style={{ width: '87%', background: 'rgba(255,255,255,0.25)' }} />
                     </div>
                     <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>87%</span>
@@ -706,7 +706,7 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
                 {/* Key Metrics */}
                 <div>
                   <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Key Metrics</h3>
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="mn-modal-metrics-grid grid grid-cols-2 gap-2.5">
                     {metrics.map((m, i) => (
                       <div key={i} className="rounded-lg px-3.5 py-3" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
                         <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{m.label}</p>
@@ -720,9 +720,9 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
                 {/* Evidence */}
                 <div>
                   <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Evidence</h3>
-                  <p className="text-[13px] leading-[1.7] mb-3" style={{ color: 'rgba(255,255,255,0.6)' }}>Draft narrative is driving measurable engagement lift across premium segments. West Palm Beach cluster shows strongest response — homeowner density and income concentration align with Family Bundle targeting.</p>
+                  <p className="mn-modal-evidence text-[13px] leading-[1.7] mb-3" style={{ color: 'rgba(255,255,255,0.6)' }}>Draft narrative is driving measurable engagement lift across premium segments. West Palm Beach cluster shows strongest response — homeowner density and income concentration align with Family Bundle targeting.</p>
                   <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <p className="text-[13px] font-medium leading-snug" style={{ color: 'rgba(255,255,255,0.85)' }}>Protection-first narrative resonates strongest with 45+ homeowners earning $250k+ in South Florida metro.</p>
+                    <p className="mn-modal-highlight text-[13px] font-medium leading-snug" style={{ color: 'rgba(255,255,255,0.85)' }}>Protection-first narrative resonates strongest with 45+ homeowners earning $250k+ in South Florida metro.</p>
                   </div>
                 </div>
 
@@ -730,8 +730,8 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
                 <div>
                   <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Data</h3>
                   <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <table className="w-full text-[12px]">
-                      <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                    <table className="mn-modal-data-table w-full text-[12px]">
+                      <thead><tr className="mn-modal-data-head" style={{ background: 'rgba(255,255,255,0.03)' }}>
                         {['City', 'Count', 'Delta', ''].map(h => (
                           <th key={h} className="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>{h}</th>
                         ))}
@@ -752,7 +752,7 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
                 {/* Sources */}
                 <div>
                   <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Sources</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="mn-modal-sources flex flex-wrap gap-2">
                     {['Ticketmaster', 'Klaviyo', 'Meta Ads', 'Social Signals', 'CRM'].map(s => (
                       <span key={s} className="text-[10px] px-2.5 py-1 rounded-md inline-flex items-center" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', color: 'rgba(255,255,255,0.35)' }}>{s}</span>
                     ))}
@@ -762,8 +762,8 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
             ) : (
               <div>
                 <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <table className="w-full text-[12px]">
-                    <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <table className="mn-modal-table w-full text-[12px]">
+                    <thead><tr className="mn-modal-table-head" style={{ background: 'rgba(255,255,255,0.03)' }}>
                       <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>Person</th>
                       <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>Propensity</th>
                       <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>Score</th>
@@ -795,7 +795,7 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
                   </table>
                 </div>
                 <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.2)' }}>{mockPeople.length} suggested profiles for this context</p>
-                <div className="mt-3 flex items-center gap-2 rounded-lg px-4 py-2.5" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
+                <div className="mn-modal-people-actions mt-3 flex items-center gap-2 rounded-lg px-4 py-2.5" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
                   {['Add to segment', 'Send outreach', 'Export CSV'].map(a => (
                     <button key={a} onClick={() => toast.success(a)}
                       className="text-[10px] px-2.5 py-1 rounded-full transition-all hover:bg-white/[0.05]"
