@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { toast } from "sonner"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
+import dynamic from 'next/dynamic'
+const InfiniteGallery = dynamic(() => import('@/components/ui/3d-gallery-photography'), { ssr: false })
 
 /* ── Types ── */
 type View = 'home' | 'briefing' | 'calendar'
@@ -185,14 +187,32 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
 /* ══════════════════════════════════════════════════════════
    HOME SCREEN
    ══════════════════════════════════════════════════════════ */
+const GALLERY_IMAGES = [
+  { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=600&auto=format&fit=crop&q=60', alt: 'Stadium' },
+  { src: 'https://images.unsplash.com/photo-1461896836934-bd45ba24e9e7?w=600&auto=format&fit=crop&q=60', alt: 'Miami skyline' },
+  { src: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&auto=format&fit=crop&q=60', alt: 'Data' },
+  { src: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&auto=format&fit=crop&q=60', alt: 'Athletics' },
+  { src: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&auto=format&fit=crop&q=60', alt: 'Marketing' },
+  { src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=60', alt: 'Miami beach' },
+  { src: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=600&auto=format&fit=crop&q=60', alt: 'Analytics' },
+  { src: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&auto=format&fit=crop&q=60', alt: 'Football' },
+]
+
 function HomeScreen({ onEnter }: { onEnter: () => void }) {
   const [ti, setTi] = useState(0)
   useEffect(() => { const iv = setInterval(() => setTi(p => (p + 1) % TAGLINES.length), 5000); return () => clearInterval(iv) }, [])
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
-      <p key={ti} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>{TAGLINES[ti]}</p>
-      <LiquidMetalButton label="Enter" onClick={onEnter} />
-      <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
+    <div className="absolute inset-0">
+      {/* 3D Gallery background */}
+      <div className="absolute inset-0 opacity-30">
+        <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} visibleCount={10} className="h-full w-full" />
+      </div>
+      {/* Content overlay */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10">
+        <p key={ti} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10 mix-blend-exclusion" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>{TAGLINES[ti]}</p>
+        <LiquidMetalButton label="Enter" onClick={onEnter} />
+      </div>
+      <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide z-10">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
     </div>
   )
 }
