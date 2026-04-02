@@ -235,7 +235,7 @@ function HomeScreen({ onEnter, onAutopilot }: { onEnter: () => void; onAutopilot
       </div>
       <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide z-10">
         Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine
-        {onAutopilot && <><span className="mn-hide-mobile mx-2">·</span><button onClick={onAutopilot} className="mn-hide-mobile text-white/25 hover:text-white/50 transition-colors">▶ Autopilot</button></>}
+        <span className="mx-2">·</span><span className="text-white/25">Scroll</span>
       </p>
     </div>
   )
@@ -742,7 +742,7 @@ const DASH_TABS = [
   { id: "activate", label: "Activate", icon: "✦", title: "Activate audiences across channels.", hidden: true },
 ]
 
-function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) => void; onOpenStudio: () => void }) {
+function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot }: { navigateTo: (v: View) => void; onOpenStudio: () => void; onAutopilot?: () => void }) {
   const [query, setQuery] = useState("")
   const [activeTab, setActiveTab] = useState("discover")
   const [launching, setLaunching] = useState(false)
@@ -828,9 +828,11 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
       </div>
 
       {/* Footer */}
-      <div className="shrink-0 pb-6 text-center">
-        <p className="text-[11px] text-white/15 tracking-wide">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
-        <p className="text-[9px] text-white/10 tracking-wide mt-1">© 2026 Minerva Intelligence. All rights reserved.</p>
+      <div className="shrink-0 pb-6 text-center" style={{ mixBlendMode: 'difference' }}>
+        <p className="text-[11px] tracking-wide" style={{ color: 'rgba(255,255,255,0.95)' }}>
+          {onAutopilot && <button onClick={onAutopilot} className="hover:opacity-70 transition-opacity">▶ Autopilot</button>}
+        </p>
+        <p className="text-[9px] tracking-wide mt-1" style={{ color: 'rgba(255,255,255,0.95)' }}>© 2026 Minerva Intelligence. All rights reserved.</p>
       </div>
     </div>
   )
@@ -1343,7 +1345,7 @@ export function MinervaApp() {
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
         {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} onAutopilot={startAutopilot} />}
-        {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} />}
+        {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} onAutopilot={startAutopilot} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
         {view === 'segments' && <SegmentsScreen segments={savedSegments} navigateTo={navigateTo} />}
       </div>
