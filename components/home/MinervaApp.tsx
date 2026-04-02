@@ -3,15 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { toast } from "sonner"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
-import dynamic from 'next/dynamic'
 import React from 'react'
-const InfiniteGallery = dynamic(() => import('@/components/ui/3d-gallery-photography'), { ssr: false })
-
-class GalleryErrorBoundary extends React.Component<{children:React.ReactNode},{err:boolean}> {
-  state = { err: false }
-  static getDerivedStateFromError() { return { err: true } }
-  render() { return this.state.err ? null : this.props.children }
-}
 
 /* ── Types ── */
 type View = 'home' | 'briefing' | 'calendar'
@@ -194,28 +186,15 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
 /* ══════════════════════════════════════════════════════════
    HOME SCREEN
    ══════════════════════════════════════════════════════════ */
-const GALLERY_IMAGES = [
-  { src: 'https://picsum.photos/seed/dolphins1/800/500', alt: 'A' },
-  { src: 'https://picsum.photos/seed/dolphins2/800/500', alt: 'B' },
-  { src: 'https://picsum.photos/seed/miami1/800/500', alt: 'C' },
-  { src: 'https://picsum.photos/seed/miami2/800/500', alt: 'D' },
-  { src: 'https://picsum.photos/seed/stadium1/800/500', alt: 'E' },
-  { src: 'https://picsum.photos/seed/ocean1/800/500', alt: 'F' },
-  { src: 'https://picsum.photos/seed/finsup1/800/500', alt: 'G' },
-  { src: 'https://picsum.photos/seed/finsup2/800/500', alt: 'H' },
-]
+
 
 function HomeScreen({ onEnter }: { onEnter: () => void }) {
   const [ti, setTi] = useState(0)
   useEffect(() => { const iv = setInterval(() => setTi(p => (p + 1) % TAGLINES.length), 5000); return () => clearInterval(iv) }, [])
   return (
     <div className="absolute inset-0">
-      {/* 3D Gallery background */}
-      <div className="absolute inset-0 opacity-50">
-        <GalleryErrorBoundary>
-          <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} visibleCount={10} className="h-full w-full" />
-        </GalleryErrorBoundary>
-      </div>
+      {/* Background */}
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.03) 0%, transparent 70%)' }} />
       {/* Content overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10 pointer-events-none">
         <p key={ti} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10 mix-blend-exclusion" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>{TAGLINES[ti]}</p>
