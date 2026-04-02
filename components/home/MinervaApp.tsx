@@ -21,13 +21,18 @@ function useCanvasTransition() {
 
 /* ── Minerva Logo ── */
 function MinervaLogo({ size = 16 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 127 127" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.22338 0.10804C8.60738-0.117663 15.2593 0.0802654 20.7514 0.0806169L54.8952 0.0813197L98.5292 0.0802656C105.88 0.0797382 113.232 0.0524922 120.582 0.0874727C121.836 0.0934492 125.577 0.177121 125.799 1.98275C126.284 5.9278 126.094 10.2025 126.095 14.1983L126.101 37.3406L126.097 94.1848C126.097 103.232 126.101 112.277 126.134 121.324C126.145 124.1 125.876 125.495 122.997 126.15C120.091 126.363 116.48 126.301 113.528 126.309L95.7205 126.272L39.5386 126.275L14.7594 126.287C10.8551 126.289 6.28689 126.421 2.40371 125.996C1.57016 125.905 0.645369 124.641 0.2024 123.971C-0.154084 120.034 0.0682788 112.64 0.0709155 108.398L0.075663 79.5376L0.0721467 29.332C0.0739045 21.2202 0.071621 13.1079 0.0739062 4.99634C0.0746093 2.4512 0.326854 0.606731 3.22338 0.10804Z" fill="white"/></svg>
+  return (
+    <svg width={size} height={size} viewBox="0 0 127 127" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3.22 0.11C8.61-0.12 15.26 0.08 20.75 0.08L54.9 0.08 98.53 0.08C105.88 0.08 113.23 0.05 120.58 0.09 121.84 0.09 125.58 0.18 125.8 1.98 126.28 5.93 126.09 10.2 126.1 14.2L126.1 37.34 126.1 94.18C126.1 103.23 126.1 112.28 126.13 121.32 126.15 124.1 125.88 125.5 123 126.15 120.09 126.36 116.48 126.3 113.53 126.31L95.72 126.27 39.54 126.28 14.76 126.29C10.86 126.29 6.29 126.42 2.4 126 1.57 125.91 0.65 124.64 0.2 123.97-0.15 120.03 0.07 112.64 0.07 108.4L0.08 79.54 0.07 29.33C0.07 21.22 0.07 13.11 0.07 5 0.07 2.45 0.33 0.61 3.22 0.11ZM115.3 86.82C115.87 82.46 115.52 77.68 115.58 73.25 115.6 71.61 115.47 69.94 115.63 68.3L86.68 68.28C82.42 68.28 74.9 68.04 70.84 68.34 69.32 70.25 77.8 76.34 79.36 77.24 88.28 82.39 98.73 85.06 108.94 86.08 110.92 86.27 113.37 86.73 115.3 86.82ZM115.55 29.13C115.6 23.31 115.73 16.79 115.57 11.01 114.95 11.05 113.89 11.07 113.31 11.17 98.51 13.62 86.43 20.88 77.77 33.25 77.04 34.31 74.49 37.61 75.65 38.74 76.2 38.85 76.67 38.56 77.2 38.31 78.75 37.5 80.36 36.88 81.97 36.2 92.91 31.55 103.82 30.28 115.55 29.13ZM10.7 97.27C10.78 101.24 10.8 105.21 10.77 109.18 10.77 110.44 10.47 114.44 11.2 115.25 24.13 114.17 36.2 107.41 44.74 97.78 46.16 96.17 51.73 89.38 51.23 87.4 50.98 87.23 51.04 87.23 50.76 87.2 43.01 90.78 35.47 93.75 26.97 95.12 23.64 95.64 20.29 96.11 16.94 96.51 15.07 96.73 12.49 96.95 10.7 97.27Z" fill="white"/>
+    </svg>
+  )
 }
 
 /* ══════════════════════════════════════════════════════════
    TYPEWRITER + HELPERS
    ══════════════════════════════════════════════════════════ */
-const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.', '340%', '2,400', 'Jackson Dark', '1,872']
+const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.', '340%', '2,400', 'Jackson Dark', 'New York Giants', '1,872']
+const SHIMMER_NAMES = new Set(['Jackson Dark', 'New York Giants'])
 
 function useTypewriter(text: string, active: boolean, speed = 25) {
   const [segments, setSegments] = useState<{text:string,type:'char'|'num'|'warm'}[]>([])
@@ -120,7 +125,7 @@ function TypedText({ segments, cursorVis, done }: { segments: {text:string,type:
   return (
     <span>
       {segments.map((s, i) => {
-        if (s.type === 'num') return <span key={i} className="animate-number-pop" style={{ color: '#fff', fontWeight: 500 }}>{s.text}</span>
+        if (s.type === 'num') return <span key={i} className={`animate-number-pop ${SHIMMER_NAMES.has(s.text) ? 'shimmer-link' : ''}`} style={{ color: '#fff', fontWeight: 500 }}>{s.text}</span>
         if (s.type === 'warm') return <span key={i} className="animate-number-pop" style={{ color: 'rgba(255,230,180,0.65)' }}>{s.text}</span>
         return <span key={i} style={{ color: 'rgba(255,255,255,0.85)' }}>{s.text}</span>
       })}
@@ -142,6 +147,11 @@ function Dots({ show }: { show: boolean }) {
 
 function Sparkline({ d }: { d: string }) {
   return <svg width="60" height="20" viewBox="0 0 60 20" fill="none"><path d={d} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" fill="none" /></svg>
+}
+
+function PlatformIcon({ name }: { name: string }) {
+  const colors: Record<string,string> = { Meta: '#0668E1', Klaviyo: '#28B446' }
+  return <span className="inline-flex items-center justify-center w-4 h-4 rounded-[3px] mr-1.5 text-[7px] font-bold shrink-0" style={{ background: colors[name] || '#555', color: '#fff' }}>{name[0]}</span>
 }
 
 const CARD = { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '16px 18px' } as const
@@ -284,7 +294,13 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
     }
   }, [studioDone, step])
 
-  // Auto-scroll handled by individual ConnCard components
+  // Auto-scroll: keep latest typing in view
+  useEffect(() => {
+    const sc = document.querySelector('[style*="scrollbar-width"]') as HTMLElement
+    if (sc && playing) {
+      requestAnimationFrame(() => { sc.scrollTop = sc.scrollHeight - sc.clientHeight })
+    }
+  }, [step])
 
   const onAdvance = useCallback(() => setStep(s => s + 1), [])
 
@@ -398,7 +414,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                   <div key={c.name} onClick={() => onDetail({ title: c.name, subtitle: c.platform + " · " + c.spend + " spend", size: "md", content: <div className="space-y-4"><div className="flex gap-6"><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>ROAS</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.roas}</p></div><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>Conversions</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.conv}</p></div><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>Spend</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.spend}</p></div></div><p className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>{c.up ? "Trending positively — consider scaling." : "Underperforming — review targeting."}</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>Platform: {c.platform} · Updated 8:12 AM</p></div> })}
                     className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
                     style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
-                    <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.up ? '↗' : '↘'} {c.name}</span>
+                    <span className="flex-1 text-[12px] flex items-center" style={{ color: 'rgba(255,255,255,0.5)' }}><PlatformIcon name={c.platform} />{c.up ? '↗' : '↘'} {c.name}</span>
                     <span className="w-16 text-right text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{c.platform}</span>
                     <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
                     <span className="w-14 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
@@ -914,8 +930,7 @@ export function MinervaApp() {
       {/* Audience Studio Modal */}
       <AudienceModal open={modal === 'studio'} onSave={handleSaveStudio} onClose={handleCloseStudio} />
 
-      {/* AI Chat */}
-      <MinervaChat />
+
     </div>
   )
 }
