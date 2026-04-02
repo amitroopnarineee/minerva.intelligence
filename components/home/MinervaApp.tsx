@@ -206,9 +206,9 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
 const GALLERY_IMAGES = [
   { src: 'https://images.unsplash.com/photo-1638378943379-f9c64b6612e4?w=600&auto=format&fit=crop&q=60', alt: 'Football helmet' },
   { src: 'https://images.unsplash.com/photo-1747561502595-871265f5503b?w=600&auto=format&fit=crop&q=60', alt: 'Football jersey' },
-  { src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 1' },
-  { src: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 2' },
-  { src: 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 3' },
+  { src: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=60', alt: 'Editorial 1' },
+  { src: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&auto=format&fit=crop&q=60', alt: 'Editorial 2' },
+  { src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=60', alt: 'Editorial 3' },
   { src: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=60', alt: 'Portrait 4' },
   { src: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&auto=format&fit=crop&q=60', alt: 'Abstract' },
   { src: 'https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=600&auto=format&fit=crop&q=60', alt: 'Sky' },
@@ -785,14 +785,14 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
 
         {/* Chat input — fade out when launching */}
         <div className="w-full max-w-[560px] flex items-center gap-2 px-4 h-12 rounded-full mb-6"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.4s ease, transform 0.4s ease', pointerEvents: launching ? 'none' : 'auto' }}>
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.4s ease, transform 0.4s ease', pointerEvents: launching ? 'none' : 'auto' }}>
           <input value={query} onChange={e => setQuery(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSubmit()}
             placeholder={`Try "give me today's briefing"`}
             className="flex-1 bg-transparent outline-none text-[14px] text-white placeholder:text-white/25" />
           <button onClick={handleSubmit}
             className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: query ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.08)', color: query ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 14, transition: 'all 0.15s' }}>↑</button>
+            style={{ background: query ? 'whitesmoke' : 'rgba(255,255,255,0.08)', color: query ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 14, transition: 'all 0.15s' }}>↑</button>
         </div>
 
         {/* Tab pills — fade out when launching */}
