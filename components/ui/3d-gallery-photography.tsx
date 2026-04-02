@@ -155,15 +155,18 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 						video.muted = true;
 						video.playsInline = true;
 						video.autoplay = true;
+						let resolved = false;
+						const done = (tex: THREE.Texture | null) => { if (!resolved) { resolved = true; resolve(tex); } };
 						video.addEventListener('canplay', () => {
 							video.play().catch(() => {});
 							const tex = new THREE.VideoTexture(video);
 							tex.minFilter = THREE.LinearFilter;
 							tex.magFilter = THREE.LinearFilter;
 							videoRefs.current.push(video);
-							resolve(tex);
+							done(tex);
 						}, { once: true });
-						video.addEventListener('error', () => resolve(null), { once: true });
+						video.addEventListener('error', () => done(null), { once: true });
+						setTimeout(() => done(null), 5000);
 						video.load();
 					} catch { resolve(null); }
 				});
@@ -171,7 +174,10 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 			return new Promise<THREE.Texture | null>(resolve => {
 				loader.load(img.src, tex => resolve(tex), undefined, () => resolve(null));
 			});
-		})).then(results => setTextures(results));
+		})).then(results => {
+			console.log('[Gallery] textures loaded:', results.length, 'valid:', results.filter(Boolean).length);
+			setTextures(results);
+		});
 		return () => { videoRefs.current.forEach(v => { v.pause(); v.src = ''; }); };
 	}, [normalizedImages]);
 	const materials = useMemo(() => Array.from({ length: visibleCount }, () => createClothMaterial()), [visibleCount]);
