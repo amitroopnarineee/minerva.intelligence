@@ -153,7 +153,7 @@ export function MinervaMenuBar() {
               </span>
             ))}
           </div>
-          <div className="flex items-center justify-center shrink-0 z-[5] text-white"><MinervaLogo size={18} /></div>
+          <div className="flex items-center justify-center z-[5] text-white" style={{ flexShrink: 0, minWidth: 18, minHeight: 18 }}><MinervaLogo size={18} /></div>
           <div className="flex items-center overflow-hidden"
             style={{ maxWidth: isOpen ? 300 : 0, opacity: isOpen ? 1 : 0, marginLeft: isOpen ? 14 : 0, transition: "max-width 700ms cubic-bezier(.32,.72,0,1), opacity 500ms, margin 700ms cubic-bezier(.32,.72,0,1)" }}>
             {RIGHT_NAV.map((item, i) => (
