@@ -643,11 +643,11 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
       pointerEvents: open ? 'auto' : 'none',
     }}>
 
-      {/* Close pill — matches avatar size and style */}
+      {/* Back pill — matches avatar height, pill shape */}
       <button onClick={onClose}
         className="fixed top-2.5 z-[260] rounded-full bg-white/90 ring-1 ring-white/10 hover:ring-white/30 transition-all flex items-center justify-center"
-        style={{ right: 68, width: 25, height: 25, opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
-        <span className="text-[8px] font-semibold text-black/60 leading-none tracking-wide">Back</span>
+        style={{ right: 60, height: 25, paddingLeft: 10, paddingRight: 10, opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
+        <span className="text-[9px] font-semibold text-black/60 leading-none tracking-wide">Back</span>
       </button>
 
       {phase === 'select' ? (

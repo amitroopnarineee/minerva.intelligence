@@ -232,7 +232,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-in{opacity:0;animation:mn-in .3s ease forwards}
 
 /* ═══ FLOATING TOOLBAR ═══ */
-.mn-workspace-floating-toolbar{position:sticky;bottom:0;display:flex;align-items:center;gap:3px;padding:6px 8px;background:rgba(13,13,15,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.06);z-index:20;flex-shrink:0}
+.mn-workspace-floating-toolbar{position:sticky;bottom:0;display:flex;align-items:center;gap:3px;padding:6px 8px;background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.06);z-index:20;flex-shrink:0}
 .mn-workspace-floating-toolbar .mn-toolbar-sep{width:1px;height:20px;background:rgba(255,255,255,0.08);margin:0 4px;flex-shrink:0}
 .mn-workspace-floating-toolbar .mn-toolbar-action{height:28px;padding:0 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:10px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s;white-space:nowrap}
 .mn-workspace-floating-toolbar .mn-toolbar-action:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85)}
@@ -241,13 +241,13 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-floating-toolbar .mn-toolbar-action-icon:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85)}
 .mn-workspace-floating-toolbar .mn-toolbar-sel{font-size:10px;color:rgba(255,255,255,0.3);padding:0 6px;white-space:nowrap;display:flex;align-items:center;gap:3px}
 .mn-toolbar-filter-wrap{position:relative}
-.mn-toolbar-filter-pop{display:none;position:absolute;bottom:36px;left:0;background:rgba(13,13,15,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px;min-width:140px;z-index:30;backdrop-filter:blur(16px)}
+.mn-toolbar-filter-pop{display:none;position:absolute;bottom:36px;left:0;background:rgba(10,10,10,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px;min-width:140px;z-index:30;backdrop-filter:blur(16px)}
 .mn-toolbar-filter-pop.open{display:flex;flex-direction:column;gap:2px}
 .mn-toolbar-filter-pop button{height:28px;padding:0 10px;border-radius:6px;border:0;background:0;color:rgba(255,255,255,0.45);font-size:11px;font-family:var(--mn-font);cursor:pointer;text-align:left;transition:all .1s}
 .mn-toolbar-filter-pop button:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
 .mn-toolbar-filter-pop button.on{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.08)}
 .mn-toolbar-overflow-wrap{position:relative}
-.mn-toolbar-overflow-pop{display:none;position:absolute;bottom:36px;right:0;background:rgba(13,13,15,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px;min-width:160px;z-index:30;backdrop-filter:blur(16px)}
+.mn-toolbar-overflow-pop{display:none;position:absolute;bottom:36px;right:0;background:rgba(10,10,10,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px;min-width:160px;z-index:30;backdrop-filter:blur(16px)}
 .mn-toolbar-overflow-pop.open{display:flex;flex-direction:column;gap:2px}
 .mn-toolbar-overflow-pop button{height:28px;padding:0 10px;border-radius:6px;border:0;background:0;color:rgba(255,255,255,0.45);font-size:11px;font-family:var(--mn-font);cursor:pointer;text-align:left;transition:all .1s;white-space:nowrap}
 .mn-toolbar-overflow-pop button:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
@@ -451,7 +451,7 @@ var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),op=(oc/n*100).toFixed(1);
 var allOc=all.filter(function(p){return p.owner}).length,aop=(allOc/tot*100).toFixed(1);
 var a45=l.filter(function(p){return p.age>=45}).length,a45p=Math.round(a45/n*100),allA45=Math.round(all.filter(function(p){return p.age>=45}).length/tot*100);
 var hi250=l.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length,hi250p=Math.round(hi250/n*100),allH=Math.round(all.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length/tot*100);
-var scaleFactor2=268000000/tot;var scaledN2=Math.round(n*scaleFactor2);var scaledStr=scaledN2>=1e6?(scaledN2/1e6).toFixed(1)+'M':(scaledN2/1e3).toFixed(0)+'K';var nar="<b>"+n.toLocaleString()+"<\/b> records ("+scaledStr+" at full scale), scores "+sLo+"\u2013"+sHi+". ";
+var scaleFactor2=268000000/tot;var scaledN2=Math.round(n*scaleFactor2);var scaledStr=scaledN2>=1e6?(scaledN2/1e6).toFixed(1)+'M':(scaledN2/1e3).toFixed(0)+'K';var nar="<b>"+scaledStr+"<\/b> profiles ("+n.toLocaleString()+" records), scores "+sLo+"\u2013"+sHi+". ";
 if(avg>65)nar+="High-fit: "+a45p+"% age 45+, "+op+"% homeowners (vs "+aop+"% baseline), "+hi250p+"% earn $250k+. Premium suite and membership viable.";
 else if(avg>35)nar+="Balanced. "+a45p+"% are 45+, homeownership "+op+"%. Multi-channel viable.";
 else nar+="Younger. Homeownership "+op+"%, lower income. Value-tier and digital only.";
@@ -467,9 +467,9 @@ var agb={"18-29":0,"30-39":0,"40-49":0,"50-59":0,"60+":0};
 l.forEach(function(p){var a=p.age;if(a<30)agb["18-29"]++;else if(a<40)agb["30-39"]++;else if(a<50)agb["40-49"]++;else if(a<60)agb["50-59"]++;else agb["60+"]++});
 
 var h='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Summary<\/div>';
-h+='<div class="mn-workspace-detail-hero">'+n.toLocaleString()+'<\/div>';
-var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);
-h+='<div class="mn-workspace-detail-hero-sub">scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 ~'+(scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN/1e3).toFixed(0)+'K')+' at scale<\/div>';
+var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);var heroStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN>=1e3?(scaledN/1e3).toFixed(0)+'K':scaledN.toString());
+h+='<div class="mn-workspace-detail-hero">'+heroStr+'<\/div>';
+h+='<div class="mn-workspace-detail-hero-sub">scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 '+n.toLocaleString()+' records<\/div>';
 h+='<div class="mn-workspace-detail-metric-grid" style="margin-top:8px">';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Score<\/div><div class="mn-workspace-detail-metric-value">'+avg+'<\/div><\/div>';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Age<\/div><div class="mn-workspace-detail-metric-value">'+aag+'<\/div><\/div>';
