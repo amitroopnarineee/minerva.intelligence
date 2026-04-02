@@ -205,9 +205,9 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
 
 const GALLERY_IMAGES = [
   { src: 'https://images.unsplash.com/photo-1622281587418-f2f4fc06ae7a?w=600&auto=format&fit=crop&q=60', alt: 'Woman with coca cola' },
-  { src: 'https://images.unsplash.com/photo-1571513722275-4b41940f54b8?w=600&auto=format&fit=crop&q=60', alt: 'Woman white blazer' },
-  { src: 'https://images.unsplash.com/photo-1613353948535-0f50344f69f7?w=600&auto=format&fit=crop&q=60', alt: 'Woman red cap sunglasses' },
-  { src: 'https://images.unsplash.com/photo-1617690032703-f991ed0e0ee6?w=600&auto=format&fit=crop&q=60', alt: 'Woman pink green dress' },
+  { src: 'https://images.unsplash.com/photo-1764662028084-793fe135ba3a?w=600&auto=format&fit=crop&q=60', alt: 'Woman teal background' },
+  { src: 'https://images.unsplash.com/photo-1685041552051-13de9e56228c?w=600&auto=format&fit=crop&q=60', alt: 'Man expression' },
+  { src: 'https://images.unsplash.com/photo-1637608988514-6f4c9a5fa82f?w=600&auto=format&fit=crop&q=60', alt: 'Woman brown chair' },
   { src: 'https://images.unsplash.com/photo-1691405659129-b5a385080e60?w=600&auto=format&fit=crop&q=60', alt: 'Man blue wall' },
   { src: 'https://images.unsplash.com/photo-1696456254433-a03ae02443a6?w=600&auto=format&fit=crop&q=60', alt: 'Man wooden chair' },
   { src: 'https://images.unsplash.com/photo-1608355023471-c13d29ac8fbf?w=600&auto=format&fit=crop&q=60', alt: 'Man adidas shirt' },
