@@ -352,15 +352,6 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
     }
   }, [typeDone, phase])
 
-  // Auto-scroll
-  useEffect(() => {
-    const sc = scrollRef.current
-    if (!sc) return
-    const ob = new MutationObserver(() => { sc.scrollTop = sc.scrollHeight - sc.clientHeight })
-    ob.observe(sc, { childList: true, subtree: true })
-    return () => ob.disconnect()
-  }, [])
-
   return (
     <div className="absolute inset-0 flex flex-col">
       <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
@@ -580,15 +571,15 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
               {/* Navigation CTAs */}
               <div className="flex items-center justify-center gap-4 mt-10 mb-6">
-                <button onClick={() => toast.success('Minerva chat opening...')}
+                <button onClick={() => navigateTo('home')}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.04]"
                   style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
-                  Ask Minerva
+                  ← Back
                 </button>
-                <button onClick={() => window.location.href = '/dashboard'}
+                <button onClick={onOpenStudio}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.95]"
                   style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
-                  Continue to Dashboard →
+                  Open Audience Studio →
                 </button>
               </div>
 
