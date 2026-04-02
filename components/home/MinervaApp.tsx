@@ -640,7 +640,7 @@ const PAST_BRIEFINGS: Record<number, { headline: string; revenue: string; roas: 
   25: { headline: "Sponsor resonance data: luxury narrative winning", revenue: "$202K", roas: "3.4x", actions: 3, signal: "Premium hospitality segment growing 8%" },
 }
 
-function CalendarScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
+function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => void; onDetail: (d: DetailData) => void }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
   const today = 1 // April 1
   const daysInMonth = 30
@@ -699,6 +699,12 @@ function CalendarScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
                 {selectedDay === today && (
                   <button onClick={() => navigateTo('briefing')} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
                     View full briefing →
+                  </button>
+                )}
+                {selectedDay !== null && selectedDay !== today && (
+                  <button onClick={() => onDetail({ title: `April ${selectedDay} Briefing Recap`, subtitle: briefing?.headline, size: 'lg' as ModalSize, content: <div className="space-y-4"><p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{briefing?.headline}. Revenue was {briefing?.revenue} with ROAS at {briefing?.roas}. {briefing?.actions} actions were recommended.{briefing?.signal ? ` Key signal: ${briefing.signal}.` : ''}</p><div className="flex gap-6"><div><p style={{ fontSize: 9, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>Revenue</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.revenue}</p></div><div><p style={{ fontSize: 9, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>ROAS</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.roas}</p></div></div>{briefing?.signal && <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}><p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>Signal: {briefing.signal}</p></div>}<p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>Use the Minerva chat to ask questions about this day's data.</p></div> })}
+                    className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
+                    Load full recap →
                   </button>
                 )}
               </div>
@@ -760,6 +766,77 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
         </div>
       </div>
     </div>
+  )
+}
+
+/* ══ MINERVA CHAT ══ */
+function MinervaChat() {
+  const [open, setOpen] = useState(false)
+  const [msgs, setMsgs] = useState<{role:'user'|'assistant',text:string}[]>([])
+  const [input, setInput] = useState("")
+  const [loading, setLoading] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  async function send() {
+    if (!input.trim() || loading) return
+    const userMsg = input.trim()
+    setInput("")
+    const newMsgs = [...msgs, { role: 'user' as const, text: userMsg }]
+    setMsgs(newMsgs)
+    setLoading(true)
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMsgs.map(m => ({ role: m.role, content: m.text })) }),
+      })
+      const data = await res.json()
+      setMsgs([...newMsgs, { role: 'assistant', text: data.text }])
+    } catch { setMsgs([...newMsgs, { role: 'assistant', text: "Connection error. Please try again." }]) }
+    setLoading(false)
+    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }), 100)
+  }
+
+  return (
+    <>
+      {/* Floating button */}
+      <button onClick={() => setOpen(!open)} className="fixed bottom-6 right-6 z-[100] w-10 h-10 rounded-full flex items-center justify-center transition-all"
+        style={{ background: open ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <MinervaLogo size={14} />
+      </button>
+
+      {/* Chat panel */}
+      {open && (
+        <div className="fixed bottom-20 right-6 z-[100] w-[360px] animate-card-in" style={{ background: 'rgba(10,10,12,0.98)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, maxHeight: '50vh', display: 'flex', flexDirection: 'column', backdropFilter: 'blur(20px)' }}>
+          <div className="shrink-0 flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex items-center gap-2"><MinervaLogo size={12} /><span className="text-[12px] text-white" style={{ fontWeight: 500 }}>Ask Minerva</span></div>
+            <button onClick={() => setOpen(false)} className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>✕</button>
+          </div>
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ scrollbarWidth: 'none', minHeight: 120 }}>
+            {msgs.length === 0 && <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.2)' }}>Ask about today's briefing, campaigns, audience segments, or any metric.</p>}
+            {msgs.map((m, i) => (
+              <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
+                <div className="inline-block text-[12px] px-3 py-2 rounded-lg max-w-[85%]" style={{
+                  background: m.role === 'user' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
+                  color: m.role === 'user' ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.55)',
+                  textAlign: 'left', lineHeight: 1.5,
+                  border: m.role === 'assistant' ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                }}>{m.text}</div>
+              </div>
+            ))}
+            {loading && <div className="flex gap-1.5 py-1"><div className="w-1 h-1 rounded-full animate-dot-1" style={{ background: 'rgba(255,255,255,0.3)' }} /><div className="w-1 h-1 rounded-full animate-dot-2" style={{ background: 'rgba(255,255,255,0.3)' }} /><div className="w-1 h-1 rounded-full animate-dot-3" style={{ background: 'rgba(255,255,255,0.3)' }} /></div>}
+          </div>
+          <div className="shrink-0 px-3 py-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex gap-2">
+              <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
+                placeholder="Ask anything..." className="flex-1 text-[12px] px-3 py-2 rounded-lg bg-transparent outline-none"
+                style={{ border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)' }} />
+              <button onClick={send} className="text-[11px] px-3 rounded-lg transition-all hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>→</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -828,7 +905,7 @@ export function MinervaApp() {
       }}>
         {view === 'home' && <HomeScreen onEnter={() => navigateTo('briefing')} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
-        {view === 'calendar' && <CalendarScreen navigateTo={navigateTo} />}
+        {view === 'calendar' && <CalendarScreen navigateTo={navigateTo} onDetail={setDetail} />}
       </div>
 
       {/* Detail Modal */}
@@ -836,6 +913,9 @@ export function MinervaApp() {
 
       {/* Audience Studio Modal */}
       <AudienceModal open={modal === 'studio'} onSave={handleSaveStudio} onClose={handleCloseStudio} />
+
+      {/* AI Chat */}
+      <MinervaChat />
     </div>
   )
 }
