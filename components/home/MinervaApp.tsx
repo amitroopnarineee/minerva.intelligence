@@ -845,39 +845,32 @@ export function MinervaApp() {
 
   return (
     <div className="h-full flex flex-col relative">
-      {/* Shell header — always visible */}
-      <div className="shrink-0 relative z-30 flex items-center justify-between px-5 h-11">
-        {/* Left: Logo */}
-        <button onClick={() => navigateTo('home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <MinervaLogo size={16} />
+      {/* Shell header */}
+      <div className="shrink-0 relative z-30 flex items-center justify-between px-5 h-12">
+        <button onClick={() => navigateTo('home')} className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+          <MinervaLogo size={18} />
           {view === 'home' && <span className="text-[13px] font-medium tracking-tight text-white">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>}
         </button>
 
-        {/* Center: Notch nav (hidden on home) */}
         {view !== 'home' && (
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-0.5 h-[34px] px-1.5 rounded-full"
-            style={{ background: 'rgba(10,10,10,0.95)', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
-            {[
-              { label: 'Home', v: 'home' as View },
-              { label: 'Briefing', v: 'briefing' as View },
-              { label: 'Calendar', v: 'calendar' as View },
-            ].map(n => (
-              <button key={n.label} onClick={() => navigateTo(n.v)}
-                className="text-[11px] px-3 py-1 rounded-full transition-all"
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 h-[36px] px-2 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}>
+            {(['home', 'briefing', 'calendar'] as View[]).map(v => (
+              <button key={v} onClick={() => navigateTo(v)}
+                className="text-[11px] px-3.5 py-1 rounded-full transition-all capitalize"
                 style={{
-                  background: view === n.v ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: view === n.v ? '#fff' : 'rgba(255,255,255,0.3)',
-                  fontWeight: view === n.v ? 500 : 400,
+                  background: view === v ? 'rgba(255,255,255,0.12)' : 'transparent',
+                  color: view === v ? '#fff' : 'rgba(255,255,255,0.35)',
+                  fontWeight: view === v ? 500 : 400,
                 }}>
-                {n.label}
+                {v}
               </button>
             ))}
           </div>
         )}
 
-        {/* Right: SM Avatar */}
-        <button onClick={() => toast('Settings')} className="h-5 w-5 rounded-full bg-white/90 hover:ring-white/30 transition-all flex items-center justify-center">
-          <span className="text-[8px] font-semibold text-black/60 leading-none">SM</span>
+        <button onClick={() => toast('Settings')} className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.85)' }}>
+          <span className="text-[8px] font-semibold leading-none" style={{ color: 'rgba(0,0,0,0.5)' }}>SM</span>
         </button>
       </div>
 
