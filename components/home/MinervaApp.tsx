@@ -6,7 +6,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 import React from 'react'
 
 /* ── Types ── */
-type View = 'home' | 'briefing' | 'calendar'
+type View = 'home' | 'briefing'
 type ModalState = 'closed' | 'studio'
 
 /* ── Canvas transition ── */
@@ -300,7 +300,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
         <div className="max-w-[720px] mx-auto px-6 pt-8 pb-40">
 
           {/* ═══ GREETING (typed) ═══ */}
-          <p style={LBL} className="mb-4">\u2726 APR 1 \u00b7 BRIEFING</p>
+          <p style={LBL} className="mb-4">✦ APR 1 · BRIEFING</p>
           <TypeSection playing={true} onAdvance={() => setTypeDone(true)}
             text="Morning, Sarah. $242K revenue, 4.0x ROAS. Two actions ready."
             speed={20} delayAfter={200} />
@@ -344,30 +344,30 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
           {/* ═══ SIGNAL: Draft Momentum + Actions (instant after KPIs) ═══ */}
           {phase >= 2 && (
             <div className="animate-card-in mt-8">
-              <p style={{...LBL, marginBottom: 12}}>\u2726 SIGNAL</p>
+              <p style={{...LBL, marginBottom: 12}}>✦ SIGNAL</p>
 
               {/* Signal Card */}
               <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
                 <p className="text-[15px] text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>Draft momentum. Premium buyers responding.</p>
-                <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Mauigoa linked at #11. Protection-first narrative resonating with high-value South FL fans. 2,400 profiles scored 72\u201399, 78% reachable.</p>
+                <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Mauigoa linked at #11. Protection-first narrative resonating with high-value South FL fans. 2,400 profiles scored 72–99, 78% reachable.</p>
                 <div className="flex items-center gap-3">
                   <button onClick={onOpenStudio}
                     className="text-[11px] px-3 py-1.5 rounded-full transition-all hover:bg-white/[0.08]"
                     style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)' }}>
-                    Explore segment \u2192
+                    Explore segment →
                   </button>
-                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>23 min ago \u00b7 87% confidence</span>
+                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>23 min ago · 87% confidence</span>
                 </div>
               </div>
 
               {/* Recommendations */}
               <div style={CARD}>
-                <p style={{...LBL, marginBottom: 10}}>\u2726 ACTIONS</p>
+                <p style={{...LBL, marginBottom: 10}}>✦ ACTIONS</p>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>Scale Family Ticket Bundle +20%</p>
-                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Meta Ads \u00b7 $51K \u2192 $61K \u00b7 Est. +$14K lift</p>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Meta Ads · $51K → $61K · Est. +$14K lift</p>
                     </div>
                     <button onClick={() => toast.success('Scaling Family Bundle +20%')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>Execute</button>
                   </div>
@@ -375,7 +375,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>Activate Seatmap Retargeting</p>
-                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>900 profiles \u00b7 Paid channel \u00b7 Est. +$20K lift</p>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>900 profiles · Paid channel · Est. +$20K lift</p>
                     </div>
                     <button onClick={() => toast.success('Activating Retargeting Pool')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>Execute</button>
                   </div>
@@ -388,12 +388,12 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
           {phase >= 3 && (
             <div className="animate-card-in mt-8">
               {/* Social Pulse — compact */}
-              <p style={{...LBL, marginBottom: 8}}>\u2726 SOCIAL PULSE</p>
+              <p style={{...LBL, marginBottom: 8}}>✦ SOCIAL PULSE</p>
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 {[
                   { handle: "@ThePhinsider", text: "Achane extension is a priority. Splash Zone 4/1." },
                   { handle: "@ClutchPoints", text: "4 players Dolphins must avoid picking in the 2026 NFL Draft." },
-                  { handle: "@DolphinsTalk", text: "Laying the Foundation \u2014 Miami has embraced a foundational reset." },
+                  { handle: "@DolphinsTalk", text: "Laying the Foundation — Miami has embraced a foundational reset." },
                 ].map((t, i) => (
                   <div key={i} className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-white/[0.02]"
                     style={{ borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
@@ -405,19 +405,19 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
               {/* Navigation CTAs */}
               <div className="flex items-center justify-center gap-4 mt-10 mb-6">
-                <button onClick={() => navigateTo('calendar')}
+                <button onClick={() => toast.success('Minerva chat opening...')}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.04]"
                   style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
-                  View Calendar
+                  Ask Minerva
                 </button>
                 <button onClick={() => window.location.href = '/dashboard'}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.95]"
                   style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
-                  Continue to Dashboard \u2192
+                  Continue to Dashboard →
                 </button>
               </div>
 
-              <p className="text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.1)' }}>Briefing complete \u00b7 Updated 8:12 AM EST</p>
+              <p className="text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.1)' }}>Briefing complete · Updated 8:12 AM EST</p>
             </div>
           )}
 
@@ -687,7 +687,7 @@ export function MinervaApp() {
       setModal('closed')
       if (section === 'home') navigateTo('home')
       else if (section === 'briefing') navigateTo('briefing')
-      else if (section === 'calendar') navigateTo('calendar')
+      
     }
     window.addEventListener('minerva-go-home', handleGoHome)
     window.addEventListener('minerva-nav-section', handleNavSection)
