@@ -297,7 +297,7 @@ function TypeSection({ text, speed = 30, style, delayAfter = 1500, playing, onAd
     }
   }, [done, delayAfter, playing, onAdvance])
   return (
-    <div style={style || { fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em' }}>
+    <div style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, letterSpacing: '-0.01em', ...style }}>
       <TypedText segments={segments} cursorVis={cursorVis} done={done} />
     </div>
   )
@@ -323,14 +323,14 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
   return (
     <div className="absolute inset-0 flex flex-col">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none', mixBlendMode: 'luminosity' }}>
         <div className="max-w-[720px] mx-auto px-6 pt-8 pb-40">
 
           {/* ═══ GREETING (typed) ═══ */}
           <p style={LBL} className="mb-4">✦ APR 1 · BRIEFING</p>
           <TypeSection playing={true} onAdvance={() => setTypeDone(true)}
             text="Morning, Sarah. $242K revenue, 4.0x ROAS. Two actions ready."
-            speed={20} delayAfter={200} />
+            speed={20} delayAfter={200} style={{ maxWidth: 520 }} />
 
           {/* ═══ STATUS: KPIs + Campaigns (instant after typing) ═══ */}
           {phase >= 1 && (
@@ -420,18 +420,12 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                 <p className="text-[15px] text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>Draft momentum. Premium buyers responding.</p>
                 <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Mauigoa linked at #11. Protection-first narrative resonating with high-value South FL fans. 2,400 profiles scored 72–99, 78% reachable.</p>
                 <div className="flex items-center gap-3">
-                  <button onClick={onOpenStudio}
-                    className="text-[11px] px-3 py-1.5 rounded-full transition-all hover:bg-white/[0.08]"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)' }}>
-                    Explore segment →
-                  </button>
                   <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>23 min ago · 87% confidence</span>
                 </div>
               </div>
 
               {/* Recommendations */}
               <div style={CARD}>
-                <p style={{...LBL, marginBottom: 10}}>✦ ACTIONS</p>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -482,7 +476,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                 <button onClick={() => navigateTo('dashboard')}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.95]"
                   style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
-                  Return to Dashboard →
+                  Close
                 </button>
               </div>
 
@@ -788,7 +782,7 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
   return (
     <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
       {/* Shader background */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 opacity-[0.8] pointer-events-none">
         <ShaderLines />
       </div>
       <div className="h-12 shrink-0" />
