@@ -252,7 +252,7 @@ const GALLERY_IMAGES = [
    ══════════════════════════════════════════════════════════ */
 
 
-function HomeScreen({ onEnter }: { onEnter: () => void }) {
+function HomeScreen({ onEnter, onAutopilot }: { onEnter: () => void; onAutopilot?: () => void }) {
   const [ti, setTi] = useState(0)
   useEffect(() => { const iv = setInterval(() => setTi(p => (p + 1) % TAGLINES.length), 5000); return () => clearInterval(iv) }, [])
   return (
@@ -266,7 +266,10 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
         <p key={ti} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10 mix-blend-exclusion" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>{TAGLINES[ti]}</p>
         <div className="pointer-events-auto"><LiquidMetalButton label="Enter" onClick={onEnter} /></div>
       </div>
-      <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide z-10">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
+      <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide z-10">
+        Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine
+        {onAutopilot && <><span className="mx-2">·</span><button onClick={onAutopilot} className="text-white/25 hover:text-white/50 transition-colors">▶ Autopilot</button></>}
+      </p>
     </div>
   )
 }
@@ -593,7 +596,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
   )
 }
 
-function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name: string) => void; onClose: () => void }) {
+function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; onSave: (name: string) => void; onClose: () => void; autoSelect?: boolean }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const [actionModal, setActionModal] = useState<'save-segment' | 'launch-campaign' | null>(null)
@@ -602,6 +605,14 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: (name
 
   // Reset phase when modal opens
   useEffect(() => { if (open) { setPhase('select'); setEmptyMode(false) } }, [open])
+
+  // Autopilot: auto-select after delay
+  useEffect(() => {
+    if (open && autoSelect && phase === 'select') {
+      const t = setTimeout(() => setPhase('workspace'), 2000)
+      return () => clearTimeout(t)
+    }
+  }, [open, autoSelect, phase])
 
   // Listen for postMessage from workspace iframe (Save Segment button)
   useEffect(() => {
@@ -1335,6 +1346,60 @@ export function MinervaApp() {
   }
   function handleCloseStudio() { setModal('closed'); setStudioDone(true) }
 
+  // ═══ AUTOPILOT ═══
+  const [autopilot, setAutopilot] = useState(false)
+  const [autopilotStep, setAutopilotStep] = useState(0)
+  const apTimers = useRef<NodeJS.Timeout[]>([])
+
+  const AUTOPILOT_STEPS = [
+    { label: 'Dashboard', delay: 800 },
+    { label: 'Audience Selector', delay: 3500 },
+    { label: 'Audience Workspace', delay: 2000 },
+    { label: 'Briefing', delay: 5500 },
+    { label: 'Complete', delay: 8000 },
+  ]
+
+  function stopAutopilot() {
+    apTimers.current.forEach(clearTimeout)
+    apTimers.current = []
+    setAutopilot(false)
+    setAutopilotStep(0)
+  }
+
+  function startAutopilot() {
+    setAutopilot(true)
+    setAutopilotStep(0)
+    let t = 0
+
+    // Step 0 → Dashboard
+    t += 800
+    apTimers.current.push(setTimeout(() => { setAutopilotStep(0); navigateTo('dashboard') }, t))
+
+    // Step 1 → Open Audience
+    t += 3500
+    apTimers.current.push(setTimeout(() => { setAutopilotStep(1); handleOpenStudio() }, t))
+
+    // Step 2 → autoSelect triggers workspace after 2s inside modal
+    t += 2000
+    apTimers.current.push(setTimeout(() => { setAutopilotStep(2) }, t))
+
+    // Step 3 → Close workspace, go to briefing
+    t += 5500
+    apTimers.current.push(setTimeout(() => { setAutopilotStep(3); handleCloseStudio(); navigateTo('briefing') }, t))
+
+    // Step 4 → Back home
+    t += 8000
+    apTimers.current.push(setTimeout(() => { setAutopilotStep(4); navigateTo('home'); stopAutopilot() }, t))
+  }
+
+  // Escape to stop
+  useEffect(() => {
+    if (!autopilot) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') stopAutopilot() }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [autopilot])
+
   return (
     <div className="h-full flex flex-col relative">
 
@@ -1346,7 +1411,7 @@ export function MinervaApp() {
         transform: transitioning ? 'scale(0.98)' : 'scale(1)',
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
-        {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} />}
+        {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} onAutopilot={startAutopilot} />}
         {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
         {view === 'segments' && <SegmentsScreen segments={savedSegments} navigateTo={navigateTo} />}
@@ -1356,7 +1421,17 @@ export function MinervaApp() {
       <DetailModal data={detail} onClose={() => setDetail(null)} />
 
       {/* Audience Studio Modal */}
-      <AudienceModal open={modal === 'studio'} onSave={handleSaveStudio} onClose={handleCloseStudio} />
+      <AudienceModal open={modal === 'studio'} onSave={handleSaveStudio} onClose={handleCloseStudio} autoSelect={autopilot} />
+
+      {/* Autopilot floating indicator */}
+      {autopilot && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-4 py-2 rounded-full"
+          style={{ background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)' }}>
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ animation: 'pulse 1.5s ease infinite' }} />
+          <span className="text-[11px] text-white/60">{AUTOPILOT_STEPS[autopilotStep]?.label}</span>
+          <button onClick={stopAutopilot} className="text-[10px] text-white/30 hover:text-white/60 transition-colors ml-1">ESC to stop</button>
+        </div>
+      )}
 
 
     </div>
