@@ -592,62 +592,218 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
 }
 
 
-/* ══ DETAIL MODAL (2-col with Detail/People tabs) ══ */
+/* ══ DETAIL MODAL (full-screen 2-col with rich right panel) ══ */
 type ModalSize = 'sm' | 'md' | 'lg'
 type DetailData = { title: string; subtitle?: string; size?: ModalSize; heroValue?: string; content: React.ReactNode } | null
 
 function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void }) {
-  const [tab, setTab] = useState<'detail'|'people'>('detail')
+  const [rightTab, setRightTab] = useState<'detail'|'people'>('detail')
   if (!data) return null
+
+  // Mock metrics for the detail tab
+  const metrics = [
+    { label: 'Reach', value: '78%', context: 'Email + phone + mail' },
+    { label: 'Avg Score', value: '84', context: 'Top 20% of file' },
+    { label: 'Homeowners', value: '74%', context: '+19pts vs baseline' },
+    { label: 'Est. Lift', value: '+$34K', context: 'If activated this week' },
+  ]
+  const tableData = [
+    ['West Palm Beach', '24', '+62', '↑'],
+    ['Boca Raton', '18', '+44', '↑'],
+    ['Coral Gables', '12', '+31', '↑'],
+    ['Fort Lauderdale', '9', '+18', '→'],
+    ['Hollywood', '6', '-4', '↓'],
+  ]
+  const mockPeople = [
+    { name: 'Alejandro Patel', role: 'Account Exec · Doral', score: 99 },
+    { name: 'Jessica Mitchell', role: 'Developer · Coral Gables', score: 99 },
+    { name: 'Chris Campbell', role: 'Sr VP Ops · Fort Lauderdale', score: 99 },
+    { name: 'Sarah Martinez', role: 'Engineer · Boca Raton', score: 99 },
+    { name: 'Vanessa Brooks', role: 'Physician · Boca Raton', score: 98 },
+    { name: 'Brandon Blackwell', role: 'Engineer · Boca Raton', score: 97 },
+    { name: 'Daniel Foster', role: 'Professor · Coral Gables', score: 97 },
+    { name: 'Elena Chen', role: 'Financial Advisor · Coral Gables', score: 96 },
+  ]
+
   return (
-    <div className="fixed inset-0 z-[150] flex animate-card-in" onClick={onClose}>
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }} />
-      <div className="relative flex w-full h-full" onClick={e => e.stopPropagation()}>
-        {/* Left column — hero + title */}
-        <div className="w-[420px] shrink-0 h-full flex flex-col" style={{ background: 'rgba(13,13,15,0.98)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="shrink-0 px-6 pt-6 pb-4">
-            <p className="text-[10px] uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.2)' }}>✦ INSIGHT</p>
-            {data.heroValue && (
-              <p className="text-[56px] text-white mb-2" style={{ fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1 }}>{data.heroValue}</p>
-            )}
-            <p className="text-[18px] text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>{data.title}</p>
-            {data.subtitle && <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{data.subtitle}</p>}
+    <div className="fixed inset-0 z-[150] animate-card-in" onClick={onClose}>
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} />
+      <div className="absolute inset-4 top-12 rounded-2xl overflow-hidden flex" onClick={e => e.stopPropagation()}
+        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+
+        <button onClick={onClose} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.35)' }}>✕</button>
+
+        {/* ═══ LEFT: Intelligence Surface ═══ */}
+        <div className="w-1/2 border-r border-white/[0.06] p-10 flex flex-col gap-6 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
+          <div>
+            <h2 className="text-[22px] font-semibold tracking-tight leading-tight text-white">{data.title}</h2>
+            {data.subtitle && <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{data.subtitle}</p>}
           </div>
-          <div className="flex-1 overflow-y-auto px-6 pb-6" style={{ scrollbarWidth: 'none' }}>
+
+          {data.heroValue && (
+            <div>
+              <p className="text-[56px] text-white" style={{ fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1 }}>{data.heroValue}</p>
+              <p className="text-[10px] uppercase tracking-widest mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>{data.title}</p>
+            </div>
+          )}
+
+          <div className="rounded-xl px-5 py-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             {data.content}
           </div>
-        </div>
-        {/* Right column — tabs */}
-        <div className="flex-1 flex flex-col relative" style={{ background: 'rgba(8,8,10,0.5)' }}>
-          <div className="shrink-0 flex items-center justify-between px-5 pt-4 pb-3">
-            <div className="flex gap-1">
-              {(['detail','people'] as const).map(t => (
-                <button key={t} onClick={() => setTab(t)}
-                  className="text-[11px] px-3.5 py-1 rounded-full transition-all capitalize"
-                  style={{ background: tab === t ? 'rgba(255,255,255,0.08)' : 'transparent', color: tab === t ? '#fff' : 'rgba(255,255,255,0.3)', fontWeight: tab === t ? 500 : 400 }}>
-                  {t}
+
+          <div className="mt-auto pt-4">
+            <div className="flex items-center gap-2">
+              {['Scale +20%', 'Add to campaign', 'Export segment'].map((a, i) => (
+                <button key={a} onClick={() => toast.success(a, { description: 'Queued' })}
+                  className="text-[10px] px-3 py-1.5 rounded-full transition-all hover:bg-white/[0.05]"
+                  style={{ border: '1px solid rgba(255,255,255,0.06)', color: i === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)', background: i === 0 ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)' }}>
+                  {a}
                 </button>
               ))}
             </div>
-            <button onClick={onClose} className="text-[11px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>✕ Close</button>
           </div>
-          <div className="flex-1 overflow-y-auto px-5 pb-6" style={{ scrollbarWidth: 'none' }}>
-            {tab === 'detail' ? (
-              <div className="space-y-4">
-                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>7-day trend and deeper analysis will appear here.</p>
+        </div>
+
+        {/* ═══ RIGHT: Detail / People ═══ */}
+        <div className="w-1/2 overflow-hidden flex flex-col">
+          <div className="shrink-0 flex items-center gap-1 px-10 pt-6 pb-0">
+            {(['detail', 'people'] as const).map(t => (
+              <button key={t} onClick={() => setRightTab(t)}
+                className="text-[12px] px-3 py-1.5 rounded-lg transition-all capitalize"
+                style={{ background: rightTab === t ? 'rgba(255,255,255,0.1)' : 'transparent', color: rightTab === t ? '#fff' : 'rgba(255,255,255,0.35)', fontWeight: rightTab === t ? 500 : 400 }}>
+                {t === 'people' ? `People (${mockPeople.length})` : 'Detail'}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-10 pr-12" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
+            {rightTab === 'detail' ? (
+              <div className="space-y-8">
+                {/* Projected Outcome */}
+                <div className="space-y-2.5">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Projected Outcome</h3>
+                  <div className="rounded-lg px-4 py-3" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                    <p className="text-[9px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>If you act now</p>
+                    <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>Estimated +$34K revenue lift this week. Premium suite conversion rate projected to increase 2.1x with targeted Family Bundle + retargeting activation.</p>
+                  </div>
+                  <div className="rounded-lg px-4 py-3" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <p className="text-[9px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.15)' }}>If you do nothing</p>
+                    <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.35)' }}>Window closes in 7–10 days as draft cycle ends. Audience attention decays ~15% per week without activation.</p>
+                  </div>
+                </div>
+
+                {/* Confidence */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <div className="h-full rounded-full" style={{ width: '87%', background: 'rgba(255,255,255,0.25)' }} />
+                    </div>
+                    <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>87%</span>
+                  </div>
+                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)' }}>High confidence — strong signal density</span>
+                </div>
+
+                {/* Key Metrics */}
+                <div>
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Key Metrics</h3>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {metrics.map((m, i) => (
+                      <div key={i} className="rounded-lg px-3.5 py-3" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{m.label}</p>
+                        <span className="text-[20px] font-bold tracking-tight text-white">{m.value}</span>
+                        <p className="text-[10px] mt-0.5 leading-snug" style={{ color: 'rgba(255,255,255,0.25)' }}>{m.context}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Evidence */}
+                <div>
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Evidence</h3>
+                  <p className="text-[13px] leading-[1.7] mb-3" style={{ color: 'rgba(255,255,255,0.6)' }}>Draft narrative is driving measurable engagement lift across premium segments. West Palm Beach cluster shows strongest response — homeowner density and income concentration align with Family Bundle targeting.</p>
+                  <div className="rounded-lg px-4 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <p className="text-[13px] font-medium leading-snug" style={{ color: 'rgba(255,255,255,0.85)' }}>Protection-first narrative resonates strongest with 45+ homeowners earning $250k+ in South Florida metro.</p>
+                  </div>
+                </div>
+
+                {/* Data Table */}
+                <div>
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Data</h3>
+                  <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <table className="w-full text-[12px]">
+                      <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                        {['City', 'Count', 'Delta', ''].map(h => (
+                          <th key={h} className="px-3 py-2 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>{h}</th>
+                        ))}
+                      </tr></thead>
+                      <tbody>
+                        {tableData.map((row, ri) => (
+                          <tr key={ri} style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                            {row.map((cell, ci) => (
+                              <td key={ci} className="px-3 py-2" style={{ color: ci === 0 ? 'rgba(255,255,255,0.7)' : ci === 2 ? (cell.startsWith('+') ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)') : 'rgba(255,255,255,0.4)', fontWeight: ci === 0 ? 500 : ci === 2 ? 600 : 400 }}>{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Sources */}
+                <div>
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Sources</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['Ticketmaster', 'Klaviyo', 'Meta Ads', 'Social Signals', 'CRM'].map(s => (
+                      <span key={s} className="text-[10px] px-2.5 py-1 rounded-md inline-flex items-center" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', color: 'rgba(255,255,255,0.35)' }}>{s}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : (
-              <div className="space-y-1">
-                {Array.from({length: 8}, (_, i) => (
-                  <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-white/[0.02]">
-                    <div className="w-7 h-7 rounded-full bg-white/[0.06]" />
-                    <div className="flex-1">
-                      <p className="text-[12px] text-white/70">Person {i+1}</p>
-                      <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)' }}>South Florida · Score {95-i*3}</p>
-                    </div>
-                    <span className="text-[11px] tabular-nums text-white/50">{95-i*3}</span>
-                  </div>
-                ))}
+              <div>
+                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <table className="w-full text-[12px]">
+                    <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                      <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>Person</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>Propensity</th>
+                      <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>Score</th>
+                    </tr></thead>
+                    <tbody>
+                      {mockPeople.map((p, i) => (
+                        <tr key={i} className="transition-colors hover:bg-white/[0.02] cursor-pointer" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                          <td className="px-3 py-2.5">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-medium" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)' }}>{p.name.split(' ').map(n=>n[0]).join('')}</div>
+                              <div>
+                                <p className="text-[12px] font-medium" style={{ color: 'rgba(255,255,255,0.8)' }}>{p.name}</p>
+                                <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{p.role}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-14 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}><div className="h-full rounded-full" style={{ width: `${p.score}%`, background: 'rgba(255,255,255,0.3)' }} /></div>
+                              <span className="text-[10px] tabular-nums" style={{ color: 'rgba(255,255,255,0.35)' }}>{p.score}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <span className="text-[12px] tabular-nums font-medium text-white">{p.score}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.2)' }}>{mockPeople.length} suggested profiles for this context</p>
+                <div className="mt-3 flex items-center gap-2 rounded-lg px-4 py-2.5" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
+                  {['Add to segment', 'Send outreach', 'Export CSV'].map(a => (
+                    <button key={a} onClick={() => toast.success(a)}
+                      className="text-[10px] px-2.5 py-1 rounded-full transition-all hover:bg-white/[0.05]"
+                      style={{ border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.02)' }}>
+                      {a}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -656,6 +812,7 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
     </div>
   )
 }
+
 
 /* ══ MINERVA INLINE CHAT (replaces pause button when paused) ══ */
 function MinervaInlineChat({ onResume }: { onResume: () => void }) {
