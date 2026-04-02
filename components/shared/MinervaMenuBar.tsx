@@ -37,8 +37,16 @@ export function MinervaMenuBar() {
   const notchRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const [navVisible, setNavVisible] = useState(false)
+  const [workspaceHidden, setWorkspaceHidden] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+
+  // Hide menubar when workspace modal is open
+  useEffect(() => {
+    const handler = (e: Event) => setWorkspaceHidden((e as CustomEvent).detail)
+    window.addEventListener('minerva-workspace-active', handler)
+    return () => window.removeEventListener('minerva-workspace-active', handler)
+  }, [])
 
   // Hide nav on route change
   useEffect(() => { setNavVisible(false) }, [pathname])
@@ -83,6 +91,8 @@ export function MinervaMenuBar() {
   const isOpen = notchState === "open"
   const isPeek = notchState === "peek"
   const isVisible = notchState !== "hidden"
+
+  if (workspaceHidden) return null
 
   return (
     <>

@@ -647,7 +647,7 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
       <button onClick={onClose}
         className="fixed top-2.5 z-[260] rounded-full bg-white/90 ring-1 ring-white/10 hover:ring-white/30 transition-all flex items-center justify-center"
         style={{ right: 68, width: 25, height: 25, opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
-        <span className="text-[9px] font-semibold text-black/60 leading-none">✕</span>
+        <span className="text-[8px] font-semibold text-black/60 leading-none tracking-wide">Back</span>
       </button>
 
       {phase === 'select' ? (
@@ -1332,16 +1332,17 @@ export function MinervaApp() {
     }
   }, [navigateTo])
 
-  function handleOpenStudio() { setModal('studio') }
+  function handleOpenStudio() { setModal('studio'); window.dispatchEvent(new CustomEvent('minerva-workspace-active', { detail: true })) }
   function handleSaveStudio(name: string) {
     setStudioSaved(true)
     const newSeg: SavedSegment = { id: `s${Date.now()}`, name, count: '2,400', scoreRange: '72–99', tags: ['78% Reachable', 'South FL', 'Premium'], created: 'Apr 2' }
     setSavedSegments(prev => [newSeg, ...prev])
     setModal('closed')
     setStudioDone(true)
+    window.dispatchEvent(new CustomEvent('minerva-workspace-active', { detail: false }))
     navigateTo('segments')
   }
-  function handleCloseStudio() { setModal('closed'); setStudioDone(true) }
+  function handleCloseStudio() { setModal('closed'); setStudioDone(true); window.dispatchEvent(new CustomEvent('minerva-workspace-active', { detail: false })) }
 
   // ═══ AUTOPILOT ═══
   const [autopilot, setAutopilot] = useState(false)
