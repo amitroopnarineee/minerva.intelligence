@@ -196,13 +196,13 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
    ══════════════════════════════════════════════════════════ */
 const GALLERY_IMAGES = [
   { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins' },
+  { src: '/gallery/dolphins-clip.mp4', alt: 'Dolphins Video' },
   { src: '/gallery/player-10.jpg', alt: 'Player' },
   { src: '/gallery/hudson-house.jpg', alt: 'Hudson House' },
   { src: '/gallery/team-huddle.jpg', alt: 'Team' },
   { src: '/gallery/forest-villa.jpg', alt: 'Forest Villa' },
   { src: '/gallery/wander-coast.jpg', alt: 'Coast' },
   { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins 2' },
-  { src: '/gallery/player-10.jpg', alt: 'Player 2' },
 ]
 
 function HomeScreen({ onEnter }: { onEnter: () => void }) {

@@ -140,13 +140,39 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 	const lastInteraction = useRef(Date.now());
 	const normalizedImages = useMemo(() => images.map((img) => typeof img === 'string' ? { src: img, alt: '' } : img), [images]);
 	const [textures, setTextures] = useState<(THREE.Texture | null)[]>([]);
+	const videoRefs = useRef<HTMLVideoElement[]>([]);
 	useEffect(() => {
 		const loader = new THREE.TextureLoader();
-		Promise.all(normalizedImages.map(img =>
-			new Promise<THREE.Texture | null>(resolve => {
+		const isVideo = (src: string) => /\.(mp4|webm|mov)$/i.test(src);
+		Promise.all(normalizedImages.map(img => {
+			if (isVideo(img.src)) {
+				return new Promise<THREE.Texture | null>(resolve => {
+					try {
+						const video = document.createElement('video');
+						video.src = img.src;
+						video.crossOrigin = 'anonymous';
+						video.loop = true;
+						video.muted = true;
+						video.playsInline = true;
+						video.autoplay = true;
+						video.addEventListener('canplay', () => {
+							video.play().catch(() => {});
+							const tex = new THREE.VideoTexture(video);
+							tex.minFilter = THREE.LinearFilter;
+							tex.magFilter = THREE.LinearFilter;
+							videoRefs.current.push(video);
+							resolve(tex);
+						}, { once: true });
+						video.addEventListener('error', () => resolve(null), { once: true });
+						video.load();
+					} catch { resolve(null); }
+				});
+			}
+			return new Promise<THREE.Texture | null>(resolve => {
 				loader.load(img.src, tex => resolve(tex), undefined, () => resolve(null));
-			})
-		)).then(results => setTextures(results));
+			});
+		})).then(results => setTextures(results));
+		return () => { videoRefs.current.forEach(v => { v.pause(); v.src = ''; }); };
 	}, [normalizedImages]);
 	const materials = useMemo(() => Array.from({ length: visibleCount }, () => createClothMaterial()), [visibleCount]);
 
