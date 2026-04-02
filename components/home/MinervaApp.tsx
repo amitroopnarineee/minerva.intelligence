@@ -571,15 +571,15 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
               {/* Navigation CTAs */}
               <div className="flex items-center justify-center gap-4 mt-10 mb-6">
-                <button onClick={() => navigateTo('home')}
+                <button onClick={onOpenStudio}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.04]"
                   style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
-                  ← Back
+                  Explore Audience →
                 </button>
-                <button onClick={onOpenStudio}
+                <button onClick={() => navigateTo('home')}
                   className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.95]"
                   style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
-                  Open Audience Studio →
+                  ← Back to Home
                 </button>
               </div>
 
@@ -1076,7 +1076,7 @@ export function MinervaApp() {
         transform: transitioning ? 'scale(0.98)' : 'scale(1)',
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
-        {view === 'home' && <HomeScreen onEnter={() => navigateTo('briefing')} />}
+        {view === 'home' && <HomeScreen onEnter={() => window.location.href = '/dashboard'} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
       </div>
 
