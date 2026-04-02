@@ -4,7 +4,14 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import { toast } from "sonner"
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button"
 import dynamic from 'next/dynamic'
+import React from 'react'
 const InfiniteGallery = dynamic(() => import('@/components/ui/3d-gallery-photography'), { ssr: false })
+
+class GalleryErrorBoundary extends React.Component<{children:React.ReactNode},{err:boolean}> {
+  state = { err: false }
+  static getDerivedStateFromError() { return { err: true } }
+  render() { return this.state.err ? null : this.props.children }
+}
 
 /* ── Types ── */
 type View = 'home' | 'briefing' | 'calendar'
@@ -188,14 +195,14 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
    HOME SCREEN
    ══════════════════════════════════════════════════════════ */
 const GALLERY_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=600&auto=format&fit=crop&q=60', alt: 'Stadium' },
-  { src: 'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=600&auto=format&fit=crop&q=60', alt: 'Miami skyline' },
-  { src: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&auto=format&fit=crop&q=60', alt: 'Data' },
-  { src: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&auto=format&fit=crop&q=60', alt: 'Athletics' },
-  { src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=60', alt: 'Dashboard' },
-  { src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=60', alt: 'Miami beach' },
-  { src: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=600&auto=format&fit=crop&q=60', alt: 'Analytics' },
-  { src: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&auto=format&fit=crop&q=60', alt: 'Football' },
+  { src: 'https://picsum.photos/seed/minerva1/600/400', alt: 'A' },
+  { src: 'https://picsum.photos/seed/minerva2/600/400', alt: 'B' },
+  { src: 'https://picsum.photos/seed/minerva3/600/400', alt: 'C' },
+  { src: 'https://picsum.photos/seed/minerva4/600/400', alt: 'D' },
+  { src: 'https://picsum.photos/seed/minerva5/600/400', alt: 'E' },
+  { src: 'https://picsum.photos/seed/minerva6/600/400', alt: 'F' },
+  { src: 'https://picsum.photos/seed/minerva7/600/400', alt: 'G' },
+  { src: 'https://picsum.photos/seed/minerva8/600/400', alt: 'H' },
 ]
 
 function HomeScreen({ onEnter }: { onEnter: () => void }) {
@@ -205,7 +212,9 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
     <div className="absolute inset-0">
       {/* 3D Gallery background */}
       <div className="absolute inset-0 opacity-30">
-        <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} visibleCount={10} className="h-full w-full" />
+        <GalleryErrorBoundary>
+          <InfiniteGallery images={GALLERY_IMAGES} speed={0.8} visibleCount={10} className="h-full w-full" />
+        </GalleryErrorBoundary>
       </div>
       {/* Content overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10">
