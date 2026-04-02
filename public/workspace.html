@@ -458,9 +458,9 @@ var allOc=all.filter(function(p){return p.owner}).length,aop=(allOc/tot*100).toF
 var a45=l.filter(function(p){return p.age>=45}).length,a45p=Math.round(a45/n*100),allA45=Math.round(all.filter(function(p){return p.age>=45}).length/tot*100);
 var hi250=l.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length,hi250p=Math.round(hi250/n*100),allH=Math.round(all.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length/tot*100);
 var scaleFactor2=268000000/tot;var scaledN2=Math.round(n*scaleFactor2);var scaledStr=scaledN2>=1e6?(scaledN2/1e6).toFixed(1)+'M':(scaledN2/1e3).toFixed(0)+'K';var nar="<b>"+scaledStr+"<\/b> profiles ("+n.toLocaleString()+" records), scores "+sLo+"\u2013"+sHi+". ";
-if(avg>65)nar+="High-fit: "+a45p+"% age 45+, "+op+"% homeowners (vs "+aop+"% baseline), "+hi250p+"% earn $250k+. Premium suite and membership viable.";
-else if(avg>35)nar+="Balanced. "+a45p+"% are 45+, homeownership "+op+"%. Multi-channel viable.";
-else nar+="Younger. Homeownership "+op+"%, lower income. Value-tier and digital only.";
+if(avg>65)nar+="Skews older and affluent \u2014 "+a45p+"% are 45+, with "+op+"% homeownership ("+aop+"% baseline). Nearly all earn $250k+. Strong fit for premium suites, VIP memberships, and high-touch renewal campaigns.";
+else if(avg>35)nar+="Balanced demo spread \u2014 "+a45p+"% are 45+, "+op+"% homeowners. Multi-channel activation viable across email, social, and in-venue.";
+else nar+="Younger cohort \u2014 homeownership at "+op+"%, lower income tiers. Best suited for value-tier tickets, digital-first engagement, and app-based acquisition.";
 var deltas=[{l:"Homeowners",s:parseFloat(op),b:parseFloat(aop)},{l:"Age 45+",s:a45p,b:allA45},{l:"$250k+",s:hi250p,b:allH},{l:"Email",s:parseFloat((ec/n*100).toFixed(1)),b:parseFloat((all.filter(function(p){return p.email}).length/tot*100).toFixed(1))},{l:"Renters",s:parseFloat(((n-oc)/n*100).toFixed(1)),b:parseFloat(((tot-allOc)/tot*100).toFixed(1))}];
 deltas.forEach(function(d){d.d=+(d.s-d.b).toFixed(1)});deltas.sort(function(a,b){return Math.abs(b.d)-Math.abs(a.d)});
 var spkO=[],spkI=[],spkE=[];
@@ -497,7 +497,6 @@ if(selMulti.length>1){
   h+='<\/div>';
 }
 h+='<\/div>';
-h+='<div class="mn-workspace-detail-section" id="insightSection"><div class="mn-workspace-detail-label">Insight<\/div><div class="mn-workspace-detail-narrative">'+nar+'<\/div><\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
@@ -552,6 +551,7 @@ if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="r
 if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' \u2715<\/button>';
 h+='<button class="mn-workspace-action-btn" onclick="clearFilters()">Clear all<\/button>';
 h+='<\/div><\/div>'}
+h+='<div class="mn-workspace-detail-section" id="insightSection"><div class="mn-workspace-detail-label">Insight<\/div><div class="mn-workspace-detail-narrative">'+nar+'<\/div><\/div>';
 document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);buildChart(l);updToolbarSel()}
 
 var distChart=null;

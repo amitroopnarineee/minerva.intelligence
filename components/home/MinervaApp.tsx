@@ -852,6 +852,7 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
   const [query, setQuery] = useState("")
   const [activeTab, setActiveTab] = useState("discover")
   const [launching, setLaunching] = useState(false)
+  const [launchingOut, setLaunchingOut] = useState(false)
 
   const handleSubmit = () => {
     const q = query.toLowerCase().trim()
@@ -863,17 +864,18 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
   const handleAudienceClick = () => {
     setActiveTab('audiences')
     setLaunching(true)
+    setTimeout(() => setLaunchingOut(true), 1100)
     setTimeout(() => onOpenStudio(), 1600)
   }
 
   // Reset launching state when we return to dashboard
-  useEffect(() => { setLaunching(false); setActiveTab('discover') }, [])
+  useEffect(() => { setLaunching(false); setLaunchingOut(false); setActiveTab('discover') }, [])
 
   return (
     <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
       <div className="h-12 shrink-0" />
       <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
-        <h1 key={launching ? 'launch' : activeTab} className="text-[28px] text-white text-center mb-8" style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: 0, animation: 'mn-stagger-in 0.35s ease forwards' }}>
+        <h1 key={launching ? 'launch' : activeTab} className={`text-[28px] text-white text-center mb-8 ${launching ? 'mn-shimmer-text' : ''}`} style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, opacity: launchingOut ? 0 : undefined, transform: launchingOut ? 'translateY(-8px)' : undefined, transition: launchingOut ? 'opacity 0.4s ease, transform 0.4s ease' : undefined, animation: !launchingOut ? (launching ? 'mn-stagger-in 0.35s ease forwards' : 'mn-stagger-in 0.35s ease forwards') : 'none' }}>
           {launching ? 'Launching Audience Studio...' : DASH_TABS.find(t => t.id === activeTab)?.title}
         </h1>
 
