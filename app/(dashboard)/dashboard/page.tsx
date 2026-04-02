@@ -28,34 +28,8 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full flex flex-col" style={{ background: '#0a0a0c' }}>
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-6 h-12 shrink-0">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <MinervaIcon />
-            <span className="text-[13px] font-semibold tracking-tight text-white">Minerva</span>
-          </div>
-          {NAV.map(n => (
-            <button key={n} className="text-[13px] transition-colors hover:text-white"
-              style={{ color: n === "Home" ? '#fff' : 'rgba(255,255,255,0.35)', fontWeight: n === "Home" ? 500 : 400 }}>
-              {n}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-3">
-          {["☀", "⊞", "✦"].map((ic, i) => (
-            <button key={i} className="w-7 h-7 rounded-md flex items-center justify-center text-[13px] transition-colors hover:bg-white/[0.06]"
-              style={{ color: 'rgba(255,255,255,0.3)' }}>{ic}</button>
-          ))}
-        </div>
-      </nav>
-
-      {/* Dynamic Island notch hint */}
-      <div className="flex justify-center">
-        <div className="w-16 h-6 rounded-b-2xl flex items-center justify-center" style={{ background: '#111' }}>
-          <MinervaIcon />
-        </div>
-      </div>
+      {/* Spacer for fixed header */}
+      <div className="h-12 shrink-0" />
 
       {/* Center content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
