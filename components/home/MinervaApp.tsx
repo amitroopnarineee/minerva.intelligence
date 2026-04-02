@@ -265,7 +265,7 @@ function TypeSection({ text, speed = 30, style, delayAfter = 1500, playing, onAd
   Each item has a "revealDelay" (ms after previous item finishes).
 */
 
-function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: { navigateTo: (v: View) => void; onOpenStudio: () => void; studioSaved: boolean; studioDone: boolean }) {
+function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onDetail }: { navigateTo: (v: View) => void; onOpenStudio: () => void; studioSaved: boolean; studioDone: boolean; onDetail: (d: DetailData) => void }) {
   const [step, setStep] = useState(-1) // -1 = not started, 0+ = items revealed
   const [playing, setPlaying] = useState(true)
   const [sendState, setSendState] = useState<'idle'|'sending'|'sent'>('idle')
@@ -319,14 +319,14 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
 
           {/* S1: Minerva Recommends */}
           {step >= 1 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="Here's my top recommendation —" delayAfter={1200}>
+            <ConnCard playing={playing} onAdvance={onAdvance} text="Tuesday, April 1 · 8:14 AM · Miami, FL · 78°F Partly Cloudy — Covering the last 24 hours." delayAfter={1200}>
               <div style={CARD}>
                 <p style={LBL} className="mb-2">✦ MINERVA RECOMMENDS</p>
                 <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
                   Scale Family Ticket Bundle budget by 20% and activate Seatmap Retargeting Pool (900 profiles). Combined estimated lift: <span style={{ color: 'rgba(255,255,255,0.88)', fontWeight: 500 }}>+$34K</span> revenue this week.
                 </p>
                 <div className="flex items-center justify-between mt-3">
-                  <button onClick={() => toast.success("Executing 2 actions…")} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.02)', height: 28 }}>→ Execute both</button>
+                  <button onClick={() => onDetail({ title: "Execute 2 Actions", subtitle: "Scaling + Retargeting", size: "sm", content: <div className="space-y-3"><p className="text-[13px]" style={{ color: "rgba(255,255,255,0.5)" }}>Minerva will execute both actions:</p><div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 8 }}><p className="text-[12px]" style={{ color: "rgba(255,255,255,0.6)" }}>1. Scale Family Ticket Bundle +20%</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>Meta Ads · $51K → $61K</p></div><div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 8 }}><p className="text-[12px]" style={{ color: "rgba(255,255,255,0.6)" }}>2. Activate Seatmap Retargeting Pool</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>900 profiles · Paid channel</p></div></div> })} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.02)', height: 28 }}>→ Execute both</button>
                   <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ 12 min ago · 91% confidence</span>
                 </div>
               </div>
@@ -338,7 +338,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
             <ConnCard playing={playing} onAdvance={onAdvance} text="Key metrics this week:" delayAfter={1200}>
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
                 {METRICS.map((m, i) => (
-                  <div key={m.label} onClick={() => toast(`Opening ${m.label} detail…`)}
+                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: m.value + " " + m.trend, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: "rgba(255,255,255,0.35)" }}>{m.trend}</span></div><div className="mb-4"><Sparkline d={m.spark} /></div><p className="text-[13px] mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>7-day trend. Click any point to drill into hourly breakdown.</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>Source: Ticketmaster · Klaviyo · Meta · Updated 8:12 AM</p></div> })}
                     className="flex items-center px-[18px] py-3 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
                     style={{ borderBottom: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 120}ms` }}>
                     <span style={{ ...LBL, width: 96 }}>{m.label}</span>
@@ -395,7 +395,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
                   <span style={{ ...LBL, width: 56, textAlign: 'right' }}>Conv</span>
                 </div>
                 {CAMPAIGNS.map((c, i) => (
-                  <div key={c.name} onClick={() => toast(`Opening ${c.name}…`)}
+                  <div key={c.name} onClick={() => onDetail({ title: c.name, subtitle: c.platform + " · " + c.spend + " spend", size: "md", content: <div className="space-y-4"><div className="flex gap-6"><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>ROAS</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.roas}</p></div><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>Conversions</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.conv}</p></div><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>Spend</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.spend}</p></div></div><p className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>{c.up ? "Trending positively — consider scaling." : "Underperforming — review targeting."}</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>Platform: {c.platform} · Updated 8:12 AM</p></div> })}
                     className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
                     style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
                     <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.up ? '↗' : '↘'} {c.name}</span>
@@ -467,11 +467,13 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => { setSendState('sending'); setTimeout(() => { setSendState('sent'); toast.success('Sent to 1,872 recipients'); if (playing) setTimeout(() => setStep(s => s + 1), 1500) }, 1200) }}
-                    className="h-9 px-5 rounded-full text-[13px] transition-all"
-                    style={{ background: sendState === 'sent' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.88)', color: sendState === 'sent' ? 'rgba(255,255,255,0.6)' : '#000', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
-                    {sendState === 'idle' ? '✉ Send Campaign' : sendState === 'sending' ? 'Sending…' : '✓ Sent to 1,872'}
-                  </button>
+                  {sendState === 'sent' ? (
+                    <div className="h-11 px-6 rounded-full flex items-center text-[13px]" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>✓ Sent to 1,872</div>
+                  ) : sendState === 'sending' ? (
+                    <div className="h-11 px-6 rounded-full flex items-center text-[13px] animate-pulse" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>Sending…</div>
+                  ) : (
+                    <LiquidMetalButton label="✉ Send Campaign" onClick={() => { setSendState('sending'); setTimeout(() => { setSendState('sent'); if (playing) setTimeout(() => setStep(s => s + 1), 1500) }, 1200) }} />
+                  )}
                   <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Preview · Schedule</span>
                 </div>
               </div>
@@ -492,7 +494,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone }: {
                       <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>→ {a.title}</p>
                       <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{a.sub}</p>
                     </div>
-                    <button onClick={() => toast.success(`Executing: ${a.title}`)}
+                    <button onClick={() => onDetail({ title: a.title, subtitle: a.sub, size: "sm", content: <div><p className="text-[13px] mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>Executing this action now. Confirmation within 60 seconds.</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>Est. completion: ~45 seconds</p></div> })}
                       className="text-[11px] px-3 py-1 rounded-full shrink-0 ml-4 transition-all hover:bg-white/[0.04]"
                       style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>Execute →</button>
                   </div>
@@ -705,12 +707,41 @@ function CalendarScreen({ navigateTo }: { navigateTo: (v: View) => void }) {
   )
 }
 
+
+/* ══ DETAIL MODAL ══ */
+type ModalSize = 'sm' | 'md' | 'lg'
+type DetailData = { title: string; subtitle?: string; size?: ModalSize; content: React.ReactNode } | null
+
+function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void }) {
+  if (!data) return null
+  const w = data.size === 'lg' ? 'max-w-[900px]' : data.size === 'md' ? 'max-w-[640px]' : 'max-w-[400px]'
+  return (
+    <div className="fixed inset-0 z-[150] flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} />
+      <div className={`relative ${w} w-full mx-4 animate-card-in`} onClick={e => e.stopPropagation()}
+        style={{ background: 'rgba(13,13,15,0.98)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="shrink-0 flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div>
+            <p className="text-[14px] text-white" style={{ fontWeight: 500 }}>{data.title}</p>
+            {data.subtitle && <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{data.subtitle}</p>}
+          </div>
+          <button onClick={onClose} className="text-[12px] px-3 py-1 rounded-lg transition-colors hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.4)' }}>\u2715</button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4" style={{ scrollbarWidth: 'none' }}>
+          {data.content}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ══════════════════════════════════════════════════════════
    MAIN APP
    ══════════════════════════════════════════════════════════ */
 export function MinervaApp() {
   const { view, transitioning, navigateTo } = useCanvasTransition()
   const [modal, setModal] = useState<ModalState>('closed')
+  const [detail, setDetail] = useState<DetailData>(null)
   const [studioSaved, setStudioSaved] = useState(false)
   const [studioDone, setStudioDone] = useState(false)
   const briefingRef = useRef<{ onStudioSaved: () => void; onStudioClosed: () => void } | null>(null)
@@ -725,11 +756,36 @@ export function MinervaApp() {
   return (
     <div className="h-full flex flex-col relative">
       {/* Shell header — always visible */}
-      <div className="shrink-0 flex items-center justify-between px-5 py-2.5 relative z-30">
+      <div className="shrink-0 relative z-30 flex items-center justify-between px-5 h-11">
+        {/* Left: Logo */}
         <button onClick={() => navigateTo('home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <MinervaLogo size={16} />
           {view === 'home' && <span className="text-[13px] font-medium tracking-tight text-white">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>}
         </button>
+
+        {/* Center: Notch nav (hidden on home) */}
+        {view !== 'home' && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-0.5 h-[34px] px-1.5 rounded-full"
+            style={{ background: 'rgba(10,10,10,0.95)', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
+            {[
+              { label: 'Home', v: 'home' as View },
+              { label: 'Briefing', v: 'briefing' as View },
+              { label: 'Calendar', v: 'calendar' as View },
+            ].map(n => (
+              <button key={n.label} onClick={() => navigateTo(n.v)}
+                className="text-[11px] px-3 py-1 rounded-full transition-all"
+                style={{
+                  background: view === n.v ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: view === n.v ? '#fff' : 'rgba(255,255,255,0.3)',
+                  fontWeight: view === n.v ? 500 : 400,
+                }}>
+                {n.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Right: SM Avatar */}
         <button onClick={() => toast('Settings')} className="h-5 w-5 rounded-full bg-white/90 hover:ring-white/30 transition-all flex items-center justify-center">
           <span className="text-[8px] font-semibold text-black/60 leading-none">SM</span>
         </button>
@@ -743,9 +799,12 @@ export function MinervaApp() {
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
         {view === 'home' && <HomeScreen onEnter={() => navigateTo('briefing')} />}
-        {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} />}
+        {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
         {view === 'calendar' && <CalendarScreen navigateTo={navigateTo} />}
       </div>
+
+      {/* Detail Modal */}
+      <DetailModal data={detail} onClose={() => setDetail(null)} />
 
       {/* Audience Studio Modal */}
       <AudienceModal open={modal === 'studio'} onSave={handleSaveStudio} onClose={handleCloseStudio} />
