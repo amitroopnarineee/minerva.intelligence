@@ -33,9 +33,9 @@ CURRENT BRIEFING CONTEXT (April 1, 2026):
 - Top campaign: Season Ticket Renewals — Klaviyo, $142K spend, 5.2x ROAS, 312 conversions
 - Family Ticket Bundle: $51K spend, 4.1x ROAS, 204 conversions — scale +20%
 - New Fan Acquisition: underperforming at 2.4x ROAS
-- Signal: Jackson Dark signed from NY Giants, 340% social spike
-- Segment: Giants-to-Dolphins Crossover (2,400 profiles, scores 72-99, 78% reachable)
-- Dolphins: Malik Willis signed QB, Waddle traded to Broncos, Hafley building physical culture, Achane extension priority, 11 draft picks`
+- Signal: Francis Mauigoa heavily linked at pick #11, draft narrative gaining traction across media
+- Segment: Draft Momentum — high-value fans reacting to protection-first strategy (2,400 profiles, scores 72-99, 78% reachable)
+- Dolphins: Mauigoa (OL, Michigan State) projected pick #11, Hafley building physical culture, Achane extension priority, 11 draft picks, fan confidence in long-term direction rising`
 
 export async function POST(req: NextRequest) {
   const { messages } = await req.json()

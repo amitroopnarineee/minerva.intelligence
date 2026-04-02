@@ -32,8 +32,8 @@ function MinervaLogo({ size = 16 }: { size?: number }) {
 /* ══════════════════════════════════════════════════════════
    TYPEWRITER + HELPERS
    ══════════════════════════════════════════════════════════ */
-const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.', '340%', '2,400', 'Jackson Dark', 'New York Giants', '1,872']
-const SHIMMER_NAMES = new Set(['Jackson Dark', 'New York Giants'])
+const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.', '84%', '2,400', 'Francis Mauigoa', 'pick #11', '1,872']
+const SHIMMER_NAMES = new Set(['Francis Mauigoa', 'pick #11'])
 
 function useTypewriter(text: string, active: boolean, speed = 25) {
   const [segments, setSegments] = useState<{text:string,type:'char'|'num'|'warm'}[]>([])
@@ -318,7 +318,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
           {/* S2: Pivot continued */}
           {step >= 2 && (
-            <TypeSection playing={playing} onAdvance={onAdvance} text="The Dolphins signed quarterback Jackson Dark from the New York Giants. Social media volume spiked 340% in the last 8 hours — mostly Giants fans reacting." speed={30} delayAfter={1000}
+            <TypeSection playing={playing} onAdvance={onAdvance} text="Dolphins heavily linked to Francis Mauigoa at pick #11. Draft narrative gaining traction — fan confidence in long-term direction rising. Protection-first strategy resonating with premium buyers." speed={30} delayAfter={1000}
               style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)' }} />
           )}
 
@@ -327,7 +327,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             <ConnCard playing={playing} onAdvance={onAdvance} text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
               <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)' }}>
                 <p style={LBL} className="mb-3">✦ SUGGESTED SEGMENT</p>
-                <p className="text-[16px] text-white mb-1" style={{ fontWeight: 500 }}>Giants-to-Dolphins Crossover</p>
+                <p className="text-[16px] text-white mb-1" style={{ fontWeight: 500 }}>Draft Momentum</p>
                 <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>2,400 profiles · scores 72–99 · 78% reachable</p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {['Giants fan', 'South FL', '45+', '$250k+ HHI', 'Ticketmaster active'].map(t => (
@@ -346,10 +346,10 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
           {/* S4: Campaign Activation Card (only after studio save) */}
           {step >= 4 && studioSaved && (
-            <ConnCard playing={playing} onAdvance={() => {}} text="Segment saved: Giants-to-Dolphins Crossover — 2,400 profiles. Here's the campaign I've prepared." delayAfter={99999}>
+            <ConnCard playing={playing} onAdvance={() => {}} text="Segment saved: Draft Momentum — 2,400 profiles. Here's the campaign I've prepared." delayAfter={99999}>
               <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 22px', overflow: 'hidden' }}>
                 <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 16 }}>CAMPAIGN READY TO LAUNCH</p>
-                <p style={{ fontSize: 18, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em', marginBottom: 20 }}>Giants-to-Dolphins Welcome</p>
+                <p style={{ fontSize: 18, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em', marginBottom: 20 }}>Protect the Future</p>
                 {/* Three big stat boxes */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
                   {[{ value: '1,872', label: 'RECIPIENTS' }, { value: '89%', label: 'EST. OPEN RATE' }, { value: '$34K', label: 'EST. REVENUE LIFT' }].map(stat => (
@@ -609,7 +609,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
     }}>
       {/* Top bar */}
       <div className="shrink-0 h-12 flex items-center justify-between px-5" style={{ background: '#000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Audience Studio · Giants-to-Dolphins</p>
+        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Audience Studio · Draft Momentum</p>
         <button onClick={onClose} className="text-[12px] px-3 py-1 rounded-lg transition-colors hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.4)' }}>✕ Close</button>
       </div>
 
@@ -618,7 +618,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
         <div className="flex-1 flex flex-col items-center justify-center bg-black">
           <div className="animate-save-check text-[32px] mb-4">✦</div>
           <p className="text-[16px] text-white animate-fade-in-delay-300">Segment saved</p>
-          <p className="text-[12px] mt-2 animate-fade-in-delay-500" style={{ color: 'rgba(255,255,255,0.3)' }}>Giants-to-Dolphins Crossover · 2,400 profiles</p>
+          <p className="text-[12px] mt-2 animate-fade-in-delay-500" style={{ color: 'rgba(255,255,255,0.3)' }}>Draft Momentum · 2,400 profiles</p>
         </div>
       ) : (
         <div className="flex-1 relative bg-black">
@@ -644,7 +644,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
    CALENDAR SCREEN — Past Daily Briefings
    ══════════════════════════════════════════════════════════ */
 const PAST_BRIEFINGS: Record<number, { headline: string; revenue: string; roas: string; actions: number; signal?: string }> = {
-  1: { headline: "Jackson Dark signing drives 340% social spike", revenue: "$242K", roas: "4.0x", actions: 3, signal: "Giants-to-Dolphins segment identified" },
+  1: { headline: "Mauigoa at #11 — draft momentum building", revenue: "$242K", roas: "4.0x", actions: 3, signal: "Draft Momentum segment — premium buyers gaining confidence" },
   31: { headline: "Family audience surging after spring break push", revenue: "$238K", roas: "3.9x", actions: 2 },
   30: { headline: "Premium Suite renewals ahead of target", revenue: "$231K", roas: "4.1x", actions: 4, signal: "Lapsed buyer win-back window closing" },
   29: { headline: "Match rate declining — identity graph needs refresh", revenue: "$225K", roas: "3.7x", actions: 2 },
