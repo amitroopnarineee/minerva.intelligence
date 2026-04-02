@@ -87,7 +87,7 @@ export function MinervaMenuBar() {
   return (
     <>
       {/* ═══ STATIC HEADER ═══ */}
-      <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 relative z-30">
+      <div className="mn-menubar mn-menubar-static flex items-center justify-between px-5 py-2.5 fixed top-0 left-0 right-0 z-30" style={{ background: 'transparent', mixBlendMode: 'difference' }}>
         <div className="mn-menubar-left flex items-center gap-1" style={{ opacity: isVisible ? 0 : 1, transition: 'opacity 300ms ease', pointerEvents: isVisible ? 'none' : 'auto' }}>
           <button onClick={() => { router.push('/'); window.dispatchEvent(new Event('minerva-go-home')) }} className="mn-menubar-logo flex items-center gap-2 mr-3 hover:opacity-80 transition-opacity">
             <MinervaLogo size={16} />
