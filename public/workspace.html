@@ -636,76 +636,70 @@ var l=gf(),n=l.length;
 if(!n){return}
 var tot=PP.length,ec=0,pc=0,mc=0,oc=0,ss=0,sa=0;
 l.forEach(function(p){if(p.email)ec++;if(p.phone)pc++;if(p.addr)mc++;if(p.owner)oc++;ss+=p.score;sa+=p.age});
-var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),oP=Math.round(oc/n*100),eP=Math.round(ec/n*100),phP=Math.round(pc/n*100),maP=Math.round(mc/n*100);
+var avg=(ss/n).toFixed(1),aag=Math.round(sa/n),oP=Math.round(oc/n*100),eP=Math.round(ec/n*100);
 var hi2=l.filter(function(p){return p.income==="$250-500k"||p.income==="$500k+"}).length;
 var hi2P=Math.round(hi2/n*100);
 var aOp=Math.round(PP.filter(function(p){return p.owner}).length/tot*100);
-// Age distribution
 var ageBins={"18-29":0,"30-39":0,"40-49":0,"50-59":0,"60+":0};
 l.forEach(function(p){if(p.age<30)ageBins["18-29"]++;else if(p.age<40)ageBins["30-39"]++;else if(p.age<50)ageBins["40-49"]++;else if(p.age<60)ageBins["50-59"]++;else ageBins["60+"]++});
-var ageStr=Object.keys(ageBins).map(function(k){return k+": "+Math.round(ageBins[k]/n*100)+"%"}).join(", ");
-// Income distribution
-var incBins={};l.forEach(function(p){incBins[p.income]=(incBins[p.income]||0)+1});
-var incStr=Object.keys(incBins).map(function(k){return k+": "+Math.round(incBins[k]/n*100)+"%"}).join(", ");
-// Top cities
+var ageStr=Object.keys(ageBins).map(function(k){return k+":"+Math.round(ageBins[k]/n*100)+"%"}).join(" ");
 var cm={};l.forEach(function(p){cm[p.city]=(cm[p.city]||0)+1});
-var cities=Object.keys(cm).sort(function(a,b){return cm[b]-cm[a]}).slice(0,5).map(function(k){return k+" ("+cm[k]+")"}).join(", ");
-// Filters active
-var fLabel=extraFilters?Object.keys(extraFilters).join(", "):"none";
-// Scale estimate
+var topCity=Object.keys(cm).sort(function(a,b){return cm[b]-cm[a]})[0]||"unknown";
 var scaledN=Math.round(n*268000000/tot);
 var scaleStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+"M":(scaledN/1e3).toFixed(0)+"K";
+var filts=extraFilters?Object.keys(extraFilters).join(", "):"none";
 
-var prompt="You are Minerva, an AI audience intelligence engine for the Miami Dolphins CMO. Analyze this segment and give a strategic verdict.\n\n";
-prompt+="SEGMENT DATA:\n";
-prompt+="- Records: "+n+" of "+tot+" total ("+Math.round(n/tot*100)+"% of file, ~"+scaleStr+" at full scale)\n";
-prompt+="- Score range: "+sLo+"–"+sHi+" | Avg score: "+avg+"\n";
-prompt+="- Avg age: "+aag+" | Age distribution: "+ageStr+"\n";
-prompt+="- Homeowners: "+oP+"% (baseline: "+aOp+"%, delta: "+(oP-aOp)+"pts)\n";
-prompt+="- Income $250k+: "+hi2P+"% | Full income: "+incStr+"\n";
-prompt+="- Email reach: "+eP+"% | Phone: "+phP+"% | Mail: "+maP+"%\n";
-prompt+="- Top cities: "+cities+"\n";
-prompt+="- Active filters: "+fLabel+"\n\n";
-prompt+="Respond in this exact format (no markdown, plain text only):\n";
-prompt+="CONFIDENCE: [one line, e.g. 'High — strong signal density across income and homeownership']\n";
-prompt+="VERDICT: [one bold sentence, max 8 words]\n";
-prompt+="ANALYSIS: [2-3 sentences. Reference specific numbers. Compare to baseline. Name the top city. Recommend a specific Dolphins product/offer. Be direct — no hedging.]";
+var prompt="Analyze this Miami Dolphins audience segment. Respond ONLY in this exact format — no markdown, no extra text:
+";
+prompt+="TITLE: [6-8 words. Punchy. Must contain tension — value vs limitation, or opportunity vs risk. Like: 'High value, low focus.', 'Premium-ready. Signal needs tightening.', 'Strong buyers. Weak targeting.']
+";
+prompt+="SUB: [One sentence, max 16 words. Adds clarity + implies next action. Be specific — name the city, the product, the channel.]
 
-// Show loading state
+";
+prompt+="SEGMENT: "+n+" records ("+Math.round(n/tot*100)+"% of file, ~"+scaleStr+" at scale)
+";
+prompt+="Scores: "+sLo+"–"+sHi+" | Avg: "+avg+" | Avg age: "+aag+"
+";
+prompt+="Homeowners: "+oP+"% (baseline "+aOp+"%, delta "+(oP-aOp)+"pts) | \k+: "+hi2P+"%
+";
+prompt+="Email: "+eP+"% | Age: "+ageStr+" | Top city: "+topCity+"
+";
+prompt+="Filters: "+filts+"
+";
+prompt+="Current campaign ROAS: 4.1x on Family Ticket Bundle
+
+";
+prompt+="REMEMBER: No description. No filler. Tension in title. Action in subheader. Write like a \k/yr strategist.";
+
 var loadH='<div class="mn-workspace-detail-section" id="intelSection"><div class="mn-workspace-detail-label">Intelligence<\/div>';
-loadH+='<div style="margin-top:12px;display:flex;align-items:center;gap:8px"><div class="mn-intel-loading"><\/div><span style="font-size:11px;color:var(--mn-t3)">Analyzing '+n+' records\u2026<\/span><\/div><\/div>';
+loadH+='<div style="margin-top:12px;display:flex;align-items:center;gap:8px"><div class="mn-intel-loading"><\/div><span style="font-size:10px;color:var(--mn-t3)">Analyzing '+n+' records…<\/span><\/div><\/div>';
 var db=document.getElementById("db");if(db){var old=document.getElementById("intelSection");if(old)old.remove();var anchor=document.getElementById("insightSection");if(anchor)anchor.insertAdjacentHTML("beforebegin",loadH);else db.insertAdjacentHTML("afterbegin",loadH)}
 
-// Call AI
 fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:[{role:"user",content:prompt}]})})
 .then(function(r){return r.json()})
 .then(function(data){
-var txt=data.text||"Analysis unavailable.";
-var conf="",verd="",anal="";
-var lines=txt.split("\n");
-lines.forEach(function(line){
+var txt=data.text||"";
+var title="",sub="";
+txt.split("
+").forEach(function(line){
 var l=line.trim();
-if(l.startsWith("CONFIDENCE:"))conf=l.replace("CONFIDENCE:","").trim();
-else if(l.startsWith("VERDICT:"))verd=l.replace("VERDICT:","").replace(/\*\*/g,"").trim();
-else if(l.startsWith("ANALYSIS:"))anal=l.replace("ANALYSIS:","").trim();
-else if(anal&&l)anal+=" "+l;
+if(l.startsWith("TITLE:"))title=l.replace("TITLE:","").replace(/\*\*/g,"").trim();
+else if(l.startsWith("SUB:"))sub=l.replace("SUB:","").replace(/\*\*/g,"").trim();
 });
-if(!conf&&!verd){anal=txt;conf="AI analysis";verd="See below."}
+if(!title){title=txt.split(".")[0]+".";sub=txt.split(".").slice(1,3).join(".").trim()}
 var h='<div class="mn-workspace-detail-section" id="intelSection"><div class="mn-workspace-detail-label">Intelligence<\/div>';
-h+='<div class="mn-workspace-intel-confidence" style="margin-top:8px">'+conf+'<\/div>';
-h+='<div class="mn-workspace-intel-verdict" style="font-size:14px;margin-bottom:6px">'+verd+'<\/div>';
-h+='<div style="font-size:11px;line-height:1.7;color:var(--mn-t2)">'+anal+'<\/div>';
+h+='<div style="font-size:15px;font-weight:600;color:var(--mn-t1);letter-spacing:-0.01em;line-height:1.4;margin-top:10px">'+title+'<\/div>';
+h+='<div style="font-size:11px;color:var(--mn-t2);line-height:1.5;margin-top:4px">'+sub+'<\/div>';
 h+='<button class="mn-workspace-intel-refresh" style="margin-top:10px" onclick="genInsight()">Reanalyze<\/button>';
 h+='<\/div>';
 var old2=document.getElementById("intelSection");if(old2)old2.remove();
 var anc=document.getElementById("insightSection");if(anc)anc.insertAdjacentHTML("beforebegin",h);else document.getElementById("db").insertAdjacentHTML("afterbegin",h);
-}).catch(function(e){
+}).catch(function(){
 var h='<div class="mn-workspace-detail-section" id="intelSection"><div class="mn-workspace-detail-label">Intelligence<\/div>';
-h+='<div style="font-size:11px;color:var(--mn-t3);margin-top:8px">Analysis unavailable. <button class="mn-workspace-intel-refresh" onclick="genInsight()">Retry<\/button><\/div><\/div>';
+h+='<div style="font-size:11px;color:var(--mn-t3);margin-top:8px">Unavailable. <button class="mn-workspace-intel-refresh" onclick="genInsight()">Retry<\/button><\/div><\/div>';
 var old3=document.getElementById("intelSection");if(old3)old3.remove();
 var anc2=document.getElementById("insightSection");if(anc2)anc2.insertAdjacentHTML("beforebegin",h);else document.getElementById("db").insertAdjacentHTML("afterbegin",h);
 })}
-
 function togFilt(key){
 if(!extraFilters)extraFilters={};
 if(extraFilters[key]){delete extraFilters[key];if(!Object.keys(extraFilters).length)extraFilters=null}
