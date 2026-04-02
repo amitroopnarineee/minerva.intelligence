@@ -195,14 +195,14 @@ const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning 
    HOME SCREEN
    ══════════════════════════════════════════════════════════ */
 const GALLERY_IMAGES = [
-  { src: 'https://picsum.photos/seed/minerva1/600/400', alt: 'A' },
-  { src: 'https://picsum.photos/seed/minerva2/600/400', alt: 'B' },
-  { src: 'https://picsum.photos/seed/minerva3/600/400', alt: 'C' },
-  { src: 'https://picsum.photos/seed/minerva4/600/400', alt: 'D' },
-  { src: 'https://picsum.photos/seed/minerva5/600/400', alt: 'E' },
-  { src: 'https://picsum.photos/seed/minerva6/600/400', alt: 'F' },
-  { src: 'https://picsum.photos/seed/minerva7/600/400', alt: 'G' },
-  { src: 'https://picsum.photos/seed/minerva8/600/400', alt: 'H' },
+  { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins' },
+  { src: '/gallery/player-10.jpg', alt: 'Player' },
+  { src: '/gallery/team-huddle.jpg', alt: 'Team' },
+  { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins 2' },
+  { src: '/gallery/team-huddle.jpg', alt: 'Team 2' },
+  { src: '/gallery/player-10.jpg', alt: 'Player 2' },
+  { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins 3' },
+  { src: '/gallery/team-huddle.jpg', alt: 'Team 3' },
 ]
 
 function HomeScreen({ onEnter }: { onEnter: () => void }) {
