@@ -979,7 +979,7 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
     <div className="mn-modal-overlay fixed inset-0 z-[150] animate-card-in" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} />
       <div className="mn-modal-container absolute inset-4 top-12 rounded-2xl overflow-hidden flex" onClick={e => e.stopPropagation()}
-        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(30px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        style={{ background: '#0a0a0c', border: '1px solid rgba(255,255,255,0.06)' }}>
 
         <button onClick={onClose} className="mn-modal-close absolute top-4 right-4 z-10 w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.35)' }}>✕</button>
 
