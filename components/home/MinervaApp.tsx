@@ -186,8 +186,8 @@ const FUNNEL = [
 const TAGLINES = ["Clarity beyond scale", "Patterns in infinite data", "Meaning in every profile", "Intelligence in boundless reach"]
 
 const GALLERY_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1638378943379-f9c64b6612e4?w=600&auto=format&fit=crop&q=60', alt: 'Football helmet' },
-  { src: 'https://images.unsplash.com/photo-1747561502595-871265f5503b?w=600&auto=format&fit=crop&q=60', alt: 'Football jersey' },
+  { src: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=600&auto=format&fit=crop&q=60', alt: 'Stadium' },
+  { src: 'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=600&auto=format&fit=crop&q=60', alt: 'Miami skyline' },
   { src: 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&auto=format&fit=crop&q=60', alt: 'Data' },
   { src: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&auto=format&fit=crop&q=60', alt: 'Athletics' },
   { src: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&auto=format&fit=crop&q=60', alt: 'Marketing' },
