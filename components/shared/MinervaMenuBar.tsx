@@ -32,8 +32,8 @@ const NAV_ITEMS = [
 ]
 
 export function MinervaMenuBar() {
-  const [notchState, setNotchState] = useState<NotchState>("hidden")
-  const stateRef = useRef<NotchState>("hidden")
+  const [notchState, setNotchState] = useState<NotchState>("peek")
+  const stateRef = useRef<NotchState>("peek")
   const notchRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const [navVisible, setNavVisible] = useState(false)
