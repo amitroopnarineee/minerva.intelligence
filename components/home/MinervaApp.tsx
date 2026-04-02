@@ -654,43 +654,40 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
         /* ═══ SEGMENT SELECTOR ═══ */
         <div className="flex-1 flex flex-col items-center justify-center bg-black">
           <div className="w-full max-w-[720px] mx-auto px-6" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease 0.15s forwards' }}>
-            <div className="flex items-center justify-center gap-2 mb-8">
-              <div className="w-5 h-5 rounded bg-white flex items-center justify-center">
-                <svg width={12} height={12} viewBox="0 0 127 127" fill="none"><path d="M3.22 0.11C8.61-0.12 15.26 0.08 20.75 0.08L54.9 0.08 98.53 0.08C105.88 0.08 113.23 0.05 120.58 0.09 121.84 0.09 125.58 0.18 125.8 1.98 126.28 5.93 126.09 10.2 126.1 14.2L126.1 37.34 126.1 94.18C126.1 103.23 126.1 112.28 126.13 121.32 126.15 124.1 125.88 125.5 123 126.15 120.09 126.36 116.48 126.3 113.53 126.31L95.72 126.27 39.54 126.28 14.76 126.29C10.86 126.29 6.29 126.42 2.4 126 1.57 125.91 0.65 124.64 0.2 123.97-0.15 120.03 0.07 112.64 0.07 108.4L0.08 79.54 0.07 29.33C0.07 21.22 0.07 13.11 0.07 5 0.07 2.45 0.33 0.61 3.22 0.11Z" fill="black"/></svg>
-              </div>
-              <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Minerva</span>
-            </div>
             <h2 className="text-[26px] text-white text-center mb-10" style={{ fontWeight: 500, letterSpacing: '-0.02em' }}>Select Segment</h2>
             {/* Hidden file input */}
             <input ref={fileRef} type="file" accept="*" className="hidden" onChange={() => { setPhase('workspace') }} />
 
-            <div className="flex items-center justify-center gap-4">
-              {/* Existing audience */}
+            <div className="flex items-center justify-center gap-5">
+              {/* Miami Dolphins Fan Base */}
               <button onClick={() => setPhase('workspace')}
                 className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
-                style={{ width: 200, height: 180, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.2s forwards' }}>
-                <div className="w-12 h-12 rounded-full mb-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="" className="w-full h-full object-cover" />
+                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.2s forwards' }}>
+                {/* 3 overlapping avatars */}
+                <div className="flex items-center mb-5" style={{ paddingLeft: 16 }}>
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-black" style={{ marginLeft: -16, zIndex: 3 }}>
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-black" style={{ marginLeft: -12, zIndex: 2 }}>
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-black" style={{ marginLeft: -12, zIndex: 1 }}>
+                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-black" style={{ marginLeft: -12, zIndex: 0, background: 'rgba(255,255,255,0.08)' }}>
+                    <span className="text-[10px] text-white/40 font-medium">+3</span>
+                  </div>
                 </div>
-                <span className="text-[13px] text-white" style={{ fontWeight: 500 }}>Audience 1</span>
+                <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>Miami Dolphins Fan Base</span>
                 <span className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>268M profiles</span>
-              </button>
-
-              {/* Upload */}
-              <button onClick={() => fileRef.current?.click()}
-                className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
-                style={{ width: 200, height: 180, background: 'rgba(255,255,255,0.025)', border: '1px dashed rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.3s forwards' }}>
-                <span className="text-[20px] mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}>↑</span>
-                <span className="text-[13px] text-white" style={{ fontWeight: 500 }}>Upload</span>
-                <span className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Any file format</span>
               </button>
 
               {/* New / Empty segment */}
               <button onClick={() => { setEmptyMode(true); setPhase('workspace') }}
                 className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
-                style={{ width: 200, height: 180, background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.06)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.4s forwards' }}>
+                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.06)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.3s forwards' }}>
                 <span className="text-[20px] mb-3" style={{ color: 'rgba(255,255,255,0.15)' }}>+</span>
-                <span className="text-[13px] text-white" style={{ fontWeight: 500 }}>New Segment</span>
+                <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>New Segment</span>
                 <span className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Start from scratch</span>
               </button>
             </div>
