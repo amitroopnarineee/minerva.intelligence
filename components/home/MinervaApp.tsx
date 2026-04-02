@@ -717,7 +717,6 @@ export function MinervaApp() {
       }}>
         {view === 'home' && <HomeScreen onEnter={() => navigateTo('briefing')} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
-        {view === 'calendar' && <CalendarScreen navigateTo={navigateTo} onDetail={setDetail} />}
       </div>
 
       {/* Detail Modal */}
