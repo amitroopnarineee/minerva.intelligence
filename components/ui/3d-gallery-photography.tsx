@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useTexture } from '@react-three/drei';
+
 import * as THREE from 'three';
 
 type ImageItem = string | { src: string; alt?: string };
@@ -139,7 +139,15 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 	const [autoPlay, setAutoPlay] = useState(true);
 	const lastInteraction = useRef(Date.now());
 	const normalizedImages = useMemo(() => images.map((img) => typeof img === 'string' ? { src: img, alt: '' } : img), [images]);
-	const textures = useTexture(normalizedImages.map((img) => img.src));
+	const [textures, setTextures] = useState<(THREE.Texture | null)[]>([]);
+	useEffect(() => {
+		const loader = new THREE.TextureLoader();
+		Promise.all(normalizedImages.map(img =>
+			new Promise<THREE.Texture | null>(resolve => {
+				loader.load(img.src, tex => resolve(tex), undefined, () => resolve(null));
+			})
+		)).then(results => setTextures(results));
+	}, [normalizedImages]);
 	const materials = useMemo(() => Array.from({ length: visibleCount }, () => createClothMaterial()), [visibleCount]);
 
 	const spatialPositions = useMemo(() => {
@@ -242,7 +250,7 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 		});
 	});
 
-	if (normalizedImages.length === 0) return null;
+	if (normalizedImages.length === 0 || textures.length === 0) return null;
 	return (
 		<>
 			{planesData.current.map((plane, i) => {

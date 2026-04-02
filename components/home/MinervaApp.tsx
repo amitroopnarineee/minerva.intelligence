@@ -200,7 +200,7 @@ const GALLERY_IMAGES = [
   { src: '/gallery/hudson-house.jpg', alt: 'Hudson House' },
   { src: '/gallery/team-huddle.jpg', alt: 'Team' },
   { src: '/gallery/forest-villa.jpg', alt: 'Forest Villa' },
-  { src: '/gallery/wander-coast.png', alt: 'Coast' },
+  { src: '/gallery/wander-coast.jpg', alt: 'Coast' },
   { src: '/gallery/dolphins-logo.jpg', alt: 'Dolphins 2' },
   { src: '/gallery/player-10.jpg', alt: 'Player 2' },
 ]
