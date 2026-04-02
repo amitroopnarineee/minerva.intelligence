@@ -246,6 +246,11 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-toolbar-filter-pop button{height:28px;padding:0 10px;border-radius:6px;border:0;background:0;color:rgba(255,255,255,0.45);font-size:11px;font-family:var(--mn-font);cursor:pointer;text-align:left;transition:all .1s}
 .mn-toolbar-filter-pop button:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
 .mn-toolbar-filter-pop button.on{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.08)}
+.mn-toolbar-overflow-wrap{position:relative}
+.mn-toolbar-overflow-pop{display:none;position:absolute;bottom:36px;right:0;background:rgba(13,13,15,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px;min-width:160px;z-index:30;backdrop-filter:blur(16px)}
+.mn-toolbar-overflow-pop.open{display:flex;flex-direction:column;gap:2px}
+.mn-toolbar-overflow-pop button{height:28px;padding:0 10px;border-radius:6px;border:0;background:0;color:rgba(255,255,255,0.45);font-size:11px;font-family:var(--mn-font);cursor:pointer;text-align:left;transition:all .1s;white-space:nowrap}
+.mn-toolbar-overflow-pop button:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
 @keyframes mn-float-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .mn-workspace-floating-toolbar .mn-workspace-slider-mode{border-radius:10px;height:28px;padding:0 12px;font-size:10px}
 .mn-workspace-floating-toolbar .mn-workspace-slider-mode-desc{display:none}
@@ -388,7 +393,7 @@ var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,
 var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
-(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg> Filter<\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div class="mn-toolbar-sep"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';h+='<button class="mn-toolbar-action-icon" onclick="doExport()" title="Export CSV"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><\/svg><\/button>';ft.innerHTML=h})();
+(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg><\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div style="flex:1"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<span id="ftPrimary"><button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button><\/span>';h+='<div class="mn-toolbar-overflow-wrap"><button class="mn-toolbar-action-icon" onclick="togOverflow()" title="More"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><\/svg><\/button><div class="mn-toolbar-overflow-pop" id="ftOverflow"><button onclick="doExport();togOverflow()">Export CSV<\/button><button id="ovExpSel" style="display:none" onclick="exportSelected();togOverflow()">Export Selected<\/button><button id="ovClear" style="display:none" onclick="selMulti=[];ren();togOverflow()">Clear Selection<\/button><\/div><\/div>';ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
@@ -479,12 +484,6 @@ h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metr
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Age<\/div><div class="mn-workspace-detail-metric-value">'+aag+'<\/div><\/div>';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Homeowners<\/div><div class="mn-workspace-detail-metric-value">'+op+'%<\/div><\/div>';
 h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">$250k+<\/div><div class="mn-workspace-detail-metric-value">'+hi250p+'%<\/div><\/div>';
-h+='<\/div>';
-h+='<div class="mn-workspace-detail-stats">';
-h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-stat-cell-value" id="stA2">'+n.toLocaleString()+'<\/div><div class="mn-workspace-detail-stat-cell-label">Audience<\/div><\/div>';
-h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-stat-cell-value">'+pct(n,tot)+'<\/div><div class="mn-workspace-detail-stat-cell-label">of File<\/div><\/div>';
-h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-stat-cell-value">'+ec+'<\/div><div class="mn-workspace-detail-stat-cell-label">Email<\/div><\/div>';
-h+='<div class="mn-workspace-detail-stat-cell"><div class="mn-workspace-detail-stat-cell-value">'+avg+'<\/div><div class="mn-workspace-detail-stat-cell-label">Avg<\/div><\/div>';
 h+='<\/div>';
 // If multi-selected, show selection stats
 if(selMulti.length>1){
@@ -609,7 +608,8 @@ h+='<button class="mn-workspace-action-btn mn-workspace-action-btn-primary" oncl
 h+='<button class="mn-workspace-action-btn" onclick="toast(\'Outreach drafted\')">Draft Outreach<\/button>';
 h+='<\/div><\/div>';
 document.getElementById("profBody").innerHTML=h;rtbl()}
-function updToolbarSel(){var el=document.getElementById("ftSel");if(!el)return;if(selMulti.length>1){el.innerHTML=selMulti.length+' selected <button class="mn-toolbar-action" onclick="exportSelected()">Export Selected<\/button><button class="mn-toolbar-action" onclick="toast(\'Added '+selMulti.length+' to campaign\')">Add to Campaign<\/button><button class="mn-toolbar-action" onclick="selMulti=[];ren()">Clear<\/button>'}else{el.innerHTML=""}}
+function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span style="font-size:10px;color:var(--mn-t2);margin-right:6px">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toast(\'Added '+selMulti.length+' to campaign\')">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
+function togOverflow(){document.getElementById("ftOverflow").classList.toggle("open")}
 function cpf(){selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
 
 // ── Save / Export / Segments ──
@@ -671,7 +671,7 @@ else{if(key==="ownerOnly")extraFilters.ownerOnly=true;if(key==="incomeMin")extra
 ren();syncFiltBtns()}
 function syncFiltBtns(){var m={"fpOwn":"ownerOnly","fpInc":"incomeMin","fpEm":"emailOnly"};var anyOn=false;Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el){if(extraFilters&&extraFilters[m[id]]){el.classList.add("on");anyOn=true}else el.classList.remove("on")}});var fb=document.getElementById("ftFiltBtn");if(fb){if(anyOn)fb.classList.add("mn-workspace-slider-mode-on");else fb.classList.remove("mn-workspace-slider-mode-on")}}
 function togFilterPop(){var p=document.getElementById("ftFiltPop");p.classList.toggle("open");syncFiltBtns()}
-document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-filter-wrap")){var p=document.getElementById("ftFiltPop");if(p)p.classList.remove("open")}})
+document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-filter-wrap")){var p=document.getElementById("ftFiltPop");if(p)p.classList.remove("open")}if(!e.target.closest(".mn-toolbar-overflow-wrap")){var o=document.getElementById("ftOverflow");if(o)o.classList.remove("open")}})
 
 // Close segments menu when clicking outside
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-workspace-topbar-segments"))document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open")});
