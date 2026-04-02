@@ -163,10 +163,10 @@ const CONN = { fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, m
    DATA
    ══════════════════════════════════════════════════════════ */
 const METRICS = [
-  { label: "REVENUE", value: "$242K", trend: "↗ 7.6%", spark: "M0,15 L8,13 L16,14 L24,10 L32,8 L40,11 L48,6 L56,3 L60,4" },
-  { label: "ROAS", value: "4.0x", trend: "↗ 8.3%", spark: "M0,16 L8,15 L16,13 L24,14 L32,11 L40,9 L48,7 L56,5 L60,4" },
-  { label: "CONV RATE", value: "3.9%", trend: "↗ 8.3%", spark: "M0,12 L8,15 L16,10 L24,13 L32,8 L40,11 L48,6 L56,9 L60,5" },
-  { label: "MATCH RATE", value: "62%", trend: "↘ 11.6%", spark: "M0,5 L8,6 L16,4 L24,7 L32,9 L40,8 L48,11 L56,13 L60,14", dim: true },
+  { label: "Revenue", value: "$242K", prev: "$225K", pct: "+7.6%", up: true, spark: "M0,40 C15,38 25,35 30,28 S45,32 50,22 S65,18 70,14 S80,20 90,8 L100,12" },
+  { label: "ROAS", value: "4.0x", prev: "3.7x", pct: "+8.3%", up: true, spark: "M0,42 C12,40 20,36 30,34 S42,30 50,26 S60,22 70,20 S82,16 90,10 L100,8" },
+  { label: "Conv Rate", value: "3.9%", prev: "3.6%", pct: "+8.3%", up: true, spark: "M0,30 C10,34 20,28 30,36 S40,20 50,32 S60,16 70,24 S80,12 90,18 L100,10" },
+  { label: "Match Rate", value: "62%", prev: "70.1%", pct: "-11.6%", up: false, spark: "M0,10 C12,12 20,14 30,18 S42,16 50,24 S60,28 70,26 S82,32 90,36 L100,38" },
 ]
 const CAMPAIGNS = [
   { name: "Season Ticket Renewals", platform: "Klaviyo", spend: "$142K", roas: "5.2x", conv: "312", up: true },
@@ -309,14 +309,34 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
           {phase >= 1 && (
             <div className="animate-card-in mt-6">
               {/* KPI Strip */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
+              <div className="mn-kpi-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
                 {METRICS.map(m => (
-                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: m.trend, heroValue: m.value, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: "rgba(255,255,255,0.35)" }}>{m.trend}</span></div><div className="mb-4"><Sparkline d={m.spark} /></div></div> })}
-                    className="cursor-pointer transition-colors hover:bg-white/[0.04] animate-card-in"
-                    style={{ ...CARD, padding: '12px 14px', textAlign: 'center' as const }}>
-                    <p style={{ fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{m.value}</p>
-                    <p style={{ ...LBL, marginTop: 4 }}>{m.label}</p>
-                    <p className="text-[10px] mt-1" style={{ color: m.dim ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.3)' }}>{m.trend}</p>
+                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: `${m.pct} vs last period`, heroValue: m.value, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: m.up ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)' }}>{m.pct}</span></div><p className="text-[12px] mb-4" style={{ color: 'rgba(255,255,255,0.3)' }}>from {m.prev}</p></div> })}
+                    className="mn-kpi-card cursor-pointer transition-all hover:border-white/[0.12] animate-card-in"
+                    style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 0, overflow: 'hidden' }}>
+                    {/* Header: label + trend badge */}
+                    <div className="mn-kpi-header flex items-center justify-between px-4 pt-3 pb-0">
+                      <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{m.label}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: m.up ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)', color: m.up ? 'rgba(74,222,128,0.8)' : 'rgba(248,113,113,0.8)', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>{m.up ? '↑' : '↓'} {m.pct.replace(/[+-]/, '')}</span>
+                    </div>
+                    {/* Value + prev */}
+                    <div className="mn-kpi-value px-4 pt-1 pb-2">
+                      <p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2 }}>{m.value}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.2)' }}>from {m.prev}</p>
+                    </div>
+                    {/* Sparkline chart */}
+                    <div className="mn-kpi-chart" style={{ padding: '0 0 0 0', height: 40 }}>
+                      <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="w-full h-full" style={{ display: 'block' }}>
+                        <defs>
+                          <linearGradient id={`grad-${m.label}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={m.up ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)'} />
+                            <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+                          </linearGradient>
+                        </defs>
+                        <path d={`${m.spark} L100,50 L0,50 Z`} fill={`url(#grad-${m.label})`} />
+                        <path d={m.spark} fill="none" stroke={m.up ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.5)'} strokeWidth="1.5" />
+                      </svg>
+                    </div>
                   </div>
                 ))}
               </div>
