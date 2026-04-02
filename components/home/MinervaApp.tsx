@@ -272,314 +272,161 @@ function TypeSection({ text, speed = 30, style, delayAfter = 1500, playing, onAd
    ══════════════════════════════════════════════════════════ */
 
 function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onDetail }: { navigateTo: (v: View) => void; onOpenStudio: () => void; studioSaved: boolean; studioDone: boolean; onDetail: (d: DetailData) => void }) {
-  const [step, setStep] = useState(-1)
-  const [playing, setPlaying] = useState(true)
-  const [launchState, setLaunchState] = useState<'idle'|'launching'|'launched'>('idle')
+  const [phase, setPhase] = useState(0) // 0=typing, 1=kpis, 2=signal, 3=complete
+  const [typeDone, setTypeDone] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => { setStep(0) }, [])
-
-  // Advance past segment card when studio modal closes
+  // Auto-advance phases
   useEffect(() => {
-    if (studioDone && step === 3) {
-      setTimeout(() => setStep(studioSaved ? 4 : 5), 500)
+    if (typeDone && phase === 0) {
+      setTimeout(() => setPhase(1), 300)
+      setTimeout(() => setPhase(2), 800)
+      setTimeout(() => setPhase(3), 1400)
     }
-  }, [studioDone, step, studioSaved])
+  }, [typeDone, phase])
 
   // Auto-scroll
   useEffect(() => {
     const sc = scrollRef.current
-    if (!sc || !playing) return
+    if (!sc) return
     const ob = new MutationObserver(() => { sc.scrollTop = sc.scrollHeight - sc.clientHeight })
-    ob.observe(sc, { childList: true, subtree: true, characterData: true })
+    ob.observe(sc, { childList: true, subtree: true })
     return () => ob.disconnect()
-  }, [playing])
-
-  const onAdvance = useCallback(() => setStep(s => s + 1), [])
-  const isComplete = step >= 12
+  }, [])
 
   return (
     <div className="absolute inset-0 flex flex-col">
       <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-        <div className="max-w-[720px] mx-auto px-6 pt-6 pb-40">
-          <p style={LBL} className="mb-6">✦ APR 1 · BRIEFING</p>
+        <div className="max-w-[720px] mx-auto px-6 pt-8 pb-40">
 
-          {/* S0: Greeting */}
-          {step >= 0 && (
-            <TypeSection playing={playing} onAdvance={onAdvance} text="Morning, Sarah. Revenue is $242K with ROAS at 4.0x. 3 actions ready." speed={25} delayAfter={800} />
-          )}
+          {/* ═══ GREETING (typed) ═══ */}
+          <p style={LBL} className="mb-4">\u2726 APR 1 \u00b7 BRIEFING</p>
+          <TypeSection playing={true} onAdvance={() => setTypeDone(true)}
+            text="Morning, Sarah. $242K revenue, 4.0x ROAS. Two actions ready."
+            speed={20} delayAfter={200} />
 
-          {/* S1: Pivot — typed slowly, brighter */}
-          {step >= 1 && (
-            <TypeSection playing={playing} onAdvance={onAdvance} text="Something interesting happened overnight." speed={30} delayAfter={1500}
-              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)', marginTop: 24 }} />
-          )}
-
-          {/* S2: Pivot continued */}
-          {step >= 2 && (
-            <TypeSection playing={playing} onAdvance={onAdvance} text="Dolphins heavily linked to Francis Mauigoa at pick #11. Draft narrative gaining traction — fan confidence in long-term direction rising. Protection-first strategy resonating with premium buyers." speed={30} delayAfter={1000}
-              style={{ fontSize: 18, fontWeight: 400, lineHeight: 1.65, color: 'rgba(255,255,255,0.75)' }} />
-          )}
-
-          {/* S3: Segment card — pauses for Audience Studio */}
-          {step >= 3 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="I ran a signal analysis across your file and surfaced a segment you should look at: 2,400 current Giants fans in the South Florida market who match our high-propensity profile. These are people who could become Dolphins fans — their favorite quarterback just moved here." speed={30} delayAfter={99999} textStyle={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, margin: '16px 0 12px 0' }}>
-              <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)' }}>
-                <p style={LBL} className="mb-3">✦ SUGGESTED SEGMENT</p>
-                <p className="text-[16px] text-white mb-1" style={{ fontWeight: 500 }}>Draft Momentum</p>
-                <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>2,400 profiles · scores 72–99 · 78% reachable</p>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {['Giants fan', 'South FL', '45+', '$250k+ HHI', 'Ticketmaster active'].map(t => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>{t}</span>
-                  ))}
-                </div>
-                <button onClick={onOpenStudio}
-                  className="h-8 px-4 rounded-full text-[12px] transition-all hover:bg-white/[0.08]"
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
-                  View in Audience Studio →
-                </button>
-                <p className="text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ 23 min ago · 87% confidence</p>
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S4: Campaign Activation Card (only after studio save) */}
-          {step >= 4 && studioSaved && (
-            <ConnCard playing={playing} onAdvance={() => {}} text="Segment saved: Draft Momentum — 2,400 profiles. Here's the campaign I've prepared." delayAfter={99999}>
-              <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 22px', overflow: 'hidden' }}>
-                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 16 }}>CAMPAIGN READY TO LAUNCH</p>
-                <p style={{ fontSize: 18, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em', marginBottom: 20 }}>Protect the Future</p>
-                {/* Three big stat boxes */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
-                  {[{ value: '1,872', label: 'RECIPIENTS' }, { value: '89%', label: 'EST. OPEN RATE' }, { value: '$34K', label: 'EST. REVENUE LIFT' }].map(stat => (
-                    <div key={stat.label} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                      <p style={{ fontSize: 22, fontWeight: 600, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>{stat.value}</p>
-                      <p style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginTop: 4 }}>{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Channel mix */}
-                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 8 }}>CHANNEL MIX</p>
-                <div style={{ marginBottom: 20 }}>
-                  {[{ name: 'Email', pct: 78 }, { name: 'Retargeting', pct: 12 }, { name: 'Direct Mail', pct: 10 }].map(ch => (
-                    <div key={ch.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 11 }}>
-                      <span style={{ width: 72, color: 'rgba(255,255,255,0.35)', textAlign: 'right' }}>{ch.name}</span>
-                      <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.04)', borderRadius: 2, overflow: 'hidden' }}>
-                        <div style={{ width: `${ch.pct}%`, height: '100%', background: 'rgba(255,255,255,0.25)', borderRadius: 2, animation: 'bar-grow 400ms ease both' }} />
-                      </div>
-                      <span style={{ width: 32, textAlign: 'right', fontSize: 10, color: 'rgba(255,255,255,0.22)', fontVariantNumeric: 'tabular-nums' }}>{ch.pct}%</span>
-                    </div>
-                  ))}
-                </div>
-                {/* Creative preview */}
-                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 8 }}>CREATIVE PREVIEW</p>
-                <div style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '16px 18px', marginBottom: 16 }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.7)', marginBottom: 6 }}>Your QB just joined the Dolphins.</p>
-                  <p style={{ fontSize: 14, fontWeight: 400, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Welcome to the family.</p>
-                  <div style={{ display: 'inline-block', padding: '8px 20px', borderRadius: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>20% OFF YOUR FIRST GAME →</div>
-                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', marginTop: 12 }}>Hard Rock Stadium · Miami Gardens, FL</p>
-                </div>
-                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginBottom: 16 }}>⏱ Optimized for Tuesday 9:14 AM EST · Best open rate window for this segment</p>
-                {/* CTA */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {launchState === 'launched' ? (
-                    <div style={{ height: 44, padding: '0 28px', borderRadius: 100, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 500 }}>✓ Launched · 1,872 recipients</div>
-                  ) : launchState === 'launching' ? (
-                    <div className="animate-pulse" style={{ height: 44, padding: '0 28px', borderRadius: 100, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: 500 }}>Launching…</div>
-                  ) : (
-                    <button onClick={() => { setLaunchState('launching'); toast.success('Campaign launched — tracking begins'); setTimeout(() => { setLaunchState('launched'); if (playing) setTimeout(() => setStep(s => s + 1), 1500) }, 1200) }}
-                      style={{ height: 44, padding: '0 28px', borderRadius: 100, background: 'rgba(255,255,255,0.88)', color: '#000', fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: "'Overused Grotesk', ui-sans-serif, system-ui, sans-serif", transition: 'all 0.15s ease' }}
-                      onMouseEnter={e => (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.95)'}
-                      onMouseLeave={e => (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.88)'}>
-                      Launch Campaign
-                    </button>
-                  )}
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Preview · Edit · Schedule</span>
-                </div>
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S5: Connector + Minerva Recommends */}
-          {step >= 5 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text={studioSaved ? "Now let me walk you through the rest of your morning intelligence." : "Here's your morning intelligence."} delayAfter={1200}>
-              <div style={CARD}>
-                <p style={LBL} className="mb-2">✦ MINERVA RECOMMENDS</p>
-                <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                  Scale Family Ticket Bundle budget by 20% and activate Seatmap Retargeting Pool (900 profiles). Combined estimated lift: <span style={{ color: 'rgba(255,255,255,0.88)', fontWeight: 500 }}>+$34K</span> revenue this week.
-                </p>
-                <div className="flex items-center justify-between mt-3">
-                  <button onClick={() => onDetail({ title: "Execute 2 Actions", subtitle: "Scaling + Retargeting", size: "sm", content: <div className="space-y-3"><p className="text-[13px]" style={{ color: "rgba(255,255,255,0.5)" }}>Minerva will execute both actions:</p><div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 8 }}><p className="text-[12px]" style={{ color: "rgba(255,255,255,0.6)" }}>1. Scale Family Ticket Bundle +20%</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>Meta Ads · $51K → $61K</p></div><div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 8 }}><p className="text-[12px]" style={{ color: "rgba(255,255,255,0.6)" }}>2. Activate Seatmap Retargeting Pool</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>900 profiles · Paid channel</p></div></div> })} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.02)', height: 28 }}>→ Execute both</button>
-                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>⏱ 12 min ago · 91% confidence</span>
-                </div>
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S6: Metrics */}
-          {step >= 6 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="Key metrics this week:" delayAfter={1200}>
-              <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
-                {METRICS.map((m, i) => (
-                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: m.value + " " + m.trend, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: "rgba(255,255,255,0.35)" }}>{m.trend}</span></div><div className="mb-4"><Sparkline d={m.spark} /></div><p className="text-[13px] mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>7-day trend. Click any point to drill into hourly breakdown.</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>Source: Ticketmaster · Klaviyo · Meta · Updated 8:12 AM</p></div> })}
-                    className="flex items-center px-[18px] py-3 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
-                    style={{ borderBottom: i < METRICS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 120}ms` }}>
-                    <span style={{ ...LBL, width: 96 }}>{m.label}</span>
-                    <span className="text-[22px] tabular-nums text-white flex-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{m.value}</span>
-                    <span className="text-[11px] w-20 text-right" style={{ color: m.dim ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.35)' }}>{m.trend}</span>
-                    <div className="ml-4"><Sparkline d={m.spark} /></div>
+          {/* ═══ STATUS: KPIs + Campaigns (instant after typing) ═══ */}
+          {phase >= 1 && (
+            <div className="animate-card-in mt-6">
+              {/* KPI Strip */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
+                {METRICS.map(m => (
+                  <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: m.value + " " + m.trend, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: "rgba(255,255,255,0.35)" }}>{m.trend}</span></div><div className="mb-4"><Sparkline d={m.spark} /></div></div> })}
+                    className="cursor-pointer transition-colors hover:bg-white/[0.04] animate-card-in"
+                    style={{ ...CARD, padding: '12px 14px', textAlign: 'center' as const }}>
+                    <p style={{ fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{m.value}</p>
+                    <p style={{ ...LBL, marginTop: 4 }}>{m.label}</p>
+                    <p className="text-[10px] mt-1" style={{ color: m.dim ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.3)' }}>{m.trend}</p>
                   </div>
                 ))}
               </div>
-            </ConnCard>
-          )}
 
-          {/* S7: Funnel */}
-          {step >= 7 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="Here's the funnel:" delayAfter={1200}>
-              <div className="flex items-end gap-2">
-                {FUNNEL.map((f, i) => (
-                  <div key={f.label} className="flex-1 text-center animate-card-in" style={{ animationDelay: `${i * 150}ms` }}>
-                    <p className="text-[20px] tabular-nums text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>{f.value}</p>
-                    <div className="mx-auto rounded-sm overflow-hidden" style={{ height: 4, background: 'rgba(255,255,255,0.04)' }}>
-                      <div style={{ width: `${f.pct}%`, height: '100%', background: 'rgba(255,255,255,0.2)', animation: 'bar-grow 400ms ease both', animationDelay: `${i * 150}ms` }} />
-                    </div>
-                    <p className="text-[9px] uppercase tracking-[0.04em] mt-2" style={{ color: 'rgba(255,255,255,0.22)' }}>{f.label}</p>
-                  </div>
-                ))}
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S8: Chart */}
-          {step >= 8 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="Revenue versus spend, last 7 days:" delayAfter={1500}>
-              <div style={{ ...CARD, padding: 16, height: 120 }}>
-                <svg viewBox="0 0 300 80" className="w-full h-full">
-                  <polyline points="0,60 50,55 100,48 150,42 200,35 250,28 300,20" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-                  <polyline points="0,70 50,68 100,65 150,62 200,60 250,58 300,55" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
-                  <text x="295" y="18" fill="rgba(255,255,255,0.3)" fontSize="6" textAnchor="end">Revenue</text>
-                  <text x="295" y="53" fill="rgba(255,255,255,0.15)" fontSize="6" textAnchor="end">Spend</text>
-                </svg>
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S9: Campaigns */}
-          {step >= 9 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="Campaign breakdown:" delayAfter={1500}>
+              {/* Campaign Table */}
               <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
-                <div className="flex px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="flex px-4 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <span style={{ ...LBL, flex: 1 }}>Campaign</span>
                   <span style={{ ...LBL, width: 64, textAlign: 'right' }}>Spend</span>
-                  <span style={{ ...LBL, width: 56, textAlign: 'right' }}>ROAS</span>
-                  <span style={{ ...LBL, width: 56, textAlign: 'right' }}>Conv</span>
+                  <span style={{ ...LBL, width: 48, textAlign: 'right' }}>ROAS</span>
                 </div>
                 {CAMPAIGNS.map((c, i) => (
-                  <div key={c.name} onClick={() => onDetail({ title: c.name, subtitle: c.platform + " · " + c.spend + " spend", size: "md", content: <div className="space-y-4"><div className="flex gap-6"><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>ROAS</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.roas}</p></div><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>Conversions</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.conv}</p></div><div><p style={{ fontSize: 9, textTransform: "uppercase" as const, letterSpacing: "0.06em", color: "rgba(255,255,255,0.22)" }}>Spend</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{c.spend}</p></div></div><p className="text-[12px]" style={{ color: "rgba(255,255,255,0.4)" }}>{c.up ? "Trending positively — consider scaling." : "Underperforming — review targeting."}</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>Platform: {c.platform} · Updated 8:12 AM</p></div> })}
-                    className="flex items-center px-[18px] py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] animate-card-in"
-                    style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
-                    <span className="flex-1 text-[12px] flex items-center" style={{ color: 'rgba(255,255,255,0.5)' }}><PlatformIcon name={c.platform} />{c.up ? '↗' : '↘'} {c.name}</span>
+                  <div key={c.name} onClick={() => onDetail({ title: c.name, subtitle: c.platform, size: "sm", content: <div className="space-y-3"><div className="flex gap-6">{[["ROAS",c.roas],["Conv",c.conv],["Spend",c.spend]].map(([l,v]) => <div key={l}><p style={{...LBL}}>{l}</p><p className="text-[24px] text-white tabular-nums" style={{fontWeight:600}}>{v}</p></div>)}</div></div> })}
+                    className="flex items-center px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
+                    style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                    <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}><PlatformIcon name={c.platform} />{c.up ? '\u2197' : '\u2198'} {c.name}</span>
                     <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
-                    <span className="w-14 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
-                    <span className="w-14 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.conv}</span>
+                    <span className="w-12 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
                   </div>
                 ))}
               </div>
-            </ConnCard>
-          )}
-
-          {/* S10: Social Pulse */}
-          {step >= 10 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text="Here's what fans are saying:" delayAfter={1800}>
-              <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
-                <div className="px-[18px] py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <p style={LBL}>SOCIAL PULSE · #FINSUP</p>
-                </div>
-                {[
-                  { handle: "@MiamiDolphins", time: "2h", text: "Ready to get to it. Sullivan and Hafley continue offering fans reason to believe." },
-                  { handle: "@ThePhinsider", time: "4h", text: "Achane extension is a priority. Splash Zone 4/1." },
-                  { handle: "@ClutchPoints", time: "6h", text: "4 players Dolphins must avoid picking in the 2026 NFL Draft." },
-                  { handle: "@SportsIllustrated", time: "8h", text: "When the Dolphins signed Malik Willis, they understood they were taking a gamble." },
-                  { handle: "@DolphinsTalk", time: "12h", text: "Laying the Foundation — Miami has embraced a foundational reset under the new regime." },
-                ].map((t, i) => (
-                  <div key={i} className="px-[18px] py-2.5 transition-colors hover:bg-white/[0.02] animate-card-in cursor-pointer"
-                    onClick={() => onDetail({ title: t.handle, subtitle: t.time + " ago", size: "sm" as ModalSize, content: <div><p className="text-[13px]" style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{t.text}</p><p className="text-[11px] mt-3" style={{ color: "rgba(255,255,255,0.2)" }}>via X (Twitter) · #FinsUp #MiamiDolphins</p></div> })}
-                    style={{ borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 100}ms` }}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>{t.handle}</span>
-                      <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.15)' }}>{t.time}</span>
-                    </div>
-                    <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{t.text}</p>
-                  </div>
-                ))}
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S11: Remaining actions */}
-          {step >= 11 && (
-            <ConnCard playing={playing} onAdvance={onAdvance} text={studioSaved ? "Two more actions I'd prioritize:" : "Three actions I'd prioritize:"} delayAfter={1500}>
-              <div className="space-y-2">
-                <p style={LBL} className="mb-2">{studioSaved ? 'TWO MORE ACTIONS' : 'NEXT BEST ACTIONS'}</p>
-                {[
-                  { title: "Remind 700 at-risk members to renew", sub: "Renewal Risk Members · email · 94% reach" },
-                  { title: "Activate Seatmap Retargeting Pool", sub: "900 profiles · paid channel · $99K pipeline" },
-                ].map((a, i) => (
-                  <div key={a.title} className="flex items-center justify-between animate-card-in" style={{ ...CARD, animationDelay: `${i * 200}ms` }}>
-                    <div>
-                      <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>→ {a.title}</p>
-                      <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{a.sub}</p>
-                    </div>
-                    <button onClick={() => onDetail({ title: a.title, subtitle: a.sub, size: "sm", content: <div><p className="text-[13px] mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>Executing this action now. Confirmation within 60 seconds.</p><p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>Est. completion: ~45 seconds</p></div> })}
-                      className="text-[11px] px-3 py-1 rounded-full shrink-0 ml-4 transition-all hover:bg-white/[0.04]"
-                      style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>Execute →</button>
-                  </div>
-                ))}
-              </div>
-            </ConnCard>
-          )}
-
-          {/* S12: Footer */}
-          {step >= 12 && (
-            <div className="animate-card-in text-center pt-6 space-y-6">
-              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.12)' }}>
-                Last sync: 8:12 AM — Ticketmaster · Klaviyo · Meta · Salesforce · Identity Graph · 5 sources connected
-              </p>
-              <button onClick={() => navigateTo('calendar')}
-                className="h-11 px-8 rounded-full text-[14px] transition-all hover:bg-white/[0.08] mx-auto block"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
-                View Calendar
-              </button>
             </div>
           )}
 
-          <div ref={bottomRef} className="h-8" />
-        </div>
-      </div>
+          {/* ═══ SIGNAL: Draft Momentum + Actions (instant after KPIs) ═══ */}
+          {phase >= 2 && (
+            <div className="animate-card-in mt-8">
+              <p style={{...LBL, marginBottom: 12}}>\u2726 SIGNAL</p>
 
-      {/* Play/Pause pill */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2">
-        {!playing && !isComplete ? (
-          <MinervaInlineChat onResume={() => setPlaying(true)} />
-        ) : (
-          <button onClick={() => setPlaying(!playing)}
-            className="h-8 px-4 rounded-full text-[11px] transition-all"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: isComplete ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)', backdropFilter: 'blur(16px)', fontWeight: 500 }}>
-            {isComplete ? '✓ Briefing complete' : '⏸ Pause'}
-          </button>
-        )}
+              {/* Signal Card */}
+              <div style={{ ...CARD, border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
+                <p className="text-[15px] text-white mb-1" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>Draft momentum. Premium buyers responding.</p>
+                <p className="text-[12px] mb-3" style={{ color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Mauigoa linked at #11. Protection-first narrative resonating with high-value South FL fans. 2,400 profiles scored 72\u201399, 78% reachable.</p>
+                <div className="flex items-center gap-3">
+                  <button onClick={onOpenStudio}
+                    className="text-[11px] px-3 py-1.5 rounded-full transition-all hover:bg-white/[0.08]"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)' }}>
+                    Explore segment \u2192
+                  </button>
+                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>23 min ago \u00b7 87% confidence</span>
+                </div>
+              </div>
+
+              {/* Recommendations */}
+              <div style={CARD}>
+                <p style={{...LBL, marginBottom: 10}}>\u2726 ACTIONS</p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>Scale Family Ticket Bundle +20%</p>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Meta Ads \u00b7 $51K \u2192 $61K \u00b7 Est. +$14K lift</p>
+                    </div>
+                    <button onClick={() => toast.success('Scaling Family Bundle +20%')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>Execute</button>
+                  </div>
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.04)' }} />
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>Activate Seatmap Retargeting</p>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>900 profiles \u00b7 Paid channel \u00b7 Est. +$20K lift</p>
+                    </div>
+                    <button onClick={() => toast.success('Activating Retargeting Pool')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>Execute</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══ EXIT: Social + Navigation (instant after signal) ═══ */}
+          {phase >= 3 && (
+            <div className="animate-card-in mt-8">
+              {/* Social Pulse — compact */}
+              <p style={{...LBL, marginBottom: 8}}>\u2726 SOCIAL PULSE</p>
+              <div style={{ ...CARD, padding: 0, overflow: 'hidden' }}>
+                {[
+                  { handle: "@ThePhinsider", text: "Achane extension is a priority. Splash Zone 4/1." },
+                  { handle: "@ClutchPoints", text: "4 players Dolphins must avoid picking in the 2026 NFL Draft." },
+                  { handle: "@DolphinsTalk", text: "Laying the Foundation \u2014 Miami has embraced a foundational reset." },
+                ].map((t, i) => (
+                  <div key={i} className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-white/[0.02]"
+                    style={{ borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                    <span className="text-[10px] shrink-0" style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>{t.handle}</span>
+                    <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{t.text}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Navigation CTAs */}
+              <div className="flex items-center justify-center gap-4 mt-10 mb-6">
+                <button onClick={() => navigateTo('calendar')}
+                  className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.04]"
+                  style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
+                  View Calendar
+                </button>
+                <button onClick={() => window.location.href = '/dashboard'}
+                  className="text-[12px] px-5 py-2 rounded-full transition-all hover:bg-white/[0.95]"
+                  style={{ background: 'rgba(255,255,255,0.88)', color: '#000', fontWeight: 500 }}>
+                  Continue to Dashboard \u2192
+                </button>
+              </div>
+
+              <p className="text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.1)' }}>Briefing complete \u00b7 Updated 8:12 AM EST</p>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   )
 }
 
-
-
-/* ══════════════════════════════════════════════════════════
-   AUDIENCE STUDIO MODAL
-   ══════════════════════════════════════════════════════════ */
 function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () => void; onClose: () => void }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [saveAnim, setSaveAnim] = useState(false)
