@@ -842,6 +842,24 @@ export function MinervaApp() {
   const [studioSaved, setStudioSaved] = useState(false)
   const [studioDone, setStudioDone] = useState(false)
 
+  // Listen for notch navigation events
+  useEffect(() => {
+    const handleGoHome = () => navigateTo('home')
+    const handleNavSection = (e: Event) => {
+      const section = (e as CustomEvent).detail
+      if (section === 'home') navigateTo('home')
+      else if (section === 'briefing') navigateTo('briefing')
+      else if (section === 'calendar') navigateTo('calendar')
+      else if (section === 'studio') handleOpenStudio()
+    }
+    window.addEventListener('minerva-go-home', handleGoHome)
+    window.addEventListener('minerva-nav-section', handleNavSection)
+    return () => {
+      window.removeEventListener('minerva-go-home', handleGoHome)
+      window.removeEventListener('minerva-nav-section', handleNavSection)
+    }
+  }, [navigateTo])
+
   function handleOpenStudio() { setModal('studio') }
   function handleSaveStudio() {
     setStudioSaved(true)
@@ -851,34 +869,7 @@ export function MinervaApp() {
 
   return (
     <div className="h-full flex flex-col relative">
-      {/* Shell header */}
-      <div className="shrink-0 relative z-30 flex items-center justify-between px-5 h-12">
-        <button onClick={() => navigateTo('home')} className="flex items-center gap-2 hover:opacity-70 transition-opacity">
-          <MinervaLogo size={18} />
-          {view === 'home' && <span className="text-[13px] font-medium tracking-tight text-white">Minerva<sup className="text-[7px] ml-px opacity-40">™</sup></span>}
-        </button>
 
-        {view !== 'home' && (
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 h-[36px] px-2 rounded-full"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}>
-            {(['home', 'briefing', 'calendar'] as View[]).map(v => (
-              <button key={v} onClick={() => navigateTo(v)}
-                className="text-[11px] px-3.5 py-1 rounded-full transition-all capitalize"
-                style={{
-                  background: view === v ? 'rgba(255,255,255,0.12)' : 'transparent',
-                  color: view === v ? '#fff' : 'rgba(255,255,255,0.35)',
-                  fontWeight: view === v ? 500 : 400,
-                }}>
-                {v}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <button onClick={() => toast('Settings')} className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.85)' }}>
-          <span className="text-[8px] font-semibold leading-none" style={{ color: 'rgba(0,0,0,0.5)' }}>SM</span>
-        </button>
-      </div>
 
       {/* Canvas — transitions between views */}
       <div className="flex-1 relative" style={{
