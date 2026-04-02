@@ -296,10 +296,16 @@ function GalleryScene({ images, speed = 1, visibleCount = 8, fadeSettings = {
 	);
 }
 
+const DEFAULT_FADE = { fadeIn: { start: 0.02, end: 0.12 }, fadeOut: { start: 0.75, end: 0.95 } };
+const DEFAULT_BLUR = { blurIn: { start: 0.0, end: 0.08 }, blurOut: { start: 0.8, end: 0.95 }, maxBlur: 4.0 };
+
 export default function InfiniteGallery({ images, className = 'h-96 w-full', style,
-	fadeSettings = { fadeIn: { start: 0.02, end: 0.12 }, fadeOut: { start: 0.75, end: 0.95 } },
-	blurSettings = { blurIn: { start: 0.0, end: 0.08 }, blurOut: { start: 0.8, end: 0.95 }, maxBlur: 4.0 },
+	fadeSettings = DEFAULT_FADE,
+	blurSettings = DEFAULT_BLUR,
 }: InfiniteGalleryProps) {
+	const stableImages = useRef(images);
+	const stableFade = useRef(fadeSettings);
+	const stableBlur = useRef(blurSettings);
 	const [webglOk, setWebglOk] = useState(true);
 	useEffect(() => {
 		try { const c = document.createElement('canvas'); if (!c.getContext('webgl') && !c.getContext('experimental-webgl')) setWebglOk(false); }
@@ -309,7 +315,7 @@ export default function InfiniteGallery({ images, className = 'h-96 w-full', sty
 	return (
 		<div className={className} style={style}>
 			<Canvas camera={{ position: [0, 0, 0], fov: 55 }} gl={{ antialias: true, alpha: true }}>
-				<GalleryScene images={images} fadeSettings={fadeSettings} blurSettings={blurSettings} />
+				<GalleryScene images={stableImages.current} fadeSettings={stableFade.current} blurSettings={stableBlur.current} />
 			</Canvas>
 		</div>
 	);
