@@ -230,7 +230,12 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-in{opacity:0;animation:mn-in .3s ease forwards}
 
 /* ═══ FLOATING TOOLBAR ═══ */
-.mn-workspace-floating-toolbar{display:none}
+.mn-workspace-floating-toolbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:3px;padding:4px;background:rgba(13,13,15,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:14px;z-index:20;animation:mn-float-in .4s cubic-bezier(0.22,1,0.36,1) both}
+.mn-workspace-floating-toolbar .mn-toolbar-sep{width:1px;height:20px;background:rgba(255,255,255,0.08);margin:0 4px;flex-shrink:0}
+.mn-workspace-floating-toolbar .mn-toolbar-action{height:28px;padding:0 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);font-size:10px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s;white-space:nowrap}
+.mn-workspace-floating-toolbar .mn-toolbar-action:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85)}
+.mn-workspace-floating-toolbar .mn-toolbar-action-primary{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.08)}
+.mn-workspace-floating-toolbar .mn-toolbar-sel{font-size:10px;color:rgba(255,255,255,0.3);padding:0 6px;white-space:nowrap}
 @keyframes mn-float-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .mn-workspace-floating-toolbar .mn-workspace-slider-mode{border-radius:10px;height:28px;padding:0 12px;font-size:10px}
 .mn-workspace-floating-toolbar .mn-workspace-slider-mode-desc{display:none}
@@ -241,7 +246,11 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 #pDet{animation-delay:.05s}
 #pTbl{animation-delay:.1s}
 #pIntel{animation-delay:.15s}
-#pProf{animation:none;opacity:1;transition:opacity .2s ease,transform .2s ease}
+#pProf{animation:none;opacity:1;transition:opacity .25s ease,transform .25s ease,flex .25s ease}
+#pProf.mn-prof-hidden{opacity:0;transform:translateX(20px);flex:0 0 0px!important;overflow:hidden;padding:0;border:0}
+.mn-workspace-profile-close-float{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;padding:8px 10px 4px;background:var(--mn-sf)}
+.mn-workspace-profile-close-float button{height:22px;padding:0 8px;border-radius:5px;border:1px solid var(--mn-border);background:0;color:var(--mn-t2);font-size:9px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s}
+.mn-workspace-profile-close-float button:hover{border-color:var(--mn-border-h);color:var(--mn-t1)}
 
 /* ═══ SLIDER STATS INSIDE DETAIL ═══ */
 .mn-workspace-detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-top:8px}
@@ -369,7 +378,7 @@ var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,
 var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
-(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});ft.innerHTML=h})();
+(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-sep"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';h+='<button class="mn-toolbar-action" onclick="doExport()">Export CSV<\/button>';ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
@@ -406,7 +415,7 @@ if(!n){bd.innerHTML='<div class="mn-workspace-empty">No records match<\/div>';re
 var cols=[["name","Person"],["score","Score"],["age","Age"],["income","Income"],["owner","Home"]];
 var h="";
 // Multi-select bar
-if(selMulti.length>1){h+='<div class="mn-workspace-select-bar"><span class="mn-workspace-select-bar-count">'+selMulti.length+' selected<\/span><div class="mn-workspace-select-bar-actions"><button class="mn-workspace-action-btn" onclick="exportSelected()">Export Selected<\/button><button class="mn-workspace-action-btn" onclick="toast(\'Added '+selMulti.length+' to campaign\')">Add to Campaign<\/button><button class="mn-workspace-action-btn" onclick="selMulti=[];ren()">Clear<\/button><\/div><\/div>'}
+if(selMulti.length>1){h+='<div style="padding:6px 14px;font-size:11px;color:var(--mn-t2);border-bottom:1px solid var(--mn-border)">'+selMulti.length+' selected<\/div>'}
 h+='<table class="mn-workspace-table"><thead class="mn-workspace-table-thead"><tr>';
 cols.forEach(function(c){var act=sortKey===c[0];h+='<th class="mn-workspace-table-th'+(act?" mn-workspace-table-th-active":"")+'" onclick="doSort(\''+c[0]+'\')">'+c[1]+(act?'<span class="mn-workspace-table-th-arrow">'+(sortDir>0?"\u25B2":"\u25BC")+'<\/span>':'')+'<\/th>'});
 h+='<th class="mn-workspace-table-th">Reach<\/th><\/tr><\/thead><tbody>';
@@ -419,7 +428,7 @@ h+='<td class="mn-workspace-table-td"><span class="mn-workspace-score-badge '+ba
 h+='<td class="mn-workspace-table-td">'+p.age+'<\/td><td class="mn-workspace-table-td">'+p.income+'<\/td><td class="mn-workspace-table-td">'+(p.owner?"Own":"Rent")+'<\/td>';
 h+='<td class="mn-workspace-table-td"><span class="mn-workspace-channel-dot '+(p.email?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><span class="mn-workspace-channel-dot '+(p.phone?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><span class="mn-workspace-channel-dot '+(p.addr?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><\/td><\/tr>'}
 if(l.length>mx)h+='<tr><td colspan="6" class="mn-workspace-table-overflow">+'+(l.length-mx)+' more<\/td><\/tr>';
-h+='<\/tbody><\/table>';bd.innerHTML=h}
+h+='<\/tbody><\/table>';bd.innerHTML=h;updToolbarSel()}
 function rowClick(id,e){if(e.shiftKey||e.metaKey||e.ctrlKey){var idx=selMulti.indexOf(id);if(idx>=0)selMulti.splice(idx,1);else selMulti.push(id);selR=null;rtbl();return}selMulti=[];opf(id)}
 function exportSelected(){if(selMulti.length<1)return;var sel=PP.filter(function(p){return selMulti.indexOf(p.id)>=0});
 var rows=["Name,Score,Age,Gender,City,State,Income,Wealth,Homeowner,Email,Phone,Address"];
@@ -537,11 +546,7 @@ if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="r
 if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' \u2715<\/button>';
 h+='<button class="mn-workspace-action-btn" onclick="clearFilters()">Clear all<\/button>';
 h+='<\/div><\/div>'}
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Actions<\/div><div class="mn-workspace-action-row">';
-h+='<button class="mn-workspace-action-btn mn-workspace-action-btn-primary" onclick="openSave()">Save<\/button>';
-h+='<button class="mn-workspace-action-btn" onclick="doExport()">Export CSV<\/button>';
-h+='<\/div><\/div>';
-document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);buildChart(l)}
+document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);buildChart(l);updToolbarSel()}
 
 var distChart=null;
 function buildChart(list){
@@ -569,7 +574,7 @@ function animNum(id,from,to){
 
 // ── Profile (inline column) ──
 function opf(id){selR=id;var p;PP.forEach(function(x){if(x.id===id)p=x});if(!p)return;
-document.getElementById("pProf").style.display="flex";
+var prof=document.getElementById("pProf");prof.style.display="flex";prof.style.transform="translateX(20px)";prof.style.opacity="0";requestAnimationFrame(function(){prof.style.transform="translateX(0)";prof.style.opacity="1"});
 var reasons=[];
 if(p.owner)reasons.push("homeowner");if(IB.indexOf(p.income)>=3)reasons.push(p.income+" income");if(p.age>=45)reasons.push("age "+p.age+" (45+ bracket)");if(p.email&&p.phone)reasons.push("reachable via email + phone");else if(p.email)reasons.push("email reachable");
 var weaknesses=[];if(!p.owner)weaknesses.push("renter");if(IB.indexOf(p.income)<2)weaknesses.push("lower income band");if(p.age<35)weaknesses.push("younger demo (under 35)");if(!p.email&&!p.phone)weaknesses.push("limited channel reach");
@@ -577,7 +582,8 @@ var ft=p.name+" scores "+p.score+"/99. ";
 if(p.score>=75)ft+="Key fit drivers: "+reasons.slice(0,3).join(", ")+". "+(weaknesses.length?"Watch: "+weaknesses[0]+".":"Strong across all dimensions.");
 else if(p.score>=45)ft+="Positive signals: "+(reasons.length?reasons.slice(0,2).join(", "):"moderate demographic alignment")+". "+(weaknesses.length?"Gaps: "+weaknesses.slice(0,2).join(", ")+".":"");
 else ft+="Lower propensity. "+(weaknesses.length?"Driven by: "+weaknesses.slice(0,2).join(", ")+".":"")+" Consider for value-tier or long-term nurture.";
-var h='<div class="mn-workspace-profile-hero"><div class="mn-workspace-profile-identity"><img class="mn-workspace-profile-avatar" src="'+p.photo+'"><div><div class="mn-workspace-profile-name">'+p.name+'<\/div><div class="mn-workspace-profile-role">'+p.title+' at '+p.company+'<\/div><\/div><\/div>';
+var h='<div class="mn-workspace-profile-close-float"><button onclick="cpf()">\u2715 Close<\/button><\/div>';
+h+='<div class="mn-workspace-profile-hero"><div class="mn-workspace-profile-identity"><img class="mn-workspace-profile-avatar" src="'+p.photo+'"><div><div class="mn-workspace-profile-name">'+p.name+'<\/div><div class="mn-workspace-profile-role">'+p.title+' at '+p.company+'<\/div><\/div><\/div>';
 h+='<div class="mn-workspace-profile-score-area"><div class="mn-workspace-profile-score-number">'+p.score+'<\/div><div><div class="mn-workspace-profile-score-context">Propensity Score<\/div><div class="mn-workspace-profile-score-desc">Dolphins campaign fit<\/div><\/div><\/div><\/div>';
 h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Details<\/div>';
 [["Age",p.age],["Gender",p.gender==="F"?"Female":"Male"],["Location",p.city+", "+p.state],["Income",p.income],["Wealth",p.wealth],["Homeowner",p.owner?"Yes":"No"],["Education",p.edu]].forEach(function(r){h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">'+r[0]+'<\/span><span class="mn-workspace-profile-field-value">'+r[1]+'<\/span><\/div>'});
@@ -593,7 +599,8 @@ h+='<button class="mn-workspace-action-btn mn-workspace-action-btn-primary" oncl
 h+='<button class="mn-workspace-action-btn" onclick="toast(\'Outreach drafted\')">Draft Outreach<\/button>';
 h+='<\/div><\/div>';
 document.getElementById("profBody").innerHTML=h;rtbl()}
-function cpf(){selR=null;document.getElementById("pProf").style.display="none";rtbl()}
+function updToolbarSel(){var el=document.getElementById("ftSel");if(!el)return;if(selMulti.length>1){el.innerHTML=selMulti.length+' selected <button class="mn-toolbar-action" onclick="exportSelected()">Export Selected<\/button><button class="mn-toolbar-action" onclick="toast(\'Added '+selMulti.length+' to campaign\')">Add to Campaign<\/button><button class="mn-toolbar-action" onclick="selMulti=[];ren()">Clear<\/button>'}else{el.innerHTML=""}}
+function cpf(){selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
 
 // ── Save / Export / Segments ──
 function openSave(){document.getElementById("saveModal").classList.add("mn-workspace-modal-open");document.getElementById("segName").value="Scores "+sLo+"\u2013"+sHi;document.getElementById("segName").focus()}
