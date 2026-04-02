@@ -736,9 +736,9 @@ type DetailData = { title: string; subtitle?: string; size?: ModalSize; heroValu
 
 const DASH_TABS = [
   { id: "discover", label: "Discover", icon: "◎", title: "Discover patterns in your audience." },
-  { id: "people", label: "People", icon: "◔", title: "Explore your customer profiles." },
+  { id: "people", label: "People", icon: "◔", title: "Explore your customer profiles.", hidden: true },
   { id: "audiences", label: "Audiences", icon: "◫", title: "Build intelligent audience segments." },
-  { id: "enrich", label: "Enrich", icon: "↧", title: "Enrich profiles with new data." },
+  { id: "enrich", label: "Enrich", icon: "↧", title: "Enrich profiles with new data.", hidden: true },
   { id: "activate", label: "Activate", icon: "✦", title: "Activate audiences across channels.", hidden: true },
 ]
 
@@ -810,6 +810,7 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
             <button key={t.id} onClick={() => {
               setActiveTab(t.id)
               setTitleIdx(DASH_TABS.findIndex(tab => tab.id === t.id))
+              if (t.id === 'discover') { navigateTo('briefing'); return }
               if (t.id === 'audiences') { handleAudienceClick(); return }
             }}
               className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
@@ -829,6 +830,7 @@ function DashboardScreen({ navigateTo, onOpenStudio }: { navigateTo: (v: View) =
       {/* Footer */}
       <div className="shrink-0 pb-6 text-center">
         <p className="text-[11px] text-white/15 tracking-wide">Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine</p>
+        <p className="text-[9px] text-white/10 tracking-wide mt-1">© 2026 Minerva Intelligence. All rights reserved.</p>
       </div>
     </div>
   )
