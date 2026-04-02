@@ -607,11 +607,8 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
       transition: 'transform 500ms cubic-bezier(0.22,1,0.36,1), opacity 400ms ease',
       pointerEvents: open ? 'auto' : 'none',
     }}>
-      {/* Top bar */}
-      <div className="shrink-0 h-12 flex items-center justify-between px-5" style={{ background: '#000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Audience Studio · Draft Momentum</p>
-        <button onClick={onClose} className="text-[12px] px-3 py-1 rounded-lg transition-colors hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.4)' }}>✕ Close</button>
-      </div>
+      {/* Close button */}
+      <button onClick={onClose} className="fixed top-3 right-4 z-[210] text-[11px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.06]" style={{ color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>✕ Close</button>
 
       {/* Iframe */}
       {saveAnim ? (
@@ -626,14 +623,7 @@ function AudienceModal({ open, onSave, onClose }: { open: boolean; onSave: () =>
         </div>
       )}
 
-      {/* Bottom bar */}
-      {!saveAnim && (
-        <div className="shrink-0 h-14 flex items-center justify-center gap-3 px-5" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.95) 30%)', position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
-          <button onClick={handleSave} style={{ height: 36, padding: '0 24px', borderRadius: 100, background: 'rgba(255,255,255,0.88)', color: '#000', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Save Segment</button>
-          <button onClick={() => { iframeRef.current?.contentWindow?.postMessage({ type: 'minerva-export' }, '*'); toast.success('Exporting CSV…') }}
-            style={{ height: 36, padding: '0 20px', borderRadius: 100, background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', fontSize: 13, border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>Export CSV</button>
-        </div>
-      )}
+
     </div>
   )
 }
