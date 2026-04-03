@@ -198,14 +198,15 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-profile-label{font-size:9px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
 
 /* ═══ MODAL ═══ */
-.mn-workspace-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s}
+.mn-workspace-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
 .mn-workspace-modal-open{opacity:1;pointer-events:auto}
-.mn-workspace-modal-box{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);padding:18px;width:300px;max-width:90vw;transform:translateY(8px);transition:transform .2s cubic-bezier(0.22,1,0.36,1)}
-.mn-workspace-modal-open .mn-workspace-modal-box{transform:translateY(0)}
-.mn-workspace-modal-title{font-size:13px;font-weight:600;margin-bottom:10px}
-.mn-workspace-modal-input{width:100%;background:rgba(255,255,255,0.02);border:1px solid var(--mn-border);border-radius:6px;padding:7px 9px;color:var(--mn-t1);font-size:11px;font-family:var(--mn-font);outline:0;margin-bottom:12px}
-.mn-workspace-modal-input:focus{border-color:rgba(255,255,255,0.12)}
-.mn-workspace-modal-footer{display:flex;gap:5px;justify-content:flex-end}
+.mn-workspace-modal-input{background:transparent;border:none;font-size:36px;font-weight:500;letter-spacing:-0.03em;color:var(--mn-t1);font-family:var(--mn-font);text-align:center;outline:none;width:100%;max-width:600px;caret-color:var(--mn-t1)}
+.mn-workspace-modal-input::placeholder{color:var(--mn-t3)}
+.mn-workspace-modal-footer{display:flex;gap:8px;position:fixed;bottom:60px;left:50%;transform:translateX(-50%)}
+.mn-workspace-modal-footer .mn-modal-cancel{height:40px;padding:0 24px;border-radius:8px;border:1px solid var(--mn-border);background:transparent;color:var(--mn-t2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s}
+.mn-workspace-modal-footer .mn-modal-cancel:hover{border-color:var(--mn-border-h);color:var(--mn-t1)}
+.mn-workspace-modal-footer .mn-modal-save{height:40px;padding:0 24px;border-radius:8px;border:none;background:var(--mn-white);color:var(--mn-bg);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:opacity .12s}
+.mn-workspace-modal-footer .mn-modal-save:hover{opacity:0.85}
 
 /* ═══ TOAST ═══ */
 .mn-workspace-toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--mn-sf);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px 14px;font-size:11px;color:var(--mn-t1);font-weight:500;z-index:300;opacity:0;pointer-events:none;transition:all .25s cubic-bezier(0.22,1,0.36,1)}
@@ -444,7 +445,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
   </div>
   <!-- FLOATING TOOLBAR -->
   </div>
-<div class="mn-workspace-modal" id="saveModal"><div class="mn-workspace-modal-box"><div class="mn-workspace-modal-title">Save Segment</div><input class="mn-workspace-modal-input" id="segName" placeholder="e.g. Premium 75+"><div class="mn-workspace-modal-footer"><button class="mn-workspace-topbar-btn" onclick="closeSave()">Cancel</button><button class="mn-workspace-topbar-save" onclick="doSave()">Save</button></div></div></div>
+<div class="mn-workspace-modal" id="saveModal"><input class="mn-workspace-modal-input" id="segName" placeholder="Name this segment..."><div class="mn-workspace-modal-footer"><button class="mn-modal-cancel" onclick="closeSave()">Cancel</button><button class="mn-modal-save" onclick="doSave()">Save Segment</button></div></div>
 <div class="mn-workspace-toast" id="toast"></div>
 <div class="mn-sel-summary" id="selSummary"></div>
 
