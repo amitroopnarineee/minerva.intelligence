@@ -295,7 +295,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 .mn-tour-tooltip-dot{width:5px;height:5px;border-radius:50%;background:#ddd}
 .mn-tour-tooltip-dot.active{background:#111;width:6px;height:6px}
 /* ═══ AI CHAT PANEL ═══ */
-#pChat{flex:0 0 400px;flex-direction:column;background:var(--mn-bg);border:1px solid var(--mn-border);border-radius:var(--mn-r);overflow:hidden;display:flex}
+#pChat{flex:0 0 340px;flex-direction:column;background:var(--mn-bg);border:1px solid var(--mn-border);border-radius:var(--mn-r);overflow:hidden;display:flex}
 #pChat.closed{display:none}
 .mn-chat-toggle{position:absolute;top:8px;z-index:100;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border:1px solid var(--mn-border);color:var(--mn-t2);font-size:10px;font-weight:500;padding:4px 10px;border-radius:12px;cursor:pointer;font-family:var(--mn-font);transition:all .12s}
 .mn-chat-toggle:hover{background:rgba(0,0,0,0.8);color:var(--mn-t1)}
@@ -396,7 +396,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 <div class="mn-workspace-shell" id="app">
   <div class="mn-workspace-main" id="mainArea">
     <!-- DETAIL FIRST -->
-    <div class="mn-workspace-panel mn-workspace-in" id="pDet" style="flex:0 0 320px;animation-delay:.05s">
+    <div class="mn-workspace-panel mn-workspace-in" id="pDet" style="flex:0 0 280px;animation-delay:.05s">
       <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title" style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 223 223" fill="currentColor" style="width:12px;height:12px;opacity:0.4"><path d="M87.84 150.07C92.88 142.7 98.2 133.53 104.08 122.05C105.4 119.36 106.59 117.07 107.66 115.16C98.69 124.76 81.55 151.08 63.49 145.82C39.12 138.73 85.48 108.13 28.98 136.22C28.26 136.58 27.54 136.83 26.82 137.02C32.77 143.14 38.5 149.47 44.26 155.66C47.9 159.58 51.48 163.94 55.55 167.4C61.66 172.6 69.13 168.97 74.63 164.76C79.87 160.75 84.13 155.49 87.84 150.07Z"/><path d="M109.84 98.57C110.8 101.41 111.58 103.87 112.18 105.98C111.73 92.85 105.24 62.12 121.73 53.06C143.97 40.84 132.83 95.26 152.92 35.45C153.17 34.69 153.5 34.01 153.87 33.37C145.34 33.25 136.81 32.81 128.36 32.5C123.03 32.31 117.41 31.76 112.08 32.19C104.08 32.83 101.37 40.68 100.46 47.55C99.59 54.09 100.29 60.82 101.5 67.27C103.15 76.05 105.87 86.29 109.84 98.57Z"/><path d="M150.39 135.48C143.02 130.43 133.85 125.12 122.36 119.24C119.68 117.91 117.39 116.72 115.47 115.66C125.06 124.63 151.4 141.77 146.14 159.83C139.05 184.2 108.45 137.85 136.54 194.34C136.9 195.06 137.15 195.78 137.34 196.5C143.45 190.55 149.79 184.81 155.98 179.06C159.89 175.42 164.25 171.84 167.72 167.77C172.92 161.66 169.29 154.19 165.08 148.69C161.06 143.45 155.81 139.19 150.39 135.48Z"/><path d="M175.77 100.14C169.23 99.27 162.5 99.97 156.05 101.18C147.27 102.83 137.03 105.55 124.75 109.52C121.91 110.48 119.45 111.25 117.34 111.86C130.47 111.41 161.21 104.92 170.26 121.41C182.48 143.65 128.06 132.51 187.87 152.59C188.63 152.85 189.31 153.18 189.95 153.55C190.07 145.02 190.51 136.49 190.82 128.04C191.01 122.71 191.56 117.09 191.13 111.76C190.49 103.76 182.64 101.05 175.77 100.14Z"/></svg>Segment</span><span class="mn-workspace-panel-header-meta" id="dr"></span></div>
       <div class="mn-workspace-panel-body" id="db"></div>
     </div>
@@ -409,7 +409,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
     </div>
     <!-- PROFILE INLINE (hidden until row click) -->
     <div class="mn-workspace-panel" id="pProf" style="flex:0 0 300px;display:none">
-      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">Profile</span><button class="mn-workspace-topbar-btn mn-workspace-profile-close" onclick="cpf()">\u2715 Close</button></div>
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">Profile</span><button class="mn-workspace-topbar-btn mn-workspace-profile-close" onclick="cpf()">✕ Close</button></div>
       <div class="mn-workspace-panel-body" id="profBody"></div>
     </div>
     <!-- AI CHAT PANEL -->
@@ -595,10 +595,10 @@ h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+
 h+='<\/div>';
 
 if(extraFilters){h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Active Filters<\/div><div class="mn-workspace-action-row">';
-if(extraFilters.ownerOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'ownerOnly\')">Homeowners \u2715<\/button>';
-if(extraFilters.incomeMin)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'incomeMin\')">$250k+ \u2715<\/button>';
-if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'emailOnly\')">Email only \u2715<\/button>';
-if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' \u2715<\/button>';
+if(extraFilters.ownerOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'ownerOnly\')">Homeowners ✕<\/button>';
+if(extraFilters.incomeMin)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'incomeMin\')">$250k+ ✕<\/button>';
+if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'emailOnly\')">Email only ✕<\/button>';
+if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' ✕<\/button>';
 h+='<button class="mn-workspace-action-btn" onclick="clearFilters()">Clear all<\/button>';
 h+='<\/div><\/div>'}
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
@@ -653,7 +653,7 @@ function animNum(id,from,to){
   requestAnimationFrame(tick)}
 
 // ── Profile (inline column) ──
-function opf(id){selR=id;var p;PP.forEach(function(x){if(x.id===id)p=x});if(!p)return;
+function opf(id){document.getElementById('pChat').classList.add('closed');selR=id;var p;PP.forEach(function(x){if(x.id===id)p=x});if(!p)return;
 var prof=document.getElementById("pProf");prof.style.display="flex";prof.style.transform="translateX(20px)";prof.style.opacity="0";requestAnimationFrame(function(){prof.style.transform="translateX(0)";prof.style.opacity="1"});
 var reasons=[];
 if(p.owner)reasons.push("homeowner");if(IB.indexOf(p.income)>=3)reasons.push(p.income+" income");if(p.age>=45)reasons.push("age "+p.age+" (45+ bracket)");if(p.email&&p.phone)reasons.push("reachable via email + phone");else if(p.email)reasons.push("email reachable");
@@ -662,7 +662,7 @@ var ft=p.name+" scores "+p.score+"/99. ";
 if(p.score>=75)ft+="Key fit drivers: "+reasons.slice(0,3).join(", ")+". "+(weaknesses.length?"Watch: "+weaknesses[0]+".":"Strong across all dimensions.");
 else if(p.score>=45)ft+="Positive signals: "+(reasons.length?reasons.slice(0,2).join(", "):"moderate demographic alignment")+". "+(weaknesses.length?"Gaps: "+weaknesses.slice(0,2).join(", ")+".":"");
 else ft+="Lower propensity. "+(weaknesses.length?"Driven by: "+weaknesses.slice(0,2).join(", ")+".":"")+" Consider for value-tier or long-term nurture.";
-var h='<div class="mn-workspace-profile-close-float"><button onclick="cpf()">\u2715 Close<\/button><\/div>';
+var h='<div class="mn-workspace-profile-close-float"><button onclick="cpf()">✕ Close<\/button><\/div>';
 h+='<div class="mn-workspace-profile-hero"><div class="mn-workspace-profile-identity"><img class="mn-workspace-profile-avatar" src="'+p.photo+'"><div><div class="mn-workspace-profile-name">'+p.name+'<\/div><div class="mn-workspace-profile-role">'+p.title+' at '+p.company+'<\/div><\/div><\/div>';
 h+='<div class="mn-workspace-profile-score-area"><div class="mn-workspace-profile-score-number">'+p.score+'<\/div><div><div class="mn-workspace-profile-score-context">Propensity Score<\/div><div class="mn-workspace-profile-score-desc">Dolphins campaign fit<\/div><\/div><\/div><\/div>';
 h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Details<\/div>';
@@ -678,7 +678,7 @@ h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-l
 document.getElementById("profBody").innerHTML=h;rtbl()}
 function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span style="font-size:10px;color:var(--mn-t2);margin-right:6px">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="if(window.parent!==window){window.parent.postMessage({type:\'minerva-launch-campaign\'},\'*\')}else{toast(\'Added '+selMulti.length+' to campaign\')}">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";if(pr)pr.innerHTML=document.body.classList.contains('embedded')?'<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toggleChat()">✦ Ask AI<\/button>':'';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
 function togOverflow(){document.getElementById("ftOverflow").classList.toggle("open")}
-function cpf(){selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
+function cpf(){document.getElementById('pChat').classList.remove('closed');selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
 
 // ── Save / Export / Segments ──
 function openSave(){if(window.parent!==window){window.parent.postMessage({type:'minerva-save-segment'},'*');return}document.getElementById("saveModal").classList.add("mn-workspace-modal-open");document.getElementById("segName").value="Scores "+sLo+"\u2013"+sHi;document.getElementById("segName").focus()}
