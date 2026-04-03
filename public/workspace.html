@@ -65,7 +65,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
 
 /* ═══ SLIDER ═══ */
-.mn-workspace-slider{display:none}
+.mn-workspace-slider{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);padding:6px 14px;display:flex;align-items:center;gap:16px;flex-shrink:0;height:44px}
 .mn-workspace-slider-left{min-width:80px}
 .mn-workspace-slider-title{font-size:10px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;display:none}
 .mn-workspace-slider-range-value{font-size:16px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
@@ -245,7 +245,7 @@ body.embedded .mn-embedded-tools{display:flex!important;position:fixed;bottom:68
 /* ═══ PANEL ANIMATIONS ═══ */
 .mn-workspace-panel{opacity:0;animation:mn-panel-in .35s cubic-bezier(0.22,1,0.36,1) forwards}
 @keyframes mn-panel-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-#pDet{animation-delay:.05s;background:transparent;border:none}
+#pDet{animation-delay:.05s;background:transparent;border:none;border-right:1px solid var(--mn-border)}
 #pDet .mn-workspace-panel-header{border-bottom:none}
 #pDet .mn-workspace-panel-body{-webkit-mask-image:none;mask-image:none}
 #pTbl{animation-delay:.1s}
