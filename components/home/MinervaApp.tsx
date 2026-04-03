@@ -187,7 +187,7 @@ function PlatformIcon({ name }: { name: string }) {
 }
 
 const CARD = { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '16px 18px' } as const
-const LBL = { fontSize: 9, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }
+const LBL = { fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }
 const CONN = { fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, margin: '16px 0 12px 0' }
 
 /* ══════════════════════════════════════════════════════════
@@ -378,7 +378,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
 
   return (
     <div className="absolute inset-0 flex flex-col">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none', mixBlendMode: 'luminosity' }}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
         <div className="max-w-[720px] mx-auto px-6 pt-8 pb-40">
 
           {/* ═══ GREETING (typed) ═══ */}
@@ -717,13 +717,13 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
         <div className="max-w-[600px] mx-auto px-6 pt-6 pb-32">
           <div className="flex items-center justify-between mb-8">
             <button onClick={() => navigateTo('briefing')} className="text-[12px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ display: 'none' }}>← Back to briefing</button>
-            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.22)' }}>✦ APRIL 2026 · BRIEFING CALENDAR</p>
+            <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.32)' }}>✦ APRIL 2026 · BRIEFING CALENDAR</p>
           </div>
 
           {/* Calendar grid */}
           <div className="grid grid-cols-7 gap-1 mb-8">
             {['S','M','T','W','T','F','S'].map((d, i) => (
-              <div key={i} className="text-center text-[9px] uppercase py-2" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>{d}</div>
+              <div key={i} className="text-center text-[10px] uppercase py-2" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>{d}</div>
             ))}
             {days.map((day, i) => {
               if (day === null) return <div key={i} />
@@ -751,7 +751,7 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
           {briefing ? (
             <div className="animate-card-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 22px' }}>
               <div className="flex items-center justify-between mb-4">
-                <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>
+                <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>
                   ✦ {selectedDay === today ? 'TODAY' : `APRIL ${selectedDay}`} · BRIEFING
                 </p>
                 {selectedDay === today && (
@@ -760,7 +760,7 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
                   </button>
                 )}
                 {selectedDay !== null && selectedDay !== today && (
-                  <button onClick={() => onDetail({ title: `April ${selectedDay} Briefing Recap`, subtitle: briefing?.headline, size: 'lg' as ModalSize, content: <div className="space-y-4"><p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{briefing?.headline}. Revenue was {briefing?.revenue} with ROAS at {briefing?.roas}. {briefing?.actions} actions were recommended.{briefing?.signal ? ` Key signal: ${briefing.signal}.` : ''}</p><div className="flex gap-6"><div><p style={{ fontSize: 9, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>Revenue</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.revenue}</p></div><div><p style={{ fontSize: 9, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>ROAS</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.roas}</p></div></div>{briefing?.signal && <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}><p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>Signal: {briefing.signal}</p></div>}<p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>Use the Minerva chat to ask questions about this day's data.</p></div> })}
+                  <button onClick={() => onDetail({ title: `April ${selectedDay} Briefing Recap`, subtitle: briefing?.headline, size: 'lg' as ModalSize, content: <div className="space-y-4"><p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{briefing?.headline}. Revenue was {briefing?.revenue} with ROAS at {briefing?.roas}. {briefing?.actions} actions were recommended.{briefing?.signal ? ` Key signal: ${briefing.signal}.` : ''}</p><div className="flex gap-6"><div><p style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>Revenue</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.revenue}</p></div><div><p style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>ROAS</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.roas}</p></div></div>{briefing?.signal && <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}><p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>Signal: {briefing.signal}</p></div>}<p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>Use the Minerva chat to ask questions about this day's data.</p></div> })}
                     className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
                     Load full recap →
                   </button>
@@ -769,15 +769,15 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
               <p className="text-[16px] text-white mb-4" style={{ fontWeight: 500, lineHeight: 1.5 }}>{briefing.headline}</p>
               <div className="flex gap-6 mb-4">
                 <div>
-                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>Revenue</p>
+                  <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>Revenue</p>
                   <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.revenue}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>ROAS</p>
+                  <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>ROAS</p>
                   <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.roas}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>Actions</p>
+                  <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>Actions</p>
                   <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.actions}</p>
                 </div>
               </div>
@@ -968,7 +968,7 @@ function SegmentsScreen({ segments, navigateTo }: { segments: SavedSegment[]; na
         <div className="max-w-[820px] mx-auto px-6 pt-4 pb-20">
           <div className="flex items-center justify-between mb-8" style={{ opacity: 0, animation: 'mn-stagger-in 0.5s ease forwards' }}>
             <div>
-              <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)', marginBottom: 6 }}>✦ AUDIENCE SEGMENTS</p>
+              <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)', marginBottom: 6 }}>✦ AUDIENCE SEGMENTS</p>
               <h1 className="text-[24px] text-white" style={{ fontWeight: 500, letterSpacing: '-0.02em' }}>Saved Segments</h1>
             </div>
             <button onClick={() => navigateTo('dashboard')} className="text-[11px] px-4 py-1.5 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
@@ -981,7 +981,7 @@ function SegmentsScreen({ segments, navigateTo }: { segments: SavedSegment[]; na
             {/* Header */}
             <div className="grid px-5 py-3" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
               {['Segment', 'Profiles', 'Score Range', 'Created'].map(h => (
-                <span key={h} style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>{h}</span>
+                <span key={h} style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>{h}</span>
               ))}
             </div>
             {/* Rows */}
@@ -992,7 +992,7 @@ function SegmentsScreen({ segments, navigateTo }: { segments: SavedSegment[]; na
                   <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>{seg.name}</p>
                   <div className="flex gap-2 mt-1">
                     {seg.tags.map(t => (
-                      <span key={t} className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}>{t}</span>
+                      <span key={t} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}>{t}</span>
                     ))}
                   </div>
                 </div>
@@ -1037,7 +1037,7 @@ function WorkspaceActionModal({ type, onConfirm, onCancel }: { type: 'save-segme
           <>
             {/* Header */}
             <div className="px-6 sm:px-10 pt-6 sm:pt-8">
-              <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.22)' }}>
+              <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>
                 ✦ {type === 'save-segment' ? 'SAVE SEGMENT' : 'LAUNCH CAMPAIGN'}
               </p>
             </div>
@@ -1166,11 +1166,11 @@ function DetailModal({ data, onClose }: { data: DetailData; onClose: () => void 
                 <div className="mn-modal-projected space-y-2.5">
                   <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Projected Outcome</h3>
                   <div className="rounded-lg px-4 py-3" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
-                    <p className="text-[9px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>If you act now</p>
+                    <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.25)' }}>If you act now</p>
                     <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>Estimated +$34K revenue lift this week. Premium suite conversion rate projected to increase 2.1x with targeted Family Bundle + retargeting activation.</p>
                   </div>
                   <div className="rounded-lg px-4 py-3" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
-                    <p className="text-[9px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.15)' }}>If you do nothing</p>
+                    <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.15)' }}>If you do nothing</p>
                     <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.35)' }}>Window closes in 7–10 days as draft cycle ends. Audience attention decays ~15% per week without activation.</p>
                   </div>
                 </div>
