@@ -545,7 +545,7 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
 
       {/* Top-right buttons */}
       <div className="fixed top-2.5 z-[260] flex items-center gap-2"
-        style={{ right: 90, opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
+        style={{ right: 16, opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
         {phase === 'workspace' && (
           <button onClick={() => setActionModal('save-segment')}
             className="h-7 px-4 rounded-full text-[11px] transition-all hover:opacity-80"

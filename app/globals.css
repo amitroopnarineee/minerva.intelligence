@@ -254,4 +254,10 @@
   .mn-menubar-static { justify-content: center !important; }
   .mn-menubar-left { margin-right: 0 !important; }
   .mn-menubar-left .mn-menubar-logo { margin-right: 0 !important; }
+
+  /* Workspace iframe full-bleed */
+  iframe { border-radius: 0 !important; }
+
+  /* Notch: smaller on mobile */
+  .mn-hide-mobile-notch { display: none !important; }
 }

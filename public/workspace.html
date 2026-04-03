@@ -348,6 +348,32 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 .mn-chat-action-btn,.mn-chat-starter{font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid var(--mn-border);background:transparent;color:var(--mn-t2);cursor:pointer;font-family:var(--mn-font);font-weight:400;transition:all .15s;letter-spacing:-0.01em;line-height:1.3;text-align:left}
 .mn-chat-action-btn:hover,.mn-chat-starter:hover{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.12);color:var(--mn-t1)}
 .mn-chat-action-btn.done{border-color:rgba(255,255,255,0.04);color:var(--mn-t3);pointer-events:none;background:transparent}
+/* ═══ MOBILE ═══ */
+@media(max-width:768px){
+  .mn-workspace-shell{inset:0;padding:0!important;gap:0}
+  .mn-workspace-main{flex-direction:column;gap:0;overflow-y:auto;overflow-x:hidden}
+  #pDet{display:none!important}
+  #pChat{display:none!important}
+  #pProf{display:none!important}
+  #pTbl{flex:1!important;border-radius:0;border:none;min-height:0}
+  .mn-workspace-slider{border-radius:0;border-left:0;border-right:0;height:auto;padding:8px 12px;gap:10px}
+  .mn-workspace-slider-left{min-width:auto}
+  .mn-workspace-slider-track-area{display:none}
+  .mn-workspace-floating-toolbar{gap:6px;padding:8px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+  .mn-workspace-floating-toolbar .mn-workspace-slider-mode{flex-shrink:0}
+  .mn-workspace-floating-toolbar .mn-toolbar-action{flex-shrink:0}
+  .mn-workspace-search{padding:8px 12px!important}
+  .mn-workspace-table-td{padding:5px 8px;font-size:10px}
+  .mn-workspace-table-th{padding:5px 8px}
+  .mn-workspace-table-person{gap:6px}
+  .mn-workspace-table-avatar{width:20px;height:20px}
+  .mn-workspace-table-name{font-size:10px}
+  .mn-workspace-table-subtitle{font-size:8px}
+  .mn-workspace-panel{border-radius:0}
+  .mn-workspace-modal-input{font-size:24px;max-width:90vw}
+  .mn-workspace-modal-footer{bottom:30px}
+  .mn-tour-overlay,.mn-tour-highlight,.mn-tour-tooltip{display:none!important}
+}
 .mn-embedded-tools{display:none}
 </style>
 </head>
