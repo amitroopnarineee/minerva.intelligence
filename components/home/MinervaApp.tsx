@@ -341,9 +341,30 @@ function TypeSection({ text, speed = 30, style, delayAfter = 1500, playing, onAd
    ══════════════════════════════════════════════════════════ */
 
 function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onDetail }: { navigateTo: (v: View) => void; onOpenStudio: () => void; studioSaved: boolean; studioDone: boolean; onDetail: (d: DetailData) => void }) {
-  const [phase, setPhase] = useState(0) // 0=typing, 1=kpis, 2=signal, 3=complete
+  const [phase, setPhase] = useState(0)
   const [typeDone, setTypeDone] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [executed, setExecuted] = useState<Set<string>>(new Set())
+
+  // Live campaign data — updates when actions are executed
+  const liveCampaigns = CAMPAIGNS.map(c => {
+    if (c.name === 'Family Ticket Bundle' && executed.has('scale-bundle')) {
+      return { ...c, spend: '$61K', roas: '4.9x', conv: '245', up: true }
+    }
+    return c
+  })
+  const liveMetrics = METRICS.map(m => {
+    if (m.label === 'Revenue' && executed.has('scale-bundle')) {
+      return { ...m, value: '$256K', pct: '+13.8%' }
+    }
+    return m
+  })
+
+  function executeAction(id: string, label: string) {
+    if (executed.has(id)) return
+    setExecuted(prev => new Set(prev).add(id))
+    toast.success(label)
+  }
 
   // Auto-advance phases
   useEffect(() => {
@@ -371,7 +392,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
             <div className="animate-card-in mt-6">
               {/* KPI Strip */}
               <div className="mn-kpi-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
-                {METRICS.map(m => (
+                {liveMetrics.map(m => (
                   <div key={m.label} onClick={() => onDetail({ title: m.label, subtitle: `${m.pct} vs last period`, heroValue: m.value, size: "sm", content: <div><div className="flex items-center gap-4 mb-4"><span className="text-[28px] text-white tabular-nums" style={{ fontWeight: 600 }}>{m.value}</span><span className="text-[13px]" style={{ color: m.up ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)' }}>{m.pct}</span></div><p className="text-[12px] mb-4" style={{ color: 'rgba(255,255,255,0.3)' }}>from {m.prev}</p></div> })}
                     className="mn-kpi-card cursor-pointer transition-all hover:border-white/[0.12] animate-card-in"
                     style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 0, overflow: 'hidden' }}>
@@ -431,10 +452,10 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                   <span style={{ ...LBL, width: 64, textAlign: 'right' }}>Spend</span>
                   <span style={{ ...LBL, width: 48, textAlign: 'right' }}>ROAS</span>
                 </div>
-                {CAMPAIGNS.map((c, i) => (
+                {liveCampaigns.map((c, i) => (
                   <div key={c.name} onClick={() => onDetail({ title: c.name, subtitle: c.platform, heroValue: c.roas + ' ROAS', size: "sm", content: <div className="space-y-3"><div className="flex gap-6">{[["ROAS",c.roas],["Conv",c.conv],["Spend",c.spend]].map(([l,v]) => <div key={l}><p style={{...LBL}}>{l}</p><p className="text-[24px] text-white tabular-nums" style={{fontWeight:600}}>{v}</p></div>)}</div></div> })}
                     className="flex items-center px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
-                    style={{ borderBottom: i < CAMPAIGNS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                    style={{ borderBottom: i < liveCampaigns.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
                     <span className="flex-1 text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}><PlatformIcon name={c.platform} />{c.up ? '\u2197' : '\u2198'} {c.name}</span>
                     <span className="w-16 text-right text-[12px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.spend}</span>
                     <span className="w-12 text-right text-[12px] tabular-nums text-white" style={{ fontWeight: 500 }}>{c.roas}</span>
@@ -466,7 +487,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                       <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>Scale Family Ticket Bundle +20%</p>
                       <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Meta Ads · $51K → $61K · Est. +$14K lift</p>
                     </div>
-                    <button onClick={() => toast.success('Scaling Family Bundle +20%')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>Execute</button>
+                    <button onClick={() => executeAction('scale-bundle', 'Scaling Family Bundle +20%')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: `1px solid ${executed.has('scale-bundle') ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`, color: executed.has('scale-bundle') ? 'rgba(74,222,128,0.7)' : 'rgba(255,255,255,0.5)', background: executed.has('scale-bundle') ? 'rgba(74,222,128,0.06)' : 'transparent', pointerEvents: executed.has('scale-bundle') ? 'none' : 'auto' }}>{executed.has('scale-bundle') ? '✓ Active' : 'Execute'}</button>
                   </div>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.04)' }} />
                   <div className="flex items-center justify-between">
@@ -474,7 +495,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                       <p className="text-[13px] text-white" style={{ fontWeight: 500 }}>Activate Seatmap Retargeting</p>
                       <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>900 profiles · Paid channel · Est. +$20K lift</p>
                     </div>
-                    <button onClick={() => toast.success('Activating Retargeting Pool')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>Execute</button>
+                    <button onClick={() => executeAction('retargeting', 'Activating Retargeting Pool')} className="text-[10px] px-3 py-1 rounded-full" style={{ border: `1px solid ${executed.has('retargeting') ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}`, color: executed.has('retargeting') ? 'rgba(74,222,128,0.7)' : 'rgba(255,255,255,0.5)', background: executed.has('retargeting') ? 'rgba(74,222,128,0.06)' : 'transparent', pointerEvents: executed.has('retargeting') ? 'none' : 'auto' }}>{executed.has('retargeting') ? '✓ Active' : 'Execute'}</button>
                   </div>
                 </div>
               </div>
