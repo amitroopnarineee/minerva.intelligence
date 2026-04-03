@@ -224,6 +224,17 @@
   animation: mn-stagger-in 0.35s ease forwards, mn-shimmer 2s linear infinite !important;
 }
 
+/* ═══ LIGHT MODE (invert hack) ═══ */
+.mn-light-mode {
+  filter: invert(1) hue-rotate(180deg);
+}
+.mn-light-mode img,
+.mn-light-mode video,
+.mn-light-mode canvas,
+.mn-light-mode [data-no-invert] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* ═══ MOBILE RESPONSIVE ═══ */
 @media (max-width: 768px) {
   /* Hide elements marked for mobile */
