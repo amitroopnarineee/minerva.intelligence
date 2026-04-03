@@ -239,7 +239,7 @@ body.embedded .mn-embedded-tools{display:flex!important;position:fixed;bottom:68
 .mn-toolbar-overflow-pop button{height:28px;padding:0 10px;border-radius:6px;border:0;background:0;color:rgba(255,255,255,0.45);font-size:11px;font-family:var(--mn-font);cursor:pointer;text-align:left;transition:all .1s;white-space:nowrap}
 .mn-toolbar-overflow-pop button:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
 @keyframes mn-float-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-.mn-workspace-floating-toolbar .mn-workspace-slider-mode{border-radius:6px;height:28px;padding:0 12px;font-size:10px}
+.mn-workspace-floating-toolbar .mn-workspace-slider-mode{border-radius:6px;height:28px;padding:0 12px;font-size:11px;color:var(--mn-t2);border-color:rgba(255,255,255,0.1)}
 .mn-workspace-floating-toolbar .mn-workspace-slider-mode-desc{display:none}
 
 /* ═══ PANEL ANIMATIONS ═══ */
@@ -404,6 +404,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
   .mn-workspace-main{flex-direction:column;gap:0;overflow-y:auto;overflow-x:hidden}
   #pDet{display:none!important}
   #pChat{display:none!important}
+  .mn-chat-toggle-btn{display:none!important}
   #pProf{display:none!important}
   #pTbl{flex:1!important;border-radius:0;border:none;min-height:0}
   .mn-workspace-slider{border-radius:0;border-left:0;border-right:0;height:auto;padding:8px 12px;gap:10px}
@@ -440,6 +441,10 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 .mn-compare-modal-verdict{text-align:center;max-width:600px;font-size:13px;line-height:1.6;color:var(--mn-t2);margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06)}
 .mn-compare-modal-verdict strong{color:var(--mn-t1);font-weight:600}
 .mn-embedded-tools{display:none}
+/* ═══ CHAT TOGGLE BTN ═══ */
+.mn-chat-toggle-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--mn-border);background:rgba(255,255,255,0.03);color:var(--mn-t2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:8px;flex-shrink:0;transition:all .12s;font-family:var(--mn-font)}
+.mn-chat-toggle-btn:hover{border-color:rgba(255,255,255,0.15);color:var(--mn-t1);background:rgba(255,255,255,0.06)}
+.mn-chat-toggle-btn.active{border-color:rgba(255,255,255,0.2);color:var(--mn-t1);background:rgba(255,255,255,0.08)}
 </style>
 </head>
 <body class="mn-workspace-body">
@@ -452,7 +457,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
     </div>
     <!-- TABLE SECOND -->
     <div class="mn-workspace-panel mn-workspace-in" id="pTbl" style="flex:1;animation-delay:.1s">
-      <div class="mn-workspace-panel-header"><span class="mn-workspace-slider-range-value" id="svInline" style="font-size:14px;letter-spacing:-0.02em">0 – 99</span><div style="flex:1"></div><div class="mn-panel-tabs"><button class="mn-panel-tab mn-panel-tab-on" id="tabTable" onclick="switchTab('table')">Table</button><button class="mn-panel-tab" id="tabChart" onclick="switchTab('chart')">Insights</button></div><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-slider-range-value" id="svInline" style="display:none">0 – 99</span><div style="flex:1"></div><div class="mn-panel-tabs"><button class="mn-panel-tab mn-panel-tab-on" id="tabTable" onclick="switchTab('table')">Table</button><button class="mn-panel-tab" id="tabChart" onclick="switchTab('chart')">Insights</button></div><span class="mn-workspace-panel-header-meta" id="tc"></span><button class="mn-chat-toggle-btn active" id="chatToggleBtn" onclick="toggleChat()" title="Toggle AI Chat">✦</button></div>
       <div class="mn-workspace-floating-toolbar" id="floatingModes"></div>
       <div class="mn-workspace-search" id="searchWrap"><svg class="mn-workspace-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="mn-workspace-search-input" type="text" placeholder="Search..." id="si" oninput="ren()"></div>
       <div class="mn-workspace-panel-body" id="tb"></div>
@@ -690,7 +695,7 @@ function animNum(id,from,to){
   requestAnimationFrame(tick)}
 
 // ── Profile (inline column) ──
-function opf(id){document.getElementById('pChat').classList.add('closed');selR=id;var p;PP.forEach(function(x){if(x.id===id)p=x});if(!p)return;
+function opf(id){document.getElementById('pChat').classList.add('closed');var ctb=document.getElementById('chatToggleBtn');if(ctb)ctb.classList.remove('active');selR=id;var p;PP.forEach(function(x){if(x.id===id)p=x});if(!p)return;
 var prof=document.getElementById("pProf");prof.style.display="flex";prof.style.transform="translateX(20px)";prof.style.opacity="0";requestAnimationFrame(function(){prof.style.transform="translateX(0)";prof.style.opacity="1"});
 var reasons=[];
 if(p.owner)reasons.push("homeowner");if(IB.indexOf(p.income)>=3)reasons.push(p.income+" income");if(p.age>=45)reasons.push("age "+p.age+" (45+ bracket)");if(p.email&&p.phone)reasons.push("reachable via email + phone");else if(p.email)reasons.push("email reachable");
@@ -714,7 +719,7 @@ h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-l
 document.getElementById("profBody").innerHTML=h;rtbl()}
 function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span class="mn-toolbar-sel">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="if(window.parent!==window){window.parent.postMessage({type:\'minerva-launch-campaign\'},\'*\')}else{toast(\'Added '+selMulti.length+' to campaign\')}">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";var chatClosed=document.getElementById('pChat').classList.contains('closed');if(pr)pr.innerHTML=chatClosed?'<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toggleChat()">✦ Ask AI<\/button>':'';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
 function togOverflow(){document.getElementById("ftOverflow").classList.toggle("open")}
-function cpf(){document.getElementById('pChat').classList.remove('closed');selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
+function cpf(){document.getElementById('pChat').classList.remove('closed');var ctb=document.getElementById('chatToggleBtn');if(ctb)ctb.classList.add('active');selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
 
 // ── Save / Export / Segments ──
 function openSave(){if(window.parent!==window){window.parent.postMessage({type:'minerva-save-segment'},'*');return}document.getElementById("saveModal").classList.add("mn-workspace-modal-open");document.getElementById("segName").value="Scores "+sLo+"\u2013"+sHi;document.getElementById("segName").focus()}
@@ -892,7 +897,7 @@ function endTour(){
 var chatLoading=false,chatMsgId=0,chatActions={},chatHistory=[],dynamicFilters=[];
 
 /* Toggle panels */
-function toggleChat(){var p=document.getElementById('pChat');p.classList.toggle('closed');updToolbarSel()}
+function toggleChat(){var p=document.getElementById('pChat');p.classList.toggle('closed');var btn=document.getElementById('chatToggleBtn');if(btn){if(p.classList.contains('closed')){btn.classList.remove('active')}else{btn.classList.add('active')}}updToolbarSel()}
 /* Fire starter pill */
 function fireStarter(btn){document.getElementById('chatInput').value=btn.textContent;sendChat()}
 
