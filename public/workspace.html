@@ -18,8 +18,8 @@
   --mn-border:rgba(255,255,255,0.06);
   --mn-border-h:rgba(255,255,255,0.12);
   --mn-t1:rgba(255,255,255,0.90);
-  --mn-t2:rgba(255,255,255,0.45);
-  --mn-t3:rgba(255,255,255,0.38);
+  --mn-t2:rgba(255,255,255,0.55);
+  --mn-t3:rgba(255,255,255,0.32);
   --mn-white:#fff;
   --mn-r:10px;
   --mn-g:10px;
@@ -115,12 +115,6 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-panel-tabs{display:flex;gap:0;margin-left:12px}
 .mn-panel-tab{height:24px;padding:0 12px;border:1px solid var(--mn-border);background:transparent;color:var(--mn-t3);font-size:11px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s;border-radius:0}
 .mn-panel-tab:first-child{border-radius:6px 0 0 6px}
-.mn-panel-tab:last-child{border-radius:0 6px 6px 0;border-left:none}
-.mn-panel-tab-on{background:rgba(255,255,255,0.06);color:var(--mn-t1);border-color:rgba(255,255,255,0.12)}
-/* Tab switcher in panel header */
-.mn-panel-tabs{display:flex;gap:0;margin-left:12px}
-.mn-panel-tab{height:24px;padding:0 12px;border:1px solid var(--mn-border);background:transparent;color:var(--mn-t3);font-size:11px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s;border-radius:0}
-.mn-panel-tab:first-child{border-radius:6px 0 0 6px}
 .mn-panel-tab:last-child{border-radius:0 6px 6px 0}
 .mn-panel-tab:not(:first-child){border-left:none}
 .mn-panel-tab-on{background:rgba(255,255,255,0.06);color:var(--mn-t1);border-color:rgba(255,255,255,0.12)}
@@ -166,7 +160,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-action-btn-primary:hover{background:rgba(255,255,255,0.10)}
 
 /* ═══ PROFILE (inline column) ═══ */
-.mn-workspace-profile-hero{padding:12px 14px;border-bottom:1px solid var(--mn-border)}
+.mn-workspace-profile-hero{padding:16px 18px;border-bottom:1px solid var(--mn-border)}
 .mn-workspace-profile-identity{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .mn-workspace-profile-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
 .mn-workspace-profile-name{font-size:15px;font-weight:600;letter-spacing:-0.02em}
@@ -175,7 +169,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-profile-score-number{font-size:28px;font-weight:700;letter-spacing:-0.04em;line-height:1}
 .mn-workspace-profile-score-context{font-size:11px;font-weight:500}
 .mn-workspace-profile-score-desc{font-size:10px;color:var(--mn-t3)}
-.mn-workspace-profile-section{padding:14px 18px;border-bottom:1px solid var(--mn-border)}
+.mn-workspace-profile-section{padding:16px 18px;border-bottom:1px solid var(--mn-border)}
 .mn-workspace-profile-section:last-child{border-bottom:0}
 .mn-workspace-profile-field{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
 .mn-workspace-profile-field-key{color:var(--mn-t3)}
@@ -248,6 +242,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 /* ═══ PANEL ANIMATIONS ═══ */
 .mn-workspace-panel{opacity:0;animation:mn-panel-in .35s cubic-bezier(0.22,1,0.36,1) forwards}
 @keyframes mn-panel-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+#pDet .mn-workspace-panel-body{-webkit-mask-image:none;mask-image:none}
 #pDet{animation-delay:.05s}
 #pTbl{animation-delay:.1s}
 #pIntel{display:none}
@@ -588,7 +583,7 @@ if(extraFilters.city)h+='<button class="mn-workspace-action-btn" style="height:2
 h+='<button class="mn-workspace-action-btn" style="height:22px;font-size:10px;padding:0 8px" onclick="clearFilters()">Clear<\/button><\/div>'}
 /* ── Hero ── */
 var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);var heroStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN>=1e3?(scaledN/1e3).toFixed(0)+'K':scaledN.toString());
-h+='<div style="padding:20px 18px 16px">';
+h+='<div style="padding:16px 18px">';
 h+='<div style="font-size:36px;font-weight:600;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums">'+heroStr+'<\/div>';
 h+='<div style="font-size:12px;color:var(--mn-t3);margin-top:6px">'+n.toLocaleString()+' profiles \u00b7 '+pct(n,tot)+' of base<\/div>';
 h+='<\/div>';
@@ -596,7 +591,7 @@ h+='<\/div>';
 var reach=Math.round(Math.max(ec,pc,ac)/n*100);
 h+='<div style="padding:0 18px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;border-top:1px solid var(--mn-border);border-bottom:1px solid var(--mn-border)">';
 var stats=[{v:avg,l:'Avg Score'},{v:aag,l:'Avg Age'},{v:op+'%',l:'Homeowners'},{v:hi250p+'%',l:'$250K+'},{v:reach+'%',l:'Reachable'},{v:a45p+'%',l:'Age 45+'}];
-stats.forEach(function(s){h+='<div style="padding:12px 14px;text-align:center;background:rgba(255,255,255,0.015);border:1px solid var(--mn-border)"><div style="font-size:18px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:var(--mn-t1)">'+s.v+'<\/div><div style="font-size:10px;color:var(--mn-t3);margin-top:2px">'+s.l+'<\/div><\/div>'});
+stats.forEach(function(s){h+='<div style="padding:12px 14px;text-align:center;background:rgba(255,255,255,0.015)"><div style="font-size:18px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:var(--mn-t1)">'+s.v+'<\/div><div style="font-size:10px;color:var(--mn-t3);margin-top:2px">'+s.l+'<\/div><\/div>'});
 h+='<\/div>';
 /* ── Multi-select overlay ── */
 if(selMulti.length>1){
