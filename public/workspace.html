@@ -589,13 +589,36 @@ if(selMulti.length>1){
   h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+slAvg+'<\/div><div class="mn-workspace-detail-stat-cell-label">Avg<\/div><\/div>';
   h+='<\/div>';
 }
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Reachability<\/div>';
+[[ec,"Email"],[pc,"Phone"],[ac,"Mail"]].forEach(function(r){var rate=r[0]/n;var cls=rate>.75?"mn-workspace-reach-dot-high":rate>.55?"mn-workspace-reach-dot-mid":"mn-workspace-reach-dot-low";
+h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls+'"><\/div><div class="mn-workspace-reach-name">'+r[1]+'<\/div><div class="mn-workspace-reach-count">'+r[0].toLocaleString()+'<\/div><div class="mn-workspace-reach-pct">'+pct(r[0],n)+'<\/div><\/div>'});
 h+='<\/div>';
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Context<\/div>';
+if(avg>60){
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Premium suite renewals due May 15 \u2014 '+Math.round(n*0.18)+' members in this segment at risk<\/div><div class="mn-workspace-news-meta">High urgency: this cohort has 3.2x conversion on renewal campaigns<\/div><\/div>';
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Avg HHI $'+Math.round(200+parseFloat(avg)*3)+'k in this range \u2014 premium pricing viable<\/div><div class="mn-workspace-news-meta">Compare to $185k baseline across full file<\/div><\/div>';
+}else if(avg>35){
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Brickell/Wynwood entertainment spend up 23% QoQ in 18-34 demo<\/div><div class="mn-workspace-news-meta">Emerging high-value fan segment overlapping this range<\/div><\/div>';
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Mid-tier ticket bundles converting at 6.8% \u2014 strong for this score band<\/div><div class="mn-workspace-news-meta">Multi-game packs outperforming single-game by 2.1x<\/div><\/div>';
+}else{
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Secondary market Section 400 prices down 12% \u2014 value-tier opportunity<\/div><div class="mn-workspace-news-meta">This segment responds to price-driven offers<\/div><\/div>';
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Digital engagement up 34% among younger demos \u2014 app-first acquisition<\/div><div class="mn-workspace-news-meta">Push notification campaigns showing 4.5x open rate<\/div><\/div>';
+}
+h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">2026-27 season: Hard Rock Stadium capacity at 64,767 \u2014 '+Math.round(n/647)+'% addressable via this segment<\/div><div class="mn-workspace-news-meta">Seasonality peak: Sept\u2013Nov<\/div><\/div>';
+h+='<\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
 h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?"mn-workspace-delta-fill-pos":"mn-workspace-delta-fill-neg")+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value">'+(pos?"+":"")+d.d+'<\/div><\/div>'});
 h+='<\/div>';
 
+if(extraFilters){h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Active Filters<\/div><div class="mn-workspace-action-row">';
+if(extraFilters.ownerOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'ownerOnly\')">Homeowners \u2715<\/button>';
+if(extraFilters.incomeMin)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'incomeMin\')">$250k+ \u2715<\/button>';
+if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'emailOnly\')">Email only \u2715<\/button>';
+if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' \u2715<\/button>';
+h+='<button class="mn-workspace-action-btn" onclick="clearFilters()">Clear all<\/button>';
+h+='<\/div><\/div>'}
+h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Age<\/div>';
 Object.keys(agb).forEach(function(k){h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">'+k+'<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(agb[k]/n*100).toFixed(1)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(agb[k]/n*100).toFixed(0)+'%<\/div><\/div>'});
 h+='<\/div>';
@@ -620,30 +643,6 @@ var cityMax=cityArr.length?cityArr[0].ct:1;
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Top Cities<\/div>';
 cityArr.forEach(function(c){h+='<div class="mn-workspace-geo-row"><div class="mn-workspace-geo-name">'+c.name+'<\/div><div class="mn-workspace-geo-ct">'+c.ct+'<\/div><div class="mn-workspace-geo-bar"><div class="mn-workspace-geo-fill" style="width:'+(c.ct/cityMax*100)+'%"><\/div><\/div><\/div>'});
 h+='<\/div>';
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Reachability<\/div>';
-[[ec,"Email"],[pc,"Phone"],[ac,"Mail"]].forEach(function(r){var rate=r[0]/n;var cls=rate>.75?"mn-workspace-reach-dot-high":rate>.55?"mn-workspace-reach-dot-mid":"mn-workspace-reach-dot-low";
-h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls+'"><\/div><div class="mn-workspace-reach-name">'+r[1]+'<\/div><div class="mn-workspace-reach-count">'+r[0].toLocaleString()+'<\/div><div class="mn-workspace-reach-pct">'+pct(r[0],n)+'<\/div><\/div>'});
-h+='<\/div>';
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Context<\/div>';
-if(avg>60){
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Premium suite renewals due May 15 \u2014 '+Math.round(n*0.18)+' members in this segment at risk<\/div><div class="mn-workspace-news-meta">High urgency: this cohort has 3.2x conversion on renewal campaigns<\/div><\/div>';
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Avg HHI $'+Math.round(200+parseFloat(avg)*3)+'k in this range \u2014 premium pricing viable<\/div><div class="mn-workspace-news-meta">Compare to $185k baseline across full file<\/div><\/div>';
-}else if(avg>35){
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Brickell/Wynwood entertainment spend up 23% QoQ in 18-34 demo<\/div><div class="mn-workspace-news-meta">Emerging high-value fan segment overlapping this range<\/div><\/div>';
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Mid-tier ticket bundles converting at 6.8% \u2014 strong for this score band<\/div><div class="mn-workspace-news-meta">Multi-game packs outperforming single-game by 2.1x<\/div><\/div>';
-}else{
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Secondary market Section 400 prices down 12% \u2014 value-tier opportunity<\/div><div class="mn-workspace-news-meta">This segment responds to price-driven offers<\/div><\/div>';
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Digital engagement up 34% among younger demos \u2014 app-first acquisition<\/div><div class="mn-workspace-news-meta">Push notification campaigns showing 4.5x open rate<\/div><\/div>';
-}
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">2026-27 season: Hard Rock Stadium capacity at 64,767 \u2014 '+Math.round(n/647)+'% addressable via this segment<\/div><div class="mn-workspace-news-meta">Seasonality peak: Sept\u2013Nov<\/div><\/div>';
-h+='<\/div>';
-if(extraFilters){h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Active Filters<\/div><div class="mn-workspace-action-row">';
-if(extraFilters.ownerOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'ownerOnly\')">Homeowners \u2715<\/button>';
-if(extraFilters.incomeMin)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'incomeMin\')">$250k+ \u2715<\/button>';
-if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'emailOnly\')">Email only \u2715<\/button>';
-if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' \u2715<\/button>';
-h+='<button class="mn-workspace-action-btn" onclick="clearFilters()">Clear all<\/button>';
-h+='<\/div><\/div>'}
 h+='<div class="mn-workspace-detail-section" id="insightSection"><div class="mn-workspace-detail-label">Insight<\/div><div class="mn-workspace-detail-narrative">'+nar+'<\/div><\/div>';
 document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);buildChart(l);updToolbarSel()}
 
