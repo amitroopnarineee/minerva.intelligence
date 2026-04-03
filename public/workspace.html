@@ -219,7 +219,7 @@ body.embedded .mn-embedded-tools{display:flex!important;position:fixed;bottom:68
 .mn-workspace-in{opacity:0;animation:mn-in .3s ease forwards}
 
 /* ═══ FLOATING TOOLBAR ═══ */
-.mn-workspace-floating-toolbar{position:sticky;bottom:0;display:flex;align-items:center;gap:3px;padding:6px 8px;background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.06);z-index:20;flex-shrink:0}
+.mn-workspace-floating-toolbar{position:sticky;bottom:auto;top:0;display:flex;align-items:center;gap:3px;padding:6px 8px;background:rgba(10,10,10,0.85);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border-bottom:1px solid rgba(255,255,255,0.06);z-index:20;flex-shrink:0}
 .mn-workspace-floating-toolbar .mn-toolbar-sep{width:1px;height:20px;background:rgba(255,255,255,0.08);margin:0 4px;flex-shrink:0}
 .mn-workspace-floating-toolbar .mn-toolbar-action{height:28px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--mn-t2);font-size:10px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s;white-space:nowrap}
 .mn-workspace-floating-toolbar .mn-toolbar-action:hover{border-color:rgba(255,255,255,0.15);color:var(--mn-t1)}
@@ -453,10 +453,10 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
     <!-- TABLE SECOND -->
     <div class="mn-workspace-panel mn-workspace-in" id="pTbl" style="flex:1;animation-delay:.1s">
       <div class="mn-workspace-panel-header"><span class="mn-workspace-slider-range-value" id="svInline" style="font-size:14px;letter-spacing:-0.02em">0 – 99</span><div style="flex:1"></div><div class="mn-panel-tabs"><button class="mn-panel-tab mn-panel-tab-on" id="tabTable" onclick="switchTab('table')">Table</button><button class="mn-panel-tab" id="tabChart" onclick="switchTab('chart')">Insights</button></div><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
+      <div class="mn-workspace-floating-toolbar" id="floatingModes"></div>
       <div class="mn-workspace-search" id="searchWrap"><svg class="mn-workspace-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="mn-workspace-search-input" type="text" placeholder="Search..." id="si" oninput="ren()"></div>
       <div class="mn-workspace-panel-body" id="tb"></div>
       <div class="mn-workspace-panel-body" id="insightsPanel" style="display:none"></div>
-      <div class="mn-workspace-floating-toolbar" id="floatingModes"></div>
     </div>
     <!-- PROFILE INLINE (hidden until row click) -->
     <div class="mn-workspace-panel" id="pProf" style="flex:0 0 300px;display:none">
