@@ -96,9 +96,9 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-table-th-active{color:var(--mn-t1)}
 .mn-workspace-table-th-arrow{font-size:8px;margin-left:2px;opacity:0.4}
 .mn-workspace-table-row{border-bottom:1px solid rgba(255,255,255,0.02);cursor:pointer;transition:background .12s}
-.mn-workspace-table-row:hover{background:rgba(255,255,255,0.02)}
+.mn-workspace-table-row:hover{background:rgba(255,255,255,0.04)}
 .mn-workspace-table-row-selected{background:rgba(255,255,255,0.06) !important;box-shadow:inset 2px 0 0 rgba(255,255,255,0.35)}
-.mn-workspace-table-td{padding:8px 12px;font-size:12px;white-space:nowrap;vertical-align:middle;color:var(--mn-t2);background:var(--mn-bg)}
+.mn-workspace-table-td{padding:8px 12px;font-size:12px;white-space:nowrap;vertical-align:middle;color:var(--mn-t2);background:transparent}
 .mn-workspace-table-person{display:flex;align-items:center;gap:8px}
 .mn-workspace-table-avatar{width:24px;height:24px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.03);flex-shrink:0}
 .mn-workspace-table-name{font-weight:500;color:var(--mn-t1);font-size:13px}
@@ -219,7 +219,7 @@ body.embedded .mn-embedded-tools{display:flex!important;position:fixed;bottom:68
 .mn-workspace-in{opacity:0;animation:mn-in .3s ease forwards}
 
 /* ═══ FLOATING TOOLBAR ═══ */
-.mn-workspace-floating-toolbar{display:flex;align-items:center;gap:3px;padding:6px 8px;background:rgba(10,10,10,0.75);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border-bottom:1px solid rgba(255,255,255,0.06);z-index:20;flex-shrink:0}
+.mn-workspace-floating-toolbar{display:flex;align-items:center;gap:3px;padding:6px 8px;background:rgba(10,10,10,0.75);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border-bottom:1px solid rgba(255,255,255,0.06);z-index:20;flex-shrink:0;justify-content:center}
 .mn-workspace-floating-toolbar .mn-toolbar-sep{width:1px;height:20px;background:rgba(255,255,255,0.08);margin:0 4px;flex-shrink:0}
 .mn-workspace-floating-toolbar .mn-toolbar-action{height:28px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--mn-t2);font-size:10px;font-weight:500;cursor:pointer;font-family:var(--mn-font);transition:all .12s;white-space:nowrap}
 .mn-workspace-floating-toolbar .mn-toolbar-action:hover{border-color:rgba(255,255,255,0.15);color:var(--mn-t1)}
@@ -245,7 +245,7 @@ body.embedded .mn-embedded-tools{display:flex!important;position:fixed;bottom:68
 /* ═══ PANEL ANIMATIONS ═══ */
 .mn-workspace-panel{opacity:0;animation:mn-panel-in .35s cubic-bezier(0.22,1,0.36,1) forwards}
 @keyframes mn-panel-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-#pDet{animation-delay:.05s;background:transparent;border:none;border-right:1px solid var(--mn-border)}
+#pDet{animation-delay:.05s;background:transparent;border:none;border-right:1px solid rgba(255,255,255,0.1)}
 #pDet .mn-workspace-panel-header{border-bottom:none}
 #pDet .mn-workspace-panel-body{-webkit-mask-image:none;mask-image:none}
 #pTbl{animation-delay:.1s}
@@ -543,7 +543,7 @@ var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,
 var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
-(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-sep"><\/div><div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg><\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div style="flex:1"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<span id="ftPrimary"><\/span>';h+='<div class="mn-toolbar-overflow-wrap"><button class="mn-toolbar-action-icon" onclick="togOverflow()" title="More"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><\/svg><\/button><div class="mn-toolbar-overflow-pop" id="ftOverflow"><button onclick="doExport();togOverflow()">Export CSV<\/button><button id="ovExpSel" style="display:none" onclick="exportSelected();togOverflow()">Export Selected<\/button><button id="ovClear" style="display:none" onclick="selMulti=[];ren();togOverflow()">Clear Selection<\/button><\/div><\/div>';ft.innerHTML=h})();
+(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-sep"><\/div><div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg><\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div class="mn-toolbar-sep"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<span id="ftPrimary"><\/span>';h+='<div class="mn-toolbar-overflow-wrap"><button class="mn-toolbar-action-icon" onclick="togOverflow()" title="More"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><\/svg><\/button><div class="mn-toolbar-overflow-pop" id="ftOverflow"><button onclick="doExport();togOverflow()">Export CSV<\/button><button id="ovExpSel" style="display:none" onclick="exportSelected();togOverflow()">Export Selected<\/button><button id="ovClear" style="display:none" onclick="selMulti=[];ren();togOverflow()">Clear Selection<\/button><\/div><\/div>';ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
