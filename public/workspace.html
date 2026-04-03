@@ -329,8 +329,8 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 .mn-chat-welcome-actions{margin-top:16px;justify-content:center}
 #insightsPanel{padding:20px 24px;overflow-y:auto;align-items:center;justify-content:center}
 /* Insight panel */
-.mn-insight-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;max-width:360px;margin:0 auto}
-.mn-insight-canvas{max-height:280px}
+.mn-insight-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;max-width:480px;margin:0 auto}
+.mn-insight-canvas{max-height:400px}
 /* Detail panel inline replacements */
 .mn-det-hero-wrap{padding:16px 18px}
 .mn-det-hero{font-size:36px;font-weight:600;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums}
@@ -962,9 +962,9 @@ function renderInsights(){
   if(insightChart){try{insightChart.destroy()}catch(e){}}
   var labels=IB.slice().reverse();
   var data=labels.map(function(k){return inb[k]});
-  var colors=['rgba(255,255,255,0.28)','rgba(255,255,255,0.20)','rgba(255,255,255,0.13)','rgba(255,255,255,0.07)','rgba(255,255,255,0.03)'];
-  var hoverColors=['rgba(255,255,255,0.40)','rgba(255,255,255,0.30)','rgba(255,255,255,0.22)','rgba(255,255,255,0.14)','rgba(255,255,255,0.08)'];
-  insightChart=new Chart(document.getElementById('insightCanvas'),{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors,hoverBackgroundColor:hoverColors,borderWidth:1,borderColor:'rgba(0,0,0,0.3)',hoverBorderColor:'rgba(255,255,255,0.15)'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'58%',plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.45)',font:{size:11,family:'var(--mn-font)',weight:'500'},boxWidth:10,boxHeight:10,padding:10,usePointStyle:true,pointStyle:'circle'}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10,family:'var(--mn-font)'},bodyFont:{size:13,weight:'600',family:'var(--mn-font)'},padding:{x:12,y:8},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:function(t){return t.label+': '+t.raw+' ('+Math.round(t.raw/n*100)+'%)'}}}}}})
+  var colors=['#1e40af','#2563eb','#60a5fa','#93c5fd','#bfdbfe'];
+  var hoverColors=['#1e3a8a','#1d4ed8','#3b82f6','#60a5fa','#93c5fd'];
+  insightChart=new Chart(document.getElementById('insightCanvas'),{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors,hoverBackgroundColor:hoverColors,borderWidth:2,borderColor:'rgba(0,0,0,0.15)',hoverBorderColor:'rgba(0,0,0,0.25)'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'52%',plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.55)',font:{size:11,family:'var(--mn-font)',weight:'500'},boxWidth:12,boxHeight:12,padding:12,usePointStyle:true,pointStyle:'circle'}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10,family:'var(--mn-font)'},bodyFont:{size:13,weight:'600',family:'var(--mn-font)'},padding:{x:12,y:8},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:function(t){return t.label+': '+t.raw+' ('+Math.round(t.raw/n*100)+'%)'}}}}}})
 }
 /* ── DYNAMIC FILTERS ── */
 function addDynFilter(field,op,value){dynamicFilters.push({field:field,op:op,value:value});ren();toast('Filter: '+field+' '+op+' '+value)}
