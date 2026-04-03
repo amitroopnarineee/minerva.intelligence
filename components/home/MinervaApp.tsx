@@ -789,8 +789,8 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
         </div>
 
         {/* Tab pills — fade out when launching */}
-        <div className="mn-hide-mobile flex items-center justify-center gap-2 flex-wrap"
-          style={{ opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s', pointerEvents: launching ? 'none' : 'auto' }}>
+        <div className="flex items-center justify-center gap-2 overflow-x-auto px-4"
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s', pointerEvents: launching ? 'none' : 'auto' }}>
           {DASH_TABS.filter(t => !t.hidden).map(t => (
             <button key={t.id} onClick={() => {
               setActiveTab(t.id)
