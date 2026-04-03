@@ -231,7 +231,12 @@
 .mn-light-mode img,
 .mn-light-mode video,
 .mn-light-mode [data-no-invert] {
-  filter: invert(1);
+  filter: invert(1) !important;
+}
+/* Counter-invert home gallery canvas (preserves photo colors) 
+   but NOT dashboard shader canvas (.mn-dashboard) */
+.mn-light-mode .mn-modal-backdrop canvas {
+  filter: invert(1) !important;
 }
 .mn-light-mode .mn-dashboard * {
   mix-blend-mode: normal !important;
