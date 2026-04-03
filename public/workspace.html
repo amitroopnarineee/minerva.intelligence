@@ -708,7 +708,7 @@ document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-
 // Close segments menu when clicking outside
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-workspace-topbar-segments"))document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open")});
 
-function ren(){rtbl();rdet();var ct=document.getElementById('chatTitle');if(ct)ct.textContent=curMode==='All'?'All Profiles':curMode+' Segment'}
+function ren(){rtbl();rdet();var ct=document.getElementById('chatTitle');if(ct)ct.textContent=curMode==='All'?'All Profiles':curMode+' Segment';if(document.querySelector('.mn-chat-empty'))generateWelcome()}
 
 // Keyboard
 document.addEventListener("keydown",function(e){
