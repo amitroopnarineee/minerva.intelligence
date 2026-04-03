@@ -56,7 +56,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 
 /* ═══ PANEL ═══ */
 .mn-workspace-panel{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);display:flex;flex-direction:column;overflow:hidden;min-width:0;transition:opacity .2s,flex .25s ease}
-.mn-workspace-panel-header{display:none}
+.mn-workspace-panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--mn-border);flex-shrink:0}
 .mn-workspace-panel-header-title{font-size:10px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em}
 .mn-workspace-panel-header-meta{font-size:10px;color:var(--mn-t3);font-variant-numeric:tabular-nums}
 .mn-workspace-panel-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 4%,black 85%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,black 4%,black 85%,transparent 100%)}
@@ -870,7 +870,7 @@ function generateWelcome(){
   var starters=curMode==='Premium'?["Who's at highest churn risk?","Compare top vs bottom half"]:curMode==='Scale'?["Which cities are underrepresented?","Show score distribution"]:["Summarize this segment","Show affluent homeowners"];
   h+='<button class="mn-chat-starter" onclick="fireStarter(this)">'+starters[0]+'</button>';
   h+='</div></div>';
-  document.getElementById('chatMsgs').innerHTML=h;
+  document.getElementById('chatMsgs').innerHTML='<div class="mn-chat-empty">'+h+'</div>';
   var modeLabel=curMode==='All'?'All Profiles':curMode+' Segment';
   document.getElementById('chatTitle').textContent=modeLabel
 }
