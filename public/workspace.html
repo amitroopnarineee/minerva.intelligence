@@ -569,14 +569,14 @@ var h='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-
 var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);var heroStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN>=1e3?(scaledN/1e3).toFixed(0)+'K':scaledN.toString());
 h+='<div class="mn-workspace-detail-hero">'+heroStr+'<\/div>';
 h+='<div class="mn-workspace-detail-hero-sub">Scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 '+n.toLocaleString()+' Records<\/div>';
-h+='<div style="margin-top:8px">';
-h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Avg Score<\/span><span class="mn-workspace-profile-field-value">'+avg+'<\/span><\/div>';
-h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Avg Age<\/span><span class="mn-workspace-profile-field-value">'+aag+'<\/span><\/div>';
-h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Age 45+<\/span><span class="mn-workspace-profile-field-value">'+a45p+'%<\/span><\/div>';
-h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Homeowners<\/span><span class="mn-workspace-profile-field-value">'+op+'%<\/span><\/div>';
-h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">$250k+<\/span><span class="mn-workspace-profile-field-value">'+hi250p+'%<\/span><\/div>';
-h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Email<\/span><span class="mn-workspace-profile-field-value">'+Math.round(ec/n*100)+'%<\/span><\/div>';
-h+='<\/div>';
+h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px">';
+h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+avg+'</div><div style="font-size:10px;color:var(--mn-t3)">Avg Score</div></div>';
+h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+aag+'</div><div style="font-size:10px;color:var(--mn-t3)">Avg Age</div></div>';
+h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+op+'%</div><div style="font-size:10px;color:var(--mn-t3)">Homeowners</div></div>';
+h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+hi250p+'%</div><div style="font-size:10px;color:var(--mn-t3)">$250K+</div></div>';
+h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+Math.round(ec/n*100)+'%</div><div style="font-size:10px;color:var(--mn-t3)">Email</div></div>';
+h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+a45p+'%</div><div style="font-size:10px;color:var(--mn-t3)">Age 45+</div></div>';
+h+='</div>';
 // If multi-selected, show selection stats
 if(selMulti.length>1){
   var sl=PP.filter(function(p){return selMulti.indexOf(p.id)>=0});
@@ -591,6 +591,7 @@ if(selMulti.length>1){
   h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+slAvg+'<\/div><div class="mn-workspace-detail-stat-cell-label">Avg<\/div><\/div>';
   h+='<\/div>';
 }
+h+='<\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Reachability<\/div>';
 [[ec,"Email"],[pc,"Phone"],[ac,"Mail"]].forEach(function(r){var rate=r[0]/n;var cls=rate>.75?"mn-workspace-reach-dot-high":rate>.55?"mn-workspace-reach-dot-mid":"mn-workspace-reach-dot-low";
 h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls+'"><\/div><div class="mn-workspace-reach-name">'+r[1]+'<\/div><div class="mn-workspace-reach-count">'+r[0].toLocaleString()+'<\/div><div class="mn-workspace-reach-pct">'+pct(r[0],n)+'<\/div><\/div>'});
@@ -669,8 +670,7 @@ var ft=p.name+" scores "+p.score+"/99. ";
 if(p.score>=75)ft+="Key fit drivers: "+reasons.slice(0,3).join(", ")+". "+(weaknesses.length?"Watch: "+weaknesses[0]+".":"Strong across all dimensions.");
 else if(p.score>=45)ft+="Positive signals: "+(reasons.length?reasons.slice(0,2).join(", "):"moderate demographic alignment")+". "+(weaknesses.length?"Gaps: "+weaknesses.slice(0,2).join(", ")+".":"");
 else ft+="Lower propensity. "+(weaknesses.length?"Driven by: "+weaknesses.slice(0,2).join(", ")+".":"")+" Consider for value-tier or long-term nurture.";
-var h='<div class="mn-workspace-profile-close-float"><button onclick="cpf()">✕ Close<\/button><\/div>';
-h+='<div class="mn-workspace-profile-hero"><div class="mn-workspace-profile-identity"><img class="mn-workspace-profile-avatar" src="'+p.photo+'"><div><div class="mn-workspace-profile-name">'+p.name+'<\/div><div class="mn-workspace-profile-role">'+p.title+' at '+p.company+'<\/div><\/div><\/div>';
+var h='<div class="mn-workspace-profile-hero"><div class="mn-workspace-profile-identity"><img class="mn-workspace-profile-avatar" src="'+p.photo+'"><div><div class="mn-workspace-profile-name">'+p.name+'<\/div><div class="mn-workspace-profile-role">'+p.title+' at '+p.company+'<\/div><\/div><\/div>';
 h+='<div class="mn-workspace-profile-score-area"><div class="mn-workspace-profile-score-number">'+p.score+'<\/div><div><div class="mn-workspace-profile-score-context">Propensity Score<\/div><div class="mn-workspace-profile-score-desc">Dolphins campaign fit<\/div><\/div><\/div><\/div>';
 h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Details<\/div>';
 [["Age",p.age],["Gender",p.gender==="F"?"Female":"Male"],["Location",p.city+", "+p.state],["Income",p.income],["Wealth",p.wealth],["Homeowner",p.owner?"Yes":"No"],["Education",p.edu]].forEach(function(r){h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">'+r[0]+'<\/span><span class="mn-workspace-profile-field-value">'+r[1]+'<\/span><\/div>'});
