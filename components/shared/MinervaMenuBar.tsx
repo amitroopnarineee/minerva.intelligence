@@ -31,7 +31,7 @@ const NAV_ITEMS = [
   { type: "link" as const, label: "Dashboard", href: "/", paths: [] },
 ]
 
-export function MinervaMenuBar() {
+export function MinervaMenuBar({ onToggleTheme, isLight }: { onToggleTheme?: () => void; isLight?: boolean } = {}) {
   const [notchState, setNotchState] = useState<NotchState>("peek")
   const stateRef = useRef<NotchState>("peek")
   const notchRef = useRef<HTMLDivElement>(null)
@@ -103,6 +103,7 @@ export function MinervaMenuBar() {
           </button>
         </div>
         <div className="mn-menubar-right flex items-center gap-1" style={{ pointerEvents: 'auto' }}>
+          {onToggleTheme && <button onClick={onToggleTheme} className="w-6 h-6 rounded-full flex items-center justify-center transition-all hover:opacity-70" style={{ fontSize: 12 }}>{isLight ? '◑' : '◐'}</button>}
           <div aria-label="User" className="ml-2 rounded-full bg-white/90 ring-1 ring-white/10 flex items-center justify-center" style={{ width: 25, height: 25 }}>
             <span className="text-[9px] font-semibold text-black/60 leading-none">JX</span>
           </div>
@@ -137,6 +138,7 @@ export function MinervaMenuBar() {
               </button>
             </div>
           ))}
+          {onToggleTheme && <button onClick={onToggleTheme} className="w-6 h-6 rounded-full flex items-center justify-center transition-all hover:opacity-70" style={{ fontSize: 12 }}>{isLight ? '◑' : '◐'}</button>}
           <div aria-label="User"
             onClick={() => setNavVisible(v => !v)}
             className="ml-2 rounded-full bg-white/90 ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-pointer flex items-center justify-center" style={{ width: 25, height: 25 }}>
