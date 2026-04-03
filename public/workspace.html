@@ -406,7 +406,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
     </div>
     <!-- AI CHAT PANEL -->
     <div class="mn-workspace-panel" id="pChat">
-      <div class="mn-chat-header"><span class="mn-chat-header-title">Minerva</span><div class="mn-chat-header-actions"><button class="mn-chat-header-btn" onclick="clearChat()">Clear</button><button class="mn-chat-header-btn" onclick="toggleChat()">Close</button></div></div>
+      <div class="mn-chat-header"><span class="mn-chat-header-title">Dolphins Fanbase</span><div class="mn-chat-header-actions"><button class="mn-chat-header-btn" onclick="clearChat()">Clear</button><button class="mn-chat-header-btn" onclick="toggleChat()">Close</button></div></div>
       <div class="mn-chat-messages" id="chatMsgs">
         <div class="mn-chat-empty">
           <div style="margin-bottom:12px;color:var(--mn-t2);font-size:11px">Ask anything about your audience</div>
@@ -422,6 +422,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
         <input class="mn-chat-input" id="chatInput" type="text" placeholder="Ask Minerva..." onkeydown="if(event.key==='Enter')sendChat()" />
         <button class="mn-chat-send" id="chatSend" onclick="sendChat()">↑</button>
       </div>
+      <div style="padding:0 12px 8px;text-align:right"><button style="background:none;border:none;color:var(--mn-t3);font-size:10px;cursor:pointer;font-family:var(--mn-font);padding:2px 0" onclick="toggleChat()">× Close</button></div>
     </div>
   </div>
   <div class="mn-workspace-slider mn-workspace-in" style="animation-delay:.15s">
@@ -922,12 +923,9 @@ function generateWelcome(){
   var avg=n?(ss/n).toFixed(1):'0';
   var top3=l.slice(0,3).map(function(p){return p.name}).join(', ');
   var modeTxt=curMode==='All'?'all scores':'<strong>'+curMode+'</strong> mode ('+sLo+'\u2013'+sHi+')';
-  var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none">';
-  h+='<div style="font-size:10px;color:var(--mn-t3);margin-bottom:6px">LIVE CONTEXT</div>';
-  h+='Viewing <strong>'+n+' profiles</strong> in '+modeTxt+'. ';
-  h+='Avg score '+avg+', '+Math.round(oc/n*100)+'% homeowners, '+Math.round(hi250/n*100)+'% earn $250K+. ';
-  h+='Top scorers: '+top3+'.';
-  h+='<div class="mn-chat-actions" style="margin-top:8px">';
+  var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 20px">';
+  h+='<div style="font-size:13px;color:var(--mn-t2)">Viewing <strong style="color:var(--mn-t1)">'+n.toLocaleString()+'</strong> profiles</div>';
+  h+='<div class="mn-chat-actions" style="margin-top:16px;justify-content:center">';
   h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Show affluent homeowners</button>';
   h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Switch to Premium</button>';
   h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Compare top 2 profiles</button>';
