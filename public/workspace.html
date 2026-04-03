@@ -423,7 +423,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
       <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">People</span><div class="mn-panel-tabs"><button class="mn-panel-tab mn-panel-tab-on" id="tabTable" onclick="switchTab('table')">Table</button><button class="mn-panel-tab" id="tabChart" onclick="switchTab('chart')">Insights</button></div><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
       <div class="mn-workspace-search" id="searchWrap"><svg class="mn-workspace-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="mn-workspace-search-input" type="text" placeholder="Search..." id="si" oninput="ren()"></div>
       <div class="mn-workspace-panel-body" id="tb"></div>
-      <div class="mn-workspace-panel-body" id="insightsPanel" style="display:none;padding:20px 24px;overflow-y:auto"></div>
+      <div class="mn-workspace-panel-body" id="insightsPanel" style="display:none;padding:20px 24px;overflow-y:auto;align-items:center;justify-content:center"></div>
       <div class="mn-workspace-floating-toolbar" id="floatingModes"></div>
     </div>
     <!-- PROFILE INLINE (hidden until row click) -->
@@ -908,41 +908,28 @@ function renderCityChart(){
 }
 
 /* ═══ TAB: TABLE / INSIGHTS ═══ */
-var activeTab='table',radarChart=null,doughnutChart=null;
+var activeTab='table',insightChart=null;
 function switchTab(tab){
   activeTab=tab;
   document.getElementById('tabTable').classList.toggle('mn-panel-tab-on',tab==='table');
   document.getElementById('tabChart').classList.toggle('mn-panel-tab-on',tab==='chart');
   document.getElementById('tb').style.display=tab==='table'?'':'none';
   document.getElementById('searchWrap').style.display=tab==='table'?'':'none';
-  document.getElementById('insightsPanel').style.display=tab==='chart'?'block':'none';
+  document.getElementById('insightsPanel').style.display=tab==='chart'?'flex':'none';
   if(tab==='chart')renderInsights()
 }
 function renderInsights(){
-  var l=gf(),n=l.length,all=PP,tot=all.length;
-  if(!n){document.getElementById('insightsPanel').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--mn-t3)">No data</div>';return}
-  var ec=0,oc=0,hi=0,a45=0,s75=0;
-  l.forEach(function(p){if(p.email)ec++;if(p.owner)oc++;if(p.income==='$250-500k'||p.income==='$500k+')hi++;if(p.age>=45)a45++;if(p.score>=75)s75++});
-  var aEc=0,aOc=0,aHi=0,aA45=0,aS75=0;
-  all.forEach(function(p){if(p.email)aEc++;if(p.owner)aOc++;if(p.income==='$250-500k'||p.income==='$500k+')aHi++;if(p.age>=45)aA45++;if(p.score>=75)aS75++});
-  /* City data */
-  var cities={};l.forEach(function(p){cities[p.city]=(cities[p.city]||0)+1});
-  var cArr=Object.keys(cities).map(function(c){return{name:c,count:cities[c]}}).sort(function(a,b){return b.count-a.count}).slice(0,7);
-  /* Gender */
-  var gM=l.filter(function(p){return p.gender==='M'}).length;
+  var l=gf(),n=l.length;
   var ip=document.getElementById('insightsPanel');
-  ip.innerHTML='<div style="margin-bottom:28px"><p style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);margin-bottom:14px;font-weight:600">Segment Shape vs Baseline</p><div style="max-width:280px;margin:0 auto"><canvas id="radarCanvas"></canvas></div></div>'+
-    '<div style="display:flex;gap:20px;margin-bottom:28px"><div style="flex:1"><p style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);margin-bottom:14px;font-weight:600">Top Cities</p><canvas id="cityCanvas" height="180"></canvas></div><div style="flex:0 0 140px"><p style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);margin-bottom:14px;font-weight:600">Split</p><canvas id="splitCanvas" height="140"></canvas></div></div>';
-  /* Radar */
-  var segData=[Math.round(oc/n*100),Math.round(a45/n*100),Math.round(hi/n*100),Math.round(ec/n*100),Math.round(s75/n*100)];
-  var baseData=[Math.round(aOc/tot*100),Math.round(aA45/tot*100),Math.round(aHi/tot*100),Math.round(aEc/tot*100),Math.round(aS75/tot*100)];
-  if(radarChart){try{radarChart.destroy()}catch(e){}}
-  radarChart=new Chart(document.getElementById('radarCanvas'),{type:'radar',data:{labels:['Homeowners','Age 45+','$250K+','Email','Score 75+'],datasets:[{label:'Segment',data:segData,borderColor:'rgba(255,255,255,0.6)',backgroundColor:'rgba(255,255,255,0.08)',pointBackgroundColor:'rgba(255,255,255,0.8)',pointRadius:3,borderWidth:1.5},{label:'Baseline',data:baseData,borderColor:'rgba(255,255,255,0.15)',backgroundColor:'rgba(255,255,255,0.02)',pointBackgroundColor:'rgba(255,255,255,0.2)',pointRadius:2,borderWidth:1,borderDash:[4,4]}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.35)',font:{size:10,family:'var(--mn-font)'},boxWidth:12,padding:12}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10},bodyFont:{size:12,weight:'600'},padding:{x:10,y:7},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:function(t){return t.dataset.label+': '+t.raw+'%'}}}},scales:{r:{angleLines:{color:'rgba(255,255,255,0.06)'},grid:{color:'rgba(255,255,255,0.04)'},pointLabels:{color:'rgba(255,255,255,0.45)',font:{size:11,family:'var(--mn-font)'}},ticks:{display:false},suggestedMin:0,suggestedMax:100}}}});
-  /* City horizontal bar */
-  if(doughnutChart){try{doughnutChart.destroy()}catch(e){}}
-  new Chart(document.getElementById('cityCanvas'),{type:'bar',data:{labels:cArr.map(function(c){return c.name}),datasets:[{data:cArr.map(function(c){return c.count}),backgroundColor:'rgba(255,255,255,0.10)',hoverBackgroundColor:'rgba(255,255,255,0.20)',borderRadius:4,barPercentage:0.7}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',bodyColor:'#fff',bodyFont:{size:12,weight:'600'},padding:{x:10,y:7},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1}},scales:{x:{display:false,grid:{display:false}},y:{grid:{display:false},ticks:{color:'rgba(255,255,255,0.40)',font:{size:11,family:'var(--mn-font)'}},border:{display:false}}}}});
-  /* Doughnut: homeowner/renter */
-  doughnutChart=new Chart(document.getElementById('splitCanvas'),{type:'doughnut',data:{labels:['Homeowner','Renter'],datasets:[{data:[oc,n-oc],backgroundColor:['rgba(255,255,255,0.15)','rgba(255,255,255,0.04)'],hoverBackgroundColor:['rgba(255,255,255,0.25)','rgba(255,255,255,0.10)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.35)',font:{size:10,family:'var(--mn-font)'},boxWidth:10,padding:8}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',bodyColor:'#fff',bodyFont:{size:12,weight:'600'},padding:{x:10,y:7},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1}}}})
+  if(!n){ip.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--mn-t3);font-size:13px">No profiles in range</div>';return}
+  var inb={};IB.forEach(function(k){inb[k]=0});l.forEach(function(p){inb[p.income]++});
+  ip.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;max-width:360px;margin:0 auto"><p style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);font-weight:600;margin-bottom:20px;align-self:flex-start">Income Distribution</p><canvas id="insightCanvas" style="max-height:280px"></canvas></div>';
+  if(insightChart){try{insightChart.destroy()}catch(e){}}
+  var labels=IB.slice().reverse();
+  var data=labels.map(function(k){return inb[k]});
+  var colors=['rgba(255,255,255,0.28)','rgba(255,255,255,0.20)','rgba(255,255,255,0.13)','rgba(255,255,255,0.07)','rgba(255,255,255,0.03)'];
+  var hoverColors=['rgba(255,255,255,0.40)','rgba(255,255,255,0.30)','rgba(255,255,255,0.22)','rgba(255,255,255,0.14)','rgba(255,255,255,0.08)'];
+  insightChart=new Chart(document.getElementById('insightCanvas'),{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors,hoverBackgroundColor:hoverColors,borderWidth:1,borderColor:'rgba(0,0,0,0.3)',hoverBorderColor:'rgba(255,255,255,0.15)'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'58%',plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.45)',font:{size:11,family:'var(--mn-font)',weight:'500'},boxWidth:10,boxHeight:10,padding:10,usePointStyle:true,pointStyle:'circle'}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10,family:'var(--mn-font)'},bodyFont:{size:13,weight:'600',family:'var(--mn-font)'},padding:{x:12,y:8},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:function(t){return t.label+': '+t.raw+' ('+Math.round(t.raw/n*100)+'%)'}}}}}})
 }
 /* ── DYNAMIC FILTERS ── */
 function addDynFilter(field,op,value){dynamicFilters.push({field:field,op:op,value:value});ren();toast('Filter: '+field+' '+op+' '+value)}
