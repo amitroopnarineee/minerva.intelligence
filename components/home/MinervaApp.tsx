@@ -684,122 +684,6 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
 
 
 
-/* ══════════════════════════════════════════════════════════
-   CALENDAR SCREEN — Past Daily Briefings
-   ══════════════════════════════════════════════════════════ */
-const PAST_BRIEFINGS: Record<number, { headline: string; revenue: string; roas: string; actions: number; signal?: string }> = {
-  1: { headline: "Mauigoa at #11 — draft momentum building", revenue: "$242K", roas: "4.0x", actions: 3, signal: "Draft Momentum segment — premium buyers gaining confidence" },
-  31: { headline: "Family audience surging after spring break push", revenue: "$238K", roas: "3.9x", actions: 2 },
-  30: { headline: "Premium Suite renewals ahead of target", revenue: "$231K", roas: "4.1x", actions: 4, signal: "Lapsed buyer win-back window closing" },
-  29: { headline: "Match rate declining — identity graph needs refresh", revenue: "$225K", roas: "3.7x", actions: 2 },
-  28: { headline: "Seatmap retargeting pool hit 900 profiles", revenue: "$219K", roas: "3.8x", actions: 3, signal: "New high-propensity cluster in Broward" },
-  27: { headline: "Email open rates up 12% after subject line test", revenue: "$214K", roas: "3.6x", actions: 1 },
-  26: { headline: "Weekend game day — conversion spike expected", revenue: "$208K", roas: "3.5x", actions: 2 },
-  25: { headline: "Sponsor resonance data: luxury narrative winning", revenue: "$202K", roas: "3.4x", actions: 3, signal: "Premium hospitality segment growing 8%" },
-}
-
-function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => void; onDetail: (d: DetailData) => void }) {
-  const [selectedDay, setSelectedDay] = useState<number | null>(null)
-  const today = 1 // April 1
-  const daysInMonth = 30
-  const firstDayOffset = 2 // April 2026 starts on Wednesday (0=Sun)
-
-  const days: (number | null)[] = []
-  for (let i = 0; i < firstDayOffset; i++) days.push(null)
-  for (let i = 1; i <= daysInMonth; i++) days.push(i)
-  while (days.length % 7 !== 0) days.push(null)
-
-  const briefing = selectedDay ? PAST_BRIEFINGS[selectedDay] : null
-
-  return (
-    <div className="absolute inset-0 flex flex-col">
-      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-        <div className="max-w-[600px] mx-auto px-6 pt-6 pb-32">
-          <div className="flex items-center justify-between mb-8">
-            <button onClick={() => navigateTo('briefing')} className="text-[12px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ display: 'none' }}>← Back to briefing</button>
-            <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.32)' }}>✦ APRIL 2026 · BRIEFING CALENDAR</p>
-          </div>
-
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-1 mb-8">
-            {['S','M','T','W','T','F','S'].map((d, i) => (
-              <div key={i} className="text-center text-[10px] uppercase py-2" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.06em' }}>{d}</div>
-            ))}
-            {days.map((day, i) => {
-              if (day === null) return <div key={i} />
-              const hasBriefing = !!PAST_BRIEFINGS[day]
-              const isToday = day === today
-              const isSelected = day === selectedDay
-              const isFuture = day > today
-              return (
-                <button key={i} onClick={() => hasBriefing ? setSelectedDay(day) : null}
-                  className="aspect-square rounded-lg flex flex-col items-center justify-center transition-all relative"
-                  style={{
-                    background: isSelected ? 'rgba(255,255,255,0.1)' : isToday ? 'rgba(255,255,255,0.04)' : 'transparent',
-                    border: isToday ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
-                    color: isFuture ? 'rgba(255,255,255,0.1)' : hasBriefing ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.2)',
-                    cursor: hasBriefing ? 'pointer' : 'default',
-                  }}>
-                  <span className="text-[13px] tabular-nums" style={{ fontWeight: isToday ? 600 : 400 }}>{day}</span>
-                  {hasBriefing && <div className="w-1 h-1 rounded-full mt-0.5" style={{ background: isToday ? '#fff' : 'rgba(255,255,255,0.25)' }} />}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Selected briefing preview */}
-          {briefing ? (
-            <div className="animate-card-in" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 22px' }}>
-              <div className="flex items-center justify-between mb-4">
-                <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>
-                  ✦ {selectedDay === today ? 'TODAY' : `APRIL ${selectedDay}`} · BRIEFING
-                </p>
-                {selectedDay === today && (
-                  <button onClick={() => navigateTo('briefing')} className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
-                    View full briefing →
-                  </button>
-                )}
-                {selectedDay !== null && selectedDay !== today && (
-                  <button onClick={() => onDetail({ title: `April ${selectedDay} Briefing Recap`, subtitle: briefing?.headline, size: 'lg' as ModalSize, content: <div className="space-y-4"><p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{briefing?.headline}. Revenue was {briefing?.revenue} with ROAS at {briefing?.roas}. {briefing?.actions} actions were recommended.{briefing?.signal ? ` Key signal: ${briefing.signal}.` : ''}</p><div className="flex gap-6"><div><p style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>Revenue</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.revenue}</p></div><div><p style={{ fontSize: 10, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>ROAS</p><p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing?.roas}</p></div></div>{briefing?.signal && <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}><p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>Signal: {briefing.signal}</p></div>}<p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.15)' }}>Use the Minerva chat to ask questions about this day's data.</p></div> })}
-                    className="text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.04]" style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
-                    Load full recap →
-                  </button>
-                )}
-              </div>
-              <p className="text-[16px] text-white mb-4" style={{ fontWeight: 500, lineHeight: 1.5 }}>{briefing.headline}</p>
-              <div className="flex gap-6 mb-4">
-                <div>
-                  <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>Revenue</p>
-                  <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.revenue}</p>
-                </div>
-                <div>
-                  <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>ROAS</p>
-                  <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.roas}</p>
-                </div>
-                <div>
-                  <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.32)' }}>Actions</p>
-                  <p className="text-[20px] text-white tabular-nums" style={{ fontWeight: 600 }}>{briefing.actions}</p>
-                </div>
-              </div>
-              {briefing.signal && (
-                <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>⚡ {briefing.signal}</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.25)' }}>Select a day to view its briefing</p>
-              <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.12)' }}>Days with briefings have a dot indicator</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-
 /* ══ DETAIL MODAL (full-screen 2-col with rich right panel) ══ */
 type ModalSize = 'sm' | 'md' | 'lg'
 type DetailData = { title: string; subtitle?: string; size?: ModalSize; heroValue?: string; content: React.ReactNode } | null
@@ -838,9 +722,10 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
 
   const handleSubmit = () => {
     const q = query.toLowerCase().trim()
-    if (q.includes('briefing') || q.includes('brief') || q.includes('today')) {
-      navigateTo('briefing')
-    }
+    if (!q) return
+    // Any query navigates to briefing — it's the main content
+    navigateTo('briefing')
+    setQuery('')
   }
 
   const handleAudienceClick = () => {
@@ -921,8 +806,8 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
             </button>
           ))}
           {/* Saved segment pills */}
-          {savedSegments && savedSegments.map(seg => (
-            <button key={seg.id} onClick={() => onOpenStudio()}
+          {savedSegments && savedSegments.length > 0 && (
+            <button onClick={() => navigateTo('segments')}
               className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
               style={{
                 background: 'rgba(255,255,255,0.04)',
@@ -930,10 +815,10 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
                 color: '#fff',
                 fontWeight: 500,
               }}>
-              <span style={{ fontSize: 11 }}>✦</span>
-              {seg.name}
+              <span style={{ fontSize: 11 }}>◫</span>
+              Segments · {savedSegments.length}
             </button>
-          ))}
+          )}
         </div>
       </div>
 
@@ -1355,7 +1240,7 @@ export function MinervaApp() {
   const [detail, setDetail] = useState<DetailData>(null)
   const [studioSaved, setStudioSaved] = useState(false)
   const [studioDone, setStudioDone] = useState(false)
-  const [savedSegments, setSavedSegments] = useState<SavedSegment[]>([])
+  const [savedSegments, setSavedSegments] = useState<SavedSegment[]>(INITIAL_SEGMENTS)
   const [autoLaunch, setAutoLaunch] = useState(false)
 
   // Listen for notch navigation events
