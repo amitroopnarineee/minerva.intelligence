@@ -329,8 +329,8 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 .mn-chat-welcome-actions{margin-top:16px;justify-content:center}
 #insightsPanel{padding:20px 24px;overflow-y:auto;align-items:center;justify-content:center}
 /* Insight panel */
-.mn-insight-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;max-width:480px;margin:0 auto}
-.mn-insight-canvas{max-height:400px}
+.mn-insight-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;padding:20px 24px}
+.mn-insight-canvas{width:100%!important;height:100%!important}
 /* Detail panel inline replacements */
 .mn-det-hero-wrap{padding:16px 18px}
 .mn-det-hero{font-size:36px;font-weight:600;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums}
@@ -828,6 +828,8 @@ doSave = function() {
 };
 /* detect parent light mode and counter-invert images */
 try{if(window.self!==window.top&&window.parent.document.querySelector('.mn-light-mode'))document.documentElement.classList.add('mn-parent-inverted')}catch(e){}
+/* listen for theme toggle from parent */
+window.addEventListener('message',function(e){if(e.data&&e.data.type==='minerva-theme'){if(e.data.light)document.documentElement.classList.add('mn-parent-inverted');else document.documentElement.classList.remove('mn-parent-inverted')}})
 usv();ren()
 // Signal parent that workspace is ready (for loading skeleton)
 setTimeout(function(){ try { window.parent.postMessage({ type: 'minerva-iframe-ready' }, '*') } catch(e){} }, 300)
@@ -964,7 +966,7 @@ function renderInsights(){
   var data=labels.map(function(k){return inb[k]});
   var colors=['#1e40af','#2563eb','#60a5fa','#93c5fd','#bfdbfe'];
   var hoverColors=['#1e3a8a','#1d4ed8','#3b82f6','#60a5fa','#93c5fd'];
-  insightChart=new Chart(document.getElementById('insightCanvas'),{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors,hoverBackgroundColor:hoverColors,borderWidth:2,borderColor:'rgba(0,0,0,0.15)',hoverBorderColor:'rgba(0,0,0,0.25)'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'52%',plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.55)',font:{size:11,family:'var(--mn-font)',weight:'500'},boxWidth:12,boxHeight:12,padding:12,usePointStyle:true,pointStyle:'circle'}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10,family:'var(--mn-font)'},bodyFont:{size:13,weight:'600',family:'var(--mn-font)'},padding:{x:12,y:8},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:function(t){return t.label+': '+t.raw+' ('+Math.round(t.raw/n*100)+'%)'}}}}}})
+  insightChart=new Chart(document.getElementById('insightCanvas'),{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors,hoverBackgroundColor:hoverColors,borderWidth:2,borderColor:'rgba(0,0,0,0.15)',hoverBorderColor:'rgba(0,0,0,0.25)'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'52%',plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.55)',font:{size:11,family:'var(--mn-font)',weight:'500'},boxWidth:12,boxHeight:12,padding:12,usePointStyle:true,pointStyle:'circle'}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10,family:'var(--mn-font)'},bodyFont:{size:13,weight:'600',family:'var(--mn-font)'},padding:{x:12,y:8},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:function(t){return t.label+': '+t.raw+' ('+Math.round(t.raw/n*100)+'%)'}}}}}})
 }
 /* ── DYNAMIC FILTERS ── */
 function addDynFilter(field,op,value){dynamicFilters.push({field:field,op:op,value:value});ren();toast('Filter: '+field+' '+op+' '+value)}

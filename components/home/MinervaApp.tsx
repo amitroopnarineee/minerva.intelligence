@@ -20,7 +20,11 @@ function useCanvasTransition() {
   const [transitioning, setTransitioning] = useState(false)
   const navigateTo = useCallback((next: View) => {
     setTransitioning(true)
-    setTimeout(() => { setView(next); setTransitioning(false) }, 280)
+    setTimeout(() => {
+      setView(next)
+      // Let new view mount while still hidden, then fade in
+      requestAnimationFrame(() => { requestAnimationFrame(() => { setTransitioning(false) }) })
+    }, 280)
   }, [])
   return { view, transitioning, navigateTo }
 }
