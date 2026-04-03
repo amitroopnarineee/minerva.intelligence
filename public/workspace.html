@@ -327,6 +327,60 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 .mn-tour-tooltip-dots{display:flex;gap:4px;align-items:center}
 .mn-tour-tooltip-dot{width:5px;height:5px;border-radius:50%;background:#ddd}
 .mn-tour-tooltip-dot.active{background:#111;width:6px;height:6px}
+/* ═══ AI CHAT PANEL ═══ */
+#pChat{flex:0 0 400px;flex-direction:column;background:var(--mn-bg);border:1px solid var(--mn-border);border-radius:var(--mn-r);overflow:hidden;display:flex}
+#pChat.closed{display:none}
+.mn-chat-toggle{position:absolute;top:8px;z-index:100;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border:1px solid var(--mn-border);color:var(--mn-t2);font-size:10px;font-weight:500;padding:4px 10px;border-radius:12px;cursor:pointer;font-family:var(--mn-font);transition:all .12s}
+.mn-chat-toggle:hover{background:rgba(0,0,0,0.8);color:var(--mn-t1)}
+.mn-sel-summary{position:fixed;z-index:500;padding:6px 14px;border-radius:10px;background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);color:var(--mn-t1);font-size:11px;font-weight:500;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;white-space:nowrap;letter-spacing:-0.01em}
+.mn-sel-summary.visible{opacity:1;transform:translateY(0)}
+.mn-chat-header{padding:12px 16px;border-bottom:1px solid var(--mn-border);display:flex;align-items:center;justify-content:space-between}
+.mn-chat-header-title{font-size:13px;font-weight:600;color:var(--mn-t1);letter-spacing:-0.01em}
+.mn-chat-header-actions{display:flex;gap:4px}
+.mn-chat-header-btn{background:none;border:1px solid var(--mn-border);color:var(--mn-t3);font-size:10px;cursor:pointer;font-family:var(--mn-font);font-weight:500;padding:3px 10px;border-radius:6px;transition:all .12s}
+.mn-chat-header-btn:hover{color:var(--mn-t1);border-color:rgba(255,255,255,0.15)}
+.mn-chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none}
+.mn-chat-messages::-webkit-scrollbar{display:none}
+.mn-chat-empty{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0;color:var(--mn-t3);font-size:11px;line-height:1.5}
+.mn-chat-msg{max-width:100%;font-size:13px;line-height:1.6;animation:mn-chat-in 0.25s ease;letter-spacing:-0.005em}
+.mn-chat-msg-user{align-self:flex-end;max-width:85%;background:rgba(255,255,255,0.06);color:var(--mn-t1);padding:10px 14px;border-radius:18px 18px 4px 18px;font-weight:400}
+.mn-chat-msg-ai{align-self:flex-start;color:var(--mn-t1);padding:4px 0}
+.mn-chat-msg-ai strong{color:var(--mn-t1);font-weight:600}
+.mn-chat-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.mn-chat-starters{display:flex;flex-direction:column;gap:6px;width:100%}
+.mn-chat-input-area{padding:12px;border-top:1px solid var(--mn-border);display:flex;gap:8px;align-items:center}
+.mn-chat-input{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--mn-border);border-radius:20px;padding:9px 16px;font-size:13px;color:var(--mn-t1);font-family:var(--mn-font);outline:none;transition:border-color .15s}
+.mn-chat-input:focus{border-color:rgba(255,255,255,0.15)}
+.mn-chat-input::placeholder{color:var(--mn-t3)}
+.mn-chat-send{width:30px;height:30px;border-radius:50%;background:white;color:black;border:none;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .12s}
+.mn-chat-send:hover{opacity:0.8}
+.mn-chat-send:disabled{opacity:0.15;cursor:default}
+.mn-chat-shimmer{background:linear-gradient(90deg,var(--mn-t3) 0%,var(--mn-t1) 50%,var(--mn-t3) 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:mn-shimmer-text 1.8s linear infinite;font-size:12px}
+@keyframes mn-shimmer-text{0%{background-position:-200% center}100%{background-position:200% center}}
+.mn-chat-dots{display:flex;gap:3px;padding:8px 0}
+.mn-chat-dots span{width:4px;height:4px;border-radius:50%;background:var(--mn-t3)}
+.mn-chat-dots span:nth-child(1){animation:dot-pulse 1s ease infinite 0ms}
+.mn-chat-dots span:nth-child(2){animation:dot-pulse 1s ease infinite 150ms}
+.mn-chat-dots span:nth-child(3){animation:dot-pulse 1s ease infinite 300ms}
+@keyframes mn-chat-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dot-pulse{0%,100%{opacity:0.15}50%{opacity:0.6}}
+/* Progressive blur mask above input */
+.mn-chat-messages{-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 3%,black 90%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,black 3%,black 90%,transparent 100%);padding-top:24px;padding-bottom:24px}
+/* Blur-in for AI messages */
+.mn-chat-msg-ai{animation:mn-blur-in 0.4s cubic-bezier(0.22,1,0.36,1)}
+@keyframes mn-blur-in{from{opacity:0;filter:blur(4px);transform:translateY(8px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
+.mn-chat-msg-user{animation:mn-user-in 0.2s ease}
+@keyframes mn-user-in{from{opacity:0;transform:scale(0.96) translateY(4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+/* AI message sections */
+.mn-chat-section{margin-top:8px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid var(--mn-border)}
+.mn-chat-section-title{font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);font-weight:600;margin-bottom:6px}
+.mn-chat-stat{display:inline-flex;align-items:baseline;gap:4px;margin-right:14px}
+.mn-chat-stat-value{font-size:16px;font-weight:600;color:var(--mn-t1);letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.mn-chat-stat-label{font-size:10px;color:var(--mn-t3)}
+/* Consistent pill for all action buttons */
+.mn-chat-action-btn,.mn-chat-starter{font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid var(--mn-border);background:transparent;color:var(--mn-t2);cursor:pointer;font-family:var(--mn-font);font-weight:400;transition:all .15s;letter-spacing:-0.01em;line-height:1.3;text-align:left}
+.mn-chat-action-btn:hover,.mn-chat-starter:hover{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.12);color:var(--mn-t1)}
+.mn-chat-action-btn.done{border-color:rgba(255,255,255,0.04);color:var(--mn-t3);pointer-events:none;background:transparent}
 .mn-embedded-tools{display:none}
 </style>
 </head>
@@ -350,10 +404,24 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
       <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">Profile</span><button class="mn-workspace-topbar-btn mn-workspace-profile-close" onclick="cpf()">\u2715 Close</button></div>
       <div class="mn-workspace-panel-body" id="profBody"></div>
     </div>
-    <!-- INTELLIGENCE CARD (always visible) -->
-    <div class="mn-workspace-panel" id="pIntel" style="flex:0 0 240px">
-      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">Verdict</span></div>
-      <div class="mn-workspace-panel-body" id="intelBody"></div>
+    <!-- AI CHAT PANEL -->
+    <div class="mn-workspace-panel" id="pChat">
+      <div class="mn-chat-header"><span class="mn-chat-header-title">Minerva</span><div class="mn-chat-header-actions"><button class="mn-chat-header-btn" onclick="clearChat()">Clear</button><button class="mn-chat-header-btn" onclick="toggleChat()">Close</button></div></div>
+      <div class="mn-chat-messages" id="chatMsgs">
+        <div class="mn-chat-empty">
+          <div style="margin-bottom:12px;color:var(--mn-t2);font-size:11px">Ask anything about your audience</div>
+          <div class="mn-chat-starters">
+            <button class="mn-chat-starter" onclick="fireStarter(this)">Show affluent homeowners</button>
+            <button class="mn-chat-starter" onclick="fireStarter(this)">Switch to Premium</button>
+            <button class="mn-chat-starter" onclick="fireStarter(this)">Who scores highest?</button>
+            <button class="mn-chat-starter" onclick="fireStarter(this)">Summarize this segment</button>
+          </div>
+        </div>
+      </div>
+      <div class="mn-chat-input-area">
+        <input class="mn-chat-input" id="chatInput" type="text" placeholder="Ask Minerva..." onkeydown="if(event.key==='Enter')sendChat()" />
+        <button class="mn-chat-send" id="chatSend" onclick="sendChat()">↑</button>
+      </div>
     </div>
   </div>
   <div class="mn-workspace-slider mn-workspace-in" style="animation-delay:.15s">
@@ -377,6 +445,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
   </div>
 <div class="mn-workspace-modal" id="saveModal"><div class="mn-workspace-modal-box"><div class="mn-workspace-modal-title">Save Segment</div><input class="mn-workspace-modal-input" id="segName" placeholder="e.g. Premium 75+"><div class="mn-workspace-modal-footer"><button class="mn-workspace-topbar-btn" onclick="closeSave()">Cancel</button><button class="mn-workspace-topbar-save" onclick="doSave()">Save</button></div></div></div>
 <div class="mn-workspace-toast" id="toast"></div>
+<div class="mn-sel-summary" id="selSummary"></div>
 
 <script>
 var R=(function(s){return function(){var t=(s+=0x6d2b79f5);t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}})(42);
@@ -412,7 +481,7 @@ var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,
 var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
-(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg><\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div style="flex:1"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<span id="ftPrimary"><button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button><\/span>';h+='<div class="mn-toolbar-overflow-wrap"><button class="mn-toolbar-action-icon" onclick="togOverflow()" title="More"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><\/svg><\/button><div class="mn-toolbar-overflow-pop" id="ftOverflow"><button onclick="doExport();togOverflow()">Export CSV<\/button><button id="ovExpSel" style="display:none" onclick="exportSelected();togOverflow()">Export Selected<\/button><button id="ovClear" style="display:none" onclick="selMulti=[];ren();togOverflow()">Clear Selection<\/button><\/div><\/div>';ft.innerHTML=h})();
+(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg><\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div style="flex:1"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<span id="ftPrimary"><button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toggleChat()">\u2726 Ask AI<\/button><\/span>';h+='<div class="mn-toolbar-overflow-wrap"><button class="mn-toolbar-action-icon" onclick="togOverflow()" title="More"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><\/svg><\/button><div class="mn-toolbar-overflow-pop" id="ftOverflow"><button onclick="doExport();togOverflow()">Export CSV<\/button><button id="ovExpSel" style="display:none" onclick="exportSelected();togOverflow()">Export Selected<\/button><button id="ovClear" style="display:none" onclick="selMulti=[];ren();togOverflow()">Clear Selection<\/button><\/div><\/div>';ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
@@ -463,7 +532,7 @@ h+='<td class="mn-workspace-table-td">'+p.age+'<\/td><td class="mn-workspace-tab
 h+='<td class="mn-workspace-table-td"><span class="mn-workspace-channel-dot '+(p.email?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><span class="mn-workspace-channel-dot '+(p.phone?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><span class="mn-workspace-channel-dot '+(p.addr?"mn-workspace-channel-on":"mn-workspace-channel-off")+'"><\/span><\/td><\/tr>'}
 if(l.length>mx)h+='<tr><td colspan="6" class="mn-workspace-table-overflow">+'+(l.length-mx)+' more<\/td><\/tr>';
 h+='<\/tbody><\/table>';bd.innerHTML=h;updToolbarSel()}
-function rowClick(id,e){if(e.shiftKey||e.metaKey||e.ctrlKey){var idx=selMulti.indexOf(id);if(idx>=0)selMulti.splice(idx,1);else selMulti.push(id);selR=null;rtbl();return}selMulti=[];opf(id)}
+function rowClick(id,e){if(e.shiftKey||e.metaKey||e.ctrlKey){var idx=selMulti.indexOf(id);if(idx>=0)selMulti.splice(idx,1);else selMulti.push(id);selR=null;rtbl();updateSelSummary(e);return}selMulti=[];updateSelSummary(null);opf(id)}
 function exportSelected(){if(selMulti.length<1)return;var sel=PP.filter(function(p){return selMulti.indexOf(p.id)>=0});
 var rows=["Name,Score,Age,Gender,City,State,Income,Wealth,Homeowner,Email,Phone,Address"];
 sel.forEach(function(p){rows.push([p.name,p.score,p.age,p.gender==="F"?"Female":"Male",p.city,p.state,p.income,p.wealth,p.owner?"Yes":"No",p.email?"Yes":"No",p.phone?"Yes":"No",p.addr?"Yes":"No"].join(","))});
@@ -626,7 +695,7 @@ p.segs.forEach(function(s){h+='<span class="mn-workspace-tag">'+s+'<\/span>'});h
 h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Insight<\/div><div class="mn-workspace-profile-insight">'+ft+'<\/div><\/div>';
 
 document.getElementById("profBody").innerHTML=h;rtbl()}
-function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span style="font-size:10px;color:var(--mn-t2);margin-right:6px">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="if(window.parent!==window){window.parent.postMessage({type:\'minerva-launch-campaign\'},\'*\')}else{toast(\'Added '+selMulti.length+' to campaign\')}">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
+function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span style="font-size:10px;color:var(--mn-t2);margin-right:6px">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="if(window.parent!==window){window.parent.postMessage({type:\'minerva-launch-campaign\'},\'*\')}else{toast(\'Added '+selMulti.length+' to campaign\')}">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";if(pr)pr.innerHTML=document.body.classList.contains('embedded')?'<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toggleChat()">✦ Ask AI<\/button>':'<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
 function togOverflow(){document.getElementById("ftOverflow").classList.toggle("open")}
 function cpf(){selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
 
@@ -668,7 +737,7 @@ var scaleStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+"M":(scaledN/1e3).toFixed(0)+
 var filts=extraFilters?Object.keys(extraFilters).join(", "):"none";
 var prompt="Analyze this Miami Dolphins audience segment. Respond ONLY in this exact format — no markdown, no extra text:\nTITLE: [6-8 words. Punchy. Must contain tension — value vs limitation, or opportunity vs risk. Like: High value low focus. Premium-ready signal needs tightening. Strong buyers weak targeting.]\nSUB: [One sentence, max 16 words. Adds clarity + implies next action. Be specific — name the city, the product, the channel.]\n\nSEGMENT: "+n+" records ("+Math.round(n/tot*100)+"% of file, ~"+scaleStr+" at scale)\nScores: "+sLo+"\u2013"+sHi+" | Avg: "+avg+" | Avg age: "+aag+"\nHomeowners: "+oP+"% (baseline "+aOp+"%, delta "+(oP-aOp)+"pts) | $250k+: "+hi2P+"%\nEmail: "+eP+"% | Age: "+ageStr+" | Top city: "+topCity+"\nFilters: "+filts+"\nCurrent campaign ROAS: 4.1x on Family Ticket Bundle\n\nREMEMBER: No description. No filler. Tension in title. Action in subheader.";
 var loadH='<div class="mn-workspace-detail-section" id="intelSection"><div class="mn-workspace-detail-label">Intelligence<\/div><div style="margin-top:12px;display:flex;align-items:center;gap:8px"><div class="mn-intel-loading"><\/div><span style="font-size:10px;color:var(--mn-t3)">Analyzing '+n+' records\u2026<\/span><\/div><\/div>';
-var db=document.getElementById("db");if(db){var old=document.getElementById("intelSection");if(old)old.remove();var anchor=document.getElementById("insightSection");if(anchor)anchor.insertAdjacentHTML("beforebegin",loadH);else db.insertAdjacentHTML("afterbegin",loadH)}
+var db=document.getElementById("db");if(db){var old=document.getElementById("intelSection");if(old)old.remove();var heroSub=document.querySelector(".mn-workspace-detail-hero-sub");if(heroSub)heroSub.insertAdjacentHTML("afterend",loadH);else{var anchor=document.getElementById("insightSection");if(anchor)anchor.insertAdjacentHTML("beforebegin",loadH);else db.insertAdjacentHTML("afterbegin",loadH)}}
 fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:[{role:"user",content:prompt}]})}).then(function(r){return r.json()}).then(function(data){
 var txt=data.text||"";var title="",sub="";
 txt.split("\n").forEach(function(line){var l=line.trim();if(l.startsWith("TITLE:"))title=l.replace("TITLE:","").replace(/\*\*/g,"").trim();else if(l.startsWith("SUB:"))sub=l.replace("SUB:","").replace(/\*\*/g,"").trim()});
@@ -677,10 +746,10 @@ var h='<div class="mn-workspace-detail-section" id="intelSection"><div class="mn
 h+='<div style="font-size:15px;font-weight:600;color:var(--mn-t1);letter-spacing:-0.01em;line-height:1.4;margin-top:10px">'+title+'<\/div>';
 h+='<div style="font-size:11px;color:var(--mn-t2);line-height:1.5;margin-top:4px">'+sub+'<\/div>';
 h+='<button class="mn-workspace-intel-refresh" style="margin-top:10px" onclick="genInsight()">Reanalyze<\/button><\/div>';
-var old2=document.getElementById("intelSection");if(old2)old2.remove();var anc=document.getElementById("insightSection");if(anc)anc.insertAdjacentHTML("beforebegin",h);else document.getElementById("db").insertAdjacentHTML("afterbegin",h)
+var old2=document.getElementById("intelSection");if(old2)old2.remove();var heroSub2=document.querySelector(".mn-workspace-detail-hero-sub");if(heroSub2)heroSub2.insertAdjacentHTML("afterend",h);else{var anc=document.getElementById("insightSection");if(anc)anc.insertAdjacentHTML("beforebegin",h);else document.getElementById("db").insertAdjacentHTML("afterbegin",h)}
 }).catch(function(){
 var h='<div class="mn-workspace-detail-section" id="intelSection"><div class="mn-workspace-detail-label">Intelligence<\/div><div style="font-size:11px;color:var(--mn-t3);margin-top:8px">Unavailable. <button class="mn-workspace-intel-refresh" onclick="genInsight()">Retry<\/button><\/div><\/div>';
-var old3=document.getElementById("intelSection");if(old3)old3.remove();var anc2=document.getElementById("insightSection");if(anc2)anc2.insertAdjacentHTML("beforebegin",h);else document.getElementById("db").insertAdjacentHTML("afterbegin",h)})}
+var old3=document.getElementById("intelSection");if(old3)old3.remove();var heroSub3=document.querySelector(".mn-workspace-detail-hero-sub");if(heroSub3)heroSub3.insertAdjacentHTML("afterend",h);else{var anc2=document.getElementById("insightSection");if(anc2)anc2.insertAdjacentHTML("beforebegin",h);else document.getElementById("db").insertAdjacentHTML("afterbegin",h)}})}
 
 function togFilt(key){
 if(!extraFilters)extraFilters={};
@@ -836,6 +905,262 @@ function endTour(){
   var tt=document.getElementById('tourTooltip');if(tt)tt.remove();
   tourIdx=-1;
 }
+/* ═══ AI CHAT PANEL ═══ */
+var chatLoading=false,chatMsgId=0,chatActions={},chatHistory=[],dynamicFilters=[];
+
+/* Toggle panels */
+function toggleChat(){var p=document.getElementById('pChat');p.classList.toggle('closed')}
+function toggleProfile(){var p=document.getElementById('pProf');if(p.style.display==='none')p.style.display='';else{p.style.display='none';selR=null}}
+
+/* Fire starter pill */
+function fireStarter(btn){document.getElementById('chatInput').value=btn.textContent;sendChat()}
+
+/* Dynamic welcome — context-aware greeting */
+function generateWelcome(){
+  var l=gf(),n=l.length,tot=PP.length;
+  var ss=0,sa=0,ec=0,oc=0,hi250=0;
+  l.forEach(function(p){ss+=p.score;sa+=p.age;if(p.email)ec++;if(p.owner)oc++;if(p.income==='$250-500k'||p.income==='$500k+')hi250++});
+  var avg=n?(ss/n).toFixed(1):'0';
+  var top3=l.slice(0,3).map(function(p){return p.name}).join(', ');
+  var modeTxt=curMode==='All'?'all scores':'<strong>'+curMode+'</strong> mode ('+sLo+'\u2013'+sHi+')';
+  var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none">';
+  h+='<div style="font-size:10px;color:var(--mn-t3);margin-bottom:6px">LIVE CONTEXT</div>';
+  h+='Viewing <strong>'+n+' profiles</strong> in '+modeTxt+'. ';
+  h+='Avg score '+avg+', '+Math.round(oc/n*100)+'% homeowners, '+Math.round(hi250/n*100)+'% earn $250K+. ';
+  h+='Top scorers: '+top3+'.';
+  h+='<div class="mn-chat-actions" style="margin-top:8px">';
+  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Show affluent homeowners</button>';
+  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Switch to Premium</button>';
+  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Compare top 2 profiles</button>';
+  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Summarize this segment</button>';
+  h+='</div></div>';
+  document.getElementById('chatMsgs').innerHTML=h
+}
+
+/* ── LIVE CALCULATIONS ── */
+function computeStats(){
+  var l=gf(),n=l.length;
+  var byCity={},byIncome={},byGender={m:0,f:0},owners=0,renters=0,ageSum=0,scoreSum=0;
+  var ages={u30:0,t30:0,t40:0,t50:0,o60:0};
+  l.forEach(function(p){
+    byCity[p.city]=(byCity[p.city]||0)+1;byIncome[p.income]=(byIncome[p.income]||0)+1;
+    if(p.gender==='Male')byGender.m++;else byGender.f++;
+    if(p.owner)owners++;else renters++;ageSum+=p.age;scoreSum+=p.score;
+    if(p.age<30)ages.u30++;else if(p.age<40)ages.t30++;else if(p.age<50)ages.t40++;else if(p.age<60)ages.t50++;else ages.o60++
+  });
+  var topCities=Object.keys(byCity).sort(function(a,b){return byCity[b]-byCity[a]}).slice(0,5);
+  return{n:n,avgScore:n?(scoreSum/n).toFixed(1):'0',avgAge:n?Math.round(ageSum/n):0,owners:owners,renters:renters,ownerPct:Math.round(owners/n*100),gender:byGender,ages:ages,topCities:topCities.map(function(c){return c+': '+byCity[c]}),incomeBreakdown:byIncome}
+}
+/* ── INLINE SVG CHARTS ── */
+function renderScoreChart(){
+  var l=gf(),bins=Array(10).fill(0);
+  l.forEach(function(p){var b=Math.min(Math.floor(p.score/10),9);bins[b]++});
+  var mx=Math.max.apply(null,bins)||1,w=340,h=90,bw=28,gap=6;
+  var svg='<svg viewBox="0 0 '+w+' '+(h+18)+'" style="width:100%;height:auto;margin-top:8px" xmlns="http://www.w3.org/2000/svg">';
+  bins.forEach(function(v,i){var bh=Math.max(2,(v/mx)*(h-8));var x=i*(bw+gap);
+    svg+='<rect x="'+x+'" y="'+(h-bh)+'" width="'+bw+'" height="'+bh+'" rx="3" fill="rgba(255,255,255,0.1)"/>';
+    svg+='<text x="'+(x+bw/2)+'" y="'+(h+13)+'" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.25)" font-family="var(--mn-font)">'+i+'0s</text>';
+    if(v>0)svg+='<text x="'+(x+bw/2)+'" y="'+(h-bh-3)+'" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.45)" font-family="var(--mn-font)">'+v+'</text>'});
+  return svg+'</svg>'
+}
+function renderCityChart(){
+  var st=computeStats(),w=340,barH=20,gap=4,items=st.topCities.slice(0,5);
+  var vals=items.map(function(s){return parseInt(s.split(': ')[1])});
+  var mx=Math.max.apply(null,vals)||1;
+  var svg='<svg viewBox="0 0 '+w+' '+(items.length*(barH+gap))+'" style="width:100%;height:auto;margin-top:8px" xmlns="http://www.w3.org/2000/svg">';
+  items.forEach(function(s,i){var parts=s.split(': ');var name=parts[0];var v=parseInt(parts[1]);
+    var bw=Math.max(8,(v/mx)*(w-120));var y=i*(barH+gap);
+    svg+='<text x="0" y="'+(y+14)+'" font-size="10" fill="rgba(255,255,255,0.45)" font-family="var(--mn-font)">'+name+'</text>';
+    svg+='<rect x="100" y="'+(y+2)+'" width="'+bw+'" height="'+(barH-4)+'" rx="3" fill="rgba(255,255,255,0.08)"/>';
+    svg+='<text x="'+(102+bw)+'" y="'+(y+14)+'" font-size="10" fill="rgba(255,255,255,0.35)" font-family="var(--mn-font)"> '+v+'</text>'});
+  return svg+'</svg>'
+}
+/* ── DYNAMIC FILTERS ── */
+function addDynFilter(field,op,value){dynamicFilters.push({field:field,op:op,value:value});ren();toast('Filter: '+field+' '+op+' '+value)}
+function clearDynFilters(){dynamicFilters=[];ren();toast('Dynamic filters cleared')}
+var _origGf=gf;
+gf=function(){var l=_origGf();dynamicFilters.forEach(function(f){l=l.filter(function(p){
+  var v=p[f.field];if(f.op==='eq')return String(v).toLowerCase()===String(f.value).toLowerCase();
+  if(f.op==='gte')return Number(v)>=Number(f.value);if(f.op==='lte')return Number(v)<=Number(f.value);
+  if(f.op==='contains')return String(v).toLowerCase().indexOf(String(f.value).toLowerCase())>=0;return true})});return l}
+
+/* Context builder — includes campaigns, briefing, profile index */
+function getWsContext(){
+  var l=gf(),n=l.length,tot=PP.length;
+  var ss=0,sa=0,ec=0,oc=0,hi250=0;
+  l.forEach(function(p){ss+=p.score;sa+=p.age;if(p.email)ec++;if(p.owner)oc++;if(p.income==='$250-500k'||p.income==='$500k+')hi250++});
+  var avg=n?(ss/n).toFixed(1):'0';
+  var aag=n?Math.round(sa/n):0;
+  var filtStr='None';
+  if(extraFilters){var fk=Object.keys(extraFilters);if(fk.length)filtStr=fk.map(function(k){return k+'='+extraFilters[k]}).join(', ')}
+  /* Top 10 profiles for name resolution */
+  var topProfs=l.slice(0,10).map(function(p){return'{id:'+p.id+',name:"'+p.name+'",score:'+p.score+',age:'+p.age+',income:"'+p.income+'",city:"'+p.city+'",owner:'+p.owner+'}'}).join('\n');
+  /* Selected profile context */
+  var selCtx='None selected';
+  if(selR){var sp;PP.forEach(function(x){if(x.id===selR)sp=x});if(sp)selCtx=sp.name+' (id:'+sp.id+', score:'+sp.score+', '+sp.city+', '+sp.income+')'}
+  return 'LIVE WORKSPACE STATE:\n'+
+    'Score range: '+sLo+'\u2013'+sHi+' | Mode: '+curMode+' | Profiles: '+n+'/'+tot+'\n'+
+    'Avg score: '+avg+' | Avg age: '+aag+' | Email: '+ec+' ('+Math.round(ec/n*100)+'%) | Homeowners: '+oc+' ('+Math.round(oc/n*100)+'%)\n'+
+    '$250K+: '+hi250+' ('+Math.round(hi250/n*100)+'%) | Filters: '+filtStr+' | Sort: '+sortKey+' '+(sortDir<0?'desc':'asc')+'\n'+
+    'Selected profile: '+selCtx+'\n'+
+    'Multi-selected: '+selMulti.length+' profiles\n\n'+
+    'CAMPAIGN CONTEXT (Miami Dolphins, April 2026):\n'+
+    'Revenue: $242K (\u2197 7.6%) | ROAS: 4.0x | Conv: 3.9% | Match Rate: 62% (\u2198 11.6%)\n'+
+    'Top: Season Ticket Renewals \u2014 Klaviyo, $142K, 5.2x ROAS, 312 conv\n'+
+    'Family Bundle: $51K, 4.1x ROAS, 204 conv \u2014 scale +20%\n'+
+    'New Fan Acquisition: underperforming 2.4x ROAS\n'+
+    'Signal: Francis Mauigoa pick #11 draft momentum rising\n\n'+
+    'TOP 10 VISIBLE PROFILES:\n'+topProfs+'\n\n'+
+    'AVAILABLE ACTIONS (include when user asks to change something):\n'+
+    '[ACTION]{"type":"setMode","value":"Premium|Balanced|Scale|All"}[/ACTION]\n'+
+    '[ACTION]{"type":"toggleFilter","filter":"ownerOnly|incomeMin|emailOnly"}[/ACTION]\n'+
+    '[ACTION]{"type":"setRange","lo":NUM,"hi":NUM}[/ACTION]\n'+
+    '[ACTION]{"type":"clearFilters"}[/ACTION]\n'+
+    '[ACTION]{"type":"sort","key":"score|age|income"}[/ACTION]\n'+
+    '[ACTION]{"type":"openProfile","id":PROFILE_ID}[/ACTION]\n'+
+    '[ACTION]{"type":"scrollTo","id":PROFILE_ID}[/ACTION]\n'+
+    '[ACTION]{"type":"export"}[/ACTION]\n'+
+    '[ACTION]{"type":"highlight","ids":[ID1,ID2,...]}[/ACTION]\n'+
+    '[ACTION]{"type":"filter","field":"age|city|gender|income","op":"eq|gte|lte|contains","value":"..."}[/ACTION]\n'+
+    '[ACTION]{"type":"showChart","chart":"scores|cities"}[/ACTION]\n'+
+    '[ACTION]{"type":"clearDynFilters"}[/ACTION]\n\n'+
+    'RULES:\n'+
+    '- Multiple actions per response OK\n'+
+    '- "filter" applies dynamic column filters (age gte 55, city eq "Doral", etc.)\n'+
+    '- "showChart" renders inline SVG in chat (scores=histogram, cities=bar). AUTO-EXECUTE charts, no confirmation needed.\n'+
+    '- For calculations, use the stats above and compute real answers\n'+
+    '- For comparisons, structured format with key differences\n'+
+    '- Be opinionated. 2-4 sentences. Reference real names/numbers.'
+}
+
+/* Add message to chat */
+function addChatMsg(role,html){
+  var msgs=document.getElementById('chatMsgs');
+  var empty=msgs.querySelector('.mn-chat-empty');if(empty)empty.remove();
+  var d=document.createElement('div');
+  d.className='mn-chat-msg mn-chat-msg-'+role;
+  d.innerHTML=html;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+  return d
+}
+
+/* Send chat message */
+function sendChat(){
+  if(chatLoading)return;
+  var inp=document.getElementById('chatInput');
+  var q=inp.value.trim();if(!q)return;
+  inp.value='';chatLoading=true;
+  document.getElementById('chatSend').disabled=true;
+  /* Open chat if closed */
+  var cp=document.getElementById('pChat');if(cp.classList.contains('closed'))cp.classList.remove('closed');
+  addChatMsg('user',q);
+  chatHistory.push({role:'user',content:q});
+  var dots=addChatMsg('ai','<span class="mn-chat-shimmer">Analyzing your audience\u2026</span>');
+  var ctx=getWsContext();
+  var msgs=chatHistory.slice(-10);
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    context:ctx,messages:msgs
+  })}).then(function(r){return r.json()}).then(function(d){
+    chatLoading=false;document.getElementById('chatSend').disabled=false;
+    dots.remove();
+    var raw=d.text||'No response.';
+    chatHistory.push({role:'assistant',content:raw});
+    var parsed=parseAIActions(raw);
+    var h=parsed.text.replace(/\n/g,'<br>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    if(parsed.actions.length){
+      h+='<div class="mn-chat-actions">';
+      parsed.actions.forEach(function(a,i){
+        var id='ca'+(chatMsgId++);chatActions[id]=a;
+        if(a.type==='showChart'){h+=a.chart==='cities'?renderCityChart():renderScoreChart();return}
+        h+='<button class="mn-chat-action-btn" id="'+id+'" onclick="execChatAction(\''+id+'\')">'+actionLabel(a)+'</button>'
+      });
+      h+='</div>'
+    }
+    addChatMsg('ai',h)
+  }).catch(function(){
+    chatLoading=false;document.getElementById('chatSend').disabled=false;
+    dots.remove();
+    addChatMsg('ai','Connection error. Try again.')
+  })
+}
+
+/* Parse [ACTION] blocks */
+function parseAIActions(text){
+  var actions=[],clean=text;
+  var re=/\[ACTION\]([\s\S]*?)\[\/ACTION\]/g,m;
+  while((m=re.exec(text))!==null){
+    try{var a=JSON.parse(m[1].trim());actions.push(a)}catch(e){}
+    clean=clean.replace(m[0],'')
+  }
+  return{text:clean.trim(),actions:actions}
+}
+
+/* Action labels */
+function actionLabel(a){
+  if(a.type==='setMode')return'Switch to '+a.value;
+  if(a.type==='toggleFilter'){var m={ownerOnly:'Homeowners',incomeMin:'$250K+',emailOnly:'Email only'};return(m[a.filter]||a.filter)}
+  if(a.type==='setRange')return'Score '+a.lo+'\u2013'+a.hi;
+  if(a.type==='clearFilters')return'Clear filters';
+  if(a.type==='sort')return'Sort by '+a.key;
+  if(a.type==='openProfile'){var p;PP.forEach(function(x){if(x.id===a.id)p=x});return'Open '+(p?p.name:'profile')}
+  if(a.type==='scrollTo'){var p2;PP.forEach(function(x){if(x.id===a.id)p2=x});return'Scroll to '+(p2?p2.name:'profile')}
+  if(a.type==='export')return'Export CSV';
+  if(a.type==='highlight')return'Highlight '+(a.ids?a.ids.length:0)+' profiles';
+  if(a.type==='filter')return a.field+' '+a.op+' '+a.value;
+  if(a.type==='showChart')return'Show '+(a.chart||'score')+' chart';
+  if(a.type==='clearDynFilters')return'Clear dynamic filters';
+  return a.type
+}
+
+/* Execute action */
+function execChatAction(btnId){
+  var a=chatActions[btnId];if(!a)return;
+  var btn=document.getElementById(btnId);
+  if(btn){btn.classList.add('done');btn.textContent='\u2713 '+btn.textContent}
+  if(a.type==='setMode'){setMode(a.value);toast('Mode: '+a.value)}
+  else if(a.type==='toggleFilter'){togFilt(a.filter);toast('Filter toggled')}
+  else if(a.type==='setRange'){sLo=Math.max(0,Math.min(99,a.lo));sHi=Math.max(sLo,Math.min(99,a.hi));usv();ren();toast('Range: '+sLo+'\u2013'+sHi)}
+  else if(a.type==='clearFilters'){clearFilters()}
+  else if(a.type==='sort'){doSort(a.key)}
+  else if(a.type==='openProfile'){opf(a.id);toast('Opened profile')}
+  else if(a.type==='scrollTo'){
+    var row=document.querySelector('[data-pid="'+a.id+'"]');
+    if(row){row.scrollIntoView({behavior:'smooth',block:'center'});row.style.background='rgba(255,255,255,0.08)';setTimeout(function(){row.style.background=''},2000)}
+    toast('Scrolled to profile')
+  }
+  else if(a.type==='export'){doExport();toast('Exported CSV')}
+  else if(a.type==='highlight'&&a.ids){
+    a.ids.forEach(function(id){var row=document.querySelector('[data-pid="'+id+'"]');if(row){row.style.background='rgba(255,255,255,0.08)';setTimeout(function(){row.style.background=''},4000)}});
+    toast('Highlighted '+a.ids.length+' profiles')
+  }
+  else if(a.type==='filter'){addDynFilter(a.field,a.op,a.value)}
+  else if(a.type==='showChart'){var chart=a.chart==='cities'?renderCityChart():renderScoreChart();addChatMsg('ai',chart)}
+  else if(a.type==='clearDynFilters'){clearDynFilters()}
+}
+
+/* Clear chat */
+function clearChat(){
+  chatActions={};chatHistory=[];dynamicFilters=[];generateWelcome()
+}
+
+/* Multi-select hover summary */
+function updateSelSummary(e){
+  var el=document.getElementById('selSummary');
+  if(selMulti.length<2){el.classList.remove('visible');return}
+  var sel=PP.filter(function(p){return selMulti.indexOf(p.id)>=0});
+  var ss=0,sa=0,oc=0,ec=0;
+  sel.forEach(function(p){ss+=p.score;sa+=p.age;if(p.owner)oc++;if(p.email)ec++});
+  var avg=(ss/sel.length).toFixed(1);
+  var aag=Math.round(sa/sel.length);
+  el.textContent=sel.length+' selected \u00b7 Avg score '+avg+' \u00b7 Avg age '+aag+' \u00b7 '+oc+' homeowners \u00b7 '+ec+' email';
+  el.style.left=(e?e.clientX+12:100)+'px';
+  el.style.top=(e?(e.clientY-40):100)+'px';
+  el.classList.add('visible')
+}
+
+/* Init welcome on first render */
+setTimeout(function(){generateWelcome()},800);
 
 </script>
 </body>

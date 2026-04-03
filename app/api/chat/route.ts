@@ -38,7 +38,8 @@ CURRENT BRIEFING CONTEXT (April 1, 2026):
 - Dolphins: Mauigoa (OL, Michigan State) projected pick #11, Hafley building physical culture, Achane extension priority, 11 draft picks, fan confidence in long-term direction rising`
 
 export async function POST(req: NextRequest) {
-  const { messages } = await req.json()
+  const { messages, context } = await req.json()
+  const system = context ? SYSTEM + "\n\n" + context : SYSTEM
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -48,8 +49,8 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 300,
-      system: SYSTEM,
+      max_tokens: 500,
+      system,
       messages,
     }),
   })
