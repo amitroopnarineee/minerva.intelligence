@@ -160,8 +160,8 @@ export function MinervaMenuBar({ onToggleTheme, isLight }: { onToggleTheme?: () 
           className="relative flex items-center justify-center cursor-pointer select-none"
           style={{
             background: "#0a0a0a",
-            width: isOpen ? "auto" : isPeek ? 120 : 80,
-            height: isOpen ? 30 : isPeek ? 34 : 0,
+            width: isOpen ? 480 : isPeek ? 120 : 80,
+            height: isOpen ? 50 : isPeek ? 34 : 0,
             borderRadius: isOpen ? "0 0 28px 28px" : isPeek ? "0 0 18px 18px" : "0 0 16px 16px",
             padding: isOpen ? "8px 32px" : isPeek ? "8px 16px" : "0 16px",
             opacity: isVisible ? 1 : 0,
