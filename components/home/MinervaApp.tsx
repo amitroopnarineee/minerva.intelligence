@@ -40,6 +40,34 @@ function MinervaLogo({ size = 16 }: { size?: number }) {
 const NUMBER_CHUNKS = ['$242K', '4.0x', '3 actions ready.', '84%', '2,400', 'Francis Mauigoa', 'pick #11', '1,872']
 const SHIMMER_NAMES = new Set(['Francis Mauigoa', 'pick #11'])
 
+/* ── Count-up animation for KPI values ── */
+function CountUpValue({ value, active, duration = 800 }: { value: string; active: boolean; duration?: number }) {
+  const [display, setDisplay] = useState(value)
+  useEffect(() => {
+    if (!active) { setDisplay(value); return }
+    const match = value.match(/^([^0-9]*?)([\d,.]+)(.*)$/)
+    if (!match) { setDisplay(value); return }
+    const [, prefix, numStr, suffix] = match
+    const num = parseFloat(numStr.replace(/,/g, ''))
+    const hasComma = numStr.includes(',')
+    const decimals = numStr.includes('.') ? numStr.split('.')[1].length : 0
+    const start = performance.now()
+    let raf: number
+    function tick(now: number) {
+      const p = Math.min((now - start) / duration, 1)
+      const ease = 1 - Math.pow(1 - p, 3)
+      const current = num * ease
+      let formatted = decimals > 0 ? current.toFixed(decimals) : Math.round(current).toString()
+      if (hasComma && !decimals) formatted = Number(formatted).toLocaleString()
+      setDisplay(`${prefix}${formatted}${suffix}`)
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [active, value, duration])
+  return <>{display}</>
+}
+
 function useTypewriter(text: string, active: boolean, speed = 25) {
   const [segments, setSegments] = useState<{text:string,type:'char'|'num'|'warm'}[]>([])
   const [done, setDone] = useState(false)
@@ -354,7 +382,7 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
                     </div>
                     {/* Value + prev */}
                     <div className="mn-kpi-value px-4 pt-1 pb-2">
-                      <p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2 }}>{m.value}</p>
+                      <p className="text-[24px] text-white tabular-nums" style={{ fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2 }}><CountUpValue value={m.value} active={true} duration={900} /></p>
                       <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.2)' }}>from {m.prev}</p>
                     </div>
                     {/* Recharts area sparkline */}
@@ -502,9 +530,10 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
   const [actionModal, setActionModal] = useState<'save-segment' | 'launch-campaign' | null>(null)
   const [phase, setPhase] = useState<'select' | 'workspace'>('select')
   const [emptyMode, setEmptyMode] = useState(false)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
 
   // Reset phase when modal opens
-  useEffect(() => { if (open) { setPhase('select'); setEmptyMode(false) } }, [open])
+  useEffect(() => { if (open) { setPhase('select'); setEmptyMode(false); setIframeLoaded(false) } }, [open])
 
   // Autopilot: auto-select after delay
   useEffect(() => {
@@ -519,6 +548,7 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
     function handleMsg(e: MessageEvent) {
       if (e.data?.type === 'minerva-save-segment') setActionModal('save-segment')
       if (e.data?.type === 'minerva-launch-campaign') setActionModal('launch-campaign')
+      if (e.data?.type === 'minerva-iframe-ready') setIframeLoaded(true)
     }
     window.addEventListener('message', handleMsg)
     return () => window.removeEventListener('message', handleMsg)
@@ -607,6 +637,14 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
         /* ═══ WORKSPACE ═══ */
         <div className="flex-1 relative bg-black" style={{ opacity: 0, animation: 'mn-stagger-in 0.4s ease forwards' }}>
           <iframe ref={iframeRef} key={Date.now()} src={`/workspace.html?${emptyMode ? 'empty=1&' : ''}t=${Date.now()}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
+          {/* Loading skeleton — fades out when iframe signals ready */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black z-10" style={{
+            opacity: iframeLoaded ? 0 : 1, pointerEvents: iframeLoaded ? 'none' : 'auto',
+            transition: 'opacity 0.5s ease',
+          }}>
+            <div className="mn-skeleton-pulse"><MinervaLogo size={28} /></div>
+            <p className="text-[11px] mt-4" style={{ color: 'rgba(255,255,255,0.15)' }}>Loading workspace...</p>
+          </div>
         </div>
       )}
 
@@ -1402,7 +1440,7 @@ export function MinervaApp() {
         transform: transitioning ? 'scale(0.98)' : 'scale(1)',
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
-        {view === 'home' && <HomeScreen onEnter={() => { navigateTo('dashboard'); handleOpenStudio() }} />}
+        {view === 'home' && <HomeScreen onEnter={() => { navigateTo('dashboard'); setTimeout(() => handleOpenStudio(), 400) }} />}
         {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} onAutopilot={startAutopilot} autoLaunch={autoLaunch} onAutoLaunched={() => setAutoLaunch(false)} savedSegments={savedSegments} studioOpen={modal === 'studio'} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
         {view === 'segments' && <SegmentsScreen segments={savedSegments} navigateTo={navigateTo} />}

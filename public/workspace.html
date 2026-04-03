@@ -803,6 +803,8 @@ doSave = function() {
 /* detect parent light mode and counter-invert images */
 try{if(window.self!==window.top&&window.parent.document.querySelector('.mn-light-mode'))document.documentElement.classList.add('mn-parent-inverted')}catch(e){}
 usv();ren()
+// Signal parent that workspace is ready (for loading skeleton)
+setTimeout(function(){ try { window.parent.postMessage({ type: 'minerva-iframe-ready' }, '*') } catch(e){} }, 300)
 
 /* ═══ GUIDED TOUR ENGINE ═══ */
 var tourSteps=[

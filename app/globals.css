@@ -184,6 +184,15 @@
 
 @keyframes bar-grow { from { width: 0; } }
 
+/* ══ Workspace loading skeleton ══ */
+@keyframes mn-skeleton-pulse {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.08); }
+}
+.mn-skeleton-pulse {
+  animation: mn-skeleton-pulse 1.8s ease-in-out infinite;
+}
+
 
 /* ══ Shimmer text for topic links ══ */
 @keyframes text-shimmer {
