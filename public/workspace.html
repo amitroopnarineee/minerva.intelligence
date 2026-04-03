@@ -402,9 +402,10 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
     </div>
     <!-- TABLE SECOND -->
     <div class="mn-workspace-panel mn-workspace-in" id="pTbl" style="flex:1;animation-delay:.1s">
-      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">People</span><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">People</span><button class="mn-workspace-topbar-btn" id="chartTogBtn" onclick="toggleChartView()" title="Toggle chart view" style="margin-left:6px;padding:0 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></button><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
       <div class="mn-workspace-search"><svg class="mn-workspace-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="mn-workspace-search-input" type="text" placeholder="Search..." id="si" oninput="ren()"></div>
       <div class="mn-workspace-panel-body" id="tb"></div>
+      <div class="mn-workspace-panel-body" id="chartPanel" style="display:none;padding:20px;overflow-y:auto"></div>
       <div class="mn-workspace-floating-toolbar" id="floatingModes"></div>
     </div>
     <!-- PROFILE INLINE (hidden until row click) -->
@@ -708,7 +709,7 @@ document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-
 // Close segments menu when clicking outside
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-workspace-topbar-segments"))document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open")});
 
-function ren(){rtbl();rdet();var ct=document.getElementById('chatTitle');if(ct)ct.textContent=curMode==='All'?'All Profiles':curMode+' Segment';if(document.querySelector('.mn-chat-empty'))generateWelcome()}
+function ren(){rtbl();rdet();var ct=document.getElementById('chatTitle');if(ct)ct.textContent=curMode==='All'?'All Profiles':curMode+' Segment';if(document.querySelector('.mn-chat-empty'))generateWelcome();if(chartViewOn)renderFullChart()}
 
 // Keyboard
 document.addEventListener("keydown",function(e){
@@ -915,6 +916,61 @@ function renderCityChart(){
     svg+='<text x="'+(102+bw)+'" y="'+(y+14)+'" font-size="10" fill="rgba(255,255,255,0.35)" font-family="var(--mn-font)"> '+v+'</text>'});
   return svg+'</svg>'
 }
+
+/* ═══ CHART TOGGLE VIEW ═══ */
+var chartViewOn=false;
+function toggleChartView(){
+  chartViewOn=!chartViewOn;
+  var tb=document.getElementById('tb'),cp=document.getElementById('chartPanel'),si=document.querySelector('.mn-workspace-search'),btn=document.getElementById('chartTogBtn');
+  if(chartViewOn){
+    tb.style.display='none';si.style.display='none';
+    cp.style.display='block';btn.classList.add('mn-workspace-topbar-btn-on');
+    renderFullChart()
+  } else {
+    tb.style.display='';si.style.display='';
+    cp.style.display='none';btn.classList.remove('mn-workspace-topbar-btn-on')
+  }
+}
+function renderFullChart(){
+  var l=gf(),cp=document.getElementById('chartPanel');
+  /* Score distribution */
+  var bins=Array(10).fill(0);
+  l.forEach(function(p){var b=Math.min(Math.floor(p.score/10),9);bins[b]++});
+  var mx=Math.max.apply(null,bins)||1;
+  var h='<div style="margin-bottom:24px"><p style="font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);margin-bottom:10px;font-weight:600">Score Distribution</p>';
+  h+='<svg viewBox="0 0 460 120" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">';
+  bins.forEach(function(v,i){var bh=Math.max(3,(v/mx)*95);var x=i*46;
+    h+='<rect x="'+x+'" y="'+(100-bh)+'" width="38" height="'+bh+'" rx="4" fill="rgba(255,255,255,'+(i*10>=sLo&&i*10+9<=sHi?'0.15':'0.04')+')" />';
+    h+='<text x="'+(x+19)+'" y="115" text-anchor="middle" font-size="9" fill="var(--mn-t3)" font-family="var(--mn-font)">'+i+'0s</text>';
+    if(v>0)h+='<text x="'+(x+19)+'" y="'+(95-bh)+'" text-anchor="middle" font-size="10" fill="var(--mn-t2)" font-family="var(--mn-font)" font-weight="500">'+v+'</text>'
+  });
+  h+='</svg></div>';
+  /* City breakdown */
+  var cities={};l.forEach(function(p){cities[p.city]=(cities[p.city]||0)+1});
+  var cArr=Object.keys(cities).map(function(c){return{name:c,count:cities[c]}}).sort(function(a,b){return b.count-a.count}).slice(0,8);
+  var cMx=cArr.length?cArr[0].count:1;
+  h+='<div style="margin-bottom:24px"><p style="font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);margin-bottom:10px;font-weight:600">Top Cities</p>';
+  cArr.forEach(function(c){
+    var pct=Math.round(c.count/cMx*100);
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">';
+    h+='<span style="width:90px;font-size:11px;color:var(--mn-t2);text-align:right;flex-shrink:0">'+c.name+'</span>';
+    h+='<div style="flex:1;height:18px;background:rgba(255,255,255,0.02);border-radius:4px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:rgba(255,255,255,0.08);border-radius:4px;transition:width 0.5s ease"></div></div>';
+    h+='<span style="width:30px;font-size:11px;color:var(--mn-t3);font-variant-numeric:tabular-nums">'+c.count+'</span></div>'
+  });
+  h+='</div>';
+  /* Demographics summary */
+  var oc=0,ec=0,hi=0,gm=0,gf2=0;l.forEach(function(p){if(p.owner)oc++;if(p.email)ec++;if(p.income==='$250-500k'||p.income==='$500k+')hi++;if(p.gender==='M')gm++;if(p.gender==='F')gf2++});
+  h+='<div><p style="font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);margin-bottom:10px;font-weight:600">Demographics</p>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">';
+  var demoStats=[{l:'Homeowners',v:Math.round(oc/l.length*100)+'%'},{l:'Email',v:Math.round(ec/l.length*100)+'%'},{l:'$250K+',v:Math.round(hi/l.length*100)+'%'},{l:'Male',v:Math.round(gm/l.length*100)+'%'},{l:'Female',v:Math.round(gf2/l.length*100)+'%'},{l:'Avg Score',v:(l.reduce(function(s,p){return s+p.score},0)/l.length).toFixed(1)}];
+  demoStats.forEach(function(d){
+    h+='<div style="background:rgba(255,255,255,0.02);border:1px solid var(--mn-border);border-radius:8px;padding:10px 12px">';
+    h+='<div style="font-size:18px;font-weight:600;color:var(--mn-t1);letter-spacing:-0.02em;font-variant-numeric:tabular-nums">'+d.v+'</div>';
+    h+='<div style="font-size:10px;color:var(--mn-t3);margin-top:2px">'+d.l+'</div></div>'
+  });
+  h+='</div></div>';
+  cp.innerHTML=h
+}
 /* ── DYNAMIC FILTERS ── */
 function addDynFilter(field,op,value){dynamicFilters.push({field:field,op:op,value:value});ren();toast('Filter: '+field+' '+op+' '+value)}
 function clearDynFilters(){dynamicFilters=[];ren();toast('Dynamic filters cleared')}
@@ -1009,13 +1065,14 @@ function sendChat(){
     var raw=d.text||'No response.';
     chatHistory.push({role:'assistant',content:raw});
     var parsed=parseAIActions(raw);
-    var h=parsed.text.replace(/\n/g,'<br>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    var h=formatAIText(parsed.text);
     if(parsed.actions.length){
       h+='<div class="mn-chat-actions">';
       parsed.actions.forEach(function(a,i){
         var id='ca'+(chatMsgId++);chatActions[id]=a;
         if(a.type==='showChart'){h+=a.chart==='cities'?renderCityChart():renderScoreChart();return}
-        h+='<button class="mn-chat-action-btn" id="'+id+'" onclick="execChatAction(\''+id+'\')">'+actionLabel(a)+'</button>'
+        var icon=actionIcon(a);
+        h+='<button class="mn-chat-action-btn" id="'+id+'" onclick="execChatAction(\''+id+'\')">'+icon+actionLabel(a)+'</button>'
       });
       h+='</div>'
     }
@@ -1025,6 +1082,38 @@ function sendChat(){
     dots.remove();
     addChatMsg('ai','Connection error. Try again.')
   })
+}
+
+/* Format AI response text with structured cards */
+function formatAIText(text){
+  // Bold
+  text=text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  var lines=text.split('\n').filter(function(l){return l.trim()});
+  var html='',inStats=false,statHtml='';
+  lines.forEach(function(line){
+    // Detect stat lines: patterns like "Score: 84" or "84% reachable" at start
+    var statMatch=line.match(/^[-•]?\s*(.+?):\s*([\$]?[\d,.]+[%xK]?)\b/);
+    if(statMatch && line.length < 60){
+      if(!inStats){inStats=true;statHtml='<div class="mn-chat-section"><div class="mn-chat-section-title">Key Metrics</div>'}
+      statHtml+='<span class="mn-chat-stat"><span class="mn-chat-stat-value">'+statMatch[2]+'</span><span class="mn-chat-stat-label">'+statMatch[1]+'</span></span>';
+      return
+    }
+    if(inStats){html+=statHtml+'</div>';inStats=false;statHtml=''}
+    // Bullet lists
+    if(line.match(/^\s*[-•]\s/)){
+      html+='<div style="display:flex;gap:6px;margin:2px 0"><span style="color:var(--mn-t3);flex-shrink:0">·</span><span>'+line.replace(/^\s*[-•]\s/,'')+'</span></div>';
+      return
+    }
+    html+='<p style="margin:4px 0">'+line+'</p>'
+  });
+  if(inStats)html+=statHtml+'</div>';
+  return html
+}
+
+/* Action button icons */
+function actionIcon(a){
+  var icons={setMode:'◎ ',toggleFilter:'⫘ ',setRange:'⟷ ',clearFilters:'✕ ',sort:'↕ ',openProfile:'◔ ',export:'↧ ',highlight:'◈ ',filter:'⫘ ',compare:'⟺ ',clearDynFilters:'✕ '};
+  return icons[a.type]||'✦ '
 }
 
 /* Parse [ACTION] blocks */
