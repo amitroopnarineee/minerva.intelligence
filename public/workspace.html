@@ -423,7 +423,6 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
         <input class="mn-chat-input" id="chatInput" type="text" placeholder="Ask Minerva..." onkeydown="if(event.key==='Enter')sendChat()" />
         <button class="mn-chat-send" id="chatSend" onclick="sendChat()">↑</button>
       </div>
-      <div style="padding:0 12px 8px;text-align:right"><button style="background:none;border:none;color:var(--mn-t3);font-size:10px;cursor:pointer;font-family:var(--mn-font);padding:2px 0" onclick="toggleChat()">× Close</button></div>
     </div>
   </div>
   <div class="mn-workspace-slider mn-workspace-in" style="animation-delay:.15s">
@@ -568,14 +567,14 @@ l.forEach(function(p){var a=p.age;if(a<30)agb["18-29"]++;else if(a<40)agb["30-39
 var h='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Summary<\/div>';
 var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);var heroStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN>=1e3?(scaledN/1e3).toFixed(0)+'K':scaledN.toString());
 h+='<div class="mn-workspace-detail-hero">'+heroStr+'<\/div>';
-h+='<div class="mn-workspace-detail-hero-sub">scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 '+n.toLocaleString()+' records<\/div>';
-h+='<div class="mn-workspace-detail-metric-grid" style="margin-top:8px;grid-template-columns:1fr 1fr 1fr">';
-h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Score<\/div><div class="mn-workspace-detail-metric-value">'+avg+'<\/div><\/div>';
-h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Avg Age<\/div><div class="mn-workspace-detail-metric-value">'+aag+'<\/div><\/div>';
-h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Age 45+<\/div><div class="mn-workspace-detail-metric-value">'+a45p+'%<\/div><\/div>';
-h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Homeowners<\/div><div class="mn-workspace-detail-metric-value">'+op+'%<\/div><\/div>';
-h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">$250k+<\/div><div class="mn-workspace-detail-metric-value">'+hi250p+'%<\/div><\/div>';
-h+='<div class="mn-workspace-detail-metric"><div class="mn-workspace-detail-metric-label">Email<\/div><div class="mn-workspace-detail-metric-value">'+Math.round(ec/n*100)+'%<\/div><\/div>';
+h+='<div class="mn-workspace-detail-hero-sub">Scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 '+n.toLocaleString()+' Records<\/div>';
+h+='<div style="margin-top:8px">';
+h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Avg Score<\/span><span class="mn-workspace-profile-field-value">'+avg+'<\/span><\/div>';
+h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Avg Age<\/span><span class="mn-workspace-profile-field-value">'+aag+'<\/span><\/div>';
+h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Age 45+<\/span><span class="mn-workspace-profile-field-value">'+a45p+'%<\/span><\/div>';
+h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Homeowners<\/span><span class="mn-workspace-profile-field-value">'+op+'%<\/span><\/div>';
+h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">$250k+<\/span><span class="mn-workspace-profile-field-value">'+hi250p+'%<\/span><\/div>';
+h+='<div class="mn-workspace-profile-field"><span class="mn-workspace-profile-field-key">Email<\/span><span class="mn-workspace-profile-field-value">'+Math.round(ec/n*100)+'%<\/span><\/div>';
 h+='<\/div>';
 // If multi-selected, show selection stats
 if(selMulti.length>1){
@@ -594,19 +593,6 @@ if(selMulti.length>1){
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Reachability<\/div>';
 [[ec,"Email"],[pc,"Phone"],[ac,"Mail"]].forEach(function(r){var rate=r[0]/n;var cls=rate>.75?"mn-workspace-reach-dot-high":rate>.55?"mn-workspace-reach-dot-mid":"mn-workspace-reach-dot-low";
 h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls+'"><\/div><div class="mn-workspace-reach-name">'+r[1]+'<\/div><div class="mn-workspace-reach-count">'+r[0].toLocaleString()+'<\/div><div class="mn-workspace-reach-pct">'+pct(r[0],n)+'<\/div><\/div>'});
-h+='<\/div>';
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Context<\/div>';
-if(avg>60){
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Premium suite renewals due May 15 \u2014 '+Math.round(n*0.18)+' members in this segment at risk<\/div><div class="mn-workspace-news-meta">High urgency: this cohort has 3.2x conversion on renewal campaigns<\/div><\/div>';
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Avg HHI $'+Math.round(200+parseFloat(avg)*3)+'k in this range \u2014 premium pricing viable<\/div><div class="mn-workspace-news-meta">Compare to $185k baseline across full file<\/div><\/div>';
-}else if(avg>35){
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Brickell/Wynwood entertainment spend up 23% QoQ in 18-34 demo<\/div><div class="mn-workspace-news-meta">Emerging high-value fan segment overlapping this range<\/div><\/div>';
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Mid-tier ticket bundles converting at 6.8% \u2014 strong for this score band<\/div><div class="mn-workspace-news-meta">Multi-game packs outperforming single-game by 2.1x<\/div><\/div>';
-}else{
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Secondary market Section 400 prices down 12% \u2014 value-tier opportunity<\/div><div class="mn-workspace-news-meta">This segment responds to price-driven offers<\/div><\/div>';
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">Digital engagement up 34% among younger demos \u2014 app-first acquisition<\/div><div class="mn-workspace-news-meta">Push notification campaigns showing 4.5x open rate<\/div><\/div>';
-}
-h+='<div class="mn-workspace-news-item"><div class="mn-workspace-news-title">2026-27 season: Hard Rock Stadium capacity at 64,767 \u2014 '+Math.round(n/647)+'% addressable via this segment<\/div><div class="mn-workspace-news-meta">Seasonality peak: Sept\u2013Nov<\/div><\/div>';
 h+='<\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
@@ -767,7 +753,7 @@ document.addEventListener("click",function(e){if(!e.target.closest(".mn-toolbar-
 // Close segments menu when clicking outside
 document.addEventListener("click",function(e){if(!e.target.closest(".mn-workspace-topbar-segments"))document.getElementById("segMenu").classList.remove("mn-workspace-topbar-segments-menu-open")});
 
-function ren(){rtbl();rdet();genInsight()}
+function ren(){rtbl();rdet()}
 
 // Keyboard
 document.addEventListener("keydown",function(e){
@@ -927,9 +913,6 @@ function generateWelcome(){
   var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 20px">';
   h+='<div style="font-size:13px;color:var(--mn-t2)">Viewing <strong style="color:var(--mn-t1)">'+n.toLocaleString()+'</strong> profiles</div>';
   h+='<div class="mn-chat-actions" style="margin-top:16px;justify-content:center">';
-  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Show affluent homeowners</button>';
-  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Switch to Premium</button>';
-  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Compare top 2 profiles</button>';
   h+='<button class="mn-chat-starter" onclick="fireStarter(this)">Summarize this segment</button>';
   h+='</div></div>';
   document.getElementById('chatMsgs').innerHTML=h
