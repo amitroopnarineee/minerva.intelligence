@@ -864,11 +864,11 @@ function generateWelcome(){
   var avg=n?(ss/n).toFixed(1):'0';
   var top3=l.slice(0,3).map(function(p){return p.name}).join(', ');
   var modeTxt=curMode==='All'?'all scores':'<strong>'+curMode+'</strong> mode ('+sLo+'\u2013'+sHi+')';
-  var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 20px 20px">';
+  var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:0 20px">';
   h+='<div style="font-size:13px;color:var(--mn-t2)">Viewing <strong style="color:var(--mn-t1)">'+n.toLocaleString()+'</strong> profiles</div>';
   h+='<div class="mn-chat-actions" style="margin-top:16px;justify-content:center">';
   var starters=curMode==='Premium'?["Who's at highest churn risk?","Compare top vs bottom half"]:curMode==='Scale'?["Which cities are underrepresented?","Show score distribution"]:["Summarize this segment","Show affluent homeowners"];
-  starters.forEach(function(s){h+='<button class="mn-chat-starter" onclick="fireStarter(this)">'+s+'</button>'});
+  h+='<button class="mn-chat-starter" onclick="fireStarter(this)">'+starters[0]+'</button>';
   h+='</div></div>';
   document.getElementById('chatMsgs').innerHTML=h;
   var modeLabel=curMode==='All'?'All Profiles':curMode+' Segment';

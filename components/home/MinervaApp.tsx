@@ -554,8 +554,7 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
           </button>
         )}
         <button onClick={onClose}
-          className="h-7 px-3.5 rounded-full transition-all hover:bg-white/[0.06]"
-          style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)' }}>
+          className="h-7 px-3.5 rounded-full transition-all hover:bg-white/[0.06]" style={{ display: 'none' }}>
           <span className="text-[11px] text-white/50" style={{ fontWeight: 500 }}>Back</span>
         </button>
       </div>
@@ -658,7 +657,7 @@ function CalendarScreen({ navigateTo, onDetail }: { navigateTo: (v: View) => voi
       <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
         <div className="max-w-[600px] mx-auto px-6 pt-6 pb-32">
           <div className="flex items-center justify-between mb-8">
-            <button onClick={() => navigateTo('briefing')} className="text-[12px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ color: 'rgba(255,255,255,0.4)' }}>← Back to briefing</button>
+            <button onClick={() => navigateTo('briefing')} className="text-[12px] px-3 py-1.5 rounded-lg transition-all hover:bg-white/[0.04]" style={{ display: 'none' }}>← Back to briefing</button>
             <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.22)' }}>✦ APRIL 2026 · BRIEFING CALENDAR</p>
           </div>
 
