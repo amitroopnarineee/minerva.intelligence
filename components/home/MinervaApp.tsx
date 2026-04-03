@@ -219,7 +219,7 @@ const GALLERY_IMAGES = [
    ══════════════════════════════════════════════════════════ */
 
 
-function HomeScreen({ onEnter, onAutopilot }: { onEnter: () => void; onAutopilot?: () => void }) {
+function HomeScreen({ onEnter }: { onEnter: () => void }) {
   const [ti, setTi] = useState(0)
   useEffect(() => { const iv = setInterval(() => setTi(p => (p + 1) % TAGLINES.length), 5000); return () => clearInterval(iv) }, [])
   return (
@@ -315,9 +315,10 @@ function BriefingThread({ navigateTo, onOpenStudio, studioSaved, studioDone, onD
   // Auto-advance phases
   useEffect(() => {
     if (typeDone && phase === 0) {
-      setTimeout(() => setPhase(1), 300)
-      setTimeout(() => setPhase(2), 800)
-      setTimeout(() => setPhase(3), 1400)
+      const t1 = setTimeout(() => setPhase(1), 300)
+      const t2 = setTimeout(() => setPhase(2), 800)
+      const t3 = setTimeout(() => setPhase(3), 1400)
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
     }
   }, [typeDone, phase])
 
@@ -809,7 +810,7 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot }: { navigateTo
           {DASH_TABS.filter(t => !t.hidden).map(t => (
             <button key={t.id} onClick={() => {
               setActiveTab(t.id)
-              setTitleIdx(DASH_TABS.findIndex(tab => tab.id === t.id))
+              setTitleIdx(visibleTabs.findIndex(tab => tab.id === t.id))
               if (t.id === 'discover') { navigateTo('briefing'); return }
               if (t.id === 'audiences') { handleAudienceClick(); return }
             }}
@@ -1344,7 +1345,7 @@ export function MinervaApp() {
         transform: transitioning ? 'scale(0.98)' : 'scale(1)',
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
-        {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} onAutopilot={startAutopilot} />}
+        {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} />}
         {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} onAutopilot={startAutopilot} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
         {view === 'segments' && <SegmentsScreen segments={savedSegments} navigateTo={navigateTo} />}
