@@ -19,7 +19,7 @@
   --mn-border-h:rgba(255,255,255,0.12);
   --mn-t1:rgba(255,255,255,0.90);
   --mn-t2:rgba(255,255,255,0.45);
-  --mn-t3:rgba(255,255,255,0.22);
+  --mn-t3:rgba(255,255,255,0.30);
   --mn-white:#fff;
   --mn-r:10px;
   --mn-g:10px;
@@ -59,7 +59,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-panel-header{display:none}
 .mn-workspace-panel-header-title{font-size:10px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em}
 .mn-workspace-panel-header-meta{font-size:10px;color:var(--mn-t3);font-variant-numeric:tabular-nums}
-.mn-workspace-panel-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-mask-image:linear-gradient(to bottom,black 0%,black 92%,transparent 100%);mask-image:linear-gradient(to bottom,black 0%,black 92%,transparent 100%)}
+.mn-workspace-panel-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 4%,black 85%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,black 4%,black 85%,transparent 100%)}
 .mn-workspace-panel-body::-webkit-scrollbar{width:4px}
 .mn-workspace-panel-body::-webkit-scrollbar-track{background:transparent}
 .mn-workspace-panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
@@ -81,7 +81,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-slider-stats{display:none}
 .mn-workspace-slider-stat{text-align:center;min-width:44px}
 .mn-workspace-slider-stat-value{font-size:13px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
-.mn-workspace-slider-stat-label{font-size:8px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+.mn-workspace-slider-stat-label{font-size:9px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
 
 /* ═══ TABLE ═══ */
 .mn-workspace-search{padding:10px!important;border-bottom:1px solid var(--mn-border);position:relative}
@@ -126,7 +126,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-delta-track{flex:1;height:3px;background:rgba(255,255,255,0.02);border-radius:2px;overflow:hidden}
 .mn-workspace-delta-fill{height:100%;border-radius:2px;transition:width .3s ease}
 .mn-workspace-delta-fill-pos{background:#22c55e;opacity:0.5}
-.mn-workspace-delta-fill-neg{background:#ef4444;opacity:0.4}
+.mn-workspace-delta-fill-neg{background:#f87171;opacity:0.4}
 .mn-workspace-delta-value{width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:10px}
 .mn-workspace-dist-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
 .mn-workspace-dist-label{font-size:10px;color:var(--mn-t2);width:75px;flex-shrink:0;text-align:left}
@@ -211,7 +211,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-floating-toolbar .mn-toolbar-action-primary{border-color:rgba(255,255,255,0.15);color:var(--mn-t1);background:rgba(255,255,255,0.06)}
 .mn-workspace-floating-toolbar .mn-toolbar-action-icon{height:28px;width:28px;padding:0;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--mn-t3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
 .mn-workspace-floating-toolbar .mn-toolbar-action-icon:hover{border-color:rgba(255,255,255,0.15);color:var(--mn-t1)}
-.mn-workspace-floating-toolbar .mn-toolbar-sel{font-size:10px;color:rgba(255,255,255,0.3);padding:0 6px;white-space:nowrap;display:flex;align-items:center;gap:3px}
+.mn-workspace-floating-toolbar .mn-toolbar-sel{font-size:10px;color:var(--mn-t2);padding:0 6px;white-space:nowrap;display:flex;align-items:center;gap:3px;font-weight:500}
 .mn-toolbar-filter-wrap{position:relative}
 .mn-toolbar-filter-pop{display:none;position:absolute;bottom:36px;left:0;background:rgba(10,10,10,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px;min-width:140px;z-index:30;backdrop-filter:blur(16px)}
 .mn-toolbar-filter-pop.open{display:flex;flex-direction:column;gap:2px}
@@ -243,7 +243,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-top:5px!important;border:none!important}
 .mn-workspace-detail-stat-cell{background:rgba(255,255,255,0.015);border:none;border-radius:6px;padding:10px;text-align:center}
 .mn-workspace-detail-stat-cell-value{font-size:14px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
-.mn-workspace-detail-stat-cell-label{font-size:8px;color:var(--mn-t3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-top:1px}
+.mn-workspace-detail-stat-cell-label{font-size:9px;color:var(--mn-t3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-top:1px}
 
 /* ═══ DRAG SELECT ═══ */
 .mn-workspace-table-row-dragging{background:rgba(255,255,255,0.04) !important}
@@ -308,7 +308,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 .mn-chat-header-btn:hover{color:var(--mn-t1);border-color:rgba(255,255,255,0.15)}
 .mn-chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none}
 .mn-chat-messages::-webkit-scrollbar{display:none}
-.mn-chat-empty{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0;color:var(--mn-t3);font-size:11px;line-height:1.5}
+.mn-chat-empty{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0;color:var(--mn-t3);font-size:11px;line-height:1.5}
 .mn-chat-msg{max-width:100%;font-size:13px;line-height:1.6;animation:mn-chat-in 0.25s ease;letter-spacing:-0.005em}
 .mn-chat-msg-user{align-self:flex-end;max-width:85%;background:rgba(255,255,255,0.06);color:var(--mn-t1);padding:10px 14px;border-radius:18px 18px 4px 18px;font-weight:400}
 .mn-chat-msg-ai{align-self:flex-start;color:var(--mn-t1);padding:4px 0}
@@ -591,7 +591,7 @@ h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls
 h+='<\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
-h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?"mn-workspace-delta-fill-pos":"mn-workspace-delta-fill-neg")+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value" style="color:'+(pos?"#22c55e":"#ef4444")+'">'+(pos?"+":"")+d.d+'<\/div><\/div>'});
+h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?"mn-workspace-delta-fill-pos":"mn-workspace-delta-fill-neg")+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value" style="color:'+(pos?"#22c55e":"#f87171")+'">'+(pos?"+":"")+d.d+'<\/div><\/div>'});
 h+='<\/div>';
 
 if(extraFilters){h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Active Filters<\/div><div class="mn-workspace-action-row">';
