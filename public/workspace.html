@@ -65,7 +65,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
 
 /* ═══ SLIDER ═══ */
-.mn-workspace-slider{background:var(--mn-sf);border:1px solid var(--mn-border);border-radius:var(--mn-r);padding:6px 14px;display:flex;align-items:center;gap:16px;flex-shrink:0;height:44px}
+.mn-workspace-slider{display:none}
 .mn-workspace-slider-left{min-width:80px}
 .mn-workspace-slider-title{font-size:10px;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;display:none}
 .mn-workspace-slider-range-value{font-size:16px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
@@ -245,8 +245,9 @@ body.embedded .mn-embedded-tools{display:flex!important;position:fixed;bottom:68
 /* ═══ PANEL ANIMATIONS ═══ */
 .mn-workspace-panel{opacity:0;animation:mn-panel-in .35s cubic-bezier(0.22,1,0.36,1) forwards}
 @keyframes mn-panel-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+#pDet{animation-delay:.05s;background:transparent;border:none}
+#pDet .mn-workspace-panel-header{border-bottom:none}
 #pDet .mn-workspace-panel-body{-webkit-mask-image:none;mask-image:none}
-#pDet{animation-delay:.05s}
 #pTbl{animation-delay:.1s}
 #pIntel{display:none}
 #pProf{animation:none;opacity:1;transition:opacity .25s ease,transform .25s ease,flex .25s ease}
@@ -451,7 +452,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
     </div>
     <!-- TABLE SECOND -->
     <div class="mn-workspace-panel mn-workspace-in" id="pTbl" style="flex:1;animation-delay:.1s">
-      <div class="mn-workspace-panel-header"><span class="mn-workspace-panel-header-title">People</span><div class="mn-panel-tabs"><button class="mn-panel-tab mn-panel-tab-on" id="tabTable" onclick="switchTab('table')">Table</button><button class="mn-panel-tab" id="tabChart" onclick="switchTab('chart')">Insights</button></div><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
+      <div class="mn-workspace-panel-header"><span class="mn-workspace-slider-range-value" id="svInline" style="font-size:14px;letter-spacing:-0.02em">0 – 99</span><div style="flex:1"></div><div class="mn-panel-tabs"><button class="mn-panel-tab mn-panel-tab-on" id="tabTable" onclick="switchTab('table')">Table</button><button class="mn-panel-tab" id="tabChart" onclick="switchTab('chart')">Insights</button></div><span class="mn-workspace-panel-header-meta" id="tc"></span></div>
       <div class="mn-workspace-search" id="searchWrap"><svg class="mn-workspace-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="mn-workspace-search-input" type="text" placeholder="Search..." id="si" oninput="ren()"></div>
       <div class="mn-workspace-panel-body" id="tb"></div>
       <div class="mn-workspace-panel-body" id="insightsPanel" style="display:none"></div>
@@ -551,7 +552,7 @@ curMode="Custom";var btns=document.getElementById("modes").children;for(var i=0;
 var fbtns=document.getElementById("floatingModes").children;for(var i=0;i<fbtns.length;i++)fbtns[i].classList.remove("mn-workspace-slider-mode-on");
 usv();ren()}
 
-function usv(){var lo=(sLo/99)*100,hi=(sHi/99)*100;tlo.style.left=lo+"%";thi.style.left=hi+"%";sfEl.style.left=lo+"%";sfEl.style.width=(hi-lo)+"%";document.getElementById("sv").textContent=sLo+" \u2013 "+sHi;
+function usv(){var lo=(sLo/99)*100,hi=(sHi/99)*100;tlo.style.left=lo+"%";thi.style.left=hi+"%";sfEl.style.left=lo+"%";sfEl.style.width=(hi-lo)+"%";document.getElementById("sv").textContent=sLo+" \u2013 "+sHi;var svi=document.getElementById("svInline");if(svi)svi.textContent=sLo+" \u2013 "+sHi;
 var bars=document.getElementById("shist").children;for(var i=0;i<bars.length;i++){var bLo=i*2,bHi=i*2+1;if(bHi>=sLo&&bLo<=sHi)bars[i].classList.add("mn-workspace-slider-hist-bar-on");else bars[i].classList.remove("mn-workspace-slider-hist-bar-on")}}
 function x2s(cx){var r=scEl.getBoundingClientRect();return cl(Math.round(((cx-r.left)/r.width)*99),0,99)}
 function onPD(e){e.preventDefault();drag=e.target.dataset.t;document.addEventListener("pointermove",onPM);document.addEventListener("pointerup",onPU)}
