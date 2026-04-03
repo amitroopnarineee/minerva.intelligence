@@ -331,6 +331,12 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 /* Insight panel */
 .mn-insight-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;padding:20px 24px}
 .mn-insight-canvas{width:100%!important;height:100%!important}
+.mn-pie{width:min(100%,400px);aspect-ratio:1;border-radius:50%;position:relative;-webkit-mask:radial-gradient(circle,transparent 42%,black 42.5%);mask:radial-gradient(circle,transparent 42%,black 42.5%);animation:mn-pie-in 0.8s ease forwards;transform:scale(0.9);opacity:0}
+@keyframes mn-pie-in{to{transform:scale(1);opacity:1}}
+.mn-pie-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:24px}
+.mn-pie-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mn-t2)}
+.mn-pie-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.mn-pie-legend-pct{font-weight:600;color:var(--mn-t1);font-variant-numeric:tabular-nums;margin-left:2px}
 /* Detail panel inline replacements */
 .mn-det-hero-wrap{padding:16px 18px}
 .mn-det-hero{font-size:36px;font-weight:600;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums}
@@ -945,7 +951,7 @@ function renderCityChart(){
 }
 
 /* ═══ TAB: TABLE / INSIGHTS ═══ */
-var activeTab='table',insightChart=null;
+var activeTab='table';
 function switchTab(tab){
   activeTab=tab;
   document.getElementById('tabTable').classList.toggle('mn-panel-tab-on',tab==='table');
@@ -960,13 +966,21 @@ function renderInsights(){
   var ip=document.getElementById('insightsPanel');
   if(!n){ip.innerHTML='<div class="mn-insight-wrap"><span class="mn-chat-welcome-count">No profiles in range</span></div>';return}
   var inb={};IB.forEach(function(k){inb[k]=0});l.forEach(function(p){inb[p.income]++});
-  ip.innerHTML='<div class="mn-insight-wrap"><p class="mn-workspace-detail-label" style="align-self:flex-start">Income Distribution</p><canvas id="insightCanvas" class="mn-insight-canvas"></canvas></div>';
-  if(insightChart){try{insightChart.destroy()}catch(e){}}
   var labels=IB.slice().reverse();
   var data=labels.map(function(k){return inb[k]});
+  var total=data.reduce(function(a,b){return a+b},0);
   var colors=['#1e40af','#2563eb','#60a5fa','#93c5fd','#bfdbfe'];
-  var hoverColors=['#1e3a8a','#1d4ed8','#3b82f6','#60a5fa','#93c5fd'];
-  insightChart=new Chart(document.getElementById('insightCanvas'),{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors,hoverBackgroundColor:hoverColors,borderWidth:2,borderColor:'rgba(0,0,0,0.15)',hoverBorderColor:'rgba(0,0,0,0.25)'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'52%',plugins:{legend:{display:true,position:'bottom',labels:{color:'rgba(255,255,255,0.55)',font:{size:11,family:'var(--mn-font)',weight:'500'},boxWidth:12,boxHeight:12,padding:12,usePointStyle:true,pointStyle:'circle'}},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10,family:'var(--mn-font)'},bodyFont:{size:13,weight:'600',family:'var(--mn-font)'},padding:{x:12,y:8},cornerRadius:8,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{label:function(t){return t.label+': '+t.raw+' ('+Math.round(t.raw/n*100)+'%)'}}}}}})
+  /* Build conic-gradient stops */
+  var stops=[],cum=0;
+  data.forEach(function(v,i){var pct=v/total*100;stops.push(colors[i]+' '+cum.toFixed(1)+'% '+(cum+pct).toFixed(1)+'%');cum+=pct});
+  var h='<div class="mn-insight-wrap">';
+  h+='<p class="mn-workspace-detail-label" style="align-self:flex-start;margin-bottom:20px">Income Distribution</p>';
+  h+='<div class="mn-pie" style="background:conic-gradient('+stops.join(',')+')"></div>';
+  h+='<div class="mn-pie-legend">';
+  labels.forEach(function(label,i){var pct=total?Math.round(data[i]/total*100):0;
+    h+='<div class="mn-pie-legend-item"><div class="mn-pie-legend-dot" style="background:'+colors[i]+'"></div>'+label+'<span class="mn-pie-legend-pct">'+pct+'%</span></div>'});
+  h+='</div></div>';
+  ip.innerHTML=h
 }
 /* ── DYNAMIC FILTERS ── */
 function addDynFilter(field,op,value){dynamicFilters.push({field:field,op:op,value:value});ren();toast('Filter: '+field+' '+op+' '+value)}
