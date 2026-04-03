@@ -804,6 +804,7 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
                 border: `1px solid ${activeTab === t.id ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
                 color: activeTab === t.id ? '#fff' : 'rgba(255,255,255,0.35)',
                 fontWeight: activeTab === t.id ? 500 : 400,
+                flexShrink: 0, whiteSpace: 'nowrap' as const,
               }}>
               <span style={{ fontSize: 11 }}>{t.icon}</span>
               {t.label}
@@ -818,6 +819,7 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#fff',
                 fontWeight: 500,
+                flexShrink: 0, whiteSpace: 'nowrap' as const,
               }}>
               <span style={{ fontSize: 11 }}>◫</span>
               Segments · {savedSegments.length}

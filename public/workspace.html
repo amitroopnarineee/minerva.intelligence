@@ -420,6 +420,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
   .mn-workspace-search{padding:8px 12px!important}
   .mn-workspace-table-td{padding:6px 10px;font-size:12px}
   .mn-workspace-table-th{padding:6px 10px}
+  .mn-workspace-table-td:nth-child(3),.mn-workspace-table-td:nth-child(4),.mn-workspace-table-td:nth-child(5),.mn-workspace-table-th:nth-child(3),.mn-workspace-table-th:nth-child(4),.mn-workspace-table-th:nth-child(5){display:none}
   .mn-workspace-table-person{gap:8px}
   .mn-workspace-table-avatar{width:28px;height:28px}
   .mn-workspace-table-name{font-size:13px}
@@ -452,7 +453,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
 /* ═══ MOBILE CHAT FAB + OVERLAY ═══ */
 .mn-mobile-chat-fab{display:none;position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:rgba(255,255,255,0.7);font-size:18px;align-items:center;justify-content:center;cursor:pointer;z-index:180;transition:all .15s;font-family:var(--mn-font)}
 .mn-mobile-chat-fab:hover{background:rgba(255,255,255,0.15);color:var(--mn-t1)}
-.mn-mobile-chat-overlay{display:none;position:fixed;inset:0;z-index:250;flex-direction:column;background:var(--mn-bg)}
+.mn-mobile-chat-overlay{display:none;position:fixed;inset:0;z-index:260;flex-direction:column;background:var(--mn-bg)}
 .mn-mobile-chat-overlay.closed{display:none}
 .mn-embedded-tools{display:none}
 /* ═══ CHAT TOGGLE BTN ═══ */
