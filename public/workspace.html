@@ -564,74 +564,45 @@ deltas.forEach(function(d){d.d=+(d.s-d.b).toFixed(1)});deltas.sort(function(a,b)
 var agb={"18-29":0,"30-39":0,"40-49":0,"50-59":0,"60+":0};
 l.forEach(function(p){var a=p.age;if(a<30)agb["18-29"]++;else if(a<40)agb["30-39"]++;else if(a<50)agb["40-49"]++;else if(a<60)agb["50-59"]++;else agb["60+"]++});
 
-var h='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Summary<\/div>';
+var h='';
+/* ── Filter pills (inline, only when active) ── */
+if(extraFilters){h+='<div style="padding:10px 18px;display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--mn-border)">';
+if(extraFilters.ownerOnly)h+='<button class="mn-workspace-action-btn" style="height:22px;font-size:10px;padding:0 8px" onclick="rmFilter(\'ownerOnly\')">Homeowners \u00d7<\/button>';
+if(extraFilters.incomeMin)h+='<button class="mn-workspace-action-btn" style="height:22px;font-size:10px;padding:0 8px" onclick="rmFilter(\'incomeMin\')">$250k+ \u00d7<\/button>';
+if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" style="height:22px;font-size:10px;padding:0 8px" onclick="rmFilter(\'emailOnly\')">Email only \u00d7<\/button>';
+if(extraFilters.city)h+='<button class="mn-workspace-action-btn" style="height:22px;font-size:10px;padding:0 8px" onclick="rmFilter(\'city\')">'+extraFilters.city+' \u00d7<\/button>';
+h+='<button class="mn-workspace-action-btn" style="height:22px;font-size:10px;padding:0 8px" onclick="clearFilters()">Clear<\/button><\/div>'}
+/* ── Hero ── */
 var scaleFactor=268000000/tot;var scaledN=Math.round(n*scaleFactor);var heroStr=scaledN>=1e6?(scaledN/1e6).toFixed(1)+'M':(scaledN>=1e3?(scaledN/1e3).toFixed(0)+'K':scaledN.toString());
-h+='<div class="mn-workspace-detail-hero">'+heroStr+'<\/div>';
-h+='<div class="mn-workspace-detail-hero-sub">Scores '+sLo+'\u2013'+sHi+' \u00b7 '+pct(n,tot)+' \u00b7 '+n.toLocaleString()+' Records<\/div>';
-h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px">';
-h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+avg+'</div><div style="font-size:10px;color:var(--mn-t3)">Avg Score</div></div>';
-h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+aag+'</div><div style="font-size:10px;color:var(--mn-t3)">Avg Age</div></div>';
-h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+op+'%</div><div style="font-size:10px;color:var(--mn-t3)">Homeowners</div></div>';
-h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+hi250p+'%</div><div style="font-size:10px;color:var(--mn-t3)">$250K+</div></div>';
-h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+Math.round(ec/n*100)+'%</div><div style="font-size:10px;color:var(--mn-t3)">Email</div></div>';
-h+='<div style="text-align:center"><div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">'+a45p+'%</div><div style="font-size:10px;color:var(--mn-t3)">Age 45+</div></div>';
-h+='</div>';
-// If multi-selected, show selection stats
+h+='<div style="padding:20px 18px 16px">';
+h+='<div style="font-size:36px;font-weight:600;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums">'+heroStr+'<\/div>';
+h+='<div style="font-size:12px;color:var(--mn-t3);margin-top:6px">'+n.toLocaleString()+' profiles \u00b7 '+pct(n,tot)+' of base<\/div>';
+h+='<\/div>';
+/* ── Stat grid (2x3) ── */
+var reach=Math.round(Math.max(ec,pc,ac)/n*100);
+h+='<div style="padding:0 18px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;background:var(--mn-border);border-top:1px solid var(--mn-border);border-bottom:1px solid var(--mn-border)">';
+var stats=[{v:avg,l:'Avg Score'},{v:aag,l:'Avg Age'},{v:op+'%',l:'Homeowners'},{v:hi250p+'%',l:'$250K+'},{v:reach+'%',l:'Reachable'},{v:a45p+'%',l:'Age 45+'}];
+stats.forEach(function(s){h+='<div style="background:var(--mn-bg);padding:12px 14px;text-align:center"><div style="font-size:18px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:var(--mn-t1)">'+s.v+'<\/div><div style="font-size:10px;color:var(--mn-t3);margin-top:2px">'+s.l+'<\/div><\/div>'});
+h+='<\/div>';
+/* ── Multi-select overlay ── */
 if(selMulti.length>1){
   var sl=PP.filter(function(p){return selMulti.indexOf(p.id)>=0});
   var slEc=sl.filter(function(p){return p.email}).length;
   var slOc=sl.filter(function(p){return p.owner}).length;
   var slSs=0;sl.forEach(function(p){slSs+=p.score});
-  var slAvg=sl.length?(slSs/sl.length).toFixed(1):"--";
-  h+='<div class="mn-workspace-detail-stats" style="margin-top:5px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:2px">';
-  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+sl.length+'<\/div><div class="mn-workspace-detail-stat-cell-label">Selected<\/div><\/div>';
-  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+Math.round(slOc/sl.length*100)+'%<\/div><div class="mn-workspace-detail-stat-cell-label">Owners<\/div><\/div>';
-  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+slEc+'<\/div><div class="mn-workspace-detail-stat-cell-label">Email<\/div><\/div>';
-  h+='<div class="mn-workspace-detail-stat-cell" style="background:rgba(255,255,255,0.03)"><div class="mn-workspace-detail-stat-cell-value">'+slAvg+'<\/div><div class="mn-workspace-detail-stat-cell-label">Avg<\/div><\/div>';
-  h+='<\/div>';
+  var slAvg=sl.length?(slSs/sl.length).toFixed(1):'--';
+  h+='<div style="padding:12px 18px;border-bottom:1px solid var(--mn-border);display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px;background:var(--mn-border)">';
+  [{v:sl.length,l:'Selected'},{v:Math.round(slOc/sl.length*100)+'%',l:'Owners'},{v:slEc,l:'Email'},{v:slAvg,l:'Avg'}].forEach(function(s){
+    h+='<div style="background:var(--mn-bg);padding:10px 6px;text-align:center"><div style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">'+s.v+'<\/div><div style="font-size:10px;color:var(--mn-t3);margin-top:1px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600">'+s.l+'<\/div><\/div>'});
+  h+='<\/div>'
 }
-h+='<\/div>';
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Reachability<\/div>';
-[[ec,"Email"],[pc,"Phone"],[ac,"Mail"]].forEach(function(r){var rate=r[0]/n;var cls=rate>.75?"mn-workspace-reach-dot-high":rate>.55?"mn-workspace-reach-dot-mid":"mn-workspace-reach-dot-low";
-h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls+'"><\/div><div class="mn-workspace-reach-name">'+r[1]+'<\/div><div class="mn-workspace-reach-count">'+r[0].toLocaleString()+'<\/div><div class="mn-workspace-reach-pct">'+pct(r[0],n)+'<\/div><\/div>'});
-h+='<\/div>';
+/* ── VS Baseline ── */
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
-h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?"mn-workspace-delta-fill-pos":"mn-workspace-delta-fill-neg")+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value" style="color:'+(pos?"#22c55e":"#f87171")+'">'+(pos?"+":"")+d.d+'<\/div><\/div>'});
+h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?'mn-workspace-delta-fill-pos':'mn-workspace-delta-fill-neg')+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value" style="color:'+(pos?'#22c55e':'#f87171')+'">'+(pos?'+':'')+d.d+'<\/div><\/div>'});
 h+='<\/div>';
-
-if(extraFilters){h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Active Filters<\/div><div class="mn-workspace-action-row">';
-if(extraFilters.ownerOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'ownerOnly\')">Homeowners ✕<\/button>';
-if(extraFilters.incomeMin)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'incomeMin\')">$250k+ ✕<\/button>';
-if(extraFilters.emailOnly)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'emailOnly\')">Email only ✕<\/button>';
-if(extraFilters.city)h+='<button class="mn-workspace-action-btn" onclick="rmFilter(\'city\')">'+extraFilters.city+' ✕<\/button>';
-h+='<button class="mn-workspace-action-btn" onclick="clearFilters()">Clear all<\/button>';
-h+='<\/div><\/div>'}
+/* ── Score Distribution (Chart.js) ── */
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Age<\/div>';
-Object.keys(agb).forEach(function(k){h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">'+k+'<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(agb[k]/n*100).toFixed(1)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(agb[k]/n*100).toFixed(0)+'%<\/div><\/div>'});
-h+='<\/div>';
-// Gender
-var gM=l.filter(function(p){return p.gender==="M"}).length;
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Gender<\/div>';
-h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">Male<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(gM/n*100).toFixed(0)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(gM/n*100).toFixed(0)+'%<\/div><\/div>';
-h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">Female<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+((n-gM)/n*100).toFixed(0)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+((n-gM)/n*100).toFixed(0)+'%<\/div><\/div>';
-h+='<\/div>';
-// Income + Wealth (merged as Affluence)
-var inb={};IB.forEach(function(k){inb[k]=0});l.forEach(function(p){inb[p.income]++});
-var wlb={};WB.forEach(function(k){wlb[k]=0});l.forEach(function(p){wlb[p.wealth]++});
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Income<\/div>';
-IB.forEach(function(k){h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">'+k+'<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(inb[k]/n*100).toFixed(1)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(inb[k]/n*100).toFixed(0)+'%<\/div><\/div>'});
-h+='<div class="mn-workspace-detail-label" style="margin-top:8px">Wealth<\/div>';
-WB.forEach(function(k){h+='<div class="mn-workspace-dist-row"><div class="mn-workspace-dist-label">'+k+'<\/div><div class="mn-workspace-dist-track"><div class="mn-workspace-dist-fill" style="width:'+(wlb[k]/n*100).toFixed(1)+'%"><\/div><\/div><div class="mn-workspace-dist-value">'+(wlb[k]/n*100).toFixed(0)+'%<\/div><\/div>'});
-h+='<\/div>';
-// Geo breakdown
-var cityMap={};l.forEach(function(p){cityMap[p.city]=(cityMap[p.city]||0)+1});
-var cityArr=Object.keys(cityMap).map(function(k){return{name:k,ct:cityMap[k]}}).sort(function(a,b){return b.ct-a.ct}).slice(0,6);
-var cityMax=cityArr.length?cityArr[0].ct:1;
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Top Cities<\/div>';
-cityArr.forEach(function(c){h+='<div class="mn-workspace-geo-row"><div class="mn-workspace-geo-name">'+c.name+'<\/div><div class="mn-workspace-geo-ct">'+c.ct+'<\/div><div class="mn-workspace-geo-bar"><div class="mn-workspace-geo-fill" style="width:'+(c.ct/cityMax*100)+'%"><\/div><\/div><\/div>'});
-h+='<\/div>';
 document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);buildChart(l);updToolbarSel()}
 
 var distChart=null;
