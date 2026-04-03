@@ -233,10 +233,15 @@ function HomeScreen({ onEnter }: { onEnter: () => void }) {
         <p key={ti} className="text-4xl sm:text-5xl tracking-tight text-white text-center animate-tagline-in mb-10 mix-blend-exclusion" style={{ fontWeight: 400, letterSpacing: '-0.03em' }}>{TAGLINES[ti]}</p>
         <div className="pointer-events-auto"><LiquidMetalButton label="Enter" onClick={onEnter} /></div>
       </div>
-      <p className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/15 tracking-wide z-10">
-        Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine
-        <span className="mx-2">·</span><span className="text-white/25">Scroll</span>
-      </p>
+      <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-2 z-10">
+        <svg width="16" height="24" viewBox="0 0 16 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.2 }}>
+          <rect x="1" y="1" width="14" height="22" rx="7" stroke="white" strokeWidth="1.5" />
+          <line x1="8" y1="5" x2="8" y2="9" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        <p className="text-[11px] text-white/15 tracking-wide">
+          Minerva<sup className="text-[7px]">™</sup> · Amit Roopnarine
+        </p>
+      </div>
     </div>
   )
 }
@@ -538,12 +543,22 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
       pointerEvents: open ? 'auto' : 'none',
     }}>
 
-      {/* Back pill */}
-      <button onClick={onClose}
-        className="fixed top-2.5 z-[260] rounded-full transition-all hover:bg-white/[0.12] flex items-center justify-center"
-        style={{ right: 60, height: 28, paddingLeft: 14, paddingRight: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
-        <span className="text-[11px] text-white/50" style={{ fontWeight: 500 }}>Back</span>
-      </button>
+      {/* Top-right buttons */}
+      <div className="fixed top-2.5 z-[260] flex items-center gap-2"
+        style={{ right: 90, opacity: 0, animation: open ? 'mn-stagger-in 0.4s ease 0.3s forwards' : 'none' }}>
+        {phase === 'workspace' && (
+          <button onClick={() => setActionModal('save-segment')}
+            className="h-7 px-4 rounded-full text-[11px] transition-all hover:opacity-80"
+            style={{ background: 'white', color: 'black', fontWeight: 600 }}>
+            Save Segment
+          </button>
+        )}
+        <button onClick={onClose}
+          className="h-7 px-3.5 rounded-full transition-all hover:bg-white/[0.06]"
+          style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <span className="text-[11px] text-white/50" style={{ fontWeight: 500 }}>Back</span>
+        </button>
+      </div>
 
       {phase === 'select' ? (
         /* ═══ SEGMENT SELECTOR ═══ */
@@ -592,7 +607,7 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
       ) : (
         /* ═══ WORKSPACE ═══ */
         <div className="flex-1 relative bg-black" style={{ opacity: 0, animation: 'mn-stagger-in 0.4s ease forwards' }}>
-          <iframe ref={iframeRef} src={emptyMode ? '/workspace.html?empty=1' : '/workspace.html'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
+          <iframe ref={iframeRef} key={Date.now()} src={`/workspace.html?${emptyMode ? 'empty=1&' : ''}t=${Date.now()}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Studio" />
         </div>
       )}
 
@@ -743,7 +758,7 @@ const DASH_TABS = [
   { id: "activate", label: "Activate", icon: "✦", title: "Activate audiences across channels.", hidden: true },
 ]
 
-function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot }: { navigateTo: (v: View) => void; onOpenStudio: () => void; onAutopilot?: () => void }) {
+function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, onAutoLaunched, savedSegments, studioOpen }: { navigateTo: (v: View) => void; onOpenStudio: () => void; onAutopilot?: () => void; autoLaunch?: boolean; onAutoLaunched?: () => void; savedSegments?: SavedSegment[]; studioOpen?: boolean }) {
   const [query, setQuery] = useState("")
   const [activeTab, setActiveTab] = useState("discover")
   const [launching, setLaunching] = useState(false)
@@ -780,14 +795,36 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot }: { navigateTo
   // Reset launching state when we return to dashboard
   useEffect(() => { setLaunching(false); setLaunchingOut(false); setActiveTab('discover'); setTitleIdx(0) }, [])
 
+  // Auto-launch into Audience Studio when coming from Home
+  useEffect(() => {
+    if (autoLaunch) {
+      onAutoLaunched?.()
+      // Trigger the launch animation immediately
+      setActiveTab('audiences')
+      setLaunching(true)
+      setTimeout(() => setLaunchingOut(true), 1100)
+      setTimeout(() => onOpenStudio(), 1600)
+    }
+  }, [autoLaunch])
+
+  // Reset launching state when studio closes
+  useEffect(() => {
+    if (!studioOpen && launching) {
+      setLaunching(false)
+      setLaunchingOut(false)
+      setActiveTab('discover')
+      setTitleIdx(0)
+    }
+  }, [studioOpen])
+
   return (
-    <div className="absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
+    <div className="mn-dashboard absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
       {/* Shader background */}
       <div className="absolute inset-0 opacity-[0.8] pointer-events-none">
         <ShaderLines />
       </div>
       <div className="h-12 shrink-0" />
-      <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-12">
+      <div className="flex-1 flex flex-col items-center justify-center px-6">
         <h1 key={launching ? 'launch' : titleIdx} className={`text-[28px] text-white text-center mb-8 ${launching ? 'mn-shimmer-text' : ''}`} style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, mixBlendMode: launching ? 'normal' : 'exclusion', opacity: launchingOut ? 0 : undefined, transform: launchingOut ? 'translateY(-8px)' : undefined, transition: launchingOut ? 'opacity 0.4s ease, transform 0.4s ease' : undefined, animation: !launchingOut ? 'mn-stagger-in 0.35s ease forwards' : 'none' }}>
           {launching ? 'Launching Audience Studio...' : visibleTabs[titleIdx]?.title}
         </h1>
@@ -805,7 +842,7 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot }: { navigateTo
         </div>
 
         {/* Tab pills — fade out when launching */}
-        <div className="mn-hide-mobile flex items-center gap-2"
+        <div className="mn-hide-mobile flex items-center justify-center gap-2 flex-wrap"
           style={{ opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s', pointerEvents: launching ? 'none' : 'auto' }}>
           {DASH_TABS.filter(t => !t.hidden).map(t => (
             <button key={t.id} onClick={() => {
@@ -823,6 +860,20 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot }: { navigateTo
               }}>
               <span style={{ fontSize: 11 }}>{t.icon}</span>
               {t.label}
+            </button>
+          ))}
+          {/* Saved segment pills */}
+          {savedSegments && savedSegments.map(seg => (
+            <button key={seg.id} onClick={() => onOpenStudio()}
+              className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                fontWeight: 500,
+              }}>
+              <span style={{ fontSize: 11 }}>✦</span>
+              {seg.name}
             </button>
           ))}
         </div>
@@ -1246,7 +1297,8 @@ export function MinervaApp() {
   const [detail, setDetail] = useState<DetailData>(null)
   const [studioSaved, setStudioSaved] = useState(false)
   const [studioDone, setStudioDone] = useState(false)
-  const [savedSegments, setSavedSegments] = useState<SavedSegment[]>(INITIAL_SEGMENTS)
+  const [savedSegments, setSavedSegments] = useState<SavedSegment[]>([])
+  const [autoLaunch, setAutoLaunch] = useState(false)
 
   // Listen for notch navigation events
   useEffect(() => {
@@ -1276,7 +1328,7 @@ export function MinervaApp() {
     setModal('closed')
     setStudioDone(true)
     window.dispatchEvent(new CustomEvent('minerva-workspace-active', { detail: false }))
-    navigateTo('segments')
+    navigateTo('dashboard')
   }
   function handleCloseStudio() { setModal('closed'); setStudioDone(true); window.dispatchEvent(new CustomEvent('minerva-workspace-active', { detail: false })) }
 
@@ -1286,11 +1338,11 @@ export function MinervaApp() {
   const apTimers = useRef<NodeJS.Timeout[]>([])
 
   const AUTOPILOT_STEPS = [
-    { label: 'Dashboard', delay: 800 },
-    { label: 'Audience Selector', delay: 3500 },
+    { label: 'Opening Studio', delay: 800 },
+    { label: 'Segment Selector', delay: 2500 },
     { label: 'Audience Workspace', delay: 2000 },
-    { label: 'Briefing', delay: 5500 },
-    { label: 'Complete', delay: 8000 },
+    { label: 'Saving Segment', delay: 5500 },
+    { label: 'Dashboard', delay: 3000 },
   ]
 
   function stopAutopilot() {
@@ -1305,25 +1357,31 @@ export function MinervaApp() {
     setAutopilotStep(0)
     let t = 0
 
-    // Step 0 → Dashboard
+    // Step 0 → Open studio directly
     t += 800
-    apTimers.current.push(setTimeout(() => { setAutopilotStep(0); navigateTo('dashboard') }, t))
+    apTimers.current.push(setTimeout(() => {
+      setAutopilotStep(0)
+      handleOpenStudio()
+    }, t))
 
-    // Step 1 → Open Audience
-    t += 3500
-    apTimers.current.push(setTimeout(() => { setAutopilotStep(1); handleOpenStudio() }, t))
+    // Step 1 → Auto-select in studio (handled by autoSelect prop)
+    t += 2500
+    apTimers.current.push(setTimeout(() => { setAutopilotStep(1) }, t))
 
-    // Step 2 → autoSelect triggers workspace after 2s inside modal
+    // Step 2 → Workspace phase
     t += 2000
     apTimers.current.push(setTimeout(() => { setAutopilotStep(2) }, t))
 
-    // Step 3 → Close workspace, go to briefing
+    // Step 3 → Save segment
     t += 5500
-    apTimers.current.push(setTimeout(() => { setAutopilotStep(3); handleCloseStudio(); navigateTo('briefing') }, t))
+    apTimers.current.push(setTimeout(() => {
+      setAutopilotStep(3)
+      handleSaveStudio('Premium High-Intent Fans')
+    }, t))
 
-    // Step 4 → Back home
-    t += 8000
-    apTimers.current.push(setTimeout(() => { setAutopilotStep(4); navigateTo('home'); stopAutopilot() }, t))
+    // Step 4 → Done on dashboard
+    t += 3000
+    apTimers.current.push(setTimeout(() => { setAutopilotStep(4); stopAutopilot() }, t))
   }
 
   // Escape to stop
@@ -1345,8 +1403,8 @@ export function MinervaApp() {
         transform: transitioning ? 'scale(0.98)' : 'scale(1)',
         transition: 'opacity 300ms ease, filter 300ms ease, transform 250ms ease-out',
       }}>
-        {view === 'home' && <HomeScreen onEnter={() => navigateTo('dashboard')} />}
-        {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} onAutopilot={startAutopilot} />}
+        {view === 'home' && <HomeScreen onEnter={() => { navigateTo('dashboard'); handleOpenStudio() }} />}
+        {view === 'dashboard' && <DashboardScreen navigateTo={navigateTo} onOpenStudio={handleOpenStudio} onAutopilot={startAutopilot} autoLaunch={autoLaunch} onAutoLaunched={() => setAutoLaunch(false)} savedSegments={savedSegments} studioOpen={modal === 'studio'} />}
         {view === 'briefing' && <BriefingThread navigateTo={navigateTo} onOpenStudio={handleOpenStudio} studioSaved={studioSaved} studioDone={studioDone} onDetail={setDetail} />}
         {view === 'segments' && <SegmentsScreen segments={savedSegments} navigateTo={navigateTo} />}
       </div>

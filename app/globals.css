@@ -226,13 +226,15 @@
 
 /* ═══ LIGHT MODE (invert hack) ═══ */
 .mn-light-mode {
-  filter: invert(1) hue-rotate(180deg);
+  filter: invert(1);
 }
 .mn-light-mode img,
 .mn-light-mode video,
-.mn-light-mode canvas,
 .mn-light-mode [data-no-invert] {
-  filter: invert(1) hue-rotate(180deg);
+  filter: invert(1);
+}
+.mn-light-mode .mn-dashboard * {
+  mix-blend-mode: normal !important;
 }
 
 /* ═══ MOBILE RESPONSIVE ═══ */

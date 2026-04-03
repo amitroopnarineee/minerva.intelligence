@@ -3,10 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Minerva — Audience Scoring</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* Counter-invert images when parent has light mode */
+.mn-parent-inverted img{filter:invert(1)}
 :root{
   --mn-bg:#000;
   --mn-sf:rgba(255,255,255,0.04);
@@ -305,6 +310,23 @@ body.embedded .mn-embedded-tools .divider{width:1px;height:14px;background:rgba(
 body.embedded .mn-embedded-verdict{margin-top:12px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:8px}
 body.embedded .mn-embedded-verdict p{font-size:11px;line-height:1.6;color:rgba(255,255,255,0.45)}
 body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weight:500;display:block;margin-bottom:4px;font-size:12px}
+/* ═══ GUIDED TOUR ═══ */
+.mn-tour-overlay{position:fixed;inset:0;z-index:9000;pointer-events:all;transition:opacity .3s}
+.mn-tour-overlay.hidden{opacity:0;pointer-events:none}
+.mn-tour-highlight{position:fixed;z-index:9001;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.7);pointer-events:none;transition:all .5s cubic-bezier(.22,1,.36,1)}
+.mn-tour-tooltip{position:fixed;z-index:9002;max-width:280px;padding:16px 18px;border-radius:12px;background:white;color:#111;font-size:13px;line-height:1.5;box-shadow:0 8px 32px rgba(0,0,0,0.3);opacity:0;transform:translateY(8px);transition:opacity .3s ease .2s,transform .3s ease .2s}
+.mn-tour-tooltip.visible{opacity:1;transform:translateY(0)}
+.mn-tour-tooltip-step{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:4px;font-weight:600}
+.mn-tour-tooltip-title{font-size:15px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+.mn-tour-tooltip-desc{color:#555;font-size:12px;line-height:1.5}
+.mn-tour-tooltip-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.mn-tour-tooltip-skip{font-size:10px;color:#999;cursor:pointer;background:none;border:none;padding:0}
+.mn-tour-tooltip-skip:hover{color:#333}
+.mn-tour-tooltip-next{font-size:11px;font-weight:600;color:white;background:#111;border:none;border-radius:20px;padding:5px 14px;cursor:pointer}
+.mn-tour-tooltip-next:hover{background:#333}
+.mn-tour-tooltip-dots{display:flex;gap:4px;align-items:center}
+.mn-tour-tooltip-dot{width:5px;height:5px;border-radius:50%;background:#ddd}
+.mn-tour-tooltip-dot.active{background:#111;width:6px;height:6px}
 .mn-embedded-tools{display:none}
 </style>
 </head>
@@ -602,10 +624,7 @@ h+='<\/div>';
 h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Segments<\/div><div class="mn-workspace-tag-wrap">';
 p.segs.forEach(function(s){h+='<span class="mn-workspace-tag">'+s+'<\/span>'});h+='<\/div><\/div>';
 h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Insight<\/div><div class="mn-workspace-profile-insight">'+ft+'<\/div><\/div>';
-h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Actions<\/div><div class="mn-workspace-action-row">';
-h+='<button class="mn-workspace-action-btn mn-workspace-action-btn-primary" onclick="toast(\'Added to campaign\')">Add to Campaign<\/button>';
-h+='<button class="mn-workspace-action-btn" onclick="toast(\'Outreach drafted\')">Draft Outreach<\/button>';
-h+='<\/div><\/div>';
+
 document.getElementById("profBody").innerHTML=h;rtbl()}
 function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span style="font-size:10px;color:var(--mn-t2);margin-right:6px">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="if(window.parent!==window){window.parent.postMessage({type:\'minerva-launch-campaign\'},\'*\')}else{toast(\'Added '+selMulti.length+' to campaign\')}">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
 function togOverflow(){document.getElementById("ftOverflow").classList.toggle("open")}
@@ -737,6 +756,8 @@ window.addEventListener('message', function(e) {
     if (e.data.mode) setMode(e.data.mode.charAt(0).toUpperCase() + e.data.mode.slice(1));
     if (e.data.embedded) {
       document.body.classList.add('embedded');
+      // Start guided tour after a short delay
+      setTimeout(function(){startTour()},2000);
       // Build floating tools bar
       var tb = document.createElement('div');
       tb.className = 'mn-embedded-tools';
@@ -768,7 +789,54 @@ doSave = function() {
   origDoSave();
   window.parent.postMessage({type:'minerva-segment-saved',segments:savedSegs.map(function(s){return {name:s.name,lo:s.lo,hi:s.hi,count:s.count}})},'*');
 };
+/* detect parent light mode and counter-invert images */
+try{if(window.self!==window.top&&window.parent.document.querySelector('.mn-light-mode'))document.documentElement.classList.add('mn-parent-inverted')}catch(e){}
 usv();ren()
+
+/* ═══ GUIDED TOUR ENGINE ═══ */
+var tourSteps=[
+  {sel:'.mn-workspace-slider',title:'Score Range',desc:'Drag the handles to filter your audience by engagement score. Try Premium mode for high-value segments.',pos:'bottom'},
+  {sel:'#pTbl',title:'Audience Profiles',desc:'Browse scored profiles. Click any row to open their full intelligence panel.',pos:'top'},
+  {sel:'#pDet',title:'Audience Intelligence',desc:'Demographics, scoring distribution, and baseline comparisons for your filtered segment.',pos:'right'},
+];
+var tourIdx=-1,tourEls={};
+function startTour(){
+  if(tourIdx>=0)return;
+  var ov=document.createElement('div');ov.className='mn-tour-overlay';ov.id='tourOverlay';
+  var hl=document.createElement('div');hl.className='mn-tour-highlight';hl.id='tourHighlight';
+  var tt=document.createElement('div');tt.className='mn-tour-tooltip';tt.id='tourTooltip';
+  document.body.appendChild(ov);document.body.appendChild(hl);document.body.appendChild(tt);
+  ov.onclick=function(e){if(e.target===ov)advanceTour()};
+  tourIdx=0;showTourStep()
+}
+function showTourStep(){
+  if(tourIdx>=tourSteps.length){endTour();return}
+  var step=tourSteps[tourIdx],el=document.querySelector(step.sel);
+  if(!el){tourIdx++;showTourStep();return}
+  var r=el.getBoundingClientRect(),pad=8;
+  var hl=document.getElementById('tourHighlight');
+  hl.style.left=(r.left-pad)+'px';hl.style.top=(r.top-pad)+'px';
+  hl.style.width=(r.width+pad*2)+'px';hl.style.height=(r.height+pad*2)+'px';
+  var tt=document.getElementById('tourTooltip');
+  var dots='';for(var i=0;i<tourSteps.length;i++)dots+='<span class="mn-tour-tooltip-dot'+(i===tourIdx?' active':'')+'"></span>';
+  tt.innerHTML='<div class="mn-tour-tooltip-step">Step '+(tourIdx+1)+' of '+tourSteps.length+'</div><div class="mn-tour-tooltip-title">'+step.title+'</div><div class="mn-tour-tooltip-desc">'+step.desc+'</div><div class="mn-tour-tooltip-footer"><button class="mn-tour-tooltip-skip" onclick="endTour()">Skip</button><div class="mn-tour-tooltip-dots">'+dots+'</div><button class="mn-tour-tooltip-next" onclick="advanceTour()">'+(tourIdx<tourSteps.length-1?'Next':'Done')+'</button></div>';
+  tt.classList.remove('visible');
+  // Position tooltip
+  var tw=280,th=160;
+  if(step.pos==='bottom'){tt.style.left=Math.max(8,r.left)+'px';tt.style.top=(r.bottom+16)+'px'}
+  else if(step.pos==='top'){tt.style.left=Math.max(8,r.left)+'px';tt.style.top=Math.max(8,(r.top-th-16))+'px'}
+  else if(step.pos==='right'){tt.style.left=(r.right+16)+'px';tt.style.top=r.top+'px'}
+  else{tt.style.left=Math.max(8,(r.left-tw-16))+'px';tt.style.top=r.top+'px'}
+  setTimeout(function(){tt.classList.add('visible')},50);
+}
+function advanceTour(){tourIdx++;showTourStep()}
+function endTour(){
+  var ov=document.getElementById('tourOverlay');if(ov)ov.remove();
+  var hl=document.getElementById('tourHighlight');if(hl)hl.remove();
+  var tt=document.getElementById('tourTooltip');if(tt)tt.remove();
+  tourIdx=-1;
+}
+
 </script>
 </body>
 </html>
