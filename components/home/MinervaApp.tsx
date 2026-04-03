@@ -622,11 +622,11 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
             {/* Hidden file input */}
             <input ref={fileRef} type="file" accept="*" className="hidden" onChange={() => { setPhase('workspace') }} />
 
-            <div className="flex items-center justify-center gap-5">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
               {/* Miami Dolphins Fan Base */}
               <button onClick={() => setPhase('workspace')}
                 className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
-                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.2s forwards' }}>
+                style={{ maxWidth: 240, width: '100%', height: 200, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.2s forwards' }}>
                 {/* 3 overlapping avatars */}
                 <div className="flex items-center mb-5" style={{ paddingLeft: 16 }}>
                   <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-black" style={{ marginLeft: -16, zIndex: 3 }}>
@@ -649,7 +649,7 @@ function AudienceModal({ open, onSave, onClose, autoSelect }: { open: boolean; o
               {/* New / Empty segment */}
               <button onClick={() => { setEmptyMode(true); setPhase('workspace') }}
                 className="group flex flex-col items-center justify-center rounded-2xl transition-all hover:border-white/[0.15]"
-                style={{ width: 240, height: 200, background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.06)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.3s forwards' }}>
+                style={{ maxWidth: 240, width: '100%', height: 200, background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.06)', opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.3s forwards' }}>
                 <span className="text-[20px] mb-3" style={{ color: 'rgba(255,255,255,0.15)' }}>+</span>
                 <span className="text-[14px] text-white" style={{ fontWeight: 500 }}>New Segment</span>
                 <span className="text-[10px] mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Start from scratch</span>

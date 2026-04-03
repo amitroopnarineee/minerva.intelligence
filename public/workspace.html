@@ -775,6 +775,8 @@ function ren(){rtbl();rdet();var ct=document.getElementById('chatTitle');if(ct)c
 // Keyboard
 document.addEventListener("keydown",function(e){
 if(e.key==="Escape"){
+if(document.getElementById("mobileChatOverlay")&&!document.getElementById("mobileChatOverlay").classList.contains("closed")){closeMobileChat();return}
+if(document.getElementById("compareModal").classList.contains("open")){closeCompare();return}
 if(document.getElementById("saveModal").classList.contains("mn-workspace-modal-open")){closeSave();return}
 if(document.getElementById("pProf").style.display!=="none"){cpf();return}
 }});
