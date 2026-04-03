@@ -28,7 +28,7 @@
 html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;background:var(--mn-bg);color:var(--mn-t1);font-family:var(--mn-font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;margin:0;padding:0}
 ::selection{background:rgba(255,255,255,0.15)}
 
-.mn-workspace-shell{position:fixed;inset:var(--mn-g);display:flex;flex-direction:column;gap:var(--mn-g);padding:40px 0 0 0!important}
+.mn-workspace-shell{position:fixed;inset:var(--mn-g);display:flex;flex-direction:column;gap:var(--mn-g);padding:40px 0 0 0!important;z-index:1}
 
 /* ═══ TOPBAR ═══ */
 .mn-workspace-topbar{display:none}
@@ -59,7 +59,7 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-panel-header{display:none}
 .mn-workspace-panel-header-title{font-size:10px;font-weight:600;color:var(--mn-t3);text-transform:uppercase;letter-spacing:0.06em}
 .mn-workspace-panel-header-meta{font-size:10px;color:var(--mn-t3);font-variant-numeric:tabular-nums}
-.mn-workspace-panel-body{flex:1;overflow-y:auto;overflow-x:hidden}
+.mn-workspace-panel-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-mask-image:linear-gradient(to bottom,black 0%,black 92%,transparent 100%);mask-image:linear-gradient(to bottom,black 0%,black 92%,transparent 100%)}
 .mn-workspace-panel-body::-webkit-scrollbar{width:4px}
 .mn-workspace-panel-body::-webkit-scrollbar-track{background:transparent}
 .mn-workspace-panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
@@ -125,9 +125,9 @@ html.mn-workspace-html,body.mn-workspace-body{height:100%;overflow:hidden;backgr
 .mn-workspace-delta-label{width:72px;color:var(--mn-t2);text-align:right;flex-shrink:0;font-size:10px}
 .mn-workspace-delta-track{flex:1;height:3px;background:rgba(255,255,255,0.02);border-radius:2px;overflow:hidden}
 .mn-workspace-delta-fill{height:100%;border-radius:2px;transition:width .3s ease}
-.mn-workspace-delta-fill-pos{background:var(--mn-white);opacity:0.35}
-.mn-workspace-delta-fill-neg{background:var(--mn-white);opacity:0.15}
-.mn-workspace-delta-value{width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:10px;color:var(--mn-t2)}
+.mn-workspace-delta-fill-pos{background:#22c55e;opacity:0.5}
+.mn-workspace-delta-fill-neg{background:#ef4444;opacity:0.4}
+.mn-workspace-delta-value{width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:10px}
 .mn-workspace-dist-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
 .mn-workspace-dist-label{font-size:10px;color:var(--mn-t2);width:75px;flex-shrink:0;text-align:left}
 .mn-workspace-dist-track{flex:1;height:3px;background:rgba(255,255,255,0.02);border-radius:2px;overflow:hidden}
@@ -374,6 +374,21 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
   .mn-workspace-modal-footer{bottom:30px}
   .mn-tour-overlay,.mn-tour-highlight,.mn-tour-tooltip{display:none!important}
 }
+/* ═══ COMPARISON MODAL ═══ */
+.mn-compare-modal{position:fixed;inset:0;z-index:250;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:40px}
+.mn-compare-modal.open{opacity:1;pointer-events:auto}
+.mn-compare-modal-close{position:fixed;top:20px;right:24px;background:none;border:1px solid rgba(255,255,255,0.1);color:var(--mn-t2);font-size:11px;padding:6px 16px;border-radius:8px;cursor:pointer;font-family:var(--mn-font);font-weight:500;transition:all .12s;z-index:251}
+.mn-compare-modal-close:hover{color:var(--mn-t1);border-color:rgba(255,255,255,0.2)}
+.mn-compare-modal-title{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mn-t3);font-weight:600;margin-bottom:24px}
+.mn-compare-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:700px;width:100%;padding:0 24px}
+.mn-compare-modal-col{display:flex;flex-direction:column;gap:12px}
+.mn-compare-modal-col-name{font-size:18px;font-weight:600;color:var(--mn-t1);letter-spacing:-0.02em}
+.mn-compare-modal-col-sub{font-size:11px;color:var(--mn-t3)}
+.mn-compare-modal-col-field{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.mn-compare-modal-col-field-key{color:var(--mn-t3)}
+.mn-compare-modal-col-field-value{color:var(--mn-t1);font-weight:500}
+.mn-compare-modal-verdict{text-align:center;max-width:600px;font-size:13px;line-height:1.6;color:var(--mn-t2);margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06)}
+.mn-compare-modal-verdict strong{color:var(--mn-t1);font-weight:600}
 .mn-embedded-tools{display:none}
 </style>
 </head>
@@ -434,6 +449,7 @@ body.embedded .mn-embedded-verdict strong{color:rgba(255,255,255,0.7);font-weigh
   <!-- FLOATING TOOLBAR -->
   </div>
 <div class="mn-workspace-modal" id="saveModal"><input class="mn-workspace-modal-input" id="segName" placeholder="Name this segment..."><div class="mn-workspace-modal-footer"><button class="mn-modal-cancel" onclick="closeSave()">Cancel</button><button class="mn-modal-save" onclick="doSave()">Save Segment</button></div></div>
+<div class="mn-compare-modal" id="compareModal"><button class="mn-compare-modal-close" onclick="closeCompare()">Close</button><div id="compareContent"></div></div>
 <div class="mn-workspace-toast" id="toast"></div>
 <div class="mn-sel-summary" id="selSummary"></div>
 
@@ -471,7 +487,7 @@ var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,
 var curMode="All";
 (function(){var md=document.getElementById("modes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+' <span class="mn-workspace-slider-mode-desc">'+m.desc+'<\/span><\/button>'});md.innerHTML=h})();
 // Floating toolbar
-(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg><\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div style="flex:1"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<span id="ftPrimary"><button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toggleChat()">\u2726 Ask AI<\/button><\/span>';h+='<div class="mn-toolbar-overflow-wrap"><button class="mn-toolbar-action-icon" onclick="togOverflow()" title="More"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><\/svg><\/button><div class="mn-toolbar-overflow-pop" id="ftOverflow"><button onclick="doExport();togOverflow()">Export CSV<\/button><button id="ovExpSel" style="display:none" onclick="exportSelected();togOverflow()">Export Selected<\/button><button id="ovClear" style="display:none" onclick="selMulti=[];ren();togOverflow()">Clear Selection<\/button><\/div><\/div>';ft.innerHTML=h})();
+(function(){var ft=document.getElementById("floatingModes"),h="";MODES.forEach(function(m){h+='<button class="mn-workspace-slider-mode'+(m.name===curMode?" mn-workspace-slider-mode-on":"")+'" onclick="setMode(\''+m.name+'\')">'+m.name+'<\/button>'});h+='<div class="mn-toolbar-filter-wrap"><button class="mn-workspace-slider-mode" id="ftFiltBtn" onclick="togFilterPop()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/><\/svg><\/button><div class="mn-toolbar-filter-pop" id="ftFiltPop"><button id="fpOwn" onclick="togFilt(\'ownerOnly\')">Homeowners<\/button><button id="fpInc" onclick="togFilt(\'incomeMin\')">$250k+<\/button><button id="fpEm" onclick="togFilt(\'emailOnly\')">Email only<\/button><\/div><\/div>';h+='<div style="flex:1"><\/div>';h+='<span class="mn-toolbar-sel" id="ftSel"><\/span>';h+='<span id="ftPrimary"><\/span>';h+='<div class="mn-toolbar-overflow-wrap"><button class="mn-toolbar-action-icon" onclick="togOverflow()" title="More"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><\/svg><\/button><div class="mn-toolbar-overflow-pop" id="ftOverflow"><button onclick="doExport();togOverflow()">Export CSV<\/button><button id="ovExpSel" style="display:none" onclick="exportSelected();togOverflow()">Export Selected<\/button><button id="ovClear" style="display:none" onclick="selMulti=[];ren();togOverflow()">Clear Selection<\/button><\/div><\/div>';ft.innerHTML=h})();
 function setMode(name){curMode=name;var m=MODES.filter(function(x){return x.name===name})[0];if(!m)return;sLo=m.lo;sHi=m.hi;extraFilters=null;
 usv();ren();
 var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++){if(MODES[i].name===name)btns[i].classList.add("mn-workspace-slider-mode-on");else btns[i].classList.remove("mn-workspace-slider-mode-on")}
@@ -575,7 +591,7 @@ h+='<div class="mn-workspace-reach-row"><div class="mn-workspace-reach-dot '+cls
 h+='<\/div>';
 h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">vs Baseline<\/div>';
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
-h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?"mn-workspace-delta-fill-pos":"mn-workspace-delta-fill-neg")+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value">'+(pos?"+":"")+d.d+'<\/div><\/div>'});
+h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?"mn-workspace-delta-fill-pos":"mn-workspace-delta-fill-neg")+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value" style="color:'+(pos?"#22c55e":"#ef4444")+'">'+(pos?"+":"")+d.d+'<\/div><\/div>'});
 h+='<\/div>';
 
 if(extraFilters){h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Active Filters<\/div><div class="mn-workspace-action-row">';
@@ -660,7 +676,7 @@ p.segs.forEach(function(s){h+='<span class="mn-workspace-tag">'+s+'<\/span>'});h
 h+='<div class="mn-workspace-profile-section"><div class="mn-workspace-profile-label">Insight<\/div><div class="mn-workspace-profile-insight">'+ft+'<\/div><\/div>';
 
 document.getElementById("profBody").innerHTML=h;rtbl()}
-function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span style="font-size:10px;color:var(--mn-t2);margin-right:6px">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="if(window.parent!==window){window.parent.postMessage({type:\'minerva-launch-campaign\'},\'*\')}else{toast(\'Added '+selMulti.length+' to campaign\')}">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";if(pr)pr.innerHTML=document.body.classList.contains('embedded')?'<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toggleChat()">✦ Ask AI<\/button>':'<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="openSave()">Save Segment<\/button>';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
+function updToolbarSel(){var el=document.getElementById("ftSel"),pr=document.getElementById("ftPrimary"),es=document.getElementById("ovExpSel"),cl=document.getElementById("ovClear");if(!el)return;if(selMulti.length>1){el.innerHTML='<span style="font-size:10px;color:var(--mn-t2);margin-right:6px">'+selMulti.length+' selected<\/span>';if(pr)pr.innerHTML='<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="if(window.parent!==window){window.parent.postMessage({type:\'minerva-launch-campaign\'},\'*\')}else{toast(\'Added '+selMulti.length+' to campaign\')}">Add to Campaign<\/button>';if(es)es.style.display="block";if(cl)cl.style.display="block"}else{el.innerHTML="";if(pr)pr.innerHTML=document.body.classList.contains('embedded')?'<button class="mn-toolbar-action mn-toolbar-action-primary" onclick="toggleChat()">✦ Ask AI<\/button>':'';if(es)es.style.display="none";if(cl)cl.style.display="none"}}
 function togOverflow(){document.getElementById("ftOverflow").classList.toggle("open")}
 function cpf(){selR=null;var p=document.getElementById("pProf");p.classList.add("mn-prof-hidden");setTimeout(function(){p.style.display="none";p.classList.remove("mn-prof-hidden")},260);rtbl()}
 
@@ -848,7 +864,7 @@ function generateWelcome(){
   var avg=n?(ss/n).toFixed(1):'0';
   var top3=l.slice(0,3).map(function(p){return p.name}).join(', ');
   var modeTxt=curMode==='All'?'all scores':'<strong>'+curMode+'</strong> mode ('+sLo+'\u2013'+sHi+')';
-  var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 20px">';
+  var h='<div class="mn-chat-msg mn-chat-msg-ai" style="animation:none;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 20px 20px">';
   h+='<div style="font-size:13px;color:var(--mn-t2)">Viewing <strong style="color:var(--mn-t1)">'+n.toLocaleString()+'</strong> profiles</div>';
   h+='<div class="mn-chat-actions" style="margin-top:16px;justify-content:center">';
   var starters=curMode==='Premium'?["Who's at highest churn risk?","Compare top vs bottom half"]:curMode==='Scale'?["Which cities are underrepresented?","Show score distribution"]:["Summarize this segment","Show affluent homeowners"];
@@ -945,13 +961,15 @@ function getWsContext(){
     '[ACTION]{"type":"highlight","ids":[ID1,ID2,...]}[/ACTION]\n'+
     '[ACTION]{"type":"filter","field":"age|city|gender|income","op":"eq|gte|lte|contains","value":"..."}[/ACTION]\n'+
     '[ACTION]{"type":"showChart","chart":"scores|cities"}[/ACTION]\n'+
-    '[ACTION]{"type":"clearDynFilters"}[/ACTION]\n\n'+
+    '[ACTION]{"type":"clearDynFilters"}[/ACTION]\n'+
+    '[ACTION]{"type":"compare","id1":ID,"id2":ID,"verdict":"brief verdict text"}[/ACTION]\n\n'+
     'RULES:\n'+
     '- Multiple actions per response OK\n'+
     '- "filter" applies dynamic column filters (age gte 55, city eq "Doral", etc.)\n'+
     '- "showChart" renders inline SVG in chat (scores=histogram, cities=bar). AUTO-EXECUTE charts, no confirmation needed.\n'+
     '- For calculations, use the stats above and compute real answers\n'+
     '- For comparisons, structured format with key differences\n'+
+    '- "compare" opens a full-screen side-by-side modal with both profiles. Use for any "compare X and Y" request.\n'+
     '- Be opinionated. 2-4 sentences. Reference real names/numbers.'
 }
 
@@ -1032,6 +1050,7 @@ function actionLabel(a){
   if(a.type==='filter')return a.field+' '+a.op+' '+a.value;
   if(a.type==='showChart')return'Show '+(a.chart||'score')+' chart';
   if(a.type==='clearDynFilters')return'Clear dynamic filters';
+  if(a.type==='compare'){var cp1,cp2;PP.forEach(function(x){if(x.id===a.id1)cp1=x;if(x.id===a.id2)cp2=x});return'Compare '+(cp1?cp1.name:'')+ ' vs '+(cp2?cp2.name:'')}
   return a.type
 }
 
@@ -1059,12 +1078,36 @@ function execChatAction(btnId){
   else if(a.type==='filter'){addDynFilter(a.field,a.op,a.value)}
   else if(a.type==='showChart'){var chart=a.chart==='cities'?renderCityChart():renderScoreChart();addChatMsg('ai',chart)}
   else if(a.type==='clearDynFilters'){clearDynFilters()}
+  else if(a.type==='compare'){openCompare(a.id1,a.id2,a.verdict||'')}
 }
 
 /* Clear chat */
 function clearChat(){
   chatActions={};chatHistory=[];dynamicFilters=[];generateWelcome()
 }
+
+/* ═══ COMPARISON MODAL ═══ */
+function openCompare(id1,id2,verdict){
+  var p1,p2;PP.forEach(function(p){if(p.id===id1)p1=p;if(p.id===id2)p2=p});
+  if(!p1||!p2){toast('Profiles not found');return}
+  var fields=[['Score','score'],['Age','age'],['Income','income'],['City','city'],['Homeowner','owner'],['Gender','gender'],['Wealth','wealth']];
+  function col(p){
+    var h='<div class="mn-compare-modal-col">';
+    h+='<div class="mn-compare-modal-col-name">'+p.name+'<\/div>';
+    h+='<div class="mn-compare-modal-col-sub">'+p.title+' \u00b7 '+p.city+'<\/div>';
+    fields.forEach(function(f){
+      var v=p[f[1]];if(typeof v==='boolean')v=v?'Yes':'No';
+      h+='<div class="mn-compare-modal-col-field"><span class="mn-compare-modal-col-field-key">'+f[0]+'<\/span><span class="mn-compare-modal-col-field-value">'+v+'<\/span><\/div>';
+    });
+    return h+'<\/div>'
+  }
+  var html='<div class="mn-compare-modal-title">Profile Comparison<\/div>';
+  html+='<div class="mn-compare-modal-grid">'+col(p1)+col(p2)+'<\/div>';
+  if(verdict)html+='<div class="mn-compare-modal-verdict">'+verdict.replace(/\*\*([^*]+)\*\*/g,'<strong>$1<\/strong>')+'<\/div>';
+  document.getElementById('compareContent').innerHTML=html;
+  document.getElementById('compareModal').classList.add('open')
+}
+function closeCompare(){document.getElementById('compareModal').classList.remove('open')}
 
 /* Multi-select hover summary */
 function updateSelSummary(e){
