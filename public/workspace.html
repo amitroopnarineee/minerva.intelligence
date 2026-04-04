@@ -585,7 +585,7 @@ function onPD(e){e.preventDefault();drag=e.target.dataset.t;document.addEventLis
 function onPM(e){if(!drag)return;var s=x2s(e.clientX);if(drag==="lo")sLo=Math.min(s,sHi-1);else sHi=Math.max(s,sLo+1);
 if(curMode!=="Custom"){curMode="Custom";var btns=document.getElementById("modes").children;for(var i=0;i<btns.length;i++)btns[i].classList.remove("mn-workspace-slider-mode-on")}
 usv();rdet();if(tblTimer)clearTimeout(tblTimer);tblTimer=setTimeout(rtbl,40)}
-function onPU(){drag=null;document.removeEventListener("pointermove",onPM);document.removeEventListener("pointerup",onPU)}
+function onPU(){drag=null;document.removeEventListener("pointermove",onPM);document.removeEventListener("pointerup",onPU);if(activeTab==='chart')renderInsights()}
 tlo.addEventListener("pointerdown",onPD);thi.addEventListener("pointerdown",onPD);
 
 function gf(){var l=PP.filter(function(p){return p.score>=sLo&&p.score<=sHi});
