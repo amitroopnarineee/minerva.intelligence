@@ -7,7 +7,6 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Minerva — Audience Scoring</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* Counter-invert images when parent has light mode */
@@ -557,7 +556,7 @@ var histBins=[];for(var i=0;i<50;i++)histBins.push(0);PP.forEach(function(p){his
 var sLo=0,sHi=99,selR=null,selMulti=[],sTerm="",sortKey="score",sortDir=-1,extraFilters=null;
 var savedSegs=[];
 var scEl=document.getElementById("sc"),tlo=document.getElementById("tlo"),thi=document.getElementById("thi"),sfEl=document.getElementById("sf"),drag=null;
-var distChart=null,tblTimer=null;
+var tblTimer=null;
 
 // Mode presets
 var MODES=[{name:"All",lo:0,hi:99,desc:"Full file"},{name:"Premium",lo:80,hi:99,desc:"Top 20%"},{name:"Balanced",lo:60,hi:99,desc:"Top 40%"},{name:"Scale",lo:35,hi:99,desc:"Top 65%"}];
@@ -653,7 +652,7 @@ h+='<\/div>';
 /* ── Stat grid (2x3) ── */
 var reach=Math.round(Math.max(ec,pc,ac)/n*100);
 h+='<div class="mn-det-grid">';
-var stats=[{v:avg,l:'Avg Score'},{v:aag,l:'Avg Age'},{v:op+'%',l:'Homeowners'},{v:hi250p+'%',l:'$250K+'},{v:reach+'%',l:'Reachable'},{v:a45p+'%',l:'Age 45+'}];
+var stats=[{v:avg,l:'Avg Score'},{v:op+'%',l:'Homeowners'},{v:reach+'%',l:'Reachable'}];
 stats.forEach(function(s){h+='<div class="mn-det-grid-cell"><div class="mn-det-grid-value">'+s.v+'<\/div><div class="mn-det-grid-label">'+s.l+'<\/div><\/div>'});
 h+='<\/div>';
 /* ── Multi-select overlay ── */
@@ -673,32 +672,7 @@ h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-lab
 deltas.forEach(function(d){var pos=d.d>=0,bw=Math.min(Math.abs(d.d)*3,100);
 h+='<div class="mn-workspace-delta-row"><div class="mn-workspace-delta-label">'+d.l+'<\/div><div class="mn-workspace-delta-track"><div class="mn-workspace-delta-fill '+(pos?'mn-workspace-delta-fill-pos':'mn-workspace-delta-fill-neg')+'" style="width:'+bw+'%"><\/div><\/div><div class="mn-workspace-delta-value" style="color:'+(pos?'#22c55e':'#f87171')+'">'+(pos?'+':'')+d.d+'<\/div><\/div>'});
 h+='<\/div>';
-/* ── Score Distribution (Chart.js) ── */
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Score Distribution<\/div><div class="mn-workspace-chart-wrap"><canvas id="distCanvas"><\/canvas><\/div><\/div>';
-/* ── Top Cities (compact) ── */
-var cityMap={};l.forEach(function(p){cityMap[p.city]=(cityMap[p.city]||0)+1});
-var cityArr=Object.keys(cityMap).map(function(k){return{name:k,ct:cityMap[k]}}).sort(function(a,b){return b.ct-a.ct}).slice(0,5);
-var cityMax=cityArr.length?cityArr[0].ct:1;
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Top Cities<\/div>';
-cityArr.forEach(function(c){h+='<div class="mn-workspace-geo-row"><div class="mn-workspace-geo-name">'+c.name+'<\/div><div class="mn-workspace-geo-ct">'+c.ct+'<\/div><div class="mn-workspace-geo-bar"><div class="mn-workspace-geo-fill" style="width:'+(c.ct/cityMax*100)+'%"><\/div><\/div><\/div>'});
-h+='<\/div>';
-/* ── Gender (single compact bar) ── */
-var gM=l.filter(function(p){return p.gender==='M'}).length;
-var gPct=Math.round(gM/n*100);
-h+='<div class="mn-workspace-detail-section"><div class="mn-workspace-detail-label">Gender<\/div>';
-h+='<div class="mn-det-gender-bar"><div class="mn-det-gender-fill" style="width:'+gPct+'%"><\/div><div class="mn-det-gender-empty"><\/div><\/div>';
-h+='<div class="mn-det-gender-labels"><span style="color:var(--mn-t2)">Male '+gPct+'%<\/span><span style="color:var(--mn-t2)">Female '+(100-gPct)+'%<\/span><\/div><\/div>';
-document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);buildChart(l);updToolbarSel()}
-
-var distChart=null;
-function buildChart(list){
-if(distChart){try{distChart.destroy()}catch(e){}distChart=null}
-var cv=document.getElementById("distCanvas");if(!cv||typeof Chart==="undefined")return;
-var bins=Array(10).fill(0);list.forEach(function(p){bins[Math.min(Math.floor(p.score/10),9)]++});
-var labels=[];for(var i=0;i<10;i++)labels.push(i*10+'s');
-var colors=bins.map(function(_,i){var lo=i*10,hi=i*10+9;return(hi>=sLo&&lo<=sHi)?'rgba(255,255,255,0.22)':'rgba(255,255,255,0.04)'});
-var hoverColors=bins.map(function(_,i){var lo=i*10,hi=i*10+9;return(hi>=sLo&&lo<=sHi)?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.10)'});
-distChart=new Chart(cv,{type:'bar',data:{labels:labels,datasets:[{data:bins,backgroundColor:colors,hoverBackgroundColor:hoverColors,borderRadius:4,barPercentage:0.78,categoryPercentage:0.88}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:300,easing:'easeOutCubic'},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(6,6,8,0.95)',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',titleFont:{size:10,family:'var(--mn-font)'},bodyFont:{size:12,weight:'600',family:'var(--mn-font)'},padding:{x:10,y:7},cornerRadius:8,displayColors:false,borderColor:'rgba(255,255,255,0.08)',borderWidth:1,callbacks:{title:function(t){var i=t[0].dataIndex;return'Score '+i*10+'\u2013'+(i*10+9)},label:function(t){return t.raw+' profiles'}}}},scales:{x:{display:true,grid:{display:false},ticks:{color:'rgba(255,255,255,0.20)',font:{size:9,family:'var(--mn-font)'},maxTicksLimit:6},border:{display:false}},y:{display:false}}}})}
+document.getElementById("db").innerHTML=h;upSt(n,tot,ec,avg);updToolbarSel()}
 
 // Animated stat counters
 var prevSt={a:0,p:"0%",e:0,s:"0"};
