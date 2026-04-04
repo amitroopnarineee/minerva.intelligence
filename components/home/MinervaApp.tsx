@@ -764,33 +764,39 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
     }
   }, [studioOpen])
 
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+
+  // Listen for iframe ready signal
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === 'minerva-iframe-ready') setIframeLoaded(true)
+      if (e.data?.type === 'minerva-save-segment') {
+        // Handle save from workspace
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [])
+
   return (
     <div className="mn-dashboard absolute inset-0 flex flex-col" style={{ background: '#0a0a0c' }}>
-      {/* Shader background */}
-      <div className="absolute inset-0 opacity-[0.8] pointer-events-none">
-        <ShaderLines />
-      </div>
-      <div className="h-12 shrink-0" />
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
-        <h1 key={launching ? 'launch' : titleIdx} className={`text-[28px] text-white text-center mb-8 ${launching ? 'mn-shimmer-text' : ''}`} style={{ fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.3, mixBlendMode: launching ? 'normal' : 'exclusion', opacity: launchingOut ? 0 : undefined, transform: launchingOut ? 'translateY(-8px)' : undefined, transition: launchingOut ? 'opacity 0.4s ease, transform 0.4s ease' : undefined, animation: !launchingOut ? 'mn-stagger-in 0.35s ease forwards' : 'none' }}>
-          {launching ? 'Launching Audience Studio...' : visibleTabs[titleIdx]?.title}
-        </h1>
-
-        {/* Chat input — fade out when launching */}
-        <div className="w-full max-w-[560px] flex items-center gap-2 px-4 h-12 rounded-full mb-6"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.4s ease, transform 0.4s ease', pointerEvents: launching ? 'none' : 'auto' }}>
+      {/* Top bar: input + pills */}
+      <div className="shrink-0 z-10 px-4 pt-14 pb-3 flex flex-col items-center gap-3" style={{ background: 'linear-gradient(to bottom, #0a0a0c 60%, transparent)' }}>
+        {/* Chat input */}
+        <div className="w-full max-w-[480px] flex items-center gap-2 px-4 h-10 rounded-full"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', opacity: launching ? 0 : 1, transition: 'opacity 0.3s ease', pointerEvents: launching ? 'none' : 'auto' }}>
           <input value={query} onChange={e => setQuery(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-            placeholder={`Try "give me today's briefing"`}
-            className="flex-1 bg-transparent outline-none text-[14px] text-white placeholder:text-white/25" />
+            placeholder={`Ask Minerva anything...`}
+            className="flex-1 bg-transparent outline-none text-[13px] text-white placeholder:text-white/25" />
           <button onClick={handleSubmit}
-            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: query ? 'whitesmoke' : 'rgba(255,255,255,0.08)', color: query ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 14, transition: 'all 0.15s' }}>↑</button>
+            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: query ? 'whitesmoke' : 'rgba(255,255,255,0.08)', color: query ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 13, transition: 'all 0.15s' }}>↑</button>
         </div>
-
-        {/* Tab pills — fade out when launching */}
-        <div className="flex items-center justify-center gap-2 overflow-x-auto px-4"
-          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', opacity: launching ? 0 : 1, transform: launching ? 'translateY(8px)' : 'translateY(0)', transition: 'opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s', pointerEvents: launching ? 'none' : 'auto' }}>
+        {/* Tab pills */}
+        <div className="flex items-center justify-center gap-2 overflow-x-auto"
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', opacity: launching ? 0 : 1, transition: 'opacity 0.3s ease', pointerEvents: launching ? 'none' : 'auto' }}>
           {DASH_TABS.filter(t => !t.hidden).map(t => (
             <button key={t.id} onClick={() => {
               setActiveTab(t.id)
@@ -798,7 +804,7 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
               if (t.id === 'discover') { navigateTo('briefing'); return }
               if (t.id === 'audiences') { handleAudienceClick(); return }
             }}
-              className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
+              className="flex items-center gap-1.5 text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.06]"
               style={{
                 background: 'transparent',
                 border: `1px solid ${activeTab === t.id ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
@@ -806,34 +812,39 @@ function DashboardScreen({ navigateTo, onOpenStudio, onAutopilot, autoLaunch, on
                 fontWeight: activeTab === t.id ? 500 : 400,
                 flexShrink: 0, whiteSpace: 'nowrap' as const,
               }}>
-              <span style={{ fontSize: 11 }}>{t.icon}</span>
+              <span style={{ fontSize: 10 }}>{t.icon}</span>
               {t.label}
             </button>
           ))}
-          {/* Saved segment pills */}
           {savedSegments && savedSegments.length > 0 && (
             <button onClick={() => navigateTo('segments')}
-              className="flex items-center gap-1.5 text-[12px] px-3.5 py-1.5 rounded-full transition-all hover:bg-white/[0.06] hover:border-white/[0.12]"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#fff',
-                fontWeight: 500,
-                flexShrink: 0, whiteSpace: 'nowrap' as const,
-              }}>
-              <span style={{ fontSize: 11 }}>◫</span>
+              className="flex items-center gap-1.5 text-[11px] px-3 py-1 rounded-full transition-all hover:bg-white/[0.06]"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontWeight: 500, flexShrink: 0, whiteSpace: 'nowrap' as const }}>
+              <span style={{ fontSize: 10 }}>◫</span>
               Segments · {savedSegments.length}
             </button>
           )}
         </div>
       </div>
 
+      {/* Workspace iframe — full remaining height */}
+      <div className="flex-1 relative" style={{ opacity: 0, animation: 'mn-stagger-in 0.4s ease 0.1s forwards' }}>
+        <iframe ref={iframeRef} src={`/workspace.html?t=${Date.now()}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }} title="Audience Intelligence" />
+        {/* Loading skeleton */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black z-10" style={{
+          opacity: iframeLoaded ? 0 : 1, pointerEvents: iframeLoaded ? 'none' : 'auto', transition: 'opacity 0.5s ease',
+        }}>
+          <div className="mn-skeleton-pulse"><MinervaLogo size={28} /></div>
+          <p className="text-[11px] mt-4" style={{ color: 'rgba(255,255,255,0.15)' }}>Loading intelligence...</p>
+        </div>
+      </div>
+
       {/* Footer */}
-      <div className="shrink-0 pb-6 text-center" style={{ mixBlendMode: 'difference' }}>
-        <p className="text-[11px] tracking-wide" style={{ color: 'rgba(255,255,255,0.95)' }}>
-          {onAutopilot && <button onClick={onAutopilot} className="hover:opacity-70 transition-opacity">▶ Autopilot</button>}
+      <div className="shrink-0 py-2 text-center">
+        <p className="text-[9px] tracking-wide" style={{ color: 'rgba(255,255,255,0.12)' }}>
+          {onAutopilot && <button onClick={onAutopilot} className="hover:opacity-70 transition-opacity mr-3">▶ Autopilot</button>}
+          © 2026 Minerva Intelligence
         </p>
-        <p className="text-[9px] tracking-wide mt-1" style={{ color: 'rgba(255,255,255,0.95)' }}>© 2026 Minerva Intelligence. All rights reserved.</p>
       </div>
     </div>
   )
